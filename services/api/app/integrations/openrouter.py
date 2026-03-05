@@ -59,31 +59,20 @@ KLJUČNE NAPOMENE:
 - Ton: ponosan, strasan, profesionalan ali pristupačan navijačima
 - Svaki post mora imati jasnu svrhu i poziv na akciju"""
 
-USER_PROMPT_TEMPLATE = """Generiraj detaljan content plan za {month_name} {year}. za GNK Dinamo Zagreb.
+USER_PROMPT_TEMPLATE = """Generiraj content plan za {month_name} {year}. za GNK Dinamo Zagreb.
 
 ZAHTJEVI:
-- SVAKI dan u mjesecu mora imati MINIMALNO 2 objave, a poželjno 3-4
-- Mjesec ima {days_in_month} dana
-- Subote su najčešće HNL utakmice (pojačaj sadržaj oko subota)
-- Srijede su potencijalno europske utakmice
-- Sadržaj mora biti raznolik — ne ponavljaj iste ideje
-- Svaka objava mora imati konkretnu, kreativnu ideju
+- SVAKI dan mora imati TOČNO 2 objave
+- Mjesec ima {days_in_month} dana = točno {total_posts} objava ukupno
+- Subote: HNL utakmice (matchday sadržaj)
+- Srijede: europske utakmice (UCL/EL)
+- Raznolik sadržaj, ne ponavljaj ideje
+- Budi kratak i koncizan u opisima (1 rečenica)
 
-Odgovori ISKLJUČIVO u JSON formatu — niz objekata. Svaki objekt ima:
-{{
-  "day": broj_dana,
-  "platform": "instagram" | "tiktok" | "youtube" | "facebook",
-  "type": "reel" | "story" | "carousel" | "video" | "short" | "post" | "event",
-  "title": "Kratki naslov na hrvatskom",
-  "description": "Detaljan opis ideje sadržaja (2-3 rečenice)",
-  "caption_hr": "Puni caption za objavu na hrvatskom jeziku, uključujući emotikone",
-  "scheduled_time": "HH:MM",
-  "content_pillar": "match_day" | "player_spotlight" | "behind_scenes" | "academy" | "fan_engagement" | "diaspora" | "european_nights" | "lifestyle",
-  "hashtags": ["#Dinamo", "#HNL", ...],
-  "visual_brief": "Opis vizualnog stila i smjernice za kreativu"
-}}
+JSON niz objekata, svaki:
+{{"day":N,"platform":"instagram|tiktok|youtube|facebook","type":"reel|story|carousel|video|short|post","title":"naslov","description":"jedna rečenica opisa","scheduled_time":"HH:MM","content_pillar":"match_day|player_spotlight|behind_scenes|academy|fan_engagement|diaspora|european_nights|lifestyle","hashtags":["#Dinamo","#HNL"]}}
 
-Odgovori SAMO JSON nizom, bez dodatnog teksta ili markdown formatiranja."""
+SAMO JSON niz, bez teksta."""
 
 
 async def generate_content_plan(api_key: str, month: int, year: int) -> list[dict]:
@@ -98,6 +87,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
         month_name=month_name,
         year=year,
         days_in_month=days_in_month,
+        total_posts=days_in_month * 2,
     )
 
     headers = {
@@ -114,7 +104,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.8,
-        "max_tokens": 65000,
+        "max_tokens": 16000,
     }
 
     async with httpx.AsyncClient(timeout=180.0) as client:
