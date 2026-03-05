@@ -313,35 +313,69 @@ export default function ContentCalendar() {
   const handleGenerate = async () => {
     setGenerating(true)
     try {
-      const res = await contentApi.generateAIPlan({ month: currentMonth + 1, year: currentYear })
-      const posts = res.data?.posts
-      if (Array.isArray(posts) && posts.length > 0) {
-        // Group posts by day
-        const grouped: Record<number, Post[]> = {}
-        for (const p of posts) {
-          const day = p.day || 1
-          if (!grouped[day]) grouped[day] = []
-          grouped[day].push({
-            id: `ai-${day}-${grouped[day].length}`,
-            platform: p.platform || 'instagram',
-            type: p.type || 'post',
-            title: p.title || '',
-            description: p.description || '',
-            caption_hr: p.caption_hr || '',
-            scheduled_time: p.scheduled_time || '12:00',
-            content_pillar: p.content_pillar || 'lifestyle',
-            hashtags: p.hashtags || [],
-            visual_brief: p.visual_brief || '',
-            status: 'draft',
-          })
+      // Start async generation
+      const startRes = await contentApi.generateAIPlan({ month: currentMonth + 1, year: currentYear })
+      const taskId = startRes.data?.task_id
+      if (!taskId) {
+        // Direct response (fallback) or error
+        const posts = startRes.data?.posts
+        if (Array.isArray(posts) && posts.length > 0) {
+          setGeneratedData(_groupPosts(posts))
         }
-        setGeneratedData(grouped)
+        setGenerating(false)
+        return
       }
+
+      // Poll for results every 3 seconds
+      const poll = async () => {
+        for (let i = 0; i < 60; i++) { // max 3 min
+          await new Promise(r => setTimeout(r, 3000))
+          try {
+            const pollRes = await contentApi.getAIPlanResult(taskId)
+            const status = pollRes.data?.status
+            if (status === 'done') {
+              const posts = pollRes.data?.posts
+              if (Array.isArray(posts) && posts.length > 0) {
+                setGeneratedData(_groupPosts(posts))
+              }
+              return
+            } else if (status === 'error') {
+              return
+            }
+            // status === 'running' → continue polling
+          } catch {
+            // Network error, keep polling
+          }
+        }
+      }
+      await poll()
     } catch {
       // Keep existing data on error
     } finally {
       setGenerating(false)
     }
+  }
+
+  const _groupPosts = (posts: any[]): Record<number, Post[]> => {
+    const grouped: Record<number, Post[]> = {}
+    for (const p of posts) {
+      const day = p.day || 1
+      if (!grouped[day]) grouped[day] = []
+      grouped[day].push({
+        id: `ai-${day}-${grouped[day].length}`,
+        platform: p.platform || 'instagram',
+        type: p.type || 'post',
+        title: p.title || '',
+        description: p.description || '',
+        caption_hr: p.caption_hr || '',
+        scheduled_time: p.scheduled_time || '12:00',
+        content_pillar: p.content_pillar || 'lifestyle',
+        hashtags: p.hashtags || [],
+        visual_brief: p.visual_brief || '',
+        status: 'draft' as const,
+      })
+    }
+    return grouped
   }
 
   const handleApprove = async (id: string) => {

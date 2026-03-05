@@ -5,6 +5,8 @@ export const contentApi = {
     api.post('/content/generate-plan', data),
   generateAIPlan: (data: { month: number; year: number }) =>
     api.post('/content/generate-ai-plan', data),
+  getAIPlanResult: (taskId: string) =>
+    api.get(`/content/generate-ai-plan/${taskId}`),
   getPlans: () => api.get('/content/plans'),
   getPlan: (id: string) => api.get(`/content/plans/${id}`),
   getCalendar: (month: number, year: number) =>

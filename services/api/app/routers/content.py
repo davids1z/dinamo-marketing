@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import uuid as uuid_mod
 
 from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +15,9 @@ from app.config import settings
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# In-memory store for async AI generation tasks
+_ai_tasks: dict[str, dict] = {}
+
 
 def _get_service():
     return ContentEngineService(
@@ -21,23 +26,54 @@ def _get_service():
     )
 
 
+async def _run_ai_generation(task_id: str, month: int, year: int):
+    """Background coroutine for AI content generation."""
+    try:
+        from app.integrations.openrouter import generate_content_plan
+        api_key = settings.OPENROUTER_API_KEY
+        posts = await generate_content_plan(api_key, month, year)
+        _ai_tasks[task_id] = {
+            "status": "done",
+            "posts": posts,
+            "month": month,
+            "year": year,
+            "source": "gemini",
+        }
+    except Exception as e:
+        logger.error(f"OpenRouter AI generation failed: {e}")
+        _ai_tasks[task_id] = {
+            "status": "error",
+            "error": str(e),
+            "posts": [],
+            "month": month,
+            "year": year,
+        }
+
+
 @router.post("/generate-ai-plan")
 async def generate_ai_plan(
     month: int = Body(...),
     year: int = Body(...),
 ):
-    """Generate a content plan using Gemini 2.5 Pro via OpenRouter. No DB required."""
+    """Start async AI content plan generation. Returns task_id to poll."""
     api_key = settings.OPENROUTER_API_KEY
     if not api_key:
         return {"error": "OPENROUTER_API_KEY not configured", "posts": []}
 
-    try:
-        from app.integrations.openrouter import generate_content_plan
-        posts = await generate_content_plan(api_key, month, year)
-        return {"posts": posts, "month": month, "year": year, "source": "gemini"}
-    except Exception as e:
-        logger.error(f"OpenRouter AI generation failed: {e}")
-        return {"error": str(e), "posts": [], "month": month, "year": year}
+    task_id = str(uuid_mod.uuid4())
+    _ai_tasks[task_id] = {"status": "running", "month": month, "year": year}
+    asyncio.create_task(_run_ai_generation(task_id, month, year))
+
+    return {"task_id": task_id, "status": "running"}
+
+
+@router.get("/generate-ai-plan/{task_id}")
+async def get_ai_plan_result(task_id: str):
+    """Poll for AI generation result."""
+    task = _ai_tasks.get(task_id)
+    if not task:
+        return {"status": "not_found", "error": "Task not found"}
+    return task
 
 
 @router.post("/generate-plan")
