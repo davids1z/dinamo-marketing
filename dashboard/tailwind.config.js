@@ -27,9 +27,9 @@ export default {
         },
       },
       fontFamily: {
-        headline: ["'Montserrat'", 'sans-serif'],
-        body: ["'Montserrat'", 'sans-serif'],
-        stats: ["'Montserrat'", 'sans-serif'],
+        headline: ["'Tektur'", 'sans-serif'],
+        body: ["'Inter'", 'sans-serif'],
+        stats: ["'Tektur'", 'sans-serif'],
         mono: ["'JetBrains Mono'", 'monospace'],
       },
     },

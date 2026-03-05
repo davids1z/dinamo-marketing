@@ -87,13 +87,13 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Collapse toggle (desktop only) */}
+      {/* Collapse toggle (desktop only) — vertically centered pill */}
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-20 z-50 w-6 h-6 rounded-full bg-dinamo-dark-light border border-white/10 flex items-center justify-center text-dinamo-muted-light hover:text-white hover:bg-dinamo-accent/20 transition-colors shadow-lg"
+          className="absolute -right-4 top-1/2 -translate-y-1/2 z-50 w-8 h-14 rounded-r-lg bg-dinamo-dark-light border border-l-0 border-white/10 flex items-center justify-center text-dinamo-muted-light hover:text-dinamo-accent hover:bg-dinamo-accent/10 transition-all duration-200 shadow-lg group"
         >
-          {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+          {collapsed ? <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /> : <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />}
         </button>
       )}
 
