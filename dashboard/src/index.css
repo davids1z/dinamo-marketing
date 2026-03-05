@@ -32,7 +32,7 @@
 
 @layer components {
   .card {
-    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
+    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm overflow-hidden;
   }
   .card-hover {
     @apply card transition-all duration-200 hover:border-dinamo-accent/40 hover:shadow-lg hover:shadow-dinamo-accent/10 hover:-translate-y-0.5;

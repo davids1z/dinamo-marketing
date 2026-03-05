@@ -1,7 +1,5 @@
 import Header from '../components/layout/Header'
 import { FunnelChart } from '../components/charts/FunnelChart'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
-import { useApi } from '../hooks/useApi'
 import { Users, UserPlus, Heart, Star, Award, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -81,23 +79,16 @@ const fallbackData: FanData = {
 }
 
 export default function FanInsights() {
-  const { data: apiData, loading, error, refetch } = useApi<FanData>('/fans/segments')
-  const data = apiData || fallbackData
-
-  if (loading && !apiData) return <><Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" /><PageLoader /></>
-
-  const fanSegments = data.fanSegments || fallbackData.fanSegments
-  const funnelSteps = data.funnelSteps || fallbackData.funnelSteps
-  const clvData = data.clvData || fallbackData.clvData
-  const churnPredictions = data.churnPredictions || fallbackData.churnPredictions
+  const fanSegments = fallbackData.fanSegments
+  const funnelSteps = fallbackData.funnelSteps
+  const clvData = fallbackData.clvData
+  const churnPredictions = fallbackData.churnPredictions
 
   return (
     <div className="animate-fade-in">
       <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
-
         {/* Fan Segment Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {fanSegments.map((seg) => {
