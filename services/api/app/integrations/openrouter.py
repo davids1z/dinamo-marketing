@@ -114,8 +114,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.8,
-        "max_tokens": 32000,
-        "response_format": {"type": "json_object"},
+        "max_tokens": 65000,
     }
 
     async with httpx.AsyncClient(timeout=180.0) as client:
@@ -133,7 +132,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
 
 
 def _parse_ai_response(content: str) -> list[dict]:
-    """Parse AI response, handling various JSON formats and quirks."""
+    """Parse AI response, handling various JSON formats, truncation, and quirks."""
     import re
 
     # Strip markdown fences if present
@@ -155,12 +154,11 @@ def _parse_ai_response(content: str) -> list[dict]:
     except json.JSONDecodeError:
         pass
 
-    # Try to find a JSON array
+    # Try to find a complete JSON array
     start = content.find("[")
     end = content.rfind("]")
     if start != -1 and end != -1:
         json_str = content[start:end + 1]
-        json_str = _fix_json(json_str)
         try:
             result = json.loads(json_str)
             if isinstance(result, list):
@@ -173,22 +171,25 @@ def _parse_ai_response(content: str) -> list[dict]:
     end = content.rfind("}")
     if start != -1 and end != -1:
         json_str = content[start:end + 1]
-        json_str = _fix_json(json_str)
         try:
             result = json.loads(json_str)
             return _extract_posts_list(result)
         except json.JSONDecodeError:
             pass
 
-    # Last resort: try to fix unescaped control characters and retry
-    cleaned = re.sub(r'[\x00-\x1f]', lambda m: '\\n' if m.group() == '\n' else '', content)
-    try:
-        result = json.loads(cleaned)
-        return _extract_posts_list(result)
-    except json.JSONDecodeError as e:
-        logger.error(f"All JSON parsing attempts failed. Last error: {e}")
-        logger.error(f"First 500 chars of response: {content[:500]}")
-        raise ValueError(f"Could not parse AI response as JSON: {e}")
+    # Handle truncated JSON — find the last complete object in the array
+    start = content.find("[")
+    if start != -1:
+        json_str = content[start:]
+        posts = _salvage_truncated_json(json_str)
+        if posts:
+            logger.warning(f"Salvaged {len(posts)} posts from truncated JSON response")
+            return posts
+
+    logger.error(f"All JSON parsing attempts failed")
+    logger.error(f"First 500 chars of response: {content[:500]}")
+    logger.error(f"Last 200 chars of response: {content[-200:]}")
+    raise ValueError("Could not parse AI response as JSON")
 
 
 def _extract_posts_list(result) -> list[dict]:
@@ -205,6 +206,50 @@ def _extract_posts_list(result) -> list[dict]:
             if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
                 return value
     raise ValueError(f"Expected a JSON array or object with posts array, got {type(result)}")
+
+
+def _salvage_truncated_json(json_str: str) -> list[dict]:
+    """Try to extract complete objects from truncated JSON array."""
+    # Find positions of all top-level object boundaries
+    # by tracking brace/bracket depth
+    posts = []
+    depth = 0
+    in_string = False
+    escape_next = False
+    obj_start = None
+
+    for i, ch in enumerate(json_str):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == '\\' and in_string:
+            escape_next = True
+            continue
+        if ch == '"' and not escape_next:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+
+        if ch == '{':
+            if depth == 1:  # Inside the top-level array
+                obj_start = i
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 1 and obj_start is not None:
+                # Found a complete top-level object
+                obj_str = json_str[obj_start:i + 1]
+                try:
+                    obj = json.loads(obj_str)
+                    posts.append(obj)
+                except json.JSONDecodeError:
+                    pass
+                obj_start = None
+        elif ch == '[' and depth == 0:
+            depth = 1
+
+    return posts
 
 
 def _fix_json(s: str) -> str:
