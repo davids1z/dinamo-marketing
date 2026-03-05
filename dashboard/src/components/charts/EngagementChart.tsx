@@ -14,13 +14,13 @@ interface EngagementChartProps {
 
 export function EngagementChart({ data, title }: EngagementChartProps) {
   return (
-    <div className="card">
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+    <div>
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="date" stroke="#7298BE" fontSize={12} />
-          <YAxis stroke="#7298BE" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+          <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
+          <YAxis stroke="#94a3b8" fontSize={12} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,
@@ -32,7 +32,7 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
           <Line
             type="monotone"
             dataKey="engagement"
-            stroke={DINAMO_BRAND.colors.accent}
+            stroke={DINAMO_BRAND.colors.accentDark}
             strokeWidth={2}
             dot={false}
             name="Angažman"
@@ -40,7 +40,7 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
           <Line
             type="monotone"
             dataKey="reach"
-            stroke={DINAMO_BRAND.colors.muted}
+            stroke={DINAMO_BRAND.colors.blue}
             strokeWidth={2}
             dot={false}
             name="Doseg"

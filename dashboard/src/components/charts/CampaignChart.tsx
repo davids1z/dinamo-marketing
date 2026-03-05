@@ -9,13 +9,13 @@ interface CampaignChartProps {
 
 export function CampaignChart({ data, bars, title }: CampaignChartProps) {
   return (
-    <div className="card">
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+    <div>
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
-          <YAxis stroke="#6B7280" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+          <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+          <YAxis stroke="#94a3b8" fontSize={12} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,

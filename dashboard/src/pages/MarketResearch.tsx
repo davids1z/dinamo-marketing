@@ -46,37 +46,37 @@ const columns = [
   { key: 'country', header: 'Država', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <span className="text-xs text-dinamo-muted font-mono w-6">{row.code}</span>
-      <span className="text-white font-medium">{row.country}</span>
+      <span className="text-gray-900 font-medium">{row.country}</span>
     </div>
   )},
   { key: 'region', header: 'Regija', render: (row: MarketRow) => <span className="text-dinamo-muted">{row.region}</span> },
-  { key: 'population', header: 'Populacija', render: (row: MarketRow) => <span className="text-gray-300">{row.population}</span> },
+  { key: 'population', header: 'Populacija', render: (row: MarketRow) => <span className="text-gray-600">{row.population}</span> },
   { key: 'footballInterest', header: 'Interes za nogomet', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <div className="w-16 bg-gray-700 rounded-full h-2">
+      <div className="w-16 bg-gray-200 rounded-full h-2">
         <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${row.footballInterest}%` }} />
       </div>
-      <span className="text-gray-300 text-sm">{row.footballInterest}</span>
+      <span className="text-gray-600 text-sm">{row.footballInterest}</span>
     </div>
   )},
   { key: 'diaspora', header: 'Dijaspora', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <div className="w-16 bg-gray-700 rounded-full h-2">
+      <div className="w-16 bg-gray-200 rounded-full h-2">
         <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${row.diaspora}%` }} />
       </div>
-      <span className="text-gray-300 text-sm">{row.diaspora}</span>
+      <span className="text-gray-600 text-sm">{row.diaspora}</span>
     </div>
   )},
   { key: 'trendsScore', header: 'Trendovi', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <div className="w-16 bg-gray-700 rounded-full h-2">
+      <div className="w-16 bg-gray-200 rounded-full h-2">
         <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${row.trendsScore}%` }} />
       </div>
-      <span className="text-gray-300 text-sm">{row.trendsScore}</span>
+      <span className="text-gray-600 text-sm">{row.trendsScore}</span>
     </div>
   )},
   { key: 'totalScore', header: 'Ukupni rezultat', render: (row: MarketRow) => (
-    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-400' : row.rank <= 10 ? 'text-white' : 'text-dinamo-muted'}`}>
+    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-600' : row.rank <= 10 ? 'text-gray-900' : 'text-dinamo-muted'}`}>
       {row.totalScore}
     </span>
   )},
@@ -86,7 +86,7 @@ const topMarkets = marketData.slice(0, 5).map(m => ({ name: m.country, value: m.
 
 export default function MarketResearch() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija i bodovanje prilika" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -94,7 +94,7 @@ export default function MarketResearch() {
         <div className="flex items-center justify-between">
           <p className="text-dinamo-muted text-sm">Bodovanje {marketData.length} ciljnih tržišta po 4 dimenzije</p>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-dinamo-dark-light border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-200 transition-colors">
               <Download size={16} />
               Izvezi CSV
             </button>
@@ -106,13 +106,13 @@ export default function MarketResearch() {
         </div>
 
         {/* Top Markets Chart */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <ComparisonBar data={topMarkets} title="Top 5 tržišta po ukupnom rezultatu" valueLabel="Score" />
         </div>
 
         {/* Full Market Table */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Matrica tržišnih prilika</h2>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Matrica tržišnih prilika</h2>
           <DataTable columns={columns} data={marketData} emptyMessage="Nema dostupnih tržišnih podataka" />
         </div>
       </main>

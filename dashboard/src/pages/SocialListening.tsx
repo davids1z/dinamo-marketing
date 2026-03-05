@@ -63,14 +63,14 @@ const trendingTopics = [
 ];
 
 const sentimentIcon = (s: string) => {
-  if (s === 'positive') return <ThumbsUp size={14} className="text-green-400" />;
-  if (s === 'negative') return <ThumbsDown size={14} className="text-red-400" />;
+  if (s === 'positive') return <ThumbsUp size={14} className="text-green-600" />;
+  if (s === 'negative') return <ThumbsDown size={14} className="text-red-600" />;
   return <Minus size={14} className="text-dinamo-muted" />;
 };
 
 export default function SocialListening() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="SOCIAL LISTENING" subtitle="Praćenje brenda i spominjanja" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -84,28 +84,28 @@ export default function SocialListening() {
         {/* Mentions + Topics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Mentions */}
-          <div className="lg:col-span-2 bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Globe size={20} className="text-blue-400" />
-              <h2 className="text-lg font-semibold text-white">Nedavna spominjanja</h2>
+              <Globe size={20} className="text-blue-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Nedavna spominjanja</h2>
             </div>
             <div className="space-y-3">
               {recentMentions.map((mention) => (
-                <div key={mention.id} className="p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
+                <div key={mention.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <PlatformIcon platform={mention.platform} size={16} />
-                      <span className="text-sm font-medium text-blue-400">{mention.author}</span>
+                      <span className="text-sm font-medium text-blue-600">{mention.author}</span>
                       {sentimentIcon(mention.sentiment)}
                     </div>
                     <span className="text-xs text-dinamo-muted">{mention.time}</span>
                   </div>
-                  <p className="text-sm text-gray-300 mt-2 leading-relaxed">{mention.text}</p>
+                  <p className="text-sm text-gray-600 mt-2 leading-relaxed">{mention.text}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      mention.sentiment === 'positive' ? 'bg-green-900/40 text-green-400' :
-                      mention.sentiment === 'negative' ? 'bg-red-900/40 text-red-400' :
-                      'bg-gray-700 text-gray-300'
+                      mention.sentiment === 'positive' ? 'bg-green-100 text-green-600' :
+                      mention.sentiment === 'negative' ? 'bg-red-100 text-red-600' :
+                      'bg-gray-100 text-gray-600'
                     }`}>
                       {mention.sentiment}
                     </span>
@@ -117,32 +117,32 @@ export default function SocialListening() {
           </div>
 
           {/* Trending Topics */}
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Hash size={20} className="text-purple-400" />
-              <h2 className="text-lg font-semibold text-white">Trendovi</h2>
+              <Hash size={20} className="text-purple-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Trendovi</h2>
             </div>
             <div className="space-y-3">
               {trendingTopics.map((topic, index) => (
-                <div key={topic.id} className="flex items-center justify-between p-3 bg-dinamo-dark-light/50 rounded-lg">
+                <div key={topic.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-dinamo-muted font-mono w-4">{index + 1}</span>
                     <div>
-                      <p className="text-sm font-medium text-white">{topic.topic}</p>
+                      <p className="text-sm font-medium text-gray-900">{topic.topic}</p>
                       <p className="text-xs text-dinamo-muted">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <span className={`text-xs font-mono ${
-                      topic.velocity === 'u porastu' ? 'text-red-400' :
-                      topic.velocity === 'raste' ? 'text-green-400' :
+                      topic.velocity === 'u porastu' ? 'text-red-600' :
+                      topic.velocity === 'raste' ? 'text-green-600' :
                       'text-dinamo-muted'
                     }`}>
                       {topic.change}
                     </span>
                     <p className={`text-xs mt-0.5 ${
-                      topic.velocity === 'u porastu' ? 'text-red-400' :
-                      topic.velocity === 'raste' ? 'text-green-400' :
+                      topic.velocity === 'u porastu' ? 'text-red-600' :
+                      topic.velocity === 'raste' ? 'text-green-600' :
                       'text-dinamo-muted'
                     }`}>
                       {topic.velocity}

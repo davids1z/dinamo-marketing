@@ -9,13 +9,13 @@ interface ComparisonBarProps {
 
 export function ComparisonBar({ data, title, valueLabel = 'Vrijednost' }: ComparisonBarProps) {
   return (
-    <div className="card">
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+    <div>
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-          <XAxis type="number" stroke="#7298BE" fontSize={12} />
-          <YAxis dataKey="name" type="category" stroke="#7298BE" fontSize={11} width={100} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" horizontal={false} />
+          <XAxis type="number" stroke="#94a3b8" fontSize={12} />
+          <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={100} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,
@@ -24,7 +24,7 @@ export function ComparisonBar({ data, title, valueLabel = 'Vrijednost' }: Compar
               color: '#fff',
             }}
           />
-          <Bar dataKey="value" name={valueLabel} fill={DINAMO_BRAND.colors.accent} radius={[0, 4, 4, 0]} />
+          <Bar dataKey="value" name={valueLabel} fill={DINAMO_BRAND.colors.blue} radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

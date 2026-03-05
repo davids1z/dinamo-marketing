@@ -35,7 +35,7 @@ const churnPredictions = [
 
 export default function FanInsights() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -44,19 +44,19 @@ export default function FanInsights() {
           {fanSegments.map((seg) => {
             const Icon = seg.icon;
             return (
-              <div key={seg.stage} className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-5 space-y-3">
+              <div key={seg.stage} className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className={`p-2 rounded-lg bg-gradient-to-br ${seg.color}`}>
                     <Icon size={18} className="text-white" />
                   </div>
-                  <span className="text-xs text-green-400 flex items-center gap-0.5">
+                  <span className="text-xs text-green-600 flex items-center gap-0.5">
                     <TrendingUp size={12} />
                     +{seg.growth}%
                   </span>
                 </div>
                 <div>
                   <p className="text-sm text-dinamo-muted">{seg.stage}</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-gray-900">
                     {seg.count >= 1000 ? `${(seg.count / 1000).toFixed(0)}K` : seg.count}
                   </p>
                 </div>
@@ -67,20 +67,20 @@ export default function FanInsights() {
         </div>
 
         {/* Funnel */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <FunnelChart steps={funnelSteps} title="Lijevak životnog ciklusa navijača" />
         </div>
 
         {/* CLV Table */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <DollarSign size={20} className="text-emerald-400" />
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <DollarSign size={20} className="text-emerald-600" />
             Doživotna vrijednost navijača po segmentu
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700">
+                <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Segment</th>
                   <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Prosj. CLV</th>
                   <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Zadržavanje</th>
@@ -89,16 +89,16 @@ export default function FanInsights() {
               </thead>
               <tbody>
                 {clvData.map((row) => (
-                  <tr key={row.segment} className="border-b border-gray-800 hover:bg-dinamo-dark-light/50">
-                    <td className="py-3 px-4 text-white font-medium">{row.segment}</td>
-                    <td className="py-3 px-4 text-emerald-400 font-mono">{row.clv}</td>
-                    <td className="py-3 px-4 text-gray-300">{row.retention}</td>
+                  <tr key={row.segment} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-3 px-4 text-gray-900 font-medium">{row.segment}</td>
+                    <td className="py-3 px-4 text-emerald-600 font-mono">{row.clv}</td>
+                    <td className="py-3 px-4 text-gray-600">{row.retention}</td>
                     <td className="py-3 px-4">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        row.churnRisk === 'Visoki' ? 'bg-red-900/40 text-red-400' :
-                        row.churnRisk === 'Srednji' ? 'bg-yellow-900/40 text-yellow-400' :
-                        row.churnRisk === 'Niski' ? 'bg-green-900/40 text-green-400' :
-                        'bg-emerald-900/40 text-emerald-400'
+                        row.churnRisk === 'Visoki' ? 'bg-red-100 text-red-600' :
+                        row.churnRisk === 'Srednji' ? 'bg-yellow-100 text-yellow-600' :
+                        row.churnRisk === 'Niski' ? 'bg-green-100 text-green-600' :
+                        'bg-emerald-100 text-emerald-600'
                       }`}>
                         {row.churnRisk}
                       </span>
@@ -111,16 +111,16 @@ export default function FanInsights() {
         </div>
 
         {/* Churn Predictions */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Prediktivna analitika</h2>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Prediktivna analitika</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {churnPredictions.map((item) => (
-              <div key={item.metric} className="bg-dinamo-dark-light/50 rounded-lg p-4 space-y-2">
+              <div key={item.metric} className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <p className="text-sm text-dinamo-muted">{item.metric}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-white">{item.value}</span>
+                  <span className="text-2xl font-bold text-gray-900">{item.value}</span>
                   <span className={`text-xs flex items-center gap-0.5 ${
-                    item.trend === 'up' ? 'text-green-400' : 'text-yellow-400'
+                    item.trend === 'up' ? 'text-green-600' : 'text-yellow-600'
                   }`}>
                     {item.trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                     {item.change}

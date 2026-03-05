@@ -18,8 +18,8 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
   const total = positive + neutral + negative
 
   return (
-    <div className="card">
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+    <div>
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <div className="flex items-center gap-6">
         <ResponsiveContainer width={160} height={160}>
           <PieChart>
@@ -51,8 +51,8 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
             <div key={item.name} className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
               <div>
-                <p className="text-sm text-gray-300">{item.name}</p>
-                <p className="font-stats text-lg text-white">
+                <p className="text-sm text-gray-600">{item.name}</p>
+                <p className="font-stats text-lg text-gray-900">
                   {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
                 </p>
               </div>

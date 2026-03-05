@@ -8,23 +8,23 @@ interface ReachChartProps {
 
 export function ReachChart({ data, title }: ReachChartProps) {
   return (
-    <div className="card">
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+    <div>
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={data}>
           <defs>
             <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={DINAMO_BRAND.colors.accent} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={DINAMO_BRAND.colors.accent} stopOpacity={0} />
+              <stop offset="5%" stopColor={DINAMO_BRAND.colors.accentDark} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={DINAMO_BRAND.colors.accentDark} stopOpacity={0} />
             </linearGradient>
             <linearGradient id="impressionGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={DINAMO_BRAND.colors.primary} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={DINAMO_BRAND.colors.primary} stopOpacity={0} />
+              <stop offset="5%" stopColor={DINAMO_BRAND.colors.blue} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={DINAMO_BRAND.colors.blue} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="date" stroke="#6B7280" fontSize={12} />
-          <YAxis stroke="#6B7280" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+          <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
+          <YAxis stroke="#94a3b8" fontSize={12} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,
@@ -33,8 +33,8 @@ export function ReachChart({ data, title }: ReachChartProps) {
               color: '#fff',
             }}
           />
-          <Area type="monotone" dataKey="impressions" stroke={DINAMO_BRAND.colors.primary} fill="url(#impressionGradient)" name="Impressions" />
-          <Area type="monotone" dataKey="reach" stroke={DINAMO_BRAND.colors.accent} fill="url(#reachGradient)" name="Reach" />
+          <Area type="monotone" dataKey="impressions" stroke={DINAMO_BRAND.colors.blue} fill="url(#impressionGradient)" name="Impressions" />
+          <Area type="monotone" dataKey="reach" stroke={DINAMO_BRAND.colors.accentDark} fill="url(#reachGradient)" name="Reach" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

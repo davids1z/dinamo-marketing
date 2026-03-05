@@ -5,9 +5,11 @@ export const DINAMO_BRAND = {
     dark: '#0A1A28',
     darkLight: '#112233',
     darkCard: '#112233',
-    accent: '#BD9A57',
-    accentHover: '#D4AF6A',
-    muted: '#7298BE',
+    accent: '#B8FF00',
+    accentHover: '#9FDB00',
+    accentDark: '#4D7C0F',
+    muted: '#64748B',
+    mutedLight: '#7298BE',
     blue: '#0057A8',
     white: '#F1F1F1',
     success: '#22C55E',
@@ -52,7 +54,7 @@ export const LIFECYCLE_STAGES = [
 ] as const
 
 export const CHART_COLORS = [
-  '#BD9A57', '#7298BE', '#22C55E', '#F59E0B',
+  '#B8FF00', '#64748B', '#22C55E', '#F59E0B',
   '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6',
 ] as const
 

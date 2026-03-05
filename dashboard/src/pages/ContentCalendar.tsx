@@ -108,18 +108,18 @@ export default function ContentCalendar() {
   const totalCells = Math.ceil((firstDayOffset + daysInMonth) / 7) * 7;
 
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="KALENDAR SADRŽAJA" subtitle="Ožujak 2026 — Planiranje i odobrenja" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Tabs */}
-        <div className="flex items-center gap-4 border-b border-gray-800 pb-1">
+        <div className="flex items-center gap-4 border-b border-gray-200 pb-1">
           <button
             onClick={() => setActiveTab('calendar')}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'calendar'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-dinamo-muted hover:text-gray-200'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-dinamo-muted hover:text-gray-700'
             }`}
           >
             <Calendar size={16} className="inline mr-2" />
@@ -129,25 +129,25 @@ export default function ContentCalendar() {
             onClick={() => setActiveTab('approvals')}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'approvals'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-dinamo-muted hover:text-gray-200'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-dinamo-muted hover:text-gray-700'
             }`}
           >
             <Clock size={16} className="inline mr-2" />
             Red za odobrenje
-            <span className="ml-2 text-xs bg-yellow-600 text-white px-1.5 py-0.5 rounded-full">{approvalQueue.length}</span>
+            <span className="ml-2 text-xs bg-yellow-500 text-white px-1.5 py-0.5 rounded-full">{approvalQueue.length}</span>
           </button>
         </div>
 
         {activeTab === 'calendar' && (
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-6">
-              <button className="p-2 text-dinamo-muted hover:text-white hover:bg-dinamo-dark-light rounded-lg transition-colors">
+              <button className="p-2 text-dinamo-muted hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <ChevronLeft size={20} />
               </button>
-              <h2 className="text-xl font-bold text-white">Ožujak 2026</h2>
-              <button className="p-2 text-dinamo-muted hover:text-white hover:bg-dinamo-dark-light rounded-lg transition-colors">
+              <h2 className="text-xl font-bold text-gray-900">Ožujak 2026</h2>
+              <button className="p-2 text-dinamo-muted hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -174,15 +174,15 @@ export default function ContentCalendar() {
                     key={i}
                     className={`min-h-[80px] p-2 rounded-lg border transition-colors ${
                       isToday
-                        ? 'border-blue-500 bg-blue-950/30'
+                        ? 'border-blue-500 bg-blue-50'
                         : isCurrentMonth
-                          ? 'border-gray-800 bg-gray-800/30 hover:bg-gray-800/60'
+                          ? 'border-gray-200 bg-gray-50 hover:bg-gray-100'
                           : 'border-transparent bg-transparent'
                     }`}
                   >
                     {isCurrentMonth && (
                       <>
-                        <span className={`text-xs font-medium ${isToday ? 'text-blue-400' : 'text-dinamo-muted'}`}>
+                        <span className={`text-xs font-medium ${isToday ? 'text-blue-600' : 'text-dinamo-muted'}`}>
                           {dayNum}
                         </span>
                         <div className="flex gap-1 mt-1 flex-wrap">
@@ -202,7 +202,7 @@ export default function ContentCalendar() {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-800">
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200">
               <span className="text-xs text-dinamo-muted">Platforme:</span>
               <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-pink-500" /><span className="text-xs text-dinamo-muted">Instagram</span></div>
               <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-xs text-dinamo-muted">Facebook</span></div>
@@ -213,15 +213,15 @@ export default function ContentCalendar() {
         )}
 
         {activeTab === 'approvals' && (
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Čeka odobrenje</h2>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Čeka odobrenje</h2>
             <div className="space-y-3">
               {approvalQueue.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
+                <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-sm font-medium text-white">{item.title}</h3>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{item.pillar}</span>
+                      <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{item.pillar}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-dinamo-muted">{item.platform}</span>
@@ -232,11 +232,11 @@ export default function ContentCalendar() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs rounded-lg transition-colors">
+                    <button className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-600 text-white text-xs rounded-lg transition-colors">
                       <Check size={14} />
                       Odobri
                     </button>
-                    <button className="flex items-center gap-1 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs rounded-lg border border-red-600/30 transition-colors">
+                    <button className="flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 text-xs rounded-lg border border-red-300 transition-colors">
                       <X size={14} />
                       Odbij
                     </button>

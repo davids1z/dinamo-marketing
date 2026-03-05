@@ -16,16 +16,16 @@ const engagementData = [
 ];
 
 const recentActivity = [
-  { id: 1, icon: UserPlus, text: '+2.340 novih pratitelja na Instagramu ovaj tjedan', time: 'prije 2 sata', color: 'text-green-400' },
-  { id: 2, icon: MessageCircle, text: '148 novih komentara na highlights reel utakmice', time: 'prije 4 sata', color: 'text-blue-400' },
-  { id: 3, icon: TrendingUp, text: 'TikTok kampanja premašila ciljani CTR za 18%', time: 'prije 6 sati', color: 'text-purple-400' },
-  { id: 4, icon: AlertTriangle, text: 'Detektiran porast negativnog sentimenta na Facebooku (kontroverza oko sudaca)', time: 'prije 8 sati', color: 'text-yellow-400' },
-  { id: 5, icon: CheckCircle, text: 'Mjesečni izvještaj generiran i poslan dionicima', time: 'prije 12 sati', color: 'text-emerald-400' },
+  { id: 1, icon: UserPlus, text: '+2.340 novih pratitelja na Instagramu ovaj tjedan', time: 'prije 2 sata', color: 'text-green-600' },
+  { id: 2, icon: MessageCircle, text: '148 novih komentara na highlights reel utakmice', time: 'prije 4 sata', color: 'text-blue-600' },
+  { id: 3, icon: TrendingUp, text: 'TikTok kampanja premašila ciljani CTR za 18%', time: 'prije 6 sati', color: 'text-purple-600' },
+  { id: 4, icon: AlertTriangle, text: 'Detektiran porast negativnog sentimenta na Facebooku (kontroverza oko sudaca)', time: 'prije 8 sati', color: 'text-yellow-600' },
+  { id: 5, icon: CheckCircle, text: 'Mjesečni izvještaj generiran i poslan dionicima', time: 'prije 12 sati', color: 'text-emerald-600' },
 ];
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="NADZORNA PLOČA" subtitle="Pregled" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -41,27 +41,27 @@ export default function Dashboard() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
             <EngagementChart data={engagementData} title="Angažman i doseg (zadnjih 7 dana)" />
           </div>
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <SentimentDonut positive={65} neutral={25} negative={10} title="Ukupni sentiment" />
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Nedavna aktivnost</h2>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Nedavna aktivnost</h2>
           <div className="space-y-4">
             {recentActivity.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg bg-dinamo-dark-light/50 hover:bg-dinamo-dark-light transition-colors">
+                <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div className={`mt-0.5 ${item.color}`}>
                     <Icon size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-200">{item.text}</p>
+                    <p className="text-sm text-gray-700">{item.text}</p>
                     <p className="text-xs text-dinamo-muted mt-1">{item.time}</p>
                   </div>
                 </div>

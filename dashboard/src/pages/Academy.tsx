@@ -31,75 +31,75 @@ const academyPlayers: PlayerRow[] = [
 ];
 
 const columns = [
-  { key: 'name', header: 'Igrač', render: (row: PlayerRow) => (
+  { key: 'name', header: 'Igra\u010d', render: (row: PlayerRow) => (
     <div className="flex items-center gap-2">
-      <span className="text-white font-medium">{row.name}</span>
-      {row.featured && <Star size={14} className="text-yellow-400" />}
+      <span className="text-gray-900 font-medium">{row.name}</span>
+      {row.featured && <Star size={14} className="text-yellow-600" />}
     </div>
   )},
   { key: 'position', header: 'Poz', render: (row: PlayerRow) => (
-    <span className="text-xs px-2 py-0.5 rounded bg-gray-700 text-gray-300 font-mono">{row.position}</span>
+    <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-mono">{row.position}</span>
   )},
   { key: 'ageGroup', header: 'Dobna skupina', render: (row: PlayerRow) => (
     <span className={`text-xs px-2 py-0.5 rounded-full ${
-      row.ageGroup === 'U17' ? 'bg-green-900/40 text-green-400' :
-      row.ageGroup === 'U19' ? 'bg-blue-900/40 text-blue-400' :
-      'bg-purple-900/40 text-purple-400'
+      row.ageGroup === 'U17' ? 'bg-green-100 text-green-600' :
+      row.ageGroup === 'U19' ? 'bg-blue-100 text-blue-600' :
+      'bg-purple-100 text-purple-600'
     }`}>
       {row.ageGroup}
     </span>
   )},
-  { key: 'appearances', header: 'Nast', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.appearances}</span> },
-  { key: 'goals', header: 'G', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.goals}</span> },
-  { key: 'assists', header: 'A', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.assists}</span> },
+  { key: 'appearances', header: 'Nast', render: (row: PlayerRow) => <span className="text-gray-600 font-mono">{row.appearances}</span> },
+  { key: 'goals', header: 'G', render: (row: PlayerRow) => <span className="text-gray-600 font-mono">{row.goals}</span> },
+  { key: 'assists', header: 'A', render: (row: PlayerRow) => <span className="text-gray-600 font-mono">{row.assists}</span> },
   { key: 'socialMentions', header: 'Spominjanja', render: (row: PlayerRow) => (
     <span className="text-dinamo-muted font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
   )},
-  { key: 'featured', header: 'Sadržaj', render: (row: PlayerRow) => (
-    <span className={`text-xs ${row.featured ? 'text-green-400' : 'text-dinamo-muted'}`}>
-      {row.featured ? 'Istaknuto' : 'U čekanju'}
+  { key: 'featured', header: 'Sadr\u017eaj', render: (row: PlayerRow) => (
+    <span className={`text-xs ${row.featured ? 'text-green-600' : 'text-dinamo-muted'}`}>
+      {row.featured ? 'Istaknuto' : 'U \u010dekanju'}
     </span>
   )},
 ];
 
 const contentPipeline = [
   { id: 1, title: 'U19 finale highlights reel', type: 'Video', platform: 'Instagram + TikTok', status: 'U produkciji', due: 'Mar 7' },
-  { id: 2, title: 'Perišić: Od U17 do prvog tima', type: 'Dokumentarac', platform: 'YouTube', status: 'Pregled scenarija', due: 'Mar 12' },
+  { id: 2, title: 'Peri\u0161i\u0107: Od U17 do prvog tima', type: 'Dokumentarac', platform: 'YouTube', status: 'Pregled scenarija', due: 'Mar 12' },
   { id: 3, title: 'Promocija upisa na kamp akademije', type: 'Karusel', platform: 'Instagram + Facebook', status: 'Spremno', due: 'Mar 6' },
-  { id: 4, title: 'Omladinski kup iza kulisa', type: 'Serija priča', platform: 'Instagram', status: 'Snimanje', due: 'Mar 9' },
-  { id: 5, title: 'Mjesečni bilten akademije', type: 'Email + Web', platform: 'Web stranica', status: 'Nacrt', due: 'Mar 15' },
+  { id: 4, title: 'Omladinski kup iza kulisa', type: 'Serija pri\u010da', platform: 'Instagram', status: 'Snimanje', due: 'Mar 9' },
+  { id: 5, title: 'Mjese\u010dni bilten akademije', type: 'Email + Web', platform: 'Web stranica', status: 'Nacrt', due: 'Mar 15' },
 ];
 
 export default function Academy() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
-      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadržajni pipeline" />
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadr\u017eajni pipeline" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Promovirani igrači" value={8} previousValue={5} format="number" icon={GraduationCap} />
+          <MetricCard label="Promovirani igra\u010di" value={8} previousValue={5} format="number" icon={GraduationCap} />
           <MetricCard label="Prihodi od transfera" value={45000000} previousValue={32000000} format="currency" icon={DollarSign} />
           <MetricCard label="Aktivni kampovi" value={4} format="number" icon={Users} />
         </div>
 
         {/* Players Table */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Popis talenata akademije</h2>
-          <DataTable columns={columns} data={academyPlayers} emptyMessage="Nema pronađenih igrača" />
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Popis talenata akademije</h2>
+          <DataTable columns={columns} data={academyPlayers} emptyMessage="Nema prona\u0111enih igra\u010da" />
         </div>
 
         {/* Content Pipeline */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Video size={20} className="text-purple-400" />
-            <h2 className="text-lg font-semibold text-white">Sadržajni pipeline</h2>
+            <Video size={20} className="text-purple-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Sadr\u017eajni pipeline</h2>
           </div>
           <div className="space-y-3">
             {contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-white">{item.title}</h3>
+                  <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-xs text-dinamo-muted">{item.type}</span>
                     <span className="text-xs text-dinamo-muted">|</span>
@@ -108,10 +108,10 @@ export default function Academy() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    item.status === 'Spremno' ? 'bg-green-900/40 text-green-400' :
-                    item.status === 'U produkciji' || item.status === 'Snimanje' ? 'bg-blue-900/40 text-blue-400' :
-                    item.status === 'Pregled scenarija' ? 'bg-yellow-900/40 text-yellow-400' :
-                    'bg-gray-700 text-gray-300'
+                    item.status === 'Spremno' ? 'bg-green-100 text-green-600' :
+                    item.status === 'U produkciji' || item.status === 'Snimanje' ? 'bg-blue-100 text-blue-600' :
+                    item.status === 'Pregled scenarija' ? 'bg-yellow-100 text-yellow-600' :
+                    'bg-gray-100 text-gray-600'
                   }`}>
                     {item.status}
                   </span>

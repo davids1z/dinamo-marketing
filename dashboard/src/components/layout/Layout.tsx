@@ -3,7 +3,7 @@ import Sidebar from './Sidebar'
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-dinamo-dark">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
       <main className="ml-64 min-h-screen">
         <Outlet />

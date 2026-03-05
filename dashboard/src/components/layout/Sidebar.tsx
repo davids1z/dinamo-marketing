@@ -41,7 +41,7 @@ export default function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-dinamo-accent flex items-center justify-center">
-            <span className="font-headline text-lg text-white font-bold">D</span>
+            <span className="font-headline text-lg text-gray-900 font-bold">D</span>
           </div>
           <div>
             <h1 className="font-headline text-xl tracking-wider text-white leading-none font-bold">
@@ -67,7 +67,7 @@ export default function Sidebar() {
                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
                     isActive
                       ? 'bg-dinamo-accent/15 text-dinamo-accent border-l-2 border-dinamo-accent'
-                      : 'text-dinamo-muted hover:text-white hover:bg-white/5'
+                      : 'text-dinamo-muted-light hover:text-white hover:bg-white/5'
                   )
                 }
               >
@@ -83,7 +83,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-white/5">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-xs text-dinamo-muted">Mock način aktivan</span>
+          <span className="text-xs text-dinamo-muted-light">Mock način aktivan</span>
         </div>
       </div>
     </aside>

@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-dinamo-dark text-gray-100 antialiased;
+    @apply bg-gray-50 text-gray-900 antialiased;
     font-family: 'Montserrat', sans-serif;
   }
 
@@ -20,28 +20,28 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-dinamo-dark;
+    @apply bg-gray-100;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-dinamo-accent/40 rounded-full;
+    @apply bg-gray-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-dinamo-accent/60;
+    @apply bg-gray-400;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-dinamo-dark-card border border-white/5 rounded-xl p-5;
+    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
   }
   .card-hover {
-    @apply card transition-all duration-200 hover:border-dinamo-accent/20 hover:shadow-lg hover:shadow-dinamo-accent/5;
+    @apply card transition-all duration-200 hover:border-dinamo-accent/40 hover:shadow-lg hover:shadow-dinamo-accent/10;
   }
   .btn-primary {
-    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-white font-semibold py-2 px-4 rounded-lg transition-colors;
+    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-gray-900 font-semibold py-2 px-4 rounded-lg transition-colors;
   }
   .btn-secondary {
-    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-lg transition-colors;
+    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent-dark border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-lg transition-colors;
   }
   .stat-number {
     font-family: 'Montserrat', sans-serif;
@@ -51,15 +51,15 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   .badge-success {
-    @apply badge bg-green-500/10 text-green-400;
+    @apply badge bg-green-100 text-green-700;
   }
   .badge-warning {
-    @apply badge bg-yellow-500/10 text-yellow-400;
+    @apply badge bg-yellow-100 text-yellow-700;
   }
   .badge-danger {
-    @apply badge bg-red-500/10 text-red-400;
+    @apply badge bg-red-100 text-red-700;
   }
   .badge-info {
-    @apply badge bg-dinamo-accent/10 text-dinamo-accent;
+    @apply badge bg-lime-100 text-lime-700;
   }
 }

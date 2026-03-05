@@ -87,40 +87,40 @@ const topPosts = [
 
 export default function Analytics() {
   return (
-    <div className="min-h-screen bg-dinamo-dark text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Reach Chart */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <ReachChart data={reachData} title="Doseg i prikazivanja (30 dana)" />
         </div>
 
         {/* Campaign Comparison + Funnel */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <CampaignChart data={campaignData} bars={campaignBars} title="Performanse kampanja po platformi" />
           </div>
-          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <FunnelChart steps={funnelSteps} title="Konverzijski lijevak" />
           </div>
         </div>
 
         {/* Top Performing Posts */}
-        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Trophy size={20} className="text-yellow-400" />
-            <h2 className="text-lg font-semibold text-white">Top 5 objava po performansu</h2>
+            <Trophy size={20} className="text-yellow-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Top 5 objava po performansu</h2>
           </div>
 
           <div className="space-y-3">
             {topPosts.map((post, index) => (
-              <div key={post.id} className="flex items-center gap-4 p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-sm font-bold text-gray-300">
+              <div key={post.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-sm font-bold text-gray-600">
                   {index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-white truncate">{post.title}</h3>
+                  <h3 className="text-sm font-medium text-gray-900 truncate">{post.title}</h3>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-xs text-dinamo-muted">{post.platform}</span>
                     <span className="text-xs text-dinamo-muted">|</span>
@@ -143,7 +143,7 @@ export default function Analytics() {
                     <p className="text-xs text-dinamo-muted">Angažman</p>
                   </div>
                   <div className="text-center">
-                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-400' : 'text-gray-300'}`}>
+                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-600'}`}>
                       {post.engRate}%
                     </span>
                     <p className="text-xs text-dinamo-muted">Stopa ang.</p>
