@@ -67,7 +67,6 @@ export default function Dashboard() {
   const d = apiData || fallbackOverview
 
   if (loading && !apiData) return <><Header title="NADZORNA PLOCA" subtitle="Pregled" /><PageLoader /></>
-  if (error && !apiData) return <><Header title="NADZORNA PLOCA" subtitle="Pregled" /><ErrorState message={error} onRetry={refetch} /></>
 
   const sentiment = d.sentiment_breakdown || { positive: 65, neutral: 25, negative: 10 }
   const engagementData = d.engagement_trend || fallbackOverview.engagement_trend
