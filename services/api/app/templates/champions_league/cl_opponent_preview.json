@@ -1,0 +1,37 @@
+{
+  "name": "Champions League Opponent Preview",
+  "description": "In-depth preview of the CL opponent with key facts, recent form, danger players, and head-to-head history. Educational pre-match content.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#001B3D",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "cl_starball": true,
+  "cl_anthem_cue": false,
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.6,
+    "elements": ["opponent_crest", "cl_starball", "headline", "opponent_facts", "key_players", "head_to_head", "formation", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "KNOW YOUR RIVAL"},
+    "opponent_name": {"max_chars": 30, "example": "AC Milan"},
+    "opponent_country": {"max_chars": 20, "example": "Italy"},
+    "cl_titles": {"max_chars": 5, "example": "7"},
+    "league_position": {"max_chars": 15, "example": "3rd in Serie A"},
+    "recent_form": {"max_chars": 15, "example": "W W D W L"},
+    "manager": {"max_chars": 25, "example": "Paulo Fonseca"},
+    "key_player_1": {"max_chars": 25, "example": "Rafael Leão"},
+    "key_player_2": {"max_chars": 25, "example": "Theo Hernández"},
+    "head_to_head": {"max_chars": 40, "example": "Played: 2 | W: 0 | D: 1 | L: 1"},
+    "cta": {"example": "Match Preview"}
+  },
+  "guidelines": "Multi-slide carousel: Slide 1 is the title card with opponent crest. Slide 2 covers club facts (CL titles, league position, recent form). Slide 3 highlights 2-3 danger players. Slide 4 shows head-to-head record. All slides use the CL navy background. Opponent crest and imagery used respectfully. Data must be current and verified pre-publication."
+}

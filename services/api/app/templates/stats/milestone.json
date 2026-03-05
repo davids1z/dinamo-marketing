@@ -1,0 +1,30 @@
+{
+  "name": "Player or Club Milestone",
+  "description": "Celebrates a significant milestone such as a player reaching 100 appearances, a goal-scoring record, or a club anniversary achievement.",
+  "platforms": ["instagram", "facebook", "tiktok", "twitter"],
+  "format_type": "video",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#FFD700",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.5,
+    "elements": ["player_cutout", "milestone_number_animation", "gold_particles", "headline", "milestone_detail", "career_montage", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "CENTURY OF GOALS"},
+    "milestone_number": {"max_chars": 5, "example": "100"},
+    "milestone_type": {"max_chars": 30, "example": "Goals for Dinamo"},
+    "player_name": {"max_chars": 30, "example": "Bruno Petković"},
+    "subheadline": {"max_chars": 80, "example": "Petković becomes only the fifth player to score 100 goals for Dinamo Zagreb"},
+    "cta": {"example": "Watch Highlights"}
+  },
+  "guidelines": "The milestone number should be the dominant visual, animated with gold particle effects. Use gold accent color for milestones to distinguish them from regular stats. Include a brief montage of key moments if video. The tone is celebratory and historic. Contextualize the achievement within club history."
+}

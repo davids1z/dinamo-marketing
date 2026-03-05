@@ -1,0 +1,34 @@
+{
+  "name": "Champions League Win Celebration",
+  "description": "Premium celebration content for CL victories. Maximum energy, elevated production, and CL-specific visual effects to mark a European night triumph.",
+  "platforms": ["instagram", "facebook", "tiktok", "twitter"],
+  "format_type": "video",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#FFD700",
+    "background": "#001B3D",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "cl_starball": true,
+  "cl_anthem_cue": true,
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.4,
+    "elements": ["celebration_video", "cl_starball_burst", "gold_confetti", "score_display", "headline", "cl_anthem_audio", "goal_scorers", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "EUROPEAN GLORY!"},
+    "subheadline": {"max_chars": 60, "example": "A magical night under the Maksimir lights"},
+    "home_score": {"max_chars": 2, "example": "3"},
+    "away_score": {"max_chars": 2, "example": "1"},
+    "goal_scorers": {"max_chars": 150, "example": "Petković 15', Oršić 52', 78'"},
+    "opponent_name": {"max_chars": 30, "example": "AC Milan"},
+    "group_stage": {"max_chars": 25, "example": "League Phase, MD 6"},
+    "cta": {"example": "Relive the Moment"}
+  },
+  "guidelines": "Maximum production value. Use celebration footage with gold confetti and starball burst effects. CL anthem as the audio foundation. Gold accent color replaces standard blue accent for CL victories. Slow-motion crowd and player celebration shots. This is a marquee moment — no detail spared. Suitable for Reels and TikTok with premium editing. Keep for the highlight reel."
+}

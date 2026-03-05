@@ -1,0 +1,73 @@
+{
+  "name": "Galatasaray Spor Kulübü",
+  "short_name": "Galatasaray",
+  "country": "TR",
+  "league": "Süper Lig",
+  "founded": 1905,
+  "stadium": "NEF Stadyumu (Ali Sami Yen)",
+  "stadium_capacity": 52280,
+  "brand_colors": ["#FDB913", "#C8102E"],
+  "platforms": {
+    "instagram": {
+      "handle": "@galatasaray",
+      "followers": 15600000,
+      "engagement_rate": 2.5,
+      "avg_reach": 2800000,
+      "posting_frequency": 6.8,
+      "top_content_types": ["matchday", "star_players", "transfer_hype", "ultras"],
+      "growth_rate_monthly": 1.0
+    },
+    "facebook": {
+      "page_name": "Galatasaray",
+      "followers": 12400000,
+      "engagement_rate": 1.4,
+      "posting_frequency": 5.5
+    },
+    "tiktok": {
+      "handle": "@galatasaray",
+      "followers": 4200000,
+      "engagement_rate": 5.5,
+      "total_views": 280000000,
+      "growth_rate_monthly": 2.8
+    },
+    "youtube": {
+      "subscribers": 2100000,
+      "avg_views": 380000,
+      "avg_watch_time_min": 5.2
+    }
+  },
+  "content_formats": {
+    "reels_video": 45,
+    "carousel": 15,
+    "static_image": 22,
+    "stories": 18
+  },
+  "target_markets": ["TR", "DE", "NL", "BE", "AT", "FR", "US", "global"],
+  "language_strategy": {
+    "primary": "tr",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 70,
+    "diaspora_targeted": true,
+    "diaspora_languages": ["de", "nl", "fr"]
+  },
+  "key_strengths": [
+    "Massive following - one of most followed clubs globally",
+    "Turkish diaspora in Europe creates multi-country reach",
+    "High-profile transfer announcements go viral",
+    "Passionate fan content creates organic engagement",
+    "High posting frequency maintains visibility",
+    "Excellent at leveraging star player arrivals"
+  ],
+  "key_weaknesses": [
+    "High follower count includes many inactive accounts",
+    "Content quality inconsistent despite volume",
+    "Over-reliance on transfer hype cycles",
+    "Limited long-form content strategy"
+  ],
+  "notable_campaigns": [
+    {"name": "Welcome to Istanbul", "type": "transfer_reveal", "engagement_boost": 250},
+    {"name": "Galatasaray Ailesi", "type": "diaspora", "engagement_boost": 85},
+    {"name": "CL Nights", "type": "matchday", "engagement_boost": 120}
+  ],
+  "benchmark_note": "Key model for diaspora engagement strategy. Their approach to Turkish communities in DE/NL/AT is directly relevant to Dinamo's Croatian diaspora strategy."
+}

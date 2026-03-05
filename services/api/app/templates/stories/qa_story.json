@@ -1,0 +1,28 @@
+{
+  "name": "Q&A Story Template",
+  "description": "Interactive Q&A story using Instagram's question sticker. Used for player Q&As, fan questions, or AMA sessions with staff and players.",
+  "platforms": ["instagram"],
+  "format_type": "story",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "top-center",
+    "overlay_opacity": 0.65,
+    "elements": ["player_photo", "headline", "question_sticker_zone", "player_name", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "ASK ME ANYTHING"},
+    "player_name": {"max_chars": 30, "example": "Luka Ivanušec"},
+    "prompt": {"max_chars": 40, "example": "Ask Luka anything!"},
+    "topic_hint": {"max_chars": 50, "example": "Football, life in Zagreb, matchday rituals..."}
+  },
+  "guidelines": "Player photo as background with the question sticker zone clearly designated in the lower third. Headline at the top introduces the Q&A session. Include the player name and a prompt encouraging questions. For answer stories, display the question sticker response above the player's video/text answer. Ensure sticker zone does not overlap with IG UI elements."
+}

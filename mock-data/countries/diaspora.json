@@ -1,0 +1,227 @@
+{
+  "description": "Diaspora markets - countries with significant Croatian diaspora communities",
+  "last_updated": "2026-03-01",
+  "countries": {
+    "AT": {
+      "name": "Austria",
+      "name_local": "Österreich",
+      "population": 9100000,
+      "croatian_diaspora": 120000,
+      "diaspora_concentration_cities": ["Wien", "Graz", "Salzburg", "Linz"],
+      "internet_penetration": 92,
+      "social_media_users": 6800000,
+      "football_interest_score": 82,
+      "top_platforms": {"instagram": 3600000, "facebook": 3900000, "tiktok": 2200000, "youtube": 6200000},
+      "language_notes": "German primary; Croatian community maintains language through Kulturvereine",
+      "key_media": ["ORF Sport", "Laola1", "Kurier Sport"],
+      "dinamo_relevance": {
+        "estimated_followers": 28000,
+        "engagement_index": 1.4,
+        "growth_potential": "high",
+        "notes": "Strong Burgenland Croatian community. AT is familiar with HNL through Salzburg/Austrian clubs playing Croatian teams."
+      },
+      "marketing_opportunities": [
+        "Targeted ads to Croatian community in Wien/Graz",
+        "Partnerships with Croatian cultural associations",
+        "Matchday travel packages from Wien",
+        "Croatian-language community events"
+      ]
+    },
+    "DE": {
+      "name": "Germany",
+      "name_local": "Deutschland",
+      "population": 84400000,
+      "croatian_diaspora": 435000,
+      "diaspora_concentration_cities": ["München", "Stuttgart", "Frankfurt", "Berlin", "Hamburg", "Düsseldorf"],
+      "internet_penetration": 93,
+      "social_media_users": 62000000,
+      "football_interest_score": 92,
+      "top_platforms": {"instagram": 32000000, "facebook": 28000000, "tiktok": 20000000, "youtube": 58000000},
+      "language_notes": "German primary; large Croatian community (Gastarbeiter legacy + recent EU migration)",
+      "key_media": ["Kicker", "Sport1", "Bild Sport", "Sky Sport DE"],
+      "dinamo_relevance": {
+        "estimated_followers": 42000,
+        "engagement_index": 1.6,
+        "growth_potential": "very_high",
+        "notes": "Largest Croatian diaspora in Europe. Second and third generation maintain football identity. Bayern München path creates indirect interest."
+      },
+      "marketing_opportunities": [
+        "Croatian diaspora targeting via META platforms",
+        "Bundesliga transfer pipeline storytelling",
+        "Watch parties in cities with large Croatian populations",
+        "German-language content for second-generation fans",
+        "Partnership with Croatian clubs/associations in Germany"
+      ]
+    },
+    "CH": {
+      "name": "Switzerland",
+      "name_local": "Schweiz",
+      "population": 8800000,
+      "croatian_diaspora": 85000,
+      "diaspora_concentration_cities": ["Zürich", "Basel", "Bern", "St. Gallen"],
+      "internet_penetration": 96,
+      "social_media_users": 6500000,
+      "football_interest_score": 78,
+      "top_platforms": {"instagram": 3200000, "facebook": 3400000, "tiktok": 1800000, "youtube": 5800000},
+      "language_notes": "German/French/Italian; Croatian community primarily in German-speaking cantons",
+      "key_media": ["SRF Sport", "Blick Sport"],
+      "dinamo_relevance": {
+        "estimated_followers": 18000,
+        "engagement_index": 1.3,
+        "growth_potential": "medium",
+        "notes": "Wealthy diaspora with high purchasing power. Swiss Super League connection through player transfers."
+      },
+      "marketing_opportunities": [
+        "Premium merchandise targeting (high purchasing power)",
+        "Croatian community in Zürich/Basel targeting",
+        "Swiss-Croatian business network partnerships"
+      ]
+    },
+    "IE": {
+      "name": "Ireland",
+      "name_local": "Éire",
+      "population": 5150000,
+      "croatian_diaspora": 22000,
+      "diaspora_concentration_cities": ["Dublin", "Cork", "Galway"],
+      "internet_penetration": 92,
+      "social_media_users": 3800000,
+      "football_interest_score": 85,
+      "top_platforms": {"instagram": 2200000, "facebook": 2400000, "tiktok": 1500000, "youtube": 3200000},
+      "language_notes": "English primary; young Croatian migrant workers post-EU accession",
+      "key_media": ["RTÉ Sport", "The42.ie"],
+      "dinamo_relevance": {
+        "estimated_followers": 4200,
+        "engagement_index": 1.1,
+        "growth_potential": "medium",
+        "notes": "Young professional diaspora, mostly post-2013 EU migration. English-language content reaches them easily."
+      },
+      "marketing_opportunities": [
+        "English-language content serves this market naturally",
+        "Irish pub watch parties for CL matches",
+        "Social media targeting for young Croatian professionals"
+      ]
+    },
+    "SE": {
+      "name": "Sweden",
+      "name_local": "Sverige",
+      "population": 10500000,
+      "croatian_diaspora": 48000,
+      "diaspora_concentration_cities": ["Stockholm", "Göteborg", "Malmö"],
+      "internet_penetration": 96,
+      "social_media_users": 8200000,
+      "football_interest_score": 80,
+      "top_platforms": {"instagram": 5200000, "facebook": 4800000, "tiktok": 3200000, "youtube": 7800000},
+      "language_notes": "Swedish primary; Croatian community from 1990s refugee wave + recent EU migration",
+      "key_media": ["SVT Sport", "Aftonbladet Sport", "Fotbollskanalen"],
+      "dinamo_relevance": {
+        "estimated_followers": 12000,
+        "engagement_index": 1.3,
+        "growth_potential": "medium",
+        "notes": "Established Croatian community. Allsvenskan connection through player transfers. High digital engagement."
+      },
+      "marketing_opportunities": [
+        "Targeting Croatian-Swedes through META",
+        "Allsvenskan transfer stories",
+        "Scandinavian football culture crossover content"
+      ]
+    },
+    "NO": {
+      "name": "Norway",
+      "name_local": "Norge",
+      "population": 5500000,
+      "croatian_diaspora": 8500,
+      "diaspora_concentration_cities": ["Oslo", "Bergen"],
+      "internet_penetration": 98,
+      "social_media_users": 4500000,
+      "football_interest_score": 84,
+      "top_platforms": {"instagram": 2800000, "facebook": 3100000, "tiktok": 1600000, "youtube": 4200000},
+      "language_notes": "Norwegian primary; small but engaged Croatian community",
+      "key_media": ["NRK Sport", "VG Sport", "TV2 Sport"],
+      "dinamo_relevance": {
+        "estimated_followers": 2800,
+        "engagement_index": 1.0,
+        "growth_potential": "low",
+        "notes": "Small diaspora but high purchasing power. Norwegian interest in European football generally high."
+      },
+      "marketing_opportunities": [
+        "General European football fan targeting",
+        "Norwegian-Croatian player connection stories"
+      ]
+    },
+    "US": {
+      "name": "United States",
+      "name_local": "United States",
+      "population": 335000000,
+      "croatian_diaspora": 450000,
+      "diaspora_concentration_cities": ["Chicago", "Pittsburgh", "Los Angeles", "New York", "San Francisco", "Cleveland"],
+      "internet_penetration": 92,
+      "social_media_users": 240000000,
+      "football_interest_score": 52,
+      "top_platforms": {"instagram": 160000000, "facebook": 175000000, "tiktok": 115000000, "youtube": 230000000},
+      "language_notes": "English primary; Croatian communities maintain heritage through cultural organizations, especially in Chicago/Pittsburgh",
+      "key_media": ["ESPN", "CBS Sports", "Paramount+", "Fox Sports"],
+      "dinamo_relevance": {
+        "estimated_followers": 14000,
+        "engagement_index": 0.8,
+        "growth_potential": "high",
+        "notes": "Large historical diaspora (early 20th century). Growing US soccer market. MLS expansion creates interest. Time zone challenge for live content."
+      },
+      "marketing_opportunities": [
+        "Croatian Heritage Night events with US soccer clubs",
+        "English-language documentary-style content",
+        "Target Croatian-American communities in Chicago/Pittsburgh",
+        "MLS/US Soccer crossover content",
+        "Summer tour/friendly matches in US"
+      ]
+    },
+    "CA": {
+      "name": "Canada",
+      "name_local": "Canada",
+      "population": 40000000,
+      "croatian_diaspora": 120000,
+      "diaspora_concentration_cities": ["Toronto", "Vancouver", "Mississauga", "Hamilton"],
+      "internet_penetration": 94,
+      "social_media_users": 31000000,
+      "football_interest_score": 55,
+      "top_platforms": {"instagram": 18000000, "facebook": 20000000, "tiktok": 12000000, "youtube": 26000000},
+      "language_notes": "English/French primary; Croatian community concentrated in Ontario",
+      "key_media": ["TSN", "Sportsnet"],
+      "dinamo_relevance": {
+        "estimated_followers": 5200,
+        "engagement_index": 0.9,
+        "growth_potential": "medium",
+        "notes": "Significant Croatian-Canadian community, especially in Greater Toronto Area. Growing Canadian Premier League creates local football interest."
+      },
+      "marketing_opportunities": [
+        "Croatian-Canadian community events in Toronto",
+        "Partnership with Croatian cultural centres",
+        "English-language content distribution"
+      ]
+    },
+    "AU": {
+      "name": "Australia",
+      "name_local": "Australia",
+      "population": 26500000,
+      "croatian_diaspora": 135000,
+      "diaspora_concentration_cities": ["Melbourne", "Sydney", "Perth", "Adelaide", "Canberra"],
+      "internet_penetration": 96,
+      "social_media_users": 21000000,
+      "football_interest_score": 58,
+      "top_platforms": {"instagram": 12000000, "facebook": 14000000, "tiktok": 8000000, "youtube": 18000000},
+      "language_notes": "English primary; strong Croatian community maintains cultural identity through football clubs",
+      "key_media": ["Fox Sports AU", "Optus Sport", "SBS Sport"],
+      "dinamo_relevance": {
+        "estimated_followers": 7800,
+        "engagement_index": 1.0,
+        "growth_potential": "medium",
+        "notes": "Strong Croatian-Australian community with deep football connections (Melbourne Knights, Sydney United). Time zone is major challenge. A-League connection through Croatian-heritage clubs."
+      },
+      "marketing_opportunities": [
+        "Partnership with Croatian-Australian football clubs",
+        "Heritage content targeting Melbourne/Sydney communities",
+        "Time-shifted highlight content for AEST timezone",
+        "Croatian Sporting Federation Australia connections"
+      ]
+    }
+  }
+}

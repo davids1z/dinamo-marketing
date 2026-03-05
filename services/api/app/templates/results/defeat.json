@@ -1,0 +1,31 @@
+{
+  "name": "Loss Acknowledgment",
+  "description": "Respectful post after a Dinamo defeat. Measured tone that acknowledges the result while looking forward to the next challenge.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#4A6FA5",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.75,
+    "elements": ["hero_image", "score_display", "club_crests", "headline", "subheadline", "next_match_info", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "NOT OUR NIGHT"},
+    "subheadline": {"max_chars": 80, "example": "We regroup and focus on the next challenge ahead"},
+    "home_score": {"max_chars": 2, "example": "0"},
+    "away_score": {"max_chars": 2, "example": "2"},
+    "opponent_name": {"max_chars": 30, "example": "NK Osijek"},
+    "next_match": {"max_chars": 50, "example": "Next: vs Lokomotiva | Saturday 20:00"},
+    "cta": {"example": "We Go Again"}
+  },
+  "guidelines": "Use a subdued, desaturated hero image. The overlay is heavier to create a somber but dignified atmosphere. The accent color is muted compared to standard blue. Messaging should be respectful and forward-looking — never blame players or officials. Always reference the next fixture to maintain optimism."
+}

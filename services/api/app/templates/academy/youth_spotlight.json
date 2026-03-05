@@ -1,0 +1,35 @@
+{
+  "name": "Youth Player Spotlight",
+  "description": "Features a promising academy player with a profile, stats, and background. Showcases the depth and quality of Dinamo's legendary youth system.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "4:5",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00E676",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.55,
+    "elements": ["player_cutout", "academy_badge", "headline", "player_name", "player_profile", "stat_cards", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "FUTURE BLUE"},
+    "player_name": {"max_chars": 30, "example": "Antonio Matić"},
+    "age": {"max_chars": 3, "example": "17"},
+    "position": {"max_chars": 20, "example": "Attacking Midfielder"},
+    "academy_level": {"max_chars": 15, "example": "U-19"},
+    "stat_1_label": {"max_chars": 15, "example": "Goals"},
+    "stat_1_value": {"max_chars": 5, "example": "12"},
+    "stat_2_label": {"max_chars": 15, "example": "Assists"},
+    "stat_2_value": {"max_chars": 5, "example": "8"},
+    "bio": {"max_chars": 100, "example": "A creative midfielder with an eye for goal, Antonio has been turning heads since joining the academy at age 12."},
+    "cta": {"example": "Academy Info"}
+  },
+  "guidelines": "Use a green accent color to distinguish academy content from first-team content. Include the academy badge/crest alongside the main club logo. Player cutout in training or youth match kit. Stat cards should show youth competition stats. Include age, position, and academy level prominently. This series builds anticipation for future first-team graduates."
+}

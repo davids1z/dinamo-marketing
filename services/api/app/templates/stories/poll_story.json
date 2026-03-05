@@ -1,0 +1,29 @@
+{
+  "name": "Poll Story Template",
+  "description": "Interactive poll story using Instagram's poll sticker. Quick-fire engagement tool for matchday content, opinion gathering, and fun debates.",
+  "platforms": ["instagram", "facebook"],
+  "format_type": "story",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "top-center",
+    "overlay_opacity": 0.6,
+    "elements": ["background_image", "headline", "poll_question", "poll_sticker_zone", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 20, "example": "VOTE NOW"},
+    "poll_question": {"max_chars": 60, "example": "Who will score first tonight?"},
+    "option_a": {"max_chars": 20, "example": "Petković"},
+    "option_b": {"max_chars": 20, "example": "Oršić"},
+    "context": {"max_chars": 40, "example": "Dinamo vs Rijeka | Tonight 20:00"}
+  },
+  "guidelines": "Clean design with the poll question prominently displayed above the Instagram poll sticker zone. Use a relevant background image (action shot, stadium, player matchup). Keep options short — the native poll sticker has character limits. Great for pre-match engagement, half-time polls, and daily content. Results can be shared in a follow-up story."
+}

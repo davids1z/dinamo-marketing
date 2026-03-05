@@ -1,0 +1,33 @@
+{
+  "name": "Football Trivia",
+  "description": "Fun trivia questions about Dinamo Zagreb history, players, records, and Croatian football. Educational and engaging for fans of all ages.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "center",
+    "overlay_opacity": 0.0,
+    "elements": ["question_number", "trivia_question", "multiple_choice_options", "answer_reveal", "fun_fact", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "DINAMO TRIVIA"},
+    "question": {"max_chars": 100, "example": "In which year did Dinamo Zagreb win the Inter-Cities Fairs Cup?"},
+    "option_a": {"max_chars": 25, "example": "A) 1965"},
+    "option_b": {"max_chars": 25, "example": "B) 1967"},
+    "option_c": {"max_chars": 25, "example": "C) 1970"},
+    "option_d": {"max_chars": 25, "example": "D) 1972"},
+    "correct_answer": {"max_chars": 5, "example": "B"},
+    "fun_fact": {"max_chars": 150, "example": "Dinamo defeated Leeds United over two legs in the 1967 Fairs Cup Final, becoming the first Yugoslav club to win a European trophy!"},
+    "hashtag": {"max_chars": 25, "example": "#DinamoTrivia"}
+  },
+  "guidelines": "Slide 1: Question with 4 multiple choice options. Slide 2: Answer reveal with a fun fact and additional context. Use a quiz-show inspired design with bold typography. Number each trivia post for series continuity (#1, #2, etc.). Encourage fans to answer before swiping. Post on non-matchdays to fill the content calendar."
+}

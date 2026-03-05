@@ -1,0 +1,212 @@
+{
+  "account_id": "gnkdinamo",
+  "platform": "instagram",
+  "verified": true,
+  "followers": 567000,
+  "following": 245,
+  "posts_count": 4820,
+  "avg_reach": 45000,
+  "avg_engagement_rate": 2.8,
+  "monthly_growth_rate": 1.4,
+  "demographics": {
+    "age": {
+      "13-17": 6,
+      "18-24": 28,
+      "25-34": 35,
+      "35-44": 22,
+      "45-54": 10,
+      "55+": 5
+    },
+    "gender": {
+      "male": 72,
+      "female": 28
+    },
+    "top_countries": {
+      "HR": 58,
+      "BA": 8,
+      "DE": 7,
+      "AT": 5,
+      "SI": 4,
+      "RS": 3,
+      "CH": 3,
+      "US": 2,
+      "SE": 2,
+      "other": 8
+    },
+    "top_cities": {
+      "Zagreb": 32,
+      "Split": 4,
+      "Osijek": 3,
+      "Rijeka": 2,
+      "Wien": 2,
+      "München": 2,
+      "Sarajevo": 2,
+      "Ljubljana": 1,
+      "Zürich": 1,
+      "other": 51
+    }
+  },
+  "format_breakdown": {
+    "reels": 35,
+    "carousel": 25,
+    "static_image": 30,
+    "stories": 10
+  },
+  "top_posts": [
+    {
+      "id": "p1",
+      "type": "reel",
+      "caption": "GOOOL! Petković zabija za 2:0!",
+      "date": "2026-02-18",
+      "likes": 45000,
+      "comments": 1200,
+      "shares": 3400,
+      "saves": 2800,
+      "engagement_rate": 8.7,
+      "reach": 320000
+    },
+    {
+      "id": "p2",
+      "type": "carousel",
+      "caption": "Champions League - We are ready! 💙🏆",
+      "date": "2026-02-10",
+      "likes": 38000,
+      "comments": 980,
+      "shares": 2100,
+      "saves": 2400,
+      "engagement_rate": 7.2,
+      "reach": 280000
+    },
+    {
+      "id": "p3",
+      "type": "reel",
+      "caption": "Maksimir pod svjetlima 🔵 Atmosfera za pamćenje!",
+      "date": "2026-02-05",
+      "likes": 34500,
+      "comments": 870,
+      "shares": 1950,
+      "saves": 2100,
+      "engagement_rate": 6.8,
+      "reach": 255000
+    },
+    {
+      "id": "p4",
+      "type": "static_image",
+      "caption": "Novo pojačanje! Dobrodošao u obitelj 💙 #DobrodošaoUDinamo",
+      "date": "2026-01-28",
+      "likes": 31200,
+      "comments": 1450,
+      "shares": 1800,
+      "saves": 1600,
+      "engagement_rate": 6.2,
+      "reach": 240000
+    },
+    {
+      "id": "p5",
+      "type": "reel",
+      "caption": "Trening iz prvog lica 👀 Behind the scenes sa Dinamom",
+      "date": "2026-01-22",
+      "likes": 28700,
+      "comments": 640,
+      "shares": 1500,
+      "saves": 3200,
+      "engagement_rate": 5.9,
+      "reach": 218000
+    },
+    {
+      "id": "p6",
+      "type": "carousel",
+      "caption": "Dinamo Academy - Budućnost je plava! 💙 Naši mladi igrači na turniru u Salzburgu",
+      "date": "2026-01-18",
+      "likes": 25400,
+      "comments": 580,
+      "shares": 1200,
+      "saves": 1800,
+      "engagement_rate": 5.4,
+      "reach": 195000
+    },
+    {
+      "id": "p7",
+      "type": "reel",
+      "caption": "Sučić ➡️ Baturina ➡️ GOL! Kombinacija sezone! 🔥",
+      "date": "2026-01-14",
+      "likes": 22800,
+      "comments": 520,
+      "shares": 1100,
+      "saves": 1500,
+      "engagement_rate": 4.8,
+      "reach": 175000
+    },
+    {
+      "id": "p8",
+      "type": "static_image",
+      "caption": "Matchday! 🏟️ Dinamo vs Rijeka | HNL | 20:00 #SamoDinamo",
+      "date": "2026-01-10",
+      "likes": 19500,
+      "comments": 430,
+      "shares": 890,
+      "saves": 620,
+      "engagement_rate": 4.1,
+      "reach": 156000
+    },
+    {
+      "id": "p9",
+      "type": "carousel",
+      "caption": "📊 Sezona u brojevima - Dinamo dominira HNL! #DynamoStats",
+      "date": "2026-01-06",
+      "likes": 17200,
+      "comments": 380,
+      "shares": 750,
+      "saves": 1900,
+      "engagement_rate": 3.6,
+      "reach": 142000
+    },
+    {
+      "id": "p10",
+      "type": "reel",
+      "caption": "Happy New Year od Dinama! 🎆💙 Što nam donosi 2026?",
+      "date": "2026-01-01",
+      "likes": 15800,
+      "comments": 620,
+      "shares": 680,
+      "saves": 420,
+      "engagement_rate": 3.2,
+      "reach": 128000
+    }
+  ],
+  "posting_frequency": 4.2,
+  "best_posting_times": {
+    "monday": "18:00",
+    "tuesday": "19:00",
+    "wednesday": "18:30",
+    "thursday": "19:00",
+    "friday": "17:00",
+    "saturday": "14:00",
+    "sunday": "20:00"
+  },
+  "hashtag_performance": {
+    "#SamoDinamo": {"avg_reach": 52000, "usage_count": 820},
+    "#DynamoZagreb": {"avg_reach": 48000, "usage_count": 690},
+    "#GNKDinamo": {"avg_reach": 44000, "usage_count": 1200},
+    "#Maksimir": {"avg_reach": 36000, "usage_count": 340},
+    "#PlavaObitelj": {"avg_reach": 31000, "usage_count": 210},
+    "#HNL": {"avg_reach": 29000, "usage_count": 580},
+    "#ChampionsLeague": {"avg_reach": 85000, "usage_count": 45}
+  },
+  "story_metrics": {
+    "avg_daily_stories": 6,
+    "avg_views": 38000,
+    "avg_completion_rate": 72,
+    "avg_tap_forward_rate": 18,
+    "avg_exit_rate": 10,
+    "avg_reply_rate": 0.4
+  },
+  "monthly_metrics": [
+    {"month": "2025-09", "followers": 538000, "engagement_rate": 2.6, "reach": 1200000, "impressions": 3800000},
+    {"month": "2025-10", "followers": 544000, "engagement_rate": 2.7, "reach": 1350000, "impressions": 4100000},
+    {"month": "2025-11", "followers": 549000, "engagement_rate": 2.9, "reach": 1420000, "impressions": 4300000},
+    {"month": "2025-12", "followers": 555000, "engagement_rate": 2.7, "reach": 1280000, "impressions": 3900000},
+    {"month": "2026-01", "followers": 561000, "engagement_rate": 2.8, "reach": 1390000, "impressions": 4200000},
+    {"month": "2026-02", "followers": 567000, "engagement_rate": 2.8, "reach": 1450000, "impressions": 4400000}
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "description": "Google Trends search interest data for key Dinamo-related terms by country (0-100 scale)",
+  "last_updated": "2026-03-01",
+  "data_period": "2025-03 to 2026-03",
+  "search_terms": {
+    "Dinamo Zagreb": {
+      "global_interest": 28,
+      "by_country": {
+        "HR": 100,
+        "BA": 42,
+        "SI": 18,
+        "RS": 12,
+        "AT": 8,
+        "DE": 6,
+        "CH": 5,
+        "MK": 9,
+        "ME": 15,
+        "SE": 4,
+        "US": 2,
+        "UK": 3,
+        "TR": 5,
+        "NL": 4,
+        "HU": 7,
+        "CZ": 6,
+        "AU": 2,
+        "CA": 1,
+        "IE": 2
+      },
+      "seasonal_peaks": [
+        {"period": "2025-09", "interest": 65, "reason": "Champions League group stage start"},
+        {"period": "2025-10", "interest": 48, "reason": "CL matchdays"},
+        {"period": "2025-11", "interest": 52, "reason": "CL matchdays"},
+        {"period": "2025-12", "interest": 42, "reason": "CL final matchday + winter break"},
+        {"period": "2026-01", "interest": 55, "reason": "Transfer window + CL knockout draw"},
+        {"period": "2026-02", "interest": 72, "reason": "CL playoff round"},
+        {"period": "2026-03", "interest": 58, "reason": "CL Round of 16"}
+      ],
+      "related_queries": [
+        {"query": "dinamo zagreb results", "type": "top", "interest": 85},
+        {"query": "dinamo zagreb champions league", "type": "rising", "interest": 320},
+        {"query": "dinamo zagreb transfers", "type": "top", "interest": 62},
+        {"query": "dinamo zagreb tickets", "type": "top", "interest": 58},
+        {"query": "dinamo zagreb lineup", "type": "top", "interest": 45},
+        {"query": "dinamo zagreb vs", "type": "top", "interest": 72}
+      ]
+    },
+    "Croatia football": {
+      "global_interest": 35,
+      "by_country": {
+        "HR": 88,
+        "BA": 32,
+        "SI": 15,
+        "RS": 10,
+        "AT": 12,
+        "DE": 14,
+        "CH": 8,
+        "SE": 6,
+        "US": 8,
+        "UK": 12,
+        "AU": 5,
+        "CA": 4,
+        "IE": 5,
+        "NL": 6,
+        "TR": 4,
+        "HU": 8,
+        "CZ": 5
+      },
+      "seasonal_peaks": [
+        {"period": "2025-09", "interest": 42, "reason": "European competition"},
+        {"period": "2025-10", "interest": 55, "reason": "Nations League + European club competitions"},
+        {"period": "2025-11", "interest": 48, "reason": "Nations League + club competitions"},
+        {"period": "2026-03", "interest": 65, "reason": "World Cup qualifiers"}
+      ],
+      "related_queries": [
+        {"query": "croatia national team", "type": "top", "interest": 92},
+        {"query": "croatia world cup 2026", "type": "rising", "interest": 450},
+        {"query": "HNL standings", "type": "top", "interest": 68},
+        {"query": "croatia football players", "type": "top", "interest": 55}
+      ]
+    },
+    "HNL": {
+      "global_interest": 12,
+      "by_country": {
+        "HR": 100,
+        "BA": 28,
+        "SI": 8,
+        "RS": 5,
+        "AT": 3,
+        "DE": 2,
+        "ME": 6,
+        "MK": 4,
+        "XK": 3
+      },
+      "seasonal_peaks": [
+        {"period": "2025-08", "interest": 72, "reason": "Season start"},
+        {"period": "2025-10", "interest": 58, "reason": "Mid-season form"},
+        {"period": "2025-12", "interest": 45, "reason": "Winter break approach"},
+        {"period": "2026-02", "interest": 62, "reason": "Spring restart"},
+        {"period": "2026-05", "interest": 85, "reason": "Title race finale"}
+      ]
+    },
+    "Maksimir stadium": {
+      "global_interest": 8,
+      "by_country": {
+        "HR": 100,
+        "BA": 15,
+        "SI": 6,
+        "AT": 4,
+        "DE": 3
+      }
+    },
+    "GNK Dinamo": {
+      "global_interest": 22,
+      "by_country": {
+        "HR": 100,
+        "BA": 35,
+        "SI": 14,
+        "RS": 8,
+        "ME": 12,
+        "MK": 7,
+        "AT": 5,
+        "DE": 4,
+        "CH": 3
+      }
+    }
+  },
+  "competitor_comparison": {
+    "search_interest_comparison": {
+      "Dinamo Zagreb": 28,
+      "Hajduk Split": 22,
+      "Red Bull Salzburg": 32,
+      "Slavia Praha": 25,
+      "Ferencváros": 20,
+      "Ajax": 82,
+      "Sporting CP": 65,
+      "Galatasaray": 88,
+      "Beşiktaş": 62
+    }
+  }
+}

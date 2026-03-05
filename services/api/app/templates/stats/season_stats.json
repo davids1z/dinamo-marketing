@@ -1,0 +1,35 @@
+{
+  "name": "Season Statistics Summary",
+  "description": "Comprehensive season overview infographic summarizing team performance across all competitions. Used at mid-season and end-of-season milestones.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-center"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "center",
+    "overlay_opacity": 0.0,
+    "elements": ["headline", "season_label", "stat_infographic", "top_scorers", "competition_breakdown", "slide_indicator", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "SEASON IN NUMBERS"},
+    "season": {"max_chars": 15, "example": "2025/26"},
+    "matches_played": {"max_chars": 5, "example": "38"},
+    "wins": {"max_chars": 5, "example": "26"},
+    "draws": {"max_chars": 5, "example": "8"},
+    "losses": {"max_chars": 5, "example": "4"},
+    "goals_scored": {"max_chars": 5, "example": "78"},
+    "goals_conceded": {"max_chars": 5, "example": "24"},
+    "clean_sheets": {"max_chars": 5, "example": "16"},
+    "top_scorer": {"max_chars": 30, "example": "Petković (18)"},
+    "top_assister": {"max_chars": 30, "example": "Ivanušec (12)"}
+  },
+  "guidelines": "Multi-slide carousel: Slide 1 is the overview (W/D/L record, goals). Slide 2 covers top scorers and assisters. Slide 3 breaks down by competition (HNL, Cup, Europe). Slide 4 shows notable records. Use clean data visualization with bar charts, pie charts, and stat cards. All data must be verified before posting."
+}

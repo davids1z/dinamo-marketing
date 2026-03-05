@@ -1,0 +1,30 @@
+{
+  "name": "Press Conference",
+  "description": "Clips and quotes from pre-match or post-match press conferences. Delivers the manager and player insights in an engaging social format.",
+  "platforms": ["instagram", "facebook", "twitter", "tiktok"],
+  "format_type": "video",
+  "aspect_ratio": "16:9",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.3,
+    "elements": ["press_footage", "speaker_lower_third", "quote_subtitle", "headline", "press_backdrop", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "PRESS CONFERENCE"},
+    "speaker_name": {"max_chars": 30, "example": "Sergej Jakirović"},
+    "speaker_role": {"max_chars": 20, "example": "Head Coach"},
+    "conference_type": {"max_chars": 20, "example": "Pre-Match"},
+    "key_quote": {"max_chars": 150, "example": "We are focused and ready. The players have shown incredible commitment this week in training."},
+    "match_context": {"max_chars": 40, "example": "Ahead of Dinamo vs Hajduk"}
+  },
+  "guidelines": "30-90 second edited clip of the press conference. Lower third identifies the speaker with name and role. Subtitles are mandatory for accessibility and silent viewing. 16:9 for landscape (YouTube/Twitter) but also provide a 9:16 crop for Stories/Reels. Focus on the most quotable and newsworthy statements. Include the Dinamo press backdrop in frame. Post within 2 hours of the press conference."
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Post-Match Statistics",
+  "description": "Comprehensive post-match statistics infographic comparing both teams across key performance metrics. Published 30-60 minutes after full time.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-center"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "center",
+    "overlay_opacity": 0.0,
+    "elements": ["club_crests", "score_display", "stat_comparison_bars", "headline", "slide_indicator", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "MATCH STATS"},
+    "possession": {"max_chars": 15, "example": "62% - 38%"},
+    "shots": {"max_chars": 15, "example": "18 - 7"},
+    "shots_on_target": {"max_chars": 15, "example": "8 - 3"},
+    "corners": {"max_chars": 15, "example": "9 - 2"},
+    "fouls": {"max_chars": 15, "example": "11 - 14"},
+    "passes": {"max_chars": 15, "example": "542 - 318"},
+    "pass_accuracy": {"max_chars": 15, "example": "87% - 74%"},
+    "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"}
+  },
+  "guidelines": "Use horizontal comparison bars with Dinamo stats in blue and opponent stats in a neutral gray. Each stat should be clearly labeled with values. Slide 1 shows the result and main stats (possession, shots, corners). Slide 2 shows detailed stats (passes, tackles, xG). Clean data visualization is paramount."
+}

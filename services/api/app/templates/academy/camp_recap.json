@@ -1,0 +1,32 @@
+{
+  "name": "Academy Camp Recap",
+  "description": "Summary content from academy training camps, pre-season tours, or special development programs. Showcases the investment in youth development.",
+  "platforms": ["instagram", "facebook"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00E676",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.5,
+    "elements": ["camp_photos", "headline", "camp_details", "participant_stats", "highlight_moments", "academy_badge", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "CAMP RECAP"},
+    "camp_name": {"max_chars": 40, "example": "Winter Training Camp — Umag 2026"},
+    "dates": {"max_chars": 25, "example": "15-22 January 2026"},
+    "participants": {"max_chars": 10, "example": "42"},
+    "age_groups": {"max_chars": 20, "example": "U-15 & U-17"},
+    "summary": {"max_chars": 150, "example": "A week of intensive training, friendly matches, and team building in Umag. Our young Blues are ready for the second half of the season."},
+    "matches_played": {"max_chars": 5, "example": "4"},
+    "cta": {"example": "Academy Updates"}
+  },
+  "guidelines": "Photo carousel with 5-8 slides: Slide 1 is the title card with a group photo. Slides 2-6 are action and candid photos from the camp. Slide 7 shows stats and key takeaways. Slide 8 is a group photo or closing message. Use the green academy accent. Captions should tell the story of the camp experience. Tag location."
+}

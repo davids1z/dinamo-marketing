@@ -1,0 +1,31 @@
+{
+  "name": "Half-Time Score Update",
+  "description": "Displays the half-time score with key first-half stats. Keeps fans engaged during the break with a quick summary of the opening 45 minutes.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "center",
+    "overlay_opacity": 0.0,
+    "elements": ["club_crests", "score_display", "half_time_label", "goal_scorers", "key_stats_bar", "headline", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 15, "example": "HALF TIME"},
+    "home_score": {"max_chars": 2, "example": "2"},
+    "away_score": {"max_chars": 2, "example": "0"},
+    "goal_scorers": {"max_chars": 100, "example": "⚽ Petković 12', Oršić 38'"},
+    "possession": {"max_chars": 15, "example": "58% - 42%"},
+    "shots": {"max_chars": 15, "example": "8 - 3"},
+    "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"}
+  },
+  "guidelines": "Score must be the dominant visual element in large, bold numerals. Club crests flanking the score. Goal scorers listed below with timestamps. Include 2-3 key stats (possession, shots, corners) in a clean stats bar. Dark background with blue accent lines."
+}

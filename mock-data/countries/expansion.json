@@ -1,0 +1,168 @@
+{
+  "description": "Expansion markets - target countries for growing Dinamo's international brand",
+  "last_updated": "2026-03-01",
+  "countries": {
+    "UK": {
+      "name": "United Kingdom",
+      "population": 67800000,
+      "internet_penetration": 95,
+      "social_media_users": 56000000,
+      "football_interest_score": 96,
+      "croatian_diaspora": 12000,
+      "top_platforms": {"instagram": 32000000, "facebook": 36000000, "tiktok": 23000000, "youtube": 48000000},
+      "market_entry_strategy": {
+        "primary_angle": "Champions League and European football coverage",
+        "secondary_angle": "Player pipeline to Premier League",
+        "language": "en",
+        "key_media_partners": ["BT Sport", "Sky Sports", "BBC Sport", "The Athletic"],
+        "content_approach": "English-language CL content, PL transfer stories, Modrić legacy"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 8500,
+        "growth_potential": "high",
+        "pl_alumni_connection": ["Luka Modrić (Tottenham)", "Eduardo (Arsenal)", "Dejan Lovren (Liverpool)"],
+        "notes": "Huge football market. Entry through CL coverage and PL transfer stories. British fans follow European football extensively."
+      },
+      "opportunities": [
+        "CL matchday content in English targeting UK football fans",
+        "Player development stories (next Croatian to PL)",
+        "Partnerships with UK-based Croatian supporters groups",
+        "The Athletic / Guardian partnership content"
+      ]
+    },
+    "NL": {
+      "name": "Netherlands",
+      "population": 17800000,
+      "internet_penetration": 96,
+      "social_media_users": 14200000,
+      "football_interest_score": 90,
+      "croatian_diaspora": 3500,
+      "top_platforms": {"instagram": 7800000, "facebook": 8200000, "tiktok": 5100000, "youtube": 12000000},
+      "market_entry_strategy": {
+        "primary_angle": "Ajax-style development philosophy comparison",
+        "secondary_angle": "Eredivisie transfer connections",
+        "language": "en",
+        "key_media_partners": ["NOS Sport", "Voetbal International", "ESPN NL"],
+        "content_approach": "Youth development parallels, tactical content, Eredivisie connections"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 3200,
+        "growth_potential": "medium",
+        "notes": "Dutch football culture appreciates academy development. Dinamo's player development parallels Ajax model. Good market for tactical/analytical content."
+      },
+      "opportunities": [
+        "Academy comparison content (Dinamo Academy vs De Toekomst)",
+        "Dutch-language tactical analysis partnerships",
+        "Transfer market content for Dutch audience"
+      ]
+    },
+    "BE": {
+      "name": "Belgium",
+      "population": 11700000,
+      "internet_penetration": 93,
+      "social_media_users": 8900000,
+      "football_interest_score": 86,
+      "croatian_diaspora": 5200,
+      "top_platforms": {"instagram": 4800000, "facebook": 5600000, "tiktok": 3200000, "youtube": 7200000},
+      "market_entry_strategy": {
+        "primary_angle": "Pro League transfer connections",
+        "secondary_angle": "CL/EL competition encounters",
+        "language": "en",
+        "key_media_partners": ["Sporza", "HLN Sport"],
+        "content_approach": "Belgian Pro League alumni stories, transfer pipeline content"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 2100,
+        "growth_potential": "medium",
+        "notes": "Belgian league is also a 'selling league' - shared identity. Turkish/Croatian diaspora overlap in Belgium."
+      },
+      "opportunities": [
+        "Shared 'selling league' identity content",
+        "Player transfer stories Belgium-Croatia corridor",
+        "Targeting Turkish-Belgian and Croatian-Belgian communities"
+      ]
+    },
+    "TR": {
+      "name": "Turkey",
+      "name_local": "Türkiye",
+      "population": 85500000,
+      "internet_penetration": 83,
+      "social_media_users": 54000000,
+      "football_interest_score": 94,
+      "croatian_diaspora": 500,
+      "top_platforms": {"instagram": 38000000, "facebook": 32000000, "tiktok": 28000000, "youtube": 52000000},
+      "market_entry_strategy": {
+        "primary_angle": "CL/EL matchups with Turkish clubs",
+        "secondary_angle": "Transfer connections (Süper Lig pipeline)",
+        "language": "en",
+        "key_media_partners": ["beIN Sports TR", "TRT Spor", "A Spor"],
+        "content_approach": "European night content when facing Turkish teams, transfer stories"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 4800,
+        "growth_potential": "medium",
+        "notes": "Massive football market. Interest peaks during CL/EL encounters. Transfer market connections. Turkish fans are highly engaged on social media."
+      },
+      "opportunities": [
+        "Pre-match and post-match content for Turkish team encounters",
+        "Player transfer stories to/from Süper Lig",
+        "Rivalry and respect content for Turkish football fans"
+      ]
+    },
+    "CZ": {
+      "name": "Czech Republic",
+      "name_local": "Česko",
+      "population": 10800000,
+      "internet_penetration": 88,
+      "social_media_users": 7200000,
+      "football_interest_score": 76,
+      "croatian_diaspora": 2800,
+      "top_platforms": {"instagram": 3400000, "facebook": 4800000, "tiktok": 2600000, "youtube": 6000000},
+      "market_entry_strategy": {
+        "primary_angle": "Central European football brotherhood",
+        "secondary_angle": "CL/EL matchups, league comparison",
+        "language": "en",
+        "key_media_partners": ["ČT Sport", "iSport.cz"],
+        "content_approach": "Central European football identity, league quality comparisons, shared UEFA coefficient battles"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 2400,
+        "growth_potential": "medium",
+        "notes": "Similar league profile. Czech fans follow regional European football. Shared interest in UEFA coefficient."
+      },
+      "opportunities": [
+        "Central European football alliance content",
+        "League comparison infographics",
+        "Shared UEFA coefficient battle narrative"
+      ]
+    },
+    "HU": {
+      "name": "Hungary",
+      "name_local": "Magyarország",
+      "population": 9600000,
+      "internet_penetration": 85,
+      "social_media_users": 6200000,
+      "football_interest_score": 80,
+      "croatian_diaspora": 18000,
+      "top_platforms": {"instagram": 2800000, "facebook": 4500000, "tiktok": 2200000, "youtube": 5400000},
+      "market_entry_strategy": {
+        "primary_angle": "Geographic neighbor and CL/EL rival",
+        "secondary_angle": "Ferencváros rivalry/comparison",
+        "language": "en",
+        "key_media_partners": ["M4 Sport", "Nemzeti Sport"],
+        "content_approach": "Derby Alpe-Adria narratives, regional football rivalry content"
+      },
+      "dinamo_relevance": {
+        "estimated_followers": 3100,
+        "growth_potential": "medium",
+        "notes": "Geographic neighbor. Hungarian football fans follow Croatian football through regional interest. Croatian minority in Hungary."
+      },
+      "opportunities": [
+        "Regional rivalry content with Ferencváros",
+        "Cross-border fan engagement initiatives",
+        "Croatian-Hungarian historical football narratives",
+        "Youth tournament collaborations"
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "New Kit Launch",
+  "description": "Official announcement of a new home, away, or third kit. Premium product launch content with player models and kit details.",
+  "platforms": ["instagram", "facebook", "tiktok", "twitter"],
+  "format_type": "video",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.4,
+    "elements": ["kit_reveal_video", "player_models", "kit_closeup", "headline", "season_label", "kit_details", "shop_cta", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "THE NEW ERA"},
+    "subheadline": {"max_chars": 60, "example": "Introducing the 2026/27 Home Kit"},
+    "kit_type": {"max_chars": 15, "example": "Home Kit"},
+    "season": {"max_chars": 15, "example": "2026/27"},
+    "kit_feature_1": {"max_chars": 40, "example": "Inspired by the Zagreb skyline"},
+    "kit_feature_2": {"max_chars": 40, "example": "100% recycled polyester"},
+    "kit_feature_3": {"max_chars": 40, "example": "Engineered for performance"},
+    "price": {"max_chars": 15, "example": "From €79.99"},
+    "cta": {"example": "Shop Now"}
+  },
+  "guidelines": "Cinematic reveal video with dramatic lighting. Open with a teaser silhouette, then reveal the full kit on player models. Include close-up shots of design details, fabric texture, and unique features. Multiple players wearing the kit in hero poses. End with pricing and shop CTA. Coordinate with kit manufacturer for approved imagery. Embargo must be respected."
+}

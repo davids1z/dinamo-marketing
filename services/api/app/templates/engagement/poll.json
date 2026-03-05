@@ -1,0 +1,29 @@
+{
+  "name": "Fan Poll",
+  "description": "Interactive poll graphic to drive fan engagement. Poses a question with visual options for fans to vote on in comments or reactions.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "bottom-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "top-center",
+    "overlay_opacity": 0.0,
+    "elements": ["question_text", "option_a_image", "option_b_image", "vs_divider", "voting_instructions", "logo"]
+  },
+  "placeholders": {
+    "question": {"max_chars": 60, "example": "Who was our best signing this season?"},
+    "option_a": {"max_chars": 25, "example": "Marko Horvat"},
+    "option_b": {"max_chars": 25, "example": "Ivan Šimić"},
+    "voting_instructions": {"max_chars": 40, "example": "Like for A, Comment for B"},
+    "hashtag": {"max_chars": 25, "example": "#DinamoPoll"}
+  },
+  "guidelines": "Split-screen design with Option A on the left and Option B on the right, separated by a VS divider. Question text at the top in bold. Each option should have a player photo or relevant image. Voting instructions must be clear. Blue tint on left option, lighter accent on right. Drives comments and engagement metrics."
+}

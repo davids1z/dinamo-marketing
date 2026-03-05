@@ -1,0 +1,30 @@
+{
+  "name": "Full-Time Result",
+  "description": "Final score announcement posted immediately at the final whistle. The definitive matchday result graphic shared across all platforms.",
+  "platforms": ["instagram", "facebook", "twitter", "tiktok"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.7,
+    "elements": ["hero_image", "club_crests", "score_display", "full_time_label", "goal_scorers", "competition_badge", "headline", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 15, "example": "FULL TIME"},
+    "home_score": {"max_chars": 2, "example": "3"},
+    "away_score": {"max_chars": 2, "example": "1"},
+    "goal_scorers": {"max_chars": 150, "example": "⚽ Petković 12', Oršić 38', Ademi 67'"},
+    "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"},
+    "competition": {"max_chars": 30, "example": "HNL Round 24"}
+  },
+  "guidelines": "Use a dramatic action photo from the match as the hero image. Score displayed prominently with club crests. All goal scorers listed with minute stamps. The tone should be neutral — the result/victory/defeat templates handle the emotional tone. Always include competition and round info."
+}

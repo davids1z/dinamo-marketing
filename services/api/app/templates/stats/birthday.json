@@ -1,0 +1,30 @@
+{
+  "name": "Player Birthday",
+  "description": "Birthday celebration post for current squad members. Light-hearted, personal content that humanizes players and drives fan interaction.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.5,
+    "elements": ["player_cutout", "birthday_decorations", "headline", "player_name", "age", "birthday_message", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "HAPPY BIRTHDAY!"},
+    "player_name": {"max_chars": 30, "example": "Dani Olmo"},
+    "age": {"max_chars": 3, "example": "28"},
+    "birthday_message": {"max_chars": 80, "example": "Wishing our number 7 a fantastic birthday! Sve najbolje!"},
+    "player_number": {"max_chars": 3, "example": "7"},
+    "cta": {"example": "Send Your Wishes"}
+  },
+  "guidelines": "Use a smiling or candid player photo. Add subtle birthday decorations (confetti, cake icon, balloons) in club colors — blue and white only, no generic party colors. Include the player's age and name prominently. Encourage fans to leave birthday wishes in comments. Use Croatian birthday greeting 'Sretan rođendan'."
+}

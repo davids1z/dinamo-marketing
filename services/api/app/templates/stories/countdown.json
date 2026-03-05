@@ -1,0 +1,30 @@
+{
+  "name": "Event Countdown",
+  "description": "Countdown story for upcoming matches, events, or announcements. Uses Instagram's countdown sticker or a custom countdown design.",
+  "platforms": ["instagram", "facebook"],
+  "format_type": "story",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.55,
+    "elements": ["background_image", "countdown_timer", "event_name", "headline", "date_time", "countdown_sticker_zone", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 20, "example": "COUNTDOWN"},
+    "event_name": {"max_chars": 40, "example": "Dinamo vs Hajduk"},
+    "event_date": {"max_chars": 25, "example": "Saturday, 15 March 2026"},
+    "event_time": {"max_chars": 10, "example": "20:00 CET"},
+    "days_remaining": {"max_chars": 3, "example": "3"},
+    "cta": {"example": "Set Reminder"}
+  },
+  "guidelines": "Feature a large countdown number or use Instagram's native countdown sticker placed in the designated sticker zone. Background should be an atmospheric stadium or match-related image. The event name and date must be clearly visible. Use animated number transitions for video stories. Post daily countdown stories starting 3 days before the event."
+}

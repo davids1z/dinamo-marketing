@@ -1,0 +1,206 @@
+{
+  "description": "Croatian diaspora population data with city-level concentrations",
+  "last_updated": "2026-03-01",
+  "total_diaspora_estimate": 1350000,
+  "data_sources": ["Croatian Bureau of Statistics", "EUROSTAT", "UN Migration Data", "National Census Data"],
+  "countries": {
+    "DE": {
+      "country_name": "Germany",
+      "total_croatians": 435000,
+      "percentage_of_population": 0.52,
+      "generation_breakdown": {
+        "first_generation": 185000,
+        "second_generation": 165000,
+        "third_generation_plus": 85000
+      },
+      "city_concentrations": [
+        {"city": "München", "population": 52000, "lat": 48.1351, "lng": 11.582, "community_orgs": ["Hrvatska Zajednica München", "NK Croatia München"]},
+        {"city": "Stuttgart", "population": 48000, "lat": 48.7758, "lng": 9.1829, "community_orgs": ["Kroatische Gemeinde Stuttgart"]},
+        {"city": "Frankfurt am Main", "population": 38000, "lat": 50.1109, "lng": 8.6821, "community_orgs": ["Hrvatska Katolička Misija Frankfurt"]},
+        {"city": "Berlin", "population": 28000, "lat": 52.52, "lng": 13.405, "community_orgs": ["Kroatischer Kulturverein Berlin"]},
+        {"city": "Hamburg", "population": 24000, "lat": 53.5511, "lng": 9.9937, "community_orgs": ["NK Croatia Hamburg"]},
+        {"city": "Düsseldorf", "population": 22000, "lat": 51.2277, "lng": 6.7735, "community_orgs": ["Kroatische Gemeinde Düsseldorf"]},
+        {"city": "Köln", "population": 18000, "lat": 50.9375, "lng": 6.9603, "community_orgs": []},
+        {"city": "Nürnberg", "population": 15000, "lat": 49.4521, "lng": 11.0767, "community_orgs": []},
+        {"city": "Mannheim", "population": 12000, "lat": 49.4875, "lng": 8.466, "community_orgs": []},
+        {"city": "Hannover", "population": 9000, "lat": 52.3759, "lng": 9.732, "community_orgs": []}
+      ],
+      "key_insights": "Largest Croatian community in Europe. Gastarbeiter (guest worker) legacy from 1960s-70s plus significant post-2013 EU migration wave. Strong football culture maintained through amateur Croatian clubs.",
+      "social_media_reachability": "high",
+      "preferred_platforms": ["facebook", "instagram", "youtube"],
+      "language_preference": {"croatian": 55, "german": 35, "bilingual": 10}
+    },
+    "AT": {
+      "country_name": "Austria",
+      "total_croatians": 120000,
+      "percentage_of_population": 1.32,
+      "generation_breakdown": {
+        "first_generation": 45000,
+        "second_generation": 48000,
+        "third_generation_plus": 27000
+      },
+      "city_concentrations": [
+        {"city": "Wien", "population": 55000, "lat": 48.2082, "lng": 16.3738, "community_orgs": ["Kroatischer Akademikerclub", "NK Croatia Wien"]},
+        {"city": "Graz", "population": 18000, "lat": 47.0707, "lng": 15.4395, "community_orgs": ["Kroatischer Kulturverein Graz"]},
+        {"city": "Salzburg", "population": 12000, "lat": 47.8095, "lng": 13.055, "community_orgs": []},
+        {"city": "Linz", "population": 9000, "lat": 48.3069, "lng": 14.2858, "community_orgs": []},
+        {"city": "Innsbruck", "population": 5000, "lat": 47.2692, "lng": 11.4041, "community_orgs": []}
+      ],
+      "key_insights": "Burgenland Croats (Gradišćanski Hrvati) are a recognized ethnic minority with centuries of presence. Recent migration adds to urban populations. Closest major diaspora market geographically.",
+      "social_media_reachability": "high",
+      "preferred_platforms": ["facebook", "instagram", "youtube"],
+      "language_preference": {"croatian": 50, "german": 40, "bilingual": 10}
+    },
+    "CH": {
+      "country_name": "Switzerland",
+      "total_croatians": 85000,
+      "percentage_of_population": 0.97,
+      "generation_breakdown": {
+        "first_generation": 38000,
+        "second_generation": 32000,
+        "third_generation_plus": 15000
+      },
+      "city_concentrations": [
+        {"city": "Zürich", "population": 28000, "lat": 47.3769, "lng": 8.5417, "community_orgs": ["Hrvatska Zajednica Zürich"]},
+        {"city": "Basel", "population": 15000, "lat": 47.5596, "lng": 7.5886, "community_orgs": []},
+        {"city": "Bern", "population": 10000, "lat": 46.948, "lng": 7.4474, "community_orgs": []},
+        {"city": "St. Gallen", "population": 8000, "lat": 47.4245, "lng": 9.3767, "community_orgs": []},
+        {"city": "Luzern", "population": 5000, "lat": 47.0502, "lng": 8.3093, "community_orgs": []}
+      ],
+      "key_insights": "High purchasing power diaspora. Mix of Gastarbeiter legacy and recent professionals. Predominantly in German-speaking cantons.",
+      "social_media_reachability": "high",
+      "preferred_platforms": ["instagram", "youtube", "facebook"],
+      "language_preference": {"croatian": 45, "german": 42, "bilingual": 13}
+    },
+    "SE": {
+      "country_name": "Sweden",
+      "total_croatians": 48000,
+      "percentage_of_population": 0.46,
+      "generation_breakdown": {
+        "first_generation": 18000,
+        "second_generation": 22000,
+        "third_generation_plus": 8000
+      },
+      "city_concentrations": [
+        {"city": "Stockholm", "population": 15000, "lat": 59.3293, "lng": 18.0686, "community_orgs": ["Hrvatska Zajednica Stockholm"]},
+        {"city": "Göteborg", "population": 12000, "lat": 57.7089, "lng": 11.9746, "community_orgs": ["NK Croatia Göteborg"]},
+        {"city": "Malmö", "population": 8000, "lat": 55.6049, "lng": 13.0038, "community_orgs": []}
+      ],
+      "key_insights": "Primarily 1990s refugee wave. Well-integrated community with maintained Croatian identity. Second generation bilingual.",
+      "social_media_reachability": "high",
+      "preferred_platforms": ["instagram", "tiktok", "youtube"],
+      "language_preference": {"croatian": 35, "swedish": 45, "bilingual": 20}
+    },
+    "IE": {
+      "country_name": "Ireland",
+      "total_croatians": 22000,
+      "percentage_of_population": 0.43,
+      "generation_breakdown": {
+        "first_generation": 20000,
+        "second_generation": 2000,
+        "third_generation_plus": 0
+      },
+      "city_concentrations": [
+        {"city": "Dublin", "population": 14000, "lat": 53.3498, "lng": -6.2603, "community_orgs": ["Croatian Community Ireland"]},
+        {"city": "Cork", "population": 3500, "lat": 51.8985, "lng": -8.4756, "community_orgs": []},
+        {"city": "Galway", "population": 2000, "lat": 53.2707, "lng": -9.0568, "community_orgs": []}
+      ],
+      "key_insights": "Almost entirely post-2013 EU migration. Young professionals and service workers. Very active on social media. English-speaking market.",
+      "social_media_reachability": "very_high",
+      "preferred_platforms": ["instagram", "tiktok", "facebook"],
+      "language_preference": {"croatian": 60, "english": 30, "bilingual": 10}
+    },
+    "NO": {
+      "country_name": "Norway",
+      "total_croatians": 8500,
+      "percentage_of_population": 0.15,
+      "generation_breakdown": {
+        "first_generation": 5500,
+        "second_generation": 2500,
+        "third_generation_plus": 500
+      },
+      "city_concentrations": [
+        {"city": "Oslo", "population": 4500, "lat": 59.9139, "lng": 10.7522, "community_orgs": []},
+        {"city": "Bergen", "population": 1800, "lat": 60.3913, "lng": 5.3221, "community_orgs": []}
+      ],
+      "key_insights": "Small but well-established community. High purchasing power. Mix of 1990s refugees and recent EU migrants.",
+      "social_media_reachability": "medium",
+      "preferred_platforms": ["instagram", "facebook"],
+      "language_preference": {"croatian": 40, "norwegian": 45, "bilingual": 15}
+    },
+    "US": {
+      "country_name": "United States",
+      "total_croatians": 450000,
+      "percentage_of_population": 0.13,
+      "generation_breakdown": {
+        "first_generation": 65000,
+        "second_generation": 120000,
+        "third_generation_plus": 265000
+      },
+      "city_concentrations": [
+        {"city": "Chicago", "population": 85000, "lat": 41.8781, "lng": -87.6298, "community_orgs": ["Croatian Cultural Center Chicago", "Croatian Fraternal Union"]},
+        {"city": "Pittsburgh", "population": 42000, "lat": 40.4406, "lng": -79.9959, "community_orgs": ["Croatian Fraternal Union HQ"]},
+        {"city": "Los Angeles", "population": 38000, "lat": 34.0522, "lng": -118.2437, "community_orgs": ["Croatian-American Cultural Center LA"]},
+        {"city": "New York", "population": 32000, "lat": 40.7128, "lng": -74.006, "community_orgs": ["Croatian Center New York"]},
+        {"city": "Cleveland", "population": 28000, "lat": 41.4993, "lng": -81.6944, "community_orgs": ["American Croatian Lodge"]},
+        {"city": "San Francisco", "population": 18000, "lat": 37.7749, "lng": -122.4194, "community_orgs": []},
+        {"city": "San Jose", "population": 12000, "lat": 37.3382, "lng": -121.8863, "community_orgs": ["Croatian American Cultural Center"]},
+        {"city": "Houston", "population": 8000, "lat": 29.7604, "lng": -95.3698, "community_orgs": []}
+      ],
+      "key_insights": "Oldest and largest diaspora globally. Mostly 3rd+ generation with varying Croatian language ability. Strong cultural identity maintained through churches and fraternal organizations. Chicago and Pittsburgh are key markets. Growing MLS market creates football interest.",
+      "social_media_reachability": "medium",
+      "preferred_platforms": ["instagram", "tiktok", "youtube", "facebook"],
+      "language_preference": {"english": 72, "croatian": 15, "bilingual": 13}
+    },
+    "CA": {
+      "country_name": "Canada",
+      "total_croatians": 120000,
+      "percentage_of_population": 0.30,
+      "generation_breakdown": {
+        "first_generation": 28000,
+        "second_generation": 45000,
+        "third_generation_plus": 47000
+      },
+      "city_concentrations": [
+        {"city": "Toronto", "population": 42000, "lat": 43.6532, "lng": -79.3832, "community_orgs": ["Croatian Cultural Centre Toronto", "Croatia SC"]},
+        {"city": "Mississauga", "population": 18000, "lat": 43.589, "lng": -79.6441, "community_orgs": ["Croatian Parish Centre"]},
+        {"city": "Vancouver", "population": 15000, "lat": 49.2827, "lng": -123.1207, "community_orgs": ["Croatian Cultural Centre Vancouver"]},
+        {"city": "Hamilton", "population": 12000, "lat": 43.2557, "lng": -79.8711, "community_orgs": ["Croatian National Home Hamilton"]},
+        {"city": "Edmonton", "population": 5000, "lat": 53.5461, "lng": -113.4938, "community_orgs": []}
+      ],
+      "key_insights": "Concentrated in Greater Toronto Area. Active community organizations. Canada Soccer growth creates interest in European football.",
+      "social_media_reachability": "medium",
+      "preferred_platforms": ["instagram", "facebook", "youtube"],
+      "language_preference": {"english": 65, "croatian": 20, "bilingual": 15}
+    },
+    "AU": {
+      "country_name": "Australia",
+      "total_croatians": 135000,
+      "percentage_of_population": 0.51,
+      "generation_breakdown": {
+        "first_generation": 32000,
+        "second_generation": 55000,
+        "third_generation_plus": 48000
+      },
+      "city_concentrations": [
+        {"city": "Melbourne", "population": 48000, "lat": -37.8136, "lng": 144.9631, "community_orgs": ["Melbourne Knights FC", "Croatian Community Centre Footscray"]},
+        {"city": "Sydney", "population": 38000, "lat": -33.8688, "lng": 151.2093, "community_orgs": ["Sydney United FC", "Croatian Club Sydney"]},
+        {"city": "Perth", "population": 15000, "lat": -31.9505, "lng": 115.8605, "community_orgs": ["Stirling Macedonia FC (Croatian heritage)"]},
+        {"city": "Adelaide", "population": 12000, "lat": -34.9285, "lng": 138.6007, "community_orgs": ["Adelaide Croatia Raiders"]},
+        {"city": "Canberra", "population": 8000, "lat": -35.2809, "lng": 149.13, "community_orgs": ["Canberra FC (Croatian heritage)"]}
+      ],
+      "key_insights": "Strong Croatian-Australian community with deep football traditions. Melbourne Knights and Sydney United are among most successful NSL/A-League heritage clubs. Community maintains Croatian identity through sport. Time zone challenge (UTC+10/11).",
+      "social_media_reachability": "medium",
+      "preferred_platforms": ["instagram", "facebook", "youtube"],
+      "language_preference": {"english": 62, "croatian": 22, "bilingual": 16}
+    }
+  },
+  "summary": {
+    "total_diaspora": 1423500,
+    "top_5_countries": ["US", "DE", "AU", "CA", "AT"],
+    "highest_concentration_pct": "AT",
+    "most_reachable_digitally": ["DE", "AT", "IE", "SE", "CH"],
+    "largest_untapped_potential": ["US", "AU", "CA"],
+    "key_insight": "Diaspora is roughly 35% of Croatia's domestic population. First-generation prefers Croatian content; second-generation needs bilingual approach; third-generation+ requires English-first content."
+  }
+}

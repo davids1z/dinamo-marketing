@@ -1,0 +1,30 @@
+{
+  "name": "Recovery and Gym Session",
+  "description": "Shows players in recovery sessions, gym workouts, ice baths, or physiotherapy. Highlights the physical commitment and professionalism of the squad.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.25,
+    "elements": ["gym_footage", "headline", "exercise_labels", "player_names", "music_overlay", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "RECOVERY MODE"},
+    "session_type": {"max_chars": 25, "example": "Post-Match Recovery"},
+    "location": {"max_chars": 30, "example": "Dinamo Performance Centre"},
+    "focus_area": {"max_chars": 30, "example": "Lower body & ice bath"},
+    "music_track": {"max_chars": 40, "example": "Trending gym/motivation audio"},
+    "hashtags": {"max_chars": 60, "example": "#RecoveryDay #DinamoFit #GymWork"}
+  },
+  "guidelines": "15-30 second Reel showing gym exercises, ice baths, stretching, and recovery equipment. Use dynamic camera angles and close-ups of exercises. Motivational or workout-themed trending audio. Text labels can name exercises for engagement. Show multiple players. Emphasize dedication and professionalism. Popular format for TikTok fitness audience crossover."
+}

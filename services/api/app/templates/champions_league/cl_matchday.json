@@ -1,0 +1,34 @@
+{
+  "name": "Champions League Matchday",
+  "description": "Premium matchday announcement for UEFA Champions League fixtures. Features enhanced CL branding, starball elements, and elevated production quality.",
+  "platforms": ["instagram", "facebook", "tiktok", "twitter"],
+  "format_type": "video",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#001B3D",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "cl_starball": true,
+  "cl_anthem_cue": true,
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.55,
+    "elements": ["stadium_video_bg", "cl_starball_animation", "club_crests", "vs_divider", "match_info", "headline", "cl_anthem_audio", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "CHAMPIONS LEAGUE NIGHT"},
+    "opponent_name": {"max_chars": 30, "example": "AC Milan"},
+    "match_date": {"max_chars": 25, "example": "Tuesday, 18 March 2026"},
+    "match_time": {"max_chars": 10, "example": "21:00 CET"},
+    "venue": {"max_chars": 40, "example": "Stadion Maksimir, Zagreb"},
+    "group_stage": {"max_chars": 25, "example": "League Phase, MD 6"},
+    "subheadline": {"max_chars": 60, "example": "The biggest night of the season under the Maksimir lights"},
+    "cta": {"example": "Matchday Info"}
+  },
+  "guidelines": "This is a premium template — production value must exceed standard matchday content. Use the CL deep navy background (#001B3D). The starball must appear as an animated element. CL anthem snippet (3-5 seconds) as the audio intro. Club crests should be displayed at CL quality standards. Opponent crest must be high resolution. Video format preferred for the anthem integration."
+}

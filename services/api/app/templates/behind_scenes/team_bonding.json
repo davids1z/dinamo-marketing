@@ -1,0 +1,29 @@
+{
+  "name": "Team Bonding Activity",
+  "description": "Captures team bonding moments outside of football — dinners, activities, celebrations, and squad events that show team chemistry and culture.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.2,
+    "elements": ["candid_footage", "headline", "activity_label", "player_reactions", "music_overlay", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "SQUAD GOALS"},
+    "activity": {"max_chars": 30, "example": "Team Dinner in Zagreb"},
+    "context": {"max_chars": 40, "example": "End of season celebration"},
+    "music_track": {"max_chars": 40, "example": "Fun/trending audio"},
+    "hashtags": {"max_chars": 60, "example": "#TeamSpirit #DinamoFamily #SquadGoals"}
+  },
+  "guidelines": "Fun, candid, and unscripted. Show the genuine relationships between players — laughter, jokes, friendly competitions, team dinners. 15-45 seconds. Use trending fun/viral audio. Minimal branding — the content should feel organic and personal. Great for humanizing the squad and showing team chemistry. These posts typically generate high engagement. Ensure all players consent to appearing."
+}

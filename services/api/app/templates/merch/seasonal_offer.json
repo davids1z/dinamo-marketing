@@ -1,0 +1,32 @@
+{
+  "name": "Seasonal Sale Offer",
+  "description": "Promotes seasonal sales, holiday discounts, Black Friday deals, or end-of-season clearance on official Dinamo merchandise.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#FF4444",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.65,
+    "elements": ["product_collage", "sale_badge", "headline", "discount_percentage", "promo_code", "validity_dates", "cta_button", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "SEASONAL SALE"},
+    "discount_percentage": {"max_chars": 10, "example": "UP TO 50%"},
+    "sale_description": {"max_chars": 60, "example": "End of season clearance on selected items"},
+    "promo_code": {"max_chars": 15, "example": "SUMMER50"},
+    "valid_from": {"max_chars": 15, "example": "1 June 2026"},
+    "valid_until": {"max_chars": 15, "example": "30 June 2026"},
+    "exclusions": {"max_chars": 40, "example": "Excludes new season kits"},
+    "cta": {"example": "Shop the Sale"}
+  },
+  "guidelines": "The red accent color (#FF4444) replaces the standard blue accent for sale content to create urgency and stand out from regular posts. Sale badge must be prominent. Include validity dates and any exclusions in smaller text. Product collage showing discounted items. Promo code should be large and copyable. Do not overuse — max 2 sale posts per campaign."
+}

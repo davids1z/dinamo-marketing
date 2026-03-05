@@ -1,0 +1,241 @@
+{
+  "description": "Regional markets - core Balkan/ex-Yugoslav countries for Dinamo marketing",
+  "last_updated": "2026-03-01",
+  "countries": {
+    "HR": {
+      "name": "Croatia",
+      "name_local": "Hrvatska",
+      "population": 3870000,
+      "internet_penetration": 84,
+      "smartphone_penetration": 78,
+      "social_media_users": 2650000,
+      "football_popularity": {
+        "interest_score": 92,
+        "domestic_league_interest": 68,
+        "national_team_interest": 95,
+        "top_clubs": ["Dinamo Zagreb", "Hajduk Split", "Rijeka", "Osijek"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 1900000, "penetration": 49},
+        "instagram": {"users": 1350000, "penetration": 35},
+        "youtube": {"users": 2100000, "penetration": 54},
+        "tiktok": {"users": 680000, "penetration": 18},
+        "twitter_x": {"users": 220000, "penetration": 6}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Sportske Novosti", "Index.hr Sport", "24sata Sport", "HRT Sport", "Arena Sport"],
+        "language": "hr",
+        "currency": "EUR",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 35,
+        "estimated_fans_total": 1350000,
+        "social_media_followers_pct": 22,
+        "key_rival": "Hajduk Split"
+      },
+      "diaspora_outflow": {
+        "total_abroad": 850000,
+        "top_destinations": ["DE", "AT", "IE", "SE", "CH"]
+      }
+    },
+    "BA": {
+      "name": "Bosnia and Herzegovina",
+      "name_local": "Bosna i Hercegovina",
+      "population": 3270000,
+      "internet_penetration": 76,
+      "smartphone_penetration": 68,
+      "social_media_users": 1800000,
+      "football_popularity": {
+        "interest_score": 88,
+        "domestic_league_interest": 52,
+        "national_team_interest": 85,
+        "top_clubs": ["FK Sarajevo", "FK Željezničar", "HŠK Zrinjski", "NK Široki Brijeg"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 1500000, "penetration": 46},
+        "instagram": {"users": 850000, "penetration": 26},
+        "youtube": {"users": 1200000, "penetration": 37},
+        "tiktok": {"users": 420000, "penetration": 13},
+        "twitter_x": {"users": 85000, "penetration": 3}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Klix Sport", "Avaz Sport", "BHT Sport"],
+        "language": "bs",
+        "currency": "BAM",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 8,
+        "estimated_fans_total": 260000,
+        "social_media_followers_pct": 12,
+        "affinity_reason": "Croatian community in Herzegovina, historic ties"
+      }
+    },
+    "SI": {
+      "name": "Slovenia",
+      "name_local": "Slovenija",
+      "population": 2120000,
+      "internet_penetration": 88,
+      "smartphone_penetration": 82,
+      "social_media_users": 1450000,
+      "football_popularity": {
+        "interest_score": 72,
+        "domestic_league_interest": 42,
+        "national_team_interest": 78,
+        "top_clubs": ["NK Maribor", "NK Olimpija Ljubljana", "NK Celje"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 980000, "penetration": 46},
+        "instagram": {"users": 720000, "penetration": 34},
+        "youtube": {"users": 1100000, "penetration": 52},
+        "tiktok": {"users": 380000, "penetration": 18},
+        "twitter_x": {"users": 95000, "penetration": 4}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Ekipa24", "Siol Sport", "RTV SLO Šport"],
+        "language": "sl",
+        "currency": "EUR",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 4,
+        "estimated_fans_total": 85000,
+        "social_media_followers_pct": 5,
+        "affinity_reason": "Geographic proximity, shared ex-Yugoslav league history"
+      }
+    },
+    "RS": {
+      "name": "Serbia",
+      "name_local": "Srbija",
+      "population": 6650000,
+      "internet_penetration": 80,
+      "smartphone_penetration": 74,
+      "social_media_users": 3800000,
+      "football_popularity": {
+        "interest_score": 90,
+        "domestic_league_interest": 62,
+        "national_team_interest": 88,
+        "top_clubs": ["FK Crvena Zvezda", "FK Partizan", "FK Vojvodina"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 3200000, "penetration": 48},
+        "instagram": {"users": 2100000, "penetration": 32},
+        "youtube": {"users": 3500000, "penetration": 53},
+        "tiktok": {"users": 1200000, "penetration": 18},
+        "twitter_x": {"users": 380000, "penetration": 6}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Sportski Žurnal", "Mozzart Sport", "B92 Sport", "RTS Sport"],
+        "language": "sr",
+        "currency": "RSD",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 2,
+        "estimated_fans_total": 130000,
+        "social_media_followers_pct": 3,
+        "affinity_reason": "Mutual language intelligibility, regional football interest"
+      }
+    },
+    "MK": {
+      "name": "North Macedonia",
+      "name_local": "Северна Македонија",
+      "population": 1840000,
+      "internet_penetration": 82,
+      "smartphone_penetration": 72,
+      "social_media_users": 1100000,
+      "football_popularity": {
+        "interest_score": 80,
+        "domestic_league_interest": 38,
+        "national_team_interest": 82,
+        "top_clubs": ["FK Vardar", "FK Shkëndija", "FK Rabotnički"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 920000, "penetration": 50},
+        "instagram": {"users": 520000, "penetration": 28},
+        "youtube": {"users": 780000, "penetration": 42},
+        "tiktok": {"users": 280000, "penetration": 15},
+        "twitter_x": {"users": 62000, "penetration": 3}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Ekipa.mk", "Sportsport.ba MK"],
+        "language": "mk",
+        "currency": "MKD",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 3,
+        "estimated_fans_total": 55000,
+        "social_media_followers_pct": 2,
+        "affinity_reason": "Regional league interest, player pipeline"
+      }
+    },
+    "XK": {
+      "name": "Kosovo",
+      "name_local": "Kosova",
+      "population": 1870000,
+      "internet_penetration": 78,
+      "smartphone_penetration": 70,
+      "social_media_users": 1050000,
+      "football_popularity": {
+        "interest_score": 82,
+        "domestic_league_interest": 35,
+        "national_team_interest": 78,
+        "top_clubs": ["FC Prishtina", "KF Ballkani", "KF Drita"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 880000, "penetration": 47},
+        "instagram": {"users": 480000, "penetration": 26},
+        "youtube": {"users": 720000, "penetration": 39},
+        "tiktok": {"users": 320000, "penetration": 17},
+        "twitter_x": {"users": 48000, "penetration": 3}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Koha Sport", "Indeksonline Sport"],
+        "language": "sq",
+        "currency": "EUR",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 2,
+        "estimated_fans_total": 37000,
+        "social_media_followers_pct": 1,
+        "affinity_reason": "Regional football interest, player scouting territory"
+      }
+    },
+    "ME": {
+      "name": "Montenegro",
+      "name_local": "Crna Gora",
+      "population": 620000,
+      "internet_penetration": 80,
+      "smartphone_penetration": 72,
+      "social_media_users": 380000,
+      "football_popularity": {
+        "interest_score": 78,
+        "domestic_league_interest": 32,
+        "national_team_interest": 75,
+        "top_clubs": ["FK Budućnost Podgorica", "FK Sutjeska Nikšić"]
+      },
+      "top_platforms": {
+        "facebook": {"users": 310000, "penetration": 50},
+        "instagram": {"users": 185000, "penetration": 30},
+        "youtube": {"users": 280000, "penetration": 45},
+        "tiktok": {"users": 95000, "penetration": 15},
+        "twitter_x": {"users": 22000, "penetration": 4}
+      },
+      "media_landscape": {
+        "key_sports_media": ["Vijesti Sport", "RTCG Sport"],
+        "language": "cnr",
+        "currency": "EUR",
+        "timezone": "CET"
+      },
+      "dinamo_market_share": {
+        "estimated_fans_pct": 5,
+        "estimated_fans_total": 31000,
+        "social_media_followers_pct": 3,
+        "affinity_reason": "Language similarity, geographic proximity, player pipeline"
+      }
+    }
+  }
+}

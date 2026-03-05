@@ -1,0 +1,68 @@
+{
+  "name": "Ferencvárosi TC",
+  "short_name": "Ferencváros",
+  "country": "HU",
+  "league": "Nemzeti Bajnokság I",
+  "founded": 1899,
+  "stadium": "Groupama Aréna",
+  "stadium_capacity": 23700,
+  "brand_colors": ["#00843D", "#FFFFFF"],
+  "platforms": {
+    "instagram": {
+      "handle": "@frabordeaux",
+      "followers": 280000,
+      "engagement_rate": 2.9,
+      "avg_reach": 32000,
+      "posting_frequency": 3.6,
+      "top_content_types": ["matchday", "player_content", "ultras_culture"],
+      "growth_rate_monthly": 1.5
+    },
+    "facebook": {
+      "page_name": "Ferencvárosi TC",
+      "followers": 520000,
+      "engagement_rate": 2.0,
+      "posting_frequency": 4.0
+    },
+    "tiktok": {
+      "handle": "@ferencvaros",
+      "followers": 62000,
+      "engagement_rate": 4.6,
+      "total_views": 1800000,
+      "growth_rate_monthly": 5.8
+    },
+    "youtube": {
+      "subscribers": 68000,
+      "avg_views": 12000,
+      "avg_watch_time_min": 3.0
+    }
+  },
+  "content_formats": {
+    "reels_video": 28,
+    "carousel": 18,
+    "static_image": 38,
+    "stories": 16
+  },
+  "target_markets": ["HU", "RO", "SK", "RS", "AT"],
+  "language_strategy": {
+    "primary": "hu",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 35
+  },
+  "key_strengths": [
+    "Largest Hungarian club with massive domestic following",
+    "Strong Facebook presence (higher than Instagram)",
+    "Regular European competition exposure",
+    "Passionate ultras content drives engagement",
+    "Modern stadium content opportunities"
+  ],
+  "key_weaknesses": [
+    "Hungarian language limits international growth",
+    "Lower production value than Western European clubs",
+    "Instagram growth slower than TikTok",
+    "Limited content variety beyond matchday"
+  ],
+  "notable_campaigns": [
+    {"name": "FTC - Több mint klub", "type": "brand", "engagement_boost": 40},
+    {"name": "Green Eagles Academy", "type": "academy", "engagement_boost": 18}
+  ]
+}

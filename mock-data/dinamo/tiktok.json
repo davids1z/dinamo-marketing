@@ -1,0 +1,154 @@
+{
+  "account_id": "gnkdinamo",
+  "platform": "tiktok",
+  "verified": true,
+  "followers": 89000,
+  "following": 32,
+  "total_likes": 2100000,
+  "total_views": 2100000,
+  "avg_engagement_rate": 5.4,
+  "monthly_growth_rate": 4.8,
+  "demographics": {
+    "age": {
+      "13-17": 18,
+      "18-24": 42,
+      "25-34": 28,
+      "35-44": 8,
+      "45+": 4
+    },
+    "gender": {
+      "male": 68,
+      "female": 32
+    },
+    "top_countries": {
+      "HR": 48,
+      "BA": 10,
+      "DE": 8,
+      "AT": 6,
+      "SI": 5,
+      "RS": 4,
+      "CH": 3,
+      "SE": 2,
+      "US": 3,
+      "other": 11
+    }
+  },
+  "format_breakdown": {
+    "matchday_highlights": 25,
+    "behind_the_scenes": 22,
+    "player_challenges": 18,
+    "trending_audio": 15,
+    "fan_content": 10,
+    "tutorials_skills": 10
+  },
+  "top_videos": [
+    {
+      "id": "tt_v1",
+      "caption": "Petković hat-trick celebration 🎩⚽⚽⚽ #SamoDinamo #football",
+      "date": "2026-02-18",
+      "views": 890000,
+      "likes": 78000,
+      "comments": 3200,
+      "shares": 12000,
+      "avg_watch_time_sec": 18.4,
+      "completion_rate": 82
+    },
+    {
+      "id": "tt_v2",
+      "caption": "POV: Ulazak na Maksimir na Champions League noć 🏟️🔵 #UCL #Dinamo",
+      "date": "2026-02-10",
+      "views": 640000,
+      "likes": 52000,
+      "comments": 2100,
+      "shares": 8500,
+      "avg_watch_time_sec": 22.1,
+      "completion_rate": 78
+    },
+    {
+      "id": "tt_v3",
+      "caption": "Igrači reagiraju na svoje FIFA ocjene 😂 #FIFA #Dinamo #reaction",
+      "date": "2026-01-25",
+      "views": 520000,
+      "likes": 45000,
+      "comments": 4800,
+      "shares": 6200,
+      "avg_watch_time_sec": 28.6,
+      "completion_rate": 71
+    },
+    {
+      "id": "tt_v4",
+      "caption": "Tko je najbrži u momčadi? 💨 Sprint challenge! #speedtest #football",
+      "date": "2026-01-18",
+      "views": 410000,
+      "likes": 38000,
+      "comments": 2800,
+      "shares": 5100,
+      "avg_watch_time_sec": 15.2,
+      "completion_rate": 85
+    },
+    {
+      "id": "tt_v5",
+      "caption": "Dan u životu profesionalnog footballera 🌅➡️🏟️ #dayinthelife #footballer",
+      "date": "2026-01-12",
+      "views": 380000,
+      "likes": 34000,
+      "comments": 1900,
+      "shares": 4200,
+      "avg_watch_time_sec": 35.8,
+      "completion_rate": 64
+    },
+    {
+      "id": "tt_v6",
+      "caption": "Locker room vibes after the W ✌️💙 #winning #dinamozagreb",
+      "date": "2026-01-08",
+      "views": 290000,
+      "likes": 28000,
+      "comments": 1500,
+      "shares": 3800,
+      "avg_watch_time_sec": 12.4,
+      "completion_rate": 88
+    },
+    {
+      "id": "tt_v7",
+      "caption": "Crossbar challenge s Dinamovcima ⚽🎯 Tko pogađa? #crossbarchallenge",
+      "date": "2026-01-02",
+      "views": 245000,
+      "likes": 22000,
+      "comments": 1200,
+      "shares": 2900,
+      "avg_watch_time_sec": 20.1,
+      "completion_rate": 76
+    },
+    {
+      "id": "tt_v8",
+      "caption": "Freestyle session 🔥 Koji trik je najbolji? #football #skills #freestyle",
+      "date": "2025-12-28",
+      "views": 210000,
+      "likes": 19500,
+      "comments": 980,
+      "shares": 2400,
+      "avg_watch_time_sec": 16.8,
+      "completion_rate": 79
+    }
+  ],
+  "posting_frequency": 5.6,
+  "best_posting_times": {
+    "monday": "17:00",
+    "tuesday": "18:00",
+    "wednesday": "17:00",
+    "thursday": "19:00",
+    "friday": "16:00",
+    "saturday": "12:00",
+    "sunday": "18:00"
+  },
+  "trending_sounds_used": 42,
+  "avg_video_duration_sec": 28,
+  "monthly_metrics": [
+    {"month": "2025-09", "followers": 62000, "views": 1200000, "engagement_rate": 4.8, "new_followers": 5200},
+    {"month": "2025-10", "followers": 68000, "views": 1450000, "engagement_rate": 5.1, "new_followers": 6000},
+    {"month": "2025-11", "followers": 73000, "views": 1600000, "engagement_rate": 5.3, "new_followers": 5000},
+    {"month": "2025-12", "followers": 78000, "views": 1700000, "engagement_rate": 5.0, "new_followers": 5000},
+    {"month": "2026-01", "followers": 83000, "views": 1850000, "engagement_rate": 5.2, "new_followers": 5000},
+    {"month": "2026-02", "followers": 89000, "views": 2100000, "engagement_rate": 5.4, "new_followers": 6000}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Talent Showcase",
+  "description": "Short-form video highlighting an academy player's skills, technique, or standout moments from recent matches or training sessions.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00E676",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.3,
+    "elements": ["skill_video_clips", "player_name_lower_third", "academy_badge", "headline", "stat_pop_ups", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "TALENT ALERT"},
+    "player_name": {"max_chars": 30, "example": "Luka Vrdoljak"},
+    "age": {"max_chars": 3, "example": "16"},
+    "position": {"max_chars": 20, "example": "Right Winger"},
+    "highlight_description": {"max_chars": 60, "example": "Dribbling masterclass in the U-17 derby"},
+    "music_track": {"max_chars": 40, "example": "Trending audio — high energy"},
+    "hashtags": {"max_chars": 60, "example": "#DinamoAcademy #FutureStar #YoungTalent"}
+  },
+  "guidelines": "15-30 second Reel/TikTok showcasing 3-5 skill clips with smooth transitions. Use trending audio for maximum reach. Lower third shows player name and position. Stat pop-ups can appear during key moments. Green accent distinguishes academy content. End with the academy badge and a 'follow for more' CTA. Vertical format optimized for mobile."
+}

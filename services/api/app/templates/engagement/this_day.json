@@ -1,0 +1,30 @@
+{
+  "name": "This Day in History",
+  "description": "Throwback content celebrating a historic moment that occurred on this date in Dinamo Zagreb's history. Connects past and present.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.6,
+    "elements": ["archive_photo", "date_badge", "headline", "event_description", "vintage_filter", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "ON THIS DAY"},
+    "date": {"max_chars": 20, "example": "5 March 1967"},
+    "years_ago": {"max_chars": 15, "example": "59 years ago"},
+    "event_title": {"max_chars": 60, "example": "Dinamo wins the Inter-Cities Fairs Cup Final"},
+    "event_description": {"max_chars": 200, "example": "Dinamo Zagreb defeated Leeds United 2-0 in the first leg of the Fairs Cup Final at Maksimir, with goals from Zambata and Cercek."},
+    "cta": {"example": "More History"}
+  },
+  "guidelines": "Slide 1: Archival photo with a subtle vintage grain filter and the date badge. Slide 2: Detailed description with context. Slide 3: Related current-day connection if applicable. Use a sepia/desaturated treatment on historic photos. The date badge should be prominent with 'On This Day' branding. Great for mornings to set daily engagement."
+}

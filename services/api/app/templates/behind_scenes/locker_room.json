@@ -1,0 +1,29 @@
+{
+  "name": "Locker Room Content",
+  "description": "Exclusive behind-the-scenes content from the locker room before, during, or after matches. Raw, authentic moments that fans rarely see.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "short",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.2,
+    "elements": ["raw_footage", "headline", "context_label", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "IN THE ROOM"},
+    "context": {"max_chars": 40, "example": "Pre-match scenes | Dinamo vs Hajduk"},
+    "moment_type": {"max_chars": 25, "example": "Pre-Match"},
+    "music_track": {"max_chars": 40, "example": "Ambient/natural audio preferred"},
+    "hashtags": {"max_chars": 60, "example": "#LockerRoom #Matchday #DinamoZagreb"}
+  },
+  "guidelines": "Raw, authentic footage with minimal editing. Natural audio preferred over music — the sounds of preparation, team talks, and camaraderie. 15-30 seconds. No tactical or sensitive content. Focus on atmosphere: shirt hanging, boot lacing, team huddle, handshakes. Slightly desaturated grade for a documentary feel. Must be approved by the manager before posting."
+}

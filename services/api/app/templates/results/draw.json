@@ -1,0 +1,31 @@
+{
+  "name": "Draw Result",
+  "description": "Balanced post for a drawn match. Reflects a shared result while highlighting positives from the performance.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.65,
+    "elements": ["hero_image", "score_display", "club_crests", "headline", "subheadline", "goal_scorers", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "HONOURS EVEN"},
+    "subheadline": {"max_chars": 80, "example": "A hard-fought point at Maksimir"},
+    "home_score": {"max_chars": 2, "example": "2"},
+    "away_score": {"max_chars": 2, "example": "2"},
+    "goal_scorers": {"max_chars": 100, "example": "Petković 23', Oršić 78'"},
+    "opponent_name": {"max_chars": 30, "example": "NK Osijek"},
+    "cta": {"example": "Match Report"}
+  },
+  "guidelines": "Use a match action photo. The tone should be neutral and balanced — highlight the effort and any comeback moments. If Dinamo came from behind, the messaging can be slightly more positive. Avoid overly negative language. Score display should be symmetrical."
+}

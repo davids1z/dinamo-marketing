@@ -1,0 +1,67 @@
+{
+  "name": "FC Red Bull Salzburg",
+  "short_name": "RB Salzburg",
+  "country": "AT",
+  "league": "Austrian Bundesliga",
+  "founded": 1933,
+  "stadium": "Red Bull Arena",
+  "stadium_capacity": 30188,
+  "brand_colors": ["#E2001A", "#FFFFFF", "#003087"],
+  "platforms": {
+    "instagram": {
+      "handle": "@redbullsalzburg",
+      "followers": 542000,
+      "engagement_rate": 2.4,
+      "avg_reach": 52000,
+      "posting_frequency": 4.5,
+      "top_content_types": ["matchday", "player_features", "red_bull_lifestyle"],
+      "growth_rate_monthly": 1.6
+    },
+    "facebook": {
+      "page_name": "FC Red Bull Salzburg",
+      "followers": 620000,
+      "engagement_rate": 1.2,
+      "posting_frequency": 4.0
+    },
+    "tiktok": {
+      "handle": "@redbullsalzburg",
+      "followers": 185000,
+      "engagement_rate": 6.2,
+      "total_views": 8200000,
+      "growth_rate_monthly": 3.8
+    },
+    "youtube": {
+      "subscribers": 112000,
+      "avg_views": 22000,
+      "avg_watch_time_min": 3.5
+    }
+  },
+  "content_formats": {
+    "reels_video": 40,
+    "carousel": 15,
+    "static_image": 25,
+    "stories": 20
+  },
+  "target_markets": ["AT", "DE", "CH", "US", "global"],
+  "language_strategy": {
+    "primary": "de",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 60
+  },
+  "key_strengths": [
+    "Red Bull media backing - high production quality",
+    "Strong TikTok strategy with lifestyle content",
+    "Player development pipeline content (Haaland, Szoboszlai alumni)",
+    "Professional multi-language approach",
+    "Integrated with Red Bull Media House"
+  ],
+  "key_weaknesses": [
+    "Perceived as 'corporate' - lower emotional connection",
+    "Fan culture content feels manufactured",
+    "Lower organic engagement despite high follower count"
+  ],
+  "notable_campaigns": [
+    {"name": "Next Generation Stars", "type": "player_development", "engagement_boost": 35},
+    {"name": "Red Bull Salzburg Academy Tour", "type": "behind_scenes", "engagement_boost": 28}
+  ]
+}

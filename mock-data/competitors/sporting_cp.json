@@ -1,0 +1,69 @@
+{
+  "name": "Sporting Clube de Portugal",
+  "short_name": "Sporting CP",
+  "country": "PT",
+  "league": "Liga Portugal",
+  "founded": 1906,
+  "stadium": "Estádio José Alvalade",
+  "stadium_capacity": 50095,
+  "brand_colors": ["#006847", "#FFFFFF", "#F2C800"],
+  "platforms": {
+    "instagram": {
+      "handle": "@sportingcp",
+      "followers": 2800000,
+      "engagement_rate": 2.2,
+      "avg_reach": 320000,
+      "posting_frequency": 5.0,
+      "top_content_types": ["matchday", "player_features", "Ronaldo_alumni", "academy"],
+      "growth_rate_monthly": 1.2
+    },
+    "facebook": {
+      "page_name": "Sporting Clube de Portugal",
+      "followers": 3200000,
+      "engagement_rate": 1.1,
+      "posting_frequency": 4.2
+    },
+    "tiktok": {
+      "handle": "@sportingcp",
+      "followers": 980000,
+      "engagement_rate": 5.8,
+      "total_views": 52000000,
+      "growth_rate_monthly": 3.2
+    },
+    "youtube": {
+      "subscribers": 420000,
+      "avg_views": 65000,
+      "avg_watch_time_min": 4.0
+    }
+  },
+  "content_formats": {
+    "reels_video": 38,
+    "carousel": 20,
+    "static_image": 25,
+    "stories": 17
+  },
+  "target_markets": ["PT", "BR", "AO", "MZ", "US", "CA", "global"],
+  "language_strategy": {
+    "primary": "pt",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 55,
+    "lusophone_reach": true
+  },
+  "key_strengths": [
+    "Portuguese-speaking world gives massive organic reach",
+    "Academy brand (Ronaldo, Figo, Nani alumni)",
+    "Strong TikTok growth and engagement",
+    "Professional production quality",
+    "Multi-sport club - diverse content"
+  ],
+  "key_weaknesses": [
+    "Shadow of Benfica and Porto in domestic market",
+    "Content sometimes too focused on Portuguese market",
+    "Fan sentiment volatile with results"
+  ],
+  "notable_campaigns": [
+    {"name": "Academia Sporting", "type": "academy", "engagement_boost": 52},
+    {"name": "Leões Para Sempre", "type": "brand", "engagement_boost": 38}
+  ],
+  "benchmark_note": "Model for leveraging academy heritage and diaspora language communities. Relevant for Dinamo's regional language approach."
+}

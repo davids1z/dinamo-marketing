@@ -1,0 +1,70 @@
+{
+  "name": "Beşiktaş Jimnastik Kulübü",
+  "short_name": "Beşiktaş",
+  "country": "TR",
+  "league": "Süper Lig",
+  "founded": 1903,
+  "stadium": "Tüpraş Stadyumu",
+  "stadium_capacity": 43500,
+  "brand_colors": ["#000000", "#FFFFFF"],
+  "platforms": {
+    "instagram": {
+      "handle": "@besiktasjk",
+      "followers": 5600000,
+      "engagement_rate": 2.8,
+      "avg_reach": 980000,
+      "posting_frequency": 5.5,
+      "top_content_types": ["matchday", "karakartal_culture", "Bosphorus_lifestyle"],
+      "growth_rate_monthly": 0.9
+    },
+    "facebook": {
+      "page_name": "Beşiktaş JK",
+      "followers": 4800000,
+      "engagement_rate": 1.3,
+      "posting_frequency": 4.8
+    },
+    "tiktok": {
+      "handle": "@besiktasjk",
+      "followers": 1600000,
+      "engagement_rate": 5.2,
+      "total_views": 95000000,
+      "growth_rate_monthly": 2.2
+    },
+    "youtube": {
+      "subscribers": 820000,
+      "avg_views": 145000,
+      "avg_watch_time_min": 4.5
+    }
+  },
+  "content_formats": {
+    "reels_video": 40,
+    "carousel": 18,
+    "static_image": 25,
+    "stories": 17
+  },
+  "target_markets": ["TR", "DE", "NL", "AT", "US"],
+  "language_strategy": {
+    "primary": "tr",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 55,
+    "diaspora_targeted": true
+  },
+  "key_strengths": [
+    "Strong emotional branding (Kara Kartal - Black Eagle)",
+    "Good balance of matchday and lifestyle content",
+    "Higher engagement rate than Galatasaray despite smaller following",
+    "Strong diaspora engagement in Germany",
+    "Atmospheric stadium content"
+  ],
+  "key_weaknesses": [
+    "Smaller than other Istanbul clubs on social media",
+    "Less consistent content schedule",
+    "Lower production investment than Galatasaray",
+    "TikTok strategy less developed"
+  ],
+  "notable_campaigns": [
+    {"name": "Kara Kartal Global", "type": "diaspora", "engagement_boost": 62},
+    {"name": "Beşiktaş 120 Years", "type": "heritage", "engagement_boost": 48}
+  ],
+  "benchmark_note": "Demonstrates that engagement rate matters more than raw follower count. Their emotional branding approach is relevant for Dinamo."
+}

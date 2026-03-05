@@ -1,0 +1,32 @@
+{
+  "name": "Academy Match Result",
+  "description": "Match result graphic for Dinamo's youth teams (U-19, U-17, U-15). Keeps fans informed on academy performance and results.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00E676",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "center",
+    "overlay_opacity": 0.0,
+    "elements": ["academy_badge", "club_crests", "score_display", "age_group_label", "headline", "goal_scorers", "competition_name", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 20, "example": "FULL TIME"},
+    "age_group": {"max_chars": 10, "example": "U-19"},
+    "home_score": {"max_chars": 2, "example": "4"},
+    "away_score": {"max_chars": 2, "example": "1"},
+    "opponent_name": {"max_chars": 30, "example": "NK Lokomotiva U-19"},
+    "competition": {"max_chars": 40, "example": "HNL Youth League"},
+    "goal_scorers": {"max_chars": 100, "example": "Matić 12', Kovačević 34', 56', Novak 78'"},
+    "cta": {"example": "Academy News"}
+  },
+  "guidelines": "Similar layout to the first-team full-time template but with the green academy accent color and the academy badge. Age group label must be prominently displayed so fans immediately know which team. Include goal scorers. Keep the design consistent with first-team templates to maintain brand unity. Published within 30 minutes of the final whistle."
+}

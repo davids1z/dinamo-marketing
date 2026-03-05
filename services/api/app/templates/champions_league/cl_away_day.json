@@ -1,0 +1,33 @@
+{
+  "name": "Champions League Away Day",
+  "description": "Travel and away-day content for CL away fixtures. Documents the journey, city arrival, stadium walk, and fan atmosphere at European destinations.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#001B3D",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "cl_starball": true,
+  "cl_anthem_cue": true,
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.3,
+    "elements": ["travel_footage", "city_landmarks", "stadium_exterior", "cl_starball", "location_tag", "headline", "cl_anthem_audio", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "AWAY DAY IN MILAN"},
+    "destination_city": {"max_chars": 25, "example": "Milan, Italy"},
+    "opponent_name": {"max_chars": 30, "example": "AC Milan"},
+    "stadium_name": {"max_chars": 30, "example": "San Siro"},
+    "match_date": {"max_chars": 25, "example": "Wednesday, 25 March"},
+    "match_time": {"max_chars": 10, "example": "21:00 CET"},
+    "cta": {"example": "Come On Dinamo!"}
+  },
+  "guidelines": "Vlog-style Reel documenting the away day experience: airport departure, city arrival, landmark shots, stadium walk-in, and fan gathering. CL anthem as the intro audio transitioning to trending music. Include location tags for the destination city. Starball element in transitions. Show both the professional travel and the fan experience. 30-60 seconds. Energetic and cinematic."
+}

@@ -1,0 +1,144 @@
+{
+  "account_id": "gnkdinamo",
+  "platform": "facebook",
+  "page_name": "GNK Dinamo Zagreb",
+  "verified": true,
+  "followers": 320000,
+  "page_likes": 315000,
+  "avg_reach": 28000,
+  "avg_engagement_rate": 1.5,
+  "monthly_growth_rate": 0.6,
+  "demographics": {
+    "age": {
+      "13-17": 3,
+      "18-24": 12,
+      "25-34": 25,
+      "35-44": 30,
+      "45-54": 18,
+      "55-64": 8,
+      "65+": 4
+    },
+    "gender": {
+      "male": 78,
+      "female": 22
+    },
+    "top_countries": {
+      "HR": 62,
+      "BA": 9,
+      "DE": 6,
+      "AT": 4,
+      "SI": 3,
+      "RS": 2,
+      "CH": 2,
+      "SE": 2,
+      "US": 1,
+      "other": 9
+    },
+    "top_cities": {
+      "Zagreb": 35,
+      "Osijek": 4,
+      "Split": 3,
+      "Rijeka": 2,
+      "Varaždin": 2,
+      "Sarajevo": 2,
+      "Wien": 2,
+      "München": 1,
+      "other": 49
+    }
+  },
+  "format_breakdown": {
+    "video": 28,
+    "photo": 32,
+    "link": 20,
+    "status": 5,
+    "shared_content": 15
+  },
+  "top_posts": [
+    {
+      "id": "fb_p1",
+      "type": "video",
+      "caption": "Relive the magic! Dinamo 3-1 u europskoj noći na Maksimiru! Svi golovi i najbolji trenuci.",
+      "date": "2026-02-18",
+      "likes": 12000,
+      "comments": 1800,
+      "shares": 3200,
+      "engagement_rate": 5.3,
+      "reach": 185000
+    },
+    {
+      "id": "fb_p2",
+      "type": "photo",
+      "caption": "SLUŽBENO: Dinamo potpisao ugovor s novim pojačanjem! Dobrodošao u Zagreb! 🔵⚪",
+      "date": "2026-01-28",
+      "likes": 9800,
+      "comments": 1450,
+      "shares": 2100,
+      "engagement_rate": 4.2,
+      "reach": 152000
+    },
+    {
+      "id": "fb_p3",
+      "type": "video",
+      "caption": "Trener Bjelica nakon pobjede: 'Ovo je tek početak naše europske priče'",
+      "date": "2026-02-12",
+      "likes": 8200,
+      "comments": 920,
+      "shares": 1400,
+      "engagement_rate": 3.5,
+      "reach": 128000
+    },
+    {
+      "id": "fb_p4",
+      "type": "link",
+      "caption": "Ulaznice za sljedeću utakmicu Lige prvaka sada u prodaji! Ne propustite europsku noć na Maksimiru.",
+      "date": "2026-02-08",
+      "likes": 6500,
+      "comments": 780,
+      "shares": 1800,
+      "engagement_rate": 2.9,
+      "reach": 112000
+    },
+    {
+      "id": "fb_p5",
+      "type": "photo",
+      "caption": "Dinamo U19 prvaci turnira u Beču! Budućnost je sjajna 💙",
+      "date": "2026-01-20",
+      "likes": 5200,
+      "comments": 340,
+      "shares": 980,
+      "engagement_rate": 2.1,
+      "reach": 95000
+    }
+  ],
+  "posting_frequency": 3.5,
+  "best_posting_times": {
+    "monday": "12:00",
+    "tuesday": "18:00",
+    "wednesday": "12:00",
+    "thursday": "18:00",
+    "friday": "12:00",
+    "saturday": "15:00",
+    "sunday": "19:00"
+  },
+  "group_stats": {
+    "official_fan_group": {
+      "name": "Dinamo Zagreb - Navijači",
+      "members": 48000,
+      "monthly_active": 12000,
+      "posts_per_day": 35
+    }
+  },
+  "events_performance": {
+    "avg_event_responses": 4200,
+    "avg_event_reach": 85000,
+    "matchday_event_attendance_rate": 62
+  },
+  "monthly_metrics": [
+    {"month": "2025-09", "followers": 312000, "engagement_rate": 1.4, "reach": 780000, "impressions": 2400000},
+    {"month": "2025-10", "followers": 314000, "engagement_rate": 1.5, "reach": 820000, "impressions": 2500000},
+    {"month": "2025-11", "followers": 315500, "engagement_rate": 1.6, "reach": 860000, "impressions": 2600000},
+    {"month": "2025-12", "followers": 317000, "engagement_rate": 1.4, "reach": 790000, "impressions": 2350000},
+    {"month": "2026-01", "followers": 318500, "engagement_rate": 1.5, "reach": 840000, "impressions": 2550000},
+    {"month": "2026-02", "followers": 320000, "engagement_rate": 1.5, "reach": 850000, "impressions": 2580000}
+  ]
+}

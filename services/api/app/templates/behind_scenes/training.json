@@ -1,0 +1,30 @@
+{
+  "name": "Training Session",
+  "description": "Behind-the-scenes content from first-team training sessions. Gives fans exclusive access to the daily preparation and tactical work.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.25,
+    "elements": ["training_footage", "headline", "date_label", "player_highlights", "music_overlay", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "WORK IN PROGRESS"},
+    "date": {"max_chars": 15, "example": "Monday Session"},
+    "location": {"max_chars": 30, "example": "Maksimir Training Ground"},
+    "focus": {"max_chars": 40, "example": "Tactical preparation for Saturday"},
+    "music_track": {"max_chars": 40, "example": "Trending audio — motivational"},
+    "hashtags": {"max_chars": 60, "example": "#DinamoTraining #BehindTheScenes #BBB"}
+  },
+  "guidelines": "30-60 second Reel mixing wide training shots with close-up skill moments. Include rondo circles, shooting drills, tactical exercises, and casual moments. Use trending music. Minimal text overlay — let the footage speak. Slow-motion for spectacular goals or skills. Show the intensity and professionalism. Avoid filming tactical board sessions or sensitive tactical information."
+}

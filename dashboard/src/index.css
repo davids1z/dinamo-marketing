@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dinamo-dark text-gray-100 antialiased;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-dinamo-dark;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dinamo-primary/40 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-dinamo-primary/60;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-dinamo-dark-card border border-white/5 rounded-xl p-5;
+  }
+  .card-hover {
+    @apply card transition-all duration-200 hover:border-dinamo-accent/20 hover:shadow-lg hover:shadow-dinamo-accent/5;
+  }
+  .btn-primary {
+    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-white font-semibold py-2 px-4 rounded-lg transition-colors;
+  }
+  .btn-secondary {
+    @apply bg-dinamo-primary/20 hover:bg-dinamo-primary/30 text-dinamo-accent border border-dinamo-primary/30 font-semibold py-2 px-4 rounded-lg transition-colors;
+  }
+  .stat-number {
+    font-family: 'Oswald', sans-serif;
+    @apply text-3xl font-bold tracking-tight;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-success {
+    @apply badge bg-green-500/10 text-green-400;
+  }
+  .badge-warning {
+    @apply badge bg-yellow-500/10 text-yellow-400;
+  }
+  .badge-danger {
+    @apply badge bg-red-500/10 text-red-400;
+  }
+  .badge-info {
+    @apply badge bg-dinamo-accent/10 text-dinamo-accent;
+  }
+}

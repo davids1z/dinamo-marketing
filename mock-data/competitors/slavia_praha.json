@@ -1,0 +1,67 @@
+{
+  "name": "SK Slavia Praha",
+  "short_name": "Slavia Praha",
+  "country": "CZ",
+  "league": "Czech First League",
+  "founded": 1892,
+  "stadium": "Fortuna Arena",
+  "stadium_capacity": 21000,
+  "brand_colors": ["#E30613", "#FFFFFF"],
+  "platforms": {
+    "instagram": {
+      "handle": "@slaviaofficial",
+      "followers": 413000,
+      "engagement_rate": 2.6,
+      "avg_reach": 42000,
+      "posting_frequency": 4.0,
+      "top_content_types": ["matchday", "history_heritage", "fan_atmosphere"],
+      "growth_rate_monthly": 1.3
+    },
+    "facebook": {
+      "page_name": "SK Slavia Praha",
+      "followers": 385000,
+      "engagement_rate": 1.6,
+      "posting_frequency": 3.5
+    },
+    "tiktok": {
+      "handle": "@slaviapraha",
+      "followers": 78000,
+      "engagement_rate": 5.1,
+      "total_views": 2800000,
+      "growth_rate_monthly": 4.2
+    },
+    "youtube": {
+      "subscribers": 82000,
+      "avg_views": 15000,
+      "avg_watch_time_min": 3.2
+    }
+  },
+  "content_formats": {
+    "reels_video": 32,
+    "carousel": 22,
+    "static_image": 30,
+    "stories": 16
+  },
+  "target_markets": ["CZ", "SK", "central_europe"],
+  "language_strategy": {
+    "primary": "cs",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 30
+  },
+  "key_strengths": [
+    "Rich history content (oldest Czech club)",
+    "Strong derby content (Sparta rivalry)",
+    "Consistent visual branding",
+    "Good stadium atmosphere content"
+  ],
+  "key_weaknesses": [
+    "Limited international reach",
+    "Inconsistent English-language content",
+    "Lower video production quality",
+    "Smaller diaspora market"
+  ],
+  "notable_campaigns": [
+    {"name": "130 let Slavie", "type": "heritage", "engagement_boost": 55},
+    {"name": "Eden Forever", "type": "stadium", "engagement_boost": 22}
+  ]
+}

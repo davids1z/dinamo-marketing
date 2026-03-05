@@ -1,0 +1,36 @@
+{
+  "name": "Individual Player Statistics",
+  "description": "Showcases a player's key performance metrics over a defined period. Used for weekly spotlights, form updates, or pre-match features.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "4:5",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.6,
+    "elements": ["player_cutout", "headline", "player_name", "stat_grid", "period_label", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "BY THE NUMBERS"},
+    "player_name": {"max_chars": 30, "example": "Mislav Oršić"},
+    "player_number": {"max_chars": 3, "example": "99"},
+    "period": {"max_chars": 25, "example": "2025/26 Season"},
+    "stat_1_label": {"max_chars": 15, "example": "Appearances"},
+    "stat_1_value": {"max_chars": 5, "example": "22"},
+    "stat_2_label": {"max_chars": 15, "example": "Goals"},
+    "stat_2_value": {"max_chars": 5, "example": "11"},
+    "stat_3_label": {"max_chars": 15, "example": "Assists"},
+    "stat_3_value": {"max_chars": 5, "example": "7"},
+    "stat_4_label": {"max_chars": 15, "example": "Minutes"},
+    "stat_4_value": {"max_chars": 6, "example": "1,740"}
+  },
+  "guidelines": "Player cutout on the right side with stats displayed in a clean grid on the left. Use circular or rounded stat cards with the accent blue. Stat values should be significantly larger than labels. Include the player's position and shirt number. Period/timeframe must be clearly stated."
+}

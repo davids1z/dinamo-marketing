@@ -1,0 +1,67 @@
+{
+  "name": "HNK Hajduk Split",
+  "short_name": "Hajduk",
+  "country": "HR",
+  "league": "SuperSport HNL",
+  "founded": 1911,
+  "stadium": "Stadion Poljud",
+  "stadium_capacity": 34198,
+  "brand_colors": ["#FFFFFF", "#003DA5"],
+  "platforms": {
+    "instagram": {
+      "handle": "@hnkhajduk",
+      "followers": 302000,
+      "engagement_rate": 3.2,
+      "avg_reach": 38000,
+      "posting_frequency": 3.8,
+      "top_content_types": ["matchday", "fan_culture", "split_lifestyle"],
+      "growth_rate_monthly": 1.2
+    },
+    "facebook": {
+      "page_name": "HNK Hajduk Split",
+      "followers": 480000,
+      "engagement_rate": 1.8,
+      "posting_frequency": 3.2
+    },
+    "tiktok": {
+      "handle": "@hnkhajduk",
+      "followers": 52000,
+      "engagement_rate": 4.8,
+      "total_views": 980000,
+      "growth_rate_monthly": 5.2
+    },
+    "youtube": {
+      "subscribers": 98000,
+      "avg_views": 18000,
+      "avg_watch_time_min": 3.8
+    }
+  },
+  "content_formats": {
+    "reels_video": 30,
+    "carousel": 20,
+    "static_image": 35,
+    "stories": 15
+  },
+  "target_markets": ["HR", "BA", "US", "AU", "DE"],
+  "language_strategy": {
+    "primary": "hr",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 25
+  },
+  "key_strengths": [
+    "Passionate fanbase (Torcida - oldest ultras in Europe)",
+    "Strong local identity tied to Split and Dalmatia",
+    "Higher Facebook following than Dinamo",
+    "Emotional storytelling content"
+  ],
+  "key_weaknesses": [
+    "Lower European exposure compared to Dinamo",
+    "Inconsistent posting schedule",
+    "Lower production quality on video content",
+    "Limited TikTok presence"
+  ],
+  "notable_campaigns": [
+    {"name": "Hajduk Živi Vječno", "type": "brand", "engagement_boost": 45},
+    {"name": "Naš Hajduk crowdfunding", "type": "community", "engagement_boost": 120}
+  ]
+}

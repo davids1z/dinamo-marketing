@@ -1,0 +1,30 @@
+{
+  "name": "Starting Lineup",
+  "description": "Displays the starting XI in a tactical formation layout with player names, numbers, and positions. Published approximately one hour before kickoff.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-left"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "top-center",
+    "overlay_opacity": 0.0,
+    "elements": ["pitch_graphic", "formation_grid", "player_icons", "player_names", "player_numbers", "headline", "match_info", "sponsor_bar", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "STARTING XI"},
+    "formation": {"max_chars": 10, "example": "4-3-3"},
+    "players": {"max_chars": 500, "example": "1. Livaković; 2. Ristovski, 6. Theophile, 5. Perić, 3. Mišić; 8. Ademi, 10. Ivanušec, 7. Oršić; 11. Petković, 9. Drmić, 20. Majer"},
+    "substitutes": {"max_chars": 200, "example": "12. Zagorac, 4. Lauritsen, 14. Gojak, 15. Jakić"},
+    "opponent_name": {"max_chars": 30, "example": "vs HNK Rijeka"},
+    "match_info": {"max_chars": 40, "example": "HNL | Maksimir | 20:00"}
+  },
+  "guidelines": "Use a top-down pitch graphic with player positions arranged in the announced formation. Player names should be in white on blue badges. Include shirt numbers next to names. Substitutes listed below the pitch. Keep the design clean and tactical."
+}

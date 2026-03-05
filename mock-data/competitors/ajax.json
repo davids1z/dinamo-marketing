@@ -1,0 +1,72 @@
+{
+  "name": "AFC Ajax",
+  "short_name": "Ajax",
+  "country": "NL",
+  "league": "Eredivisie",
+  "founded": 1900,
+  "stadium": "Johan Cruijff ArenA",
+  "stadium_capacity": 55500,
+  "brand_colors": ["#D2122E", "#FFFFFF", "#000000"],
+  "platforms": {
+    "instagram": {
+      "handle": "@afcajax",
+      "followers": 9000000,
+      "engagement_rate": 1.8,
+      "avg_reach": 850000,
+      "posting_frequency": 5.2,
+      "top_content_types": ["matchday", "heritage", "cruyff_legacy", "youth_academy"],
+      "growth_rate_monthly": 0.8
+    },
+    "facebook": {
+      "page_name": "AFC Ajax",
+      "followers": 8200000,
+      "engagement_rate": 0.9,
+      "posting_frequency": 4.5
+    },
+    "tiktok": {
+      "handle": "@afcajax",
+      "followers": 2800000,
+      "engagement_rate": 4.2,
+      "total_views": 145000000,
+      "growth_rate_monthly": 2.4
+    },
+    "youtube": {
+      "subscribers": 780000,
+      "avg_views": 120000,
+      "avg_watch_time_min": 4.8
+    }
+  },
+  "content_formats": {
+    "reels_video": 42,
+    "carousel": 18,
+    "static_image": 22,
+    "stories": 18
+  },
+  "target_markets": ["NL", "DE", "BE", "US", "ID", "NG", "global"],
+  "language_strategy": {
+    "primary": "nl",
+    "secondary": ["en"],
+    "bilingual_posts_pct": 80,
+    "dedicated_en_content": true
+  },
+  "key_strengths": [
+    "Globally recognized brand - Cruyff legacy",
+    "Best-in-class social media team",
+    "Multi-language content as standard",
+    "Youth academy storytelling (De Toekomst)",
+    "Innovative content formats - first movers",
+    "Strong merchandise and e-commerce integration",
+    "Massive global fanbase across continents"
+  ],
+  "key_weaknesses": [
+    "Lower engagement rate due to massive audience",
+    "Hard to maintain personal touch at scale",
+    "Recent on-field decline affecting sentiment"
+  ],
+  "notable_campaigns": [
+    {"name": "Future is Ours", "type": "academy", "engagement_boost": 65},
+    {"name": "Three Little Birds", "type": "fan_culture", "engagement_boost": 180},
+    {"name": "Ajax Marvels", "type": "heritage", "engagement_boost": 45}
+  ],
+  "benchmark_note": "Gold standard for mid-tier European club social media. Key learnings: bilingual as default, academy content as differentiator, heritage storytelling."
+}

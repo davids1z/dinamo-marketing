@@ -1,0 +1,33 @@
+{
+  "name": "Player Departure",
+  "description": "Respectful farewell post for a departing player. Celebrates their contributions to the club with career highlights at Dinamo.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "carousel",
+  "aspect_ratio": "4:5",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#7BA3CC",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.6,
+    "elements": ["player_cutout", "headline", "farewell_message", "career_stats", "memorable_moments", "thank_you_badge", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 30, "example": "HVALA, BRUNO"},
+    "player_name": {"max_chars": 30, "example": "Bruno Petković"},
+    "farewell_message": {"max_chars": 150, "example": "Thank you for everything. Your dedication and goals will never be forgotten."},
+    "appearances": {"max_chars": 10, "example": "187"},
+    "goals": {"max_chars": 10, "example": "64"},
+    "assists": {"max_chars": 10, "example": "31"},
+    "years_at_club": {"max_chars": 15, "example": "2019-2026"},
+    "destination": {"max_chars": 30, "example": "Joining Bologna FC"},
+    "cta": {"example": "Full Story"}
+  },
+  "guidelines": "Slide 1: Player cutout with 'Thank You' headline. Slide 2: Best moments photo collage. Slide 3: Career stats at Dinamo in a clean infographic. Slide 4: Farewell quote from the player. Use a slightly muted blue accent to convey a bittersweet tone. Language should be grateful and warm."
+}

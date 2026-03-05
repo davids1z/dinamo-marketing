@@ -1,0 +1,132 @@
+{
+  "description": "Sports leagues and events relevant to Dinamo marketing by country",
+  "last_updated": "2026-03-01",
+  "football_leagues": {
+    "HR": {
+      "league_name": "SuperSport HNL",
+      "full_name": "Hrvatska Nogometna Liga",
+      "tier": 1,
+      "teams": 10,
+      "season": "July - May",
+      "broadcast": ["Arena Sport", "MAXSport"],
+      "avg_attendance": 3200,
+      "dinamo_avg_attendance": 8500,
+      "key_derbies": [
+        {"name": "Eternal Derby", "opponent": "Hajduk Split", "rivalry_score": 10, "avg_social_engagement_boost": 350},
+        {"name": "Zagreb Derby", "opponent": "NK Lokomotiva", "rivalry_score": 4, "avg_social_engagement_boost": 80},
+        {"name": "Continental Derby", "opponent": "NK Osijek", "rivalry_score": 5, "avg_social_engagement_boost": 120}
+      ],
+      "uefa_coefficient_rank": 18,
+      "champions_league_spots": 1,
+      "europa_league_spots": 1,
+      "conference_league_spots": 1
+    },
+    "BA": {
+      "league_name": "Premijer Liga BiH",
+      "tier": 1,
+      "teams": 12,
+      "season": "August - May",
+      "broadcast": ["Arena Sport BH"],
+      "avg_attendance": 1800,
+      "notable_clubs": ["FK Sarajevo", "FK Željezničar", "HŠK Zrinjski Mostar", "NK Široki Brijeg"]
+    },
+    "SI": {
+      "league_name": "Prva Liga",
+      "tier": 1,
+      "teams": 10,
+      "season": "July - May",
+      "broadcast": ["Sport Klub"],
+      "avg_attendance": 2200,
+      "notable_clubs": ["NK Maribor", "NK Olimpija Ljubljana", "NK Celje"]
+    },
+    "RS": {
+      "league_name": "SuperLiga Srbije",
+      "tier": 1,
+      "teams": 16,
+      "season": "August - May",
+      "broadcast": ["Arena Sport RS", "RTS"],
+      "avg_attendance": 4500,
+      "notable_clubs": ["FK Crvena Zvezda", "FK Partizan", "FK Vojvodina"]
+    },
+    "AT": {
+      "league_name": "Austrian Bundesliga",
+      "tier": 1,
+      "teams": 12,
+      "season": "July - May",
+      "broadcast": ["Sky Sport Austria"],
+      "avg_attendance": 9200,
+      "notable_clubs": ["RB Salzburg", "Rapid Wien", "Sturm Graz", "Austria Wien"]
+    },
+    "DE": {
+      "league_name": "Bundesliga",
+      "tier": 1,
+      "teams": 18,
+      "season": "August - May",
+      "broadcast": ["Sky DE", "DAZN", "Sat.1"],
+      "avg_attendance": 42000,
+      "croatian_players_current": 4,
+      "notable_clubs": ["Bayern München", "Borussia Dortmund", "RB Leipzig"]
+    },
+    "TR": {
+      "league_name": "Süper Lig",
+      "tier": 1,
+      "teams": 19,
+      "season": "August - May",
+      "broadcast": ["beIN Sports TR"],
+      "avg_attendance": 18000,
+      "notable_clubs": ["Galatasaray", "Fenerbahçe", "Beşiktaş", "Trabzonspor"]
+    }
+  },
+  "european_competitions": {
+    "champions_league": {
+      "name": "UEFA Champions League",
+      "format": "League phase (36 teams) + Knockout",
+      "current_season": "2025/26",
+      "dinamo_status": "League phase participant",
+      "broadcast_global": true,
+      "social_media_boost_factor": 5.2,
+      "key_dates": {
+        "league_phase_start": "2025-09-17",
+        "league_phase_end": "2026-01-29",
+        "playoff_round": "2026-02-11/12 and 2026-02-18/19",
+        "round_of_16": "2026-03-04/05 and 2026-03-11/12",
+        "quarter_finals": "2026-04-08/09 and 2026-04-15/16",
+        "semi_finals": "2026-05-06/07 and 2026-05-13/14",
+        "final": "2026-05-30"
+      }
+    },
+    "europa_league": {
+      "name": "UEFA Europa League",
+      "social_media_boost_factor": 2.8
+    },
+    "conference_league": {
+      "name": "UEFA Europa Conference League",
+      "social_media_boost_factor": 1.5
+    }
+  },
+  "other_sports_by_country": {
+    "HR": {
+      "basketball": {"league": "HKK Liga", "popularity_score": 65, "key_clubs": ["KK Cedevita", "KK Zadar", "KK Split"]},
+      "handball": {"league": "Premijer Liga", "popularity_score": 72, "key_clubs": ["RK Zagreb", "RK PPD Zagreb"]},
+      "water_polo": {"popularity_score": 68, "key_clubs": ["VK Jug", "HAVK Mladost"]},
+      "tennis": {"popularity_score": 60, "key_events": ["ATP Umag"]},
+      "skiing": {"popularity_score": 55, "key_events": ["Snow Queen Trophy Zagreb"]}
+    },
+    "BA": {
+      "basketball": {"popularity_score": 58},
+      "handball": {"popularity_score": 45}
+    },
+    "SI": {
+      "basketball": {"popularity_score": 78, "key_clubs": ["KK Cedevita Olimpija"]},
+      "skiing": {"popularity_score": 82, "key_events": ["FIS Ski Jumping Planica"]},
+      "handball": {"popularity_score": 62}
+    }
+  },
+  "major_events_calendar_2026": [
+    {"event": "FIFA Club World Cup 2025", "dates": "June-July 2025", "location": "USA", "relevance": "Global football attention"},
+    {"event": "FIFA World Cup 2026", "dates": "June-July 2026", "location": "USA/Mexico/Canada", "relevance": "Croatian national team - massive engagement opportunity"},
+    {"event": "UEFA Nations League Finals", "dates": "June 2026", "relevance": "Croatian national team potential"},
+    {"event": "Snow Queen Trophy", "dates": "January 2026", "location": "Zagreb", "relevance": "Zagreb sports spotlight"},
+    {"event": "ATP Umag", "dates": "July 2026", "location": "Umag", "relevance": "Croatian sports attention"}
+  ]
+}

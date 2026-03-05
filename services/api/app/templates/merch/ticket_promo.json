@@ -1,0 +1,31 @@
+{
+  "name": "Ticket Promotion",
+  "description": "Promotes ticket availability for upcoming matches, season tickets, or special ticket packages. Drives ticket sales directly from social.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "4:5",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-center",
+    "overlay_opacity": 0.6,
+    "elements": ["stadium_image", "ticket_graphic", "headline", "match_info", "pricing", "availability_urgency", "cta_button", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "SECURE YOUR SEAT"},
+    "match_info": {"max_chars": 50, "example": "Dinamo vs Hajduk | Saturday 15 March | 20:00"},
+    "ticket_type": {"max_chars": 25, "example": "General Admission"},
+    "price_from": {"max_chars": 15, "example": "From €15"},
+    "availability": {"max_chars": 30, "example": "Limited availability — North Stand sold out"},
+    "purchase_url": {"max_chars": 40, "example": "tickets.gnkdinamo.hr"},
+    "cta": {"example": "Buy Tickets"}
+  },
+  "guidelines": "Stadium atmosphere as the hero image — full stands, floodlights, or tifo display. Include a stylized ticket graphic element. Urgency messaging if availability is limited. Price clearly visible. CTA button should be prominent and link to the ticket platform. For big matches, add 'selling fast' or 'limited availability' urgency markers. Season ticket promos use a different headline."
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Man of the Match",
+  "description": "Highlights the best performer of the match with a featured player image and key individual stats from the game.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "4:5",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#FFD700",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.55,
+    "elements": ["player_cutout", "motm_badge", "headline", "player_name", "player_number", "stat_cards", "match_score", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "MAN OF THE MATCH"},
+    "player_name": {"max_chars": 30, "example": "Bruno Petković"},
+    "player_number": {"max_chars": 3, "example": "9"},
+    "stat_1_label": {"max_chars": 15, "example": "Goals"},
+    "stat_1_value": {"max_chars": 5, "example": "2"},
+    "stat_2_label": {"max_chars": 15, "example": "Key Passes"},
+    "stat_2_value": {"max_chars": 5, "example": "4"},
+    "stat_3_label": {"max_chars": 15, "example": "Rating"},
+    "stat_3_value": {"max_chars": 5, "example": "8.7"},
+    "match_result": {"max_chars": 30, "example": "Dinamo 3-1 Hajduk"}
+  },
+  "guidelines": "Use a high-quality player cutout image with a dynamic pose. The gold accent color replaces the standard blue accent for MOTM to signify the award. Include 3 standout stats in card format. The MOTM badge should be a star/shield icon. Sponsor logo for MOTM award can be placed in the badge area."
+}

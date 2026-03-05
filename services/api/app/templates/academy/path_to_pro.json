@@ -1,0 +1,30 @@
+{
+  "name": "Path to Pro Series",
+  "description": "Documentary-style content series following academy players on their journey toward the first team. Long-form storytelling in a social format.",
+  "platforms": ["instagram", "facebook", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00E676",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-left"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.35,
+    "elements": ["documentary_footage", "series_title_card", "episode_number", "player_interview", "training_clips", "headline", "logo"]
+  },
+  "placeholders": {
+    "series_title": {"max_chars": 20, "example": "PATH TO PRO"},
+    "episode_number": {"max_chars": 15, "example": "Episode 5"},
+    "player_name": {"max_chars": 30, "example": "Antonio Matić"},
+    "episode_title": {"max_chars": 40, "example": "First Training with the Senior Squad"},
+    "description": {"max_chars": 150, "example": "Follow Antonio as he trains with the first team for the first time and hears from the manager about his development."},
+    "cta": {"example": "Follow the Journey"}
+  },
+  "guidelines": "60-90 second Reel combining interview clips, training footage, and personal moments. Open with the series title card and episode number for brand consistency. Cinematic grading with the green academy accent in lower thirds and graphics. Include the player narrating or speaking to camera. Build a multi-episode narrative arc. Cross-promote on YouTube for full episodes."
+}

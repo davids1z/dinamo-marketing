@@ -1,0 +1,30 @@
+{
+  "name": "Travel Day Content",
+  "description": "Documents the team's travel for away matches — airport, plane, bus, hotel arrival. Shows the logistics and camaraderie of matchday travel.",
+  "platforms": ["instagram", "tiktok"],
+  "format_type": "reel",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-right"
+  },
+  "layout": {
+    "hero_image": false,
+    "text_position": "bottom-left",
+    "overlay_opacity": 0.3,
+    "elements": ["travel_footage", "destination_tag", "headline", "flight_info", "player_candids", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "ON THE ROAD"},
+    "destination": {"max_chars": 30, "example": "Heading to Split"},
+    "match_info": {"max_chars": 40, "example": "Away at Hajduk | Sunday 17:30"},
+    "travel_mode": {"max_chars": 15, "example": "Team Bus"},
+    "music_track": {"max_chars": 40, "example": "Trending travel audio"},
+    "hashtags": {"max_chars": 60, "example": "#AwayDay #OnTheRoad #DinamoTravels"}
+  },
+  "guidelines": "Sequence: departure from training ground, boarding bus/plane, candid player moments during travel, arrival at destination, hotel check-in. 30-45 seconds. Use trending travel audio or a laid-back track. Location tags for departure and destination. Show player personalities — music choices, card games, sleeping. Light and fun tone. Post during the journey for real-time engagement."
+}

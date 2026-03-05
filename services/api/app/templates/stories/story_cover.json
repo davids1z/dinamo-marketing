@@ -1,0 +1,28 @@
+{
+  "name": "Story Cover Slide",
+  "description": "Opening cover slide for an Instagram/Facebook Story series. Sets the tone and topic for the story sequence that follows.",
+  "platforms": ["instagram", "facebook"],
+  "format_type": "story",
+  "aspect_ratio": "9:16",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "top-center"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.6,
+    "elements": ["background_image", "headline", "subheadline", "swipe_up_indicator", "logo"]
+  },
+  "placeholders": {
+    "headline": {"max_chars": 25, "example": "MATCHDAY VIBES"},
+    "subheadline": {"max_chars": 50, "example": "Behind the scenes at Maksimir"},
+    "series_label": {"max_chars": 20, "example": "Episode 12"},
+    "cta": {"example": "Tap to begin"}
+  },
+  "guidelines": "Full-bleed background image with centered text. The headline should be large and impactful. Include a subtle animated tap/swipe indicator. Keep text minimal — this is a cover slide. Use dynamic imagery related to the story topic. Logo centered at the top for maximum brand visibility. Story-safe zone margins must be respected."
+}

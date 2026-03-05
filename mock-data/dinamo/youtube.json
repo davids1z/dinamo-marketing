@@ -1,0 +1,129 @@
+{
+  "account_id": "UCGNKDinamoZagreb",
+  "channel_name": "GNK Dinamo Zagreb",
+  "platform": "youtube",
+  "verified": true,
+  "subscribers": 145000,
+  "total_views": 48000000,
+  "total_videos": 1240,
+  "avg_views_per_video": 25000,
+  "avg_watch_time_min": 4.2,
+  "avg_engagement_rate": 3.1,
+  "monthly_growth_rate": 1.8,
+  "demographics": {
+    "age": {
+      "13-17": 8,
+      "18-24": 24,
+      "25-34": 32,
+      "35-44": 22,
+      "45-54": 9,
+      "55+": 5
+    },
+    "gender": {
+      "male": 82,
+      "female": 18
+    },
+    "top_countries": {
+      "HR": 52,
+      "BA": 9,
+      "DE": 7,
+      "AT": 5,
+      "SI": 4,
+      "RS": 3,
+      "CH": 3,
+      "SE": 2,
+      "US": 2,
+      "other": 13
+    }
+  },
+  "content_categories": {
+    "match_highlights": {"percentage": 30, "avg_views": 42000, "avg_watch_time": 5.8},
+    "press_conferences": {"percentage": 18, "avg_views": 12000, "avg_watch_time": 8.2},
+    "behind_the_scenes": {"percentage": 15, "avg_views": 28000, "avg_watch_time": 4.5},
+    "player_interviews": {"percentage": 12, "avg_views": 18000, "avg_watch_time": 6.1},
+    "academy_content": {"percentage": 8, "avg_views": 9000, "avg_watch_time": 3.8},
+    "matchday_vlogs": {"percentage": 7, "avg_views": 35000, "avg_watch_time": 7.2},
+    "shorts": {"percentage": 10, "avg_views": 55000, "avg_watch_time": 0.4}
+  },
+  "top_videos": [
+    {
+      "id": "yt_v1",
+      "title": "DINAMO 3-1 | Svi golovi i highlights | UEFA Champions League 2025/26",
+      "date": "2026-02-18",
+      "views": 620000,
+      "likes": 18000,
+      "comments": 2400,
+      "avg_watch_time_min": 8.2,
+      "retention_rate": 68,
+      "duration_min": 12.5
+    },
+    {
+      "id": "yt_v2",
+      "title": "Matchday Vlog: Europska noć na Maksimiru | Fan Perspective 🔵",
+      "date": "2026-02-18",
+      "views": 280000,
+      "likes": 12000,
+      "comments": 1800,
+      "avg_watch_time_min": 9.4,
+      "retention_rate": 72,
+      "duration_min": 14.2
+    },
+    {
+      "id": "yt_v3",
+      "title": "Petković Exclusive Interview: 'Zagreb je moj dom' | Dinamo TV",
+      "date": "2026-02-08",
+      "views": 185000,
+      "likes": 8500,
+      "comments": 920,
+      "avg_watch_time_min": 7.8,
+      "retention_rate": 65,
+      "duration_min": 11.8
+    },
+    {
+      "id": "yt_v4",
+      "title": "DINAMO 2-0 HAJDUK | Derby highlights | SuperSport HNL 2025/26",
+      "date": "2026-01-25",
+      "views": 420000,
+      "likes": 15000,
+      "comments": 3200,
+      "avg_watch_time_min": 7.2,
+      "retention_rate": 70,
+      "duration_min": 10.4
+    },
+    {
+      "id": "yt_v5",
+      "title": "Inside Training | Priprema za Champions League | Dinamo TV",
+      "date": "2026-02-15",
+      "views": 95000,
+      "likes": 4200,
+      "comments": 380,
+      "avg_watch_time_min": 5.6,
+      "retention_rate": 58,
+      "duration_min": 8.5
+    }
+  ],
+  "shorts_performance": {
+    "total_shorts": 180,
+    "avg_views": 55000,
+    "avg_likes": 3200,
+    "avg_watch_time_sec": 24,
+    "completion_rate": 78
+  },
+  "posting_frequency": {
+    "long_form": 3.2,
+    "shorts": 4.8
+  },
+  "revenue_estimate": {
+    "monthly_ad_revenue_eur": 2800,
+    "avg_rpm_eur": 1.85,
+    "monetized_playbacks_pct": 62
+  },
+  "monthly_metrics": [
+    {"month": "2025-09", "subscribers": 128000, "views": 1800000, "watch_hours": 42000, "engagement_rate": 2.8},
+    {"month": "2025-10", "subscribers": 132000, "views": 2100000, "watch_hours": 48000, "engagement_rate": 3.0},
+    {"month": "2025-11", "subscribers": 136000, "views": 2300000, "watch_hours": 52000, "engagement_rate": 3.2},
+    {"month": "2025-12", "subscribers": 139000, "views": 1950000, "watch_hours": 44000, "engagement_rate": 2.9},
+    {"month": "2026-01", "subscribers": 142000, "views": 2400000, "watch_hours": 55000, "engagement_rate": 3.1},
+    {"month": "2026-02", "subscribers": 145000, "views": 2650000, "watch_hours": 61000, "engagement_rate": 3.1}
+  ]
+}

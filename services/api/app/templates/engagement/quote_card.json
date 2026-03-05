@@ -1,0 +1,28 @@
+{
+  "name": "Inspirational Quote Card",
+  "description": "Features a motivational or insightful quote from a player, manager, or club legend. Designed to inspire engagement and shares.",
+  "platforms": ["instagram", "facebook", "twitter"],
+  "format_type": "image",
+  "aspect_ratio": "1:1",
+  "brand": {
+    "primary_color": "#0057A8",
+    "accent_color": "#00A8E8",
+    "background": "#0A0E1A",
+    "font_headline": "Bebas Neue",
+    "font_body": "Barlow Condensed",
+    "logo_position": "bottom-right"
+  },
+  "layout": {
+    "hero_image": true,
+    "text_position": "center",
+    "overlay_opacity": 0.7,
+    "elements": ["player_cutout", "quote_marks", "quote_text", "attribution", "logo"]
+  },
+  "placeholders": {
+    "quote": {"max_chars": 150, "example": "When you wear this shirt, you carry the weight of history and the hope of a city."},
+    "attribution": {"max_chars": 30, "example": "— Zdravko Mamić"},
+    "role": {"max_chars": 30, "example": "Club Legend"},
+    "context": {"max_chars": 40, "example": "Pre-match press conference"}
+  },
+  "guidelines": "Large quotation marks frame the text. The quote should be centered with generous line spacing. Use the player or person's cutout behind the text with a heavy overlay. Attribution below the quote in accent color. Keep quotes concise and impactful. Avoid controversial statements. Works well for pre-match motivation."
+}
