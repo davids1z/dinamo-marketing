@@ -12,15 +12,17 @@ interface FunnelChartProps {
 }
 
 export function FunnelChart({ steps, title }: FunnelChartProps) {
-  const maxValue = steps[0]?.value || 1
+  const maxValue = Math.max(...steps.map(s => s.value), 1)
 
   return (
     <div>
       {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <div className="space-y-3">
         {steps.map((step, idx) => {
-          const widthPct = (step.value / maxValue) * 100
-          const conversionRate = idx > 0 ? ((step.value / steps[idx - 1]!.value) * 100).toFixed(1) : '100'
+          const widthPct = Math.min((step.value / maxValue) * 100, 100)
+          const conversionRate = idx > 0 && steps[idx - 1]!.value > 0
+            ? ((step.value / steps[idx - 1]!.value) * 100).toFixed(1)
+            : '100'
 
           return (
             <div key={step.label}>
@@ -33,7 +35,7 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
                   )}
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-6">
+              <div className="w-full bg-gray-100 rounded-full h-6 overflow-hidden">
                 <div
                   className="h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                   style={{ width: `${widthPct}%`, backgroundColor: step.color }}

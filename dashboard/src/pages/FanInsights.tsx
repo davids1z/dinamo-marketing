@@ -60,11 +60,11 @@ const fallbackData: FanData = {
     { stage: 'Ambasador', count: 12000, iconName: 'Award', color: 'from-yellow-600 to-yellow-400', growth: 22.7, description: 'UGC kreatori i zagovornici' },
   ],
   funnelSteps: [
-    { label: 'Awareness (New)', value: 45000, color: '#0ea5e9' },
-    { label: 'Casual Follower', value: 120000, color: '#3b82f6' },
-    { label: 'Engaged Fan', value: 280000, color: '#6366f1' },
-    { label: 'Superfan', value: 85000, color: '#a855f7' },
-    { label: 'Ambassador', value: 12000, color: '#eab308' },
+    { label: 'Ukupni doseg', value: 542000, color: '#0ea5e9' },
+    { label: 'Aktivni pratitelji', value: 280000, color: '#3b82f6' },
+    { label: 'Angazirani navijaci', value: 120000, color: '#6366f1' },
+    { label: 'Superfanovi', value: 85000, color: '#a855f7' },
+    { label: 'Ambasadori', value: 12000, color: '#eab308' },
   ],
   clvData: [
     { segment: 'Novi', clv: '\u20AC2.10', retention: '35%', churnRisk: 'Visoki' },
