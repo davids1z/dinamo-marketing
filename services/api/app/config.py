@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     DM_USE_REAL_IMAGE_GEN: bool = False
     DM_USE_REAL_TRENDS: bool = False
 
+    # OpenRouter (Gemini 2.5 Pro)
+    OPENROUTER_API_KEY: str = ""
+
     # Claude / Anthropic
     ANTHROPIC_API_KEY: str = ""
 

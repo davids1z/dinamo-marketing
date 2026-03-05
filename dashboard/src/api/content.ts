@@ -3,6 +3,8 @@ import api from './client';
 export const contentApi = {
   generatePlan: (data: { month: number; year: number; context?: Record<string, unknown> }) =>
     api.post('/content/generate-plan', data),
+  generateAIPlan: (data: { month: number; year: number }) =>
+    api.post('/content/generate-ai-plan', data),
   getPlans: () => api.get('/content/plans'),
   getPlan: (id: string) => api.get(`/content/plans/${id}`),
   getCalendar: (month: number, year: number) =>

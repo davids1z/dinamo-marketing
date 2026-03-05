@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -6,8 +8,10 @@ from uuid import UUID
 from app.database import get_db
 from app.dependencies import get_claude_client, get_image_gen_client
 from app.services.content_engine import ContentEngineService
+from app.config import settings
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _get_service():
@@ -15,6 +19,25 @@ def _get_service():
         get_claude_client(),
         get_image_gen_client(),
     )
+
+
+@router.post("/generate-ai-plan")
+async def generate_ai_plan(
+    month: int = Body(...),
+    year: int = Body(...),
+):
+    """Generate a content plan using Gemini 2.5 Pro via OpenRouter. No DB required."""
+    api_key = settings.OPENROUTER_API_KEY
+    if not api_key:
+        return {"error": "OPENROUTER_API_KEY not configured", "posts": []}
+
+    try:
+        from app.integrations.openrouter import generate_content_plan
+        posts = await generate_content_plan(api_key, month, year)
+        return {"posts": posts, "month": month, "year": year, "source": "gemini"}
+    except Exception as e:
+        logger.error(f"OpenRouter AI generation failed: {e}")
+        return {"error": str(e), "posts": [], "month": month, "year": year}
 
 
 @router.post("/generate-plan")
