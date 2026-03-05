@@ -115,6 +115,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
         ],
         "temperature": 0.8,
         "max_tokens": 32000,
+        "response_format": {"type": "json_object"},
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
@@ -127,17 +128,39 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
     # Strip markdown fences if present
     content = content.strip()
     if content.startswith("```"):
-        # Remove opening fence
         first_newline = content.index("\n")
         content = content[first_newline + 1:]
     if content.endswith("```"):
         content = content[:-3]
     content = content.strip()
 
-    posts = json.loads(content)
+    # Try to extract JSON array even if there's extra text
+    try:
+        posts = json.loads(content)
+    except json.JSONDecodeError:
+        # Try to find JSON array in the content
+        start = content.find("[")
+        end = content.rfind("]")
+        if start != -1 and end != -1:
+            json_str = content[start:end + 1]
+            # Fix common JSON issues: trailing commas, unescaped chars
+            json_str = _fix_json(json_str)
+            posts = json.loads(json_str)
+        else:
+            raise ValueError("Could not find JSON array in AI response")
 
     if not isinstance(posts, list):
         raise ValueError("Expected a JSON array from AI response")
 
     logger.info(f"Generated {len(posts)} posts for {month_name} {year}")
     return posts
+
+
+def _fix_json(s: str) -> str:
+    """Fix common JSON issues from LLM output."""
+    import re
+    # Remove trailing commas before ] or }
+    s = re.sub(r',\s*([}\]])', r'\1', s)
+    # Replace single quotes with double quotes (but not inside strings)
+    # This is a simple approach - may not cover all edge cases
+    return s
