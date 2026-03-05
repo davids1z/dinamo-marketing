@@ -12,6 +12,7 @@ export default defineConfig({
   server: {
     host: true,
     port: Number(process.env.VITE_PORT || 3001),
+    allowedHosts: ['dinamo.xyler.ai'],
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:8001',
