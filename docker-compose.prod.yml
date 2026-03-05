@@ -1,0 +1,101 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dinamo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dinamo_prod_2026}
+      POSTGRES_DB: dinamo_marketing
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dinamo -d dinamo_marketing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3301:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DM_USE_MOCK_APIS: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./mock-data:/app/mock-data
+    restart: unless-stopped
+
+  celery-worker:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DM_USE_MOCK_APIS: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./mock-data:/app/mock-data
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+    restart: unless-stopped
+
+  celery-beat:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DM_USE_MOCK_APIS: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./mock-data:/app/mock-data
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile.prod
+    ports:
+      - "127.0.0.1:3300:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:
