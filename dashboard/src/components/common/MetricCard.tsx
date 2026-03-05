@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { TrendingUp, TrendingDown } from 'lucide-react'
+import { TrendingUp, TrendingDown, type LucideIcon } from 'lucide-react'
 import { formatNumber, formatPercent, formatCurrency } from '../../utils/formatters'
 
 interface MetricCardProps {
@@ -7,10 +7,10 @@ interface MetricCardProps {
   value: number
   previousValue?: number
   format?: 'number' | 'currency' | 'percent'
-  icon?: React.ReactNode
+  icon?: LucideIcon
 }
 
-export default function MetricCard({ label, value, previousValue, format = 'number', icon }: MetricCardProps) {
+export default function MetricCard({ label, value, previousValue, format = 'number', icon: Icon }: MetricCardProps) {
   const formattedValue =
     format === 'currency' ? formatCurrency(value) :
     format === 'percent' ? formatPercent(value) :
@@ -27,7 +27,7 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
           <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">{label}</p>
           <p className="stat-number text-white">{formattedValue}</p>
         </div>
-        {icon && <div className="text-dinamo-accent">{icon}</div>}
+        {Icon && <div className="text-dinamo-accent"><Icon size={20} /></div>}
       </div>
       {trend !== null && (
         <div className={clsx('flex items-center gap-1 mt-2 text-xs font-medium',
