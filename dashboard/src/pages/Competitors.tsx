@@ -1,43 +1,66 @@
-import React from 'react';
-import Header from '../components/layout/Header';
-import DataTable from '../components/common/DataTable';
-import { ComparisonBar } from '../components/charts/ComparisonBar';
-import StatusBadge from '../components/common/StatusBadge';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import Header from '../components/layout/Header'
+import DataTable from '../components/common/DataTable'
+import { ComparisonBar } from '../components/charts/ComparisonBar'
+import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { useApi } from '../hooks/useApi'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 interface CompetitorRow {
-  club: string;
-  country: string;
-  igFollowers: number;
-  igEngagement: number;
-  tiktokFollowers: number;
-  gapVsDinamo: number;
-  tier: string;
+  club: string
+  country: string
+  igFollowers: number
+  igEngagement: number
+  tiktokFollowers: number
+  gapVsDinamo: number
+  tier: string
 }
 
-const competitors: CompetitorRow[] = [
-  { club: 'Galatasaray SK', country: 'Turkey', igFollowers: 15600000, igEngagement: 1.2, tiktokFollowers: 4200000, gapVsDinamo: 15033000, tier: 'aspirational' },
-  { club: 'Ajax Amsterdam', country: 'Netherlands', igFollowers: 9000000, igEngagement: 1.8, tiktokFollowers: 2100000, gapVsDinamo: 8433000, tier: 'aspirational' },
-  { club: 'Besiktas JK', country: 'Turkey', igFollowers: 5600000, igEngagement: 1.4, tiktokFollowers: 1800000, gapVsDinamo: 5033000, tier: 'aspirational' },
-  { club: 'Sporting CP', country: 'Portugal', igFollowers: 2800000, igEngagement: 2.1, tiktokFollowers: 950000, gapVsDinamo: 2233000, tier: 'stretch' },
-  { club: 'Red Bull Salzburg', country: 'Austria', igFollowers: 542000, igEngagement: 2.4, tiktokFollowers: 320000, gapVsDinamo: -25000, tier: 'direct' },
-  { club: 'Slavia Praha', country: 'Czech Republic', igFollowers: 413000, igEngagement: 2.6, tiktokFollowers: 185000, gapVsDinamo: -154000, tier: 'direct' },
-  { club: 'Hajduk Split', country: 'Croatia', igFollowers: 302000, igEngagement: 3.1, tiktokFollowers: 145000, gapVsDinamo: -265000, tier: 'direct' },
-  { club: 'Ferencvaros TC', country: 'Hungary', igFollowers: 280000, igEngagement: 2.8, tiktokFollowers: 120000, gapVsDinamo: -287000, tier: 'direct' },
-];
-
-const dinamoIg = 567000;
+interface CompetitorData {
+  competitors: CompetitorRow[]
+  dinamoIg: number
+  summary: {
+    directCount: number
+    dinamoLeadsIn: number
+    dinamoIgFormatted: string
+    dinamoRank: string
+    avgEngagementDirect: number
+    dinamoEngagement: number
+  }
+}
 
 const formatFollowers = (n: number): string => {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  return `${(n / 1000).toFixed(0)}K`;
-};
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`
+  return `${(n / 1000).toFixed(0)}K`
+}
+
+// Fallback mock data for when API is not available
+const fallbackData: CompetitorData = {
+  competitors: [
+    { club: 'Galatasaray SK', country: 'Turkey', igFollowers: 15600000, igEngagement: 1.2, tiktokFollowers: 4200000, gapVsDinamo: 15033000, tier: 'aspirational' },
+    { club: 'Ajax Amsterdam', country: 'Netherlands', igFollowers: 9000000, igEngagement: 1.8, tiktokFollowers: 2100000, gapVsDinamo: 8433000, tier: 'aspirational' },
+    { club: 'Besiktas JK', country: 'Turkey', igFollowers: 5600000, igEngagement: 1.4, tiktokFollowers: 1800000, gapVsDinamo: 5033000, tier: 'aspirational' },
+    { club: 'Sporting CP', country: 'Portugal', igFollowers: 2800000, igEngagement: 2.1, tiktokFollowers: 950000, gapVsDinamo: 2233000, tier: 'stretch' },
+    { club: 'Red Bull Salzburg', country: 'Austria', igFollowers: 542000, igEngagement: 2.4, tiktokFollowers: 320000, gapVsDinamo: -25000, tier: 'direct' },
+    { club: 'Slavia Praha', country: 'Czech Republic', igFollowers: 413000, igEngagement: 2.6, tiktokFollowers: 185000, gapVsDinamo: -154000, tier: 'direct' },
+    { club: 'Hajduk Split', country: 'Croatia', igFollowers: 302000, igEngagement: 3.1, tiktokFollowers: 145000, gapVsDinamo: -265000, tier: 'direct' },
+    { club: 'Ferencvaros TC', country: 'Hungary', igFollowers: 280000, igEngagement: 2.8, tiktokFollowers: 120000, gapVsDinamo: -287000, tier: 'direct' },
+  ],
+  dinamoIg: 567000,
+  summary: {
+    directCount: 4,
+    dinamoLeadsIn: 3,
+    dinamoIgFormatted: '567K',
+    dinamoRank: '#1 u direktnoj skupini',
+    avgEngagementDirect: 2.7,
+    dinamoEngagement: 3.2,
+  },
+}
 
 const columns = [
   { key: 'club', header: 'Klub', render: (row: CompetitorRow) => (
-    <div>
-      <span className="text-gray-900 font-medium">{row.club}</span>
-      <span className="text-xs text-dinamo-muted ml-2">{row.country}</span>
+    <div className="min-w-0">
+      <span className="text-gray-900 font-medium truncate">{row.club}</span>
+      <span className="text-xs text-dinamo-muted ml-2 hidden sm:inline">{row.country}</span>
     </div>
   )},
   { key: 'tier', header: 'Skupina', render: (row: CompetitorRow) => (
@@ -63,7 +86,7 @@ const columns = [
     <span className="text-gray-700 font-mono">{formatFollowers(row.tiktokFollowers)}</span>
   )},
   { key: 'gapVsDinamo', header: 'Jaz prema Dinamu', render: (row: CompetitorRow) => {
-    const icon = row.gapVsDinamo > 0 ? <TrendingUp size={14} /> : row.gapVsDinamo < 0 ? <TrendingDown size={14} /> : <Minus size={14} />;
+    const icon = row.gapVsDinamo > 0 ? <TrendingUp size={14} /> : row.gapVsDinamo < 0 ? <TrendingDown size={14} /> : <Minus size={14} />
     return (
       <div className={`flex items-center gap-1 text-sm font-mono ${
         row.gapVsDinamo > 0 ? 'text-red-600' : 'text-green-600'
@@ -71,51 +94,63 @@ const columns = [
         {icon}
         {row.gapVsDinamo > 0 ? '+' : ''}{formatFollowers(Math.abs(row.gapVsDinamo))}
       </div>
-    );
+    )
   }},
-];
-
-const followerComparison = [
-  { name: 'Dinamo Zagreb', value: 567000 },
-  ...competitors.filter(c => c.tier === 'direct').map(c => ({ name: c.club, value: c.igFollowers })),
-];
+]
 
 export default function Competitors() {
+  const { data: apiData, loading, error, refetch } = useApi<CompetitorData>('/competitors')
+  const data = apiData || fallbackData
+
+  if (loading && !apiData) return <><Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" /><PageLoader /></>
+
+  const competitorList = data.competitors || fallbackData.competitors
+  const summary = data.summary || fallbackData.summary
+
+  const followerComparison = [
+    { name: 'Dinamo Zagreb', value: data.dinamoIg || fallbackData.dinamoIg },
+    ...competitorList.filter(c => c.tier === 'direct').map(c => ({ name: c.club, value: c.igFollowers })),
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="animate-fade-in">
       <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="page-wrapper space-y-6">
+        {error && <ErrorState message={error} onRetry={refetch} />}
+
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="card">
             <p className="text-sm text-dinamo-muted">Direktni konkurenti</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">4</p>
-            <p className="text-xs text-green-600 mt-1">Dinamo vodi u 3 od 4</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.directCount}</p>
+            <p className="text-xs text-green-600 mt-1">Dinamo vodi u {summary.dinamoLeadsIn} od {summary.directCount}</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="card">
             <p className="text-sm text-dinamo-muted">Dinamo IG pratitelji</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">567K</p>
-            <p className="text-xs text-blue-600 mt-1">Rangirani #1 u direktnoj skupini</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.dinamoIgFormatted}</p>
+            <p className="text-xs text-blue-600 mt-1">Rangirani {summary.dinamoRank}</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="card">
             <p className="text-sm text-dinamo-muted">Prosj. angažman (direktni)</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">2.7%</p>
-            <p className="text-xs text-yellow-600 mt-1">Dinamo: 3.2% (iznad prosjeka)</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.avgEngagementDirect}%</p>
+            <p className="text-xs text-yellow-600 mt-1">Dinamo: {summary.dinamoEngagement}% (iznad prosjeka)</p>
           </div>
         </div>
 
         {/* Direct Competitor Comparison */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="card">
           <ComparisonBar data={followerComparison} title="Instagram pratitelji — direktni konkurenti" valueLabel="Followers" />
         </div>
 
         {/* Full Competitor Table */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Svi praćeni konkurenti</h2>
-          <DataTable columns={columns} data={competitors} emptyMessage="Nema praćenih konkurenata" />
+        <div className="card">
+          <h2 className="section-title mb-4">Svi praćeni konkurenti</h2>
+          <div className="overflow-x-auto">
+            <DataTable columns={columns} data={competitorList} emptyMessage="Nema praćenih konkurenata" />
+          </div>
         </div>
-      </main>
+      </div>
     </div>
-  );
+  )
 }
