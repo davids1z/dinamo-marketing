@@ -147,8 +147,8 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
 
           {showNotifs && (
             <div
-              className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
-              style={{ width: '420px', maxWidth: 'calc(100vw - 24px)' }}
+              className="absolute top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
+              style={{ width: '380px', maxWidth: 'calc(100vw - 24px)', right: '-8px' }}
             >
               {/* Header */}
               <div className="px-5 py-4 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">

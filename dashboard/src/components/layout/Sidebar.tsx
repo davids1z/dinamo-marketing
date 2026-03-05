@@ -131,16 +131,16 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Collapse handle — sits ON the divider between sidebar and content */}
+      {/* Collapse toggle — visible circle on the sidebar edge */}
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] group"
-          style={{ left: collapsed ? 72 - 6 : 256 - 6 }}
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-7 h-7 rounded-full bg-white border-2 border-gray-200 shadow-md flex items-center justify-center hover:border-dinamo-accent hover:bg-dinamo-accent hover:text-gray-900 text-gray-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
+          style={{ left: collapsed ? 72 - 14 : 256 - 14 }}
         >
-          <div className="w-3 h-16 rounded-full bg-gray-300/60 hover:bg-dinamo-accent hover:h-20 transition-all duration-200 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-dinamo-accent/20">
-            <div className="w-1 h-6 rounded-full bg-gray-500 group-hover:bg-gray-900 transition-colors" />
-          </div>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>
+            <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </button>
       )}
     </>
