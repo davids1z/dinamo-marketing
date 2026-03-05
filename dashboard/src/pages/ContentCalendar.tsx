@@ -457,7 +457,7 @@ export default function ContentCalendar() {
         {activeTab === 'calendar' && viewMode === 'month' && !generating && (
           <div className="flex gap-6">
             {/* Calendar Grid */}
-            <div className="card flex-1 min-w-0">
+            <div className="card min-w-0 flex-1">
               <div className="flex items-center justify-between mb-6">
                 <button onClick={prevMonth} className="p-2 text-dinamo-muted hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
                 <h2 className="text-xl font-bold text-gray-900">{monthNames[currentMonth].toUpperCase()} {currentYear}</h2>
@@ -526,7 +526,7 @@ export default function ContentCalendar() {
 
             {/* Day Detail Panel */}
             {selectedDay && (
-              <div className="hidden lg:block card w-96 flex-shrink-0 animate-slide-in max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="hidden lg:block card animate-slide-in max-h-[calc(100vh-200px)] overflow-y-auto" style={{ width: '384px', minWidth: '384px', maxWidth: '384px' }}>
                 <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2 border-b border-gray-100">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">{selectedDay}. {monthNames[currentMonth]}</h3>
@@ -691,129 +691,147 @@ export default function ContentCalendar() {
 
       {/* POST DETAIL MODAL */}
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedPost(null)}>
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-            {/* Modal header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <PlatformIcon platform={selectedPost.platform} size="md" />
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">{selectedPost.title}</h2>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-dinamo-muted capitalize">{selectedPost.type}</span>
-                    <span className="text-xs text-dinamo-muted">·</span>
-                    <span className="text-xs text-dinamo-muted">{selectedPost.scheduled_time}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${pillarColors[selectedPost.content_pillar] || 'bg-gray-100 text-gray-600'}`}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPost(null)}>
+          <div className="bg-white rounded-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-fade-in" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
+
+            {/* Header with platform color stripe */}
+            <div className={`h-1 ${platformColors[selectedPost.platform] || 'bg-gray-400'}`} />
+            <div className="px-6 py-4 flex items-start justify-between border-b border-gray-100">
+              <div className="flex items-start gap-4 min-w-0">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  selectedPost.status === 'published' ? 'bg-green-50' :
+                  selectedPost.status === 'scheduled' ? 'bg-blue-50' :
+                  selectedPost.status === 'draft' ? 'bg-yellow-50' : 'bg-red-50'
+                }`}>
+                  <PlatformIcon platform={selectedPost.platform} size="md" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-base font-bold text-gray-900 leading-tight">{selectedPost.title}</h2>
+                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <span className="text-[11px] font-medium text-gray-500 capitalize bg-gray-100 px-2 py-0.5 rounded">{selectedPost.type}</span>
+                    <span className="text-[11px] text-gray-400">{selectedPost.scheduled_time}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${pillarColors[selectedPost.content_pillar] || 'bg-gray-100 text-gray-600'}`}>
                       {pillarLabels[selectedPost.content_pillar] || selectedPost.content_pillar}
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                      selectedPost.status === 'published' ? 'bg-green-100 text-green-700' :
+                      selectedPost.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                      selectedPost.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedPost.status === 'published' ? 'Objavljeno' :
+                       selectedPost.status === 'scheduled' ? 'Zakazano' :
+                       selectedPost.status === 'draft' ? 'Draft' : 'Propušteno'}
                     </span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setSelectedPost(null)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} className="text-gray-500" /></button>
+              <button onClick={() => setSelectedPost(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-2">
+                <X size={18} className="text-gray-400" />
+              </button>
             </div>
 
-            <div className="px-6 py-5 space-y-5">
-              {/* Status banner */}
-              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg ${
-                selectedPost.status === 'published' ? 'bg-green-50 border border-green-200' :
-                selectedPost.status === 'scheduled' ? 'bg-blue-50 border border-blue-200' :
-                selectedPost.status === 'draft' ? 'bg-yellow-50 border border-yellow-200' :
-                'bg-red-50 border border-red-200'
-              }`}>
-                {selectedPost.status === 'published' && <><Check size={16} className="text-green-600" /><span className="text-sm text-green-700 font-medium">Objavljeno u {selectedPost.scheduled_time}</span></>}
-                {selectedPost.status === 'scheduled' && <><Clock size={16} className="text-blue-600" /><span className="text-sm text-blue-700 font-medium">Zakazano za {selectedPost.scheduled_time}</span></>}
-                {selectedPost.status === 'draft' && <><Sparkles size={16} className="text-yellow-600" /><span className="text-sm text-yellow-700 font-medium">AI generirani draft</span></>}
-                {selectedPost.status === 'missed' && <><X size={16} className="text-red-600" /><span className="text-sm text-red-700 font-medium">Propuštena objava</span></>}
-              </div>
+            {/* Content */}
+            <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 100px)' }}>
+              <div className="px-6 py-5 space-y-5">
 
-              {/* Metrics for published */}
-              {selectedPost.metrics && (
-                <>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><BarChart3 size={16} /> Performanse</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Metrics grid for published posts */}
+                {selectedPost.metrics && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 gap-2">
                       {[
                         { label: 'Pregledi', value: selectedPost.metrics.views, icon: Eye },
                         { label: 'Doseg', value: selectedPost.metrics.reach, icon: Target },
-                        { label: 'Prikazivanja', value: selectedPost.metrics.impressions, icon: Zap },
-                        { label: 'Angažman', value: selectedPost.metrics.engagement_rate, icon: TrendingUp, suffix: '%' },
                         { label: 'Lajkovi', value: selectedPost.metrics.likes, icon: Heart },
-                        { label: 'Komentari', value: selectedPost.metrics.comments, icon: MessageCircle },
-                        { label: 'Dijeljenja', value: selectedPost.metrics.shares, icon: Share2 },
-                        { label: 'Spremljeno', value: selectedPost.metrics.saves, icon: Bookmark },
+                        { label: 'Angažman', value: selectedPost.metrics.engagement_rate, icon: TrendingUp, suffix: '%' },
                       ].map(({ label, value, icon: Icon, suffix }) => (
-                        <div key={label} className="bg-gray-50 rounded-lg p-3">
-                          <div className="flex items-center gap-1.5 text-dinamo-muted mb-1">
-                            <Icon size={12} />
-                            <span className="text-xs">{label}</span>
-                          </div>
-                          <p className="text-lg font-bold text-gray-900">{suffix ? value + suffix : formatNumber(value)}</p>
+                        <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
+                          <Icon size={14} className="text-gray-400 mx-auto mb-1" />
+                          <p className="text-base font-bold text-gray-900 font-headline">{suffix ? value + suffix : formatNumber(value)}</p>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{label}</p>
                         </div>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Comparison with last week */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Usporedba s prošlim tjednom</h3>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { label: 'Komentari', value: selectedPost.metrics.comments, icon: MessageCircle },
+                        { label: 'Dijeljenja', value: selectedPost.metrics.shares, icon: Share2 },
+                        { label: 'Spremljeno', value: selectedPost.metrics.saves, icon: Bookmark },
+                        { label: 'Prikazivanja', value: selectedPost.metrics.impressions, icon: Zap },
+                      ].map(({ label, value, icon: Icon }) => (
+                        <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
+                          <Icon size={14} className="text-gray-400 mx-auto mb-1" />
+                          <p className="text-base font-bold text-gray-900 font-headline">{formatNumber(value)}</p>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Week comparison inline */}
+                    <div className="flex gap-3">
                       {(() => {
                         const viewsChange = pctChange(selectedPost.metrics!.views, selectedPost.metrics!.prev_week_avg_views)
                         const engChange = pctChange(selectedPost.metrics!.engagement_rate, selectedPost.metrics!.prev_week_avg_engagement)
                         return [
-                          { label: 'Pregledi vs prosjek', pct: viewsChange.pct, up: viewsChange.up, current: formatNumber(selectedPost.metrics!.views), prev: formatNumber(selectedPost.metrics!.prev_week_avg_views) },
-                          { label: 'Angažman vs prosjek', pct: engChange.pct, up: engChange.up, current: selectedPost.metrics!.engagement_rate + '%', prev: selectedPost.metrics!.prev_week_avg_engagement + '%' },
-                        ].map(({ label, pct, up, current, prev }) => (
-                          <div key={label} className={`rounded-lg p-3 border ${up ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                            <p className="text-xs text-dinamo-muted mb-1">{label}</p>
-                            <div className="flex items-center gap-2">
-                              {up ? <TrendingUp size={16} className="text-green-600" /> : <TrendingDown size={16} className="text-red-600" />}
-                              <span className={`text-lg font-bold ${up ? 'text-green-700' : 'text-red-700'}`}>{pct}</span>
+                          { label: 'Pregledi vs prošli tjedan', pct: viewsChange.pct, up: viewsChange.up },
+                          { label: 'Angažman vs prošli tjedan', pct: engChange.pct, up: engChange.up },
+                        ].map(({ label, pct, up }) => (
+                          <div key={label} className={`flex-1 rounded-xl p-3 ${up ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                            <div className="flex items-center gap-1.5">
+                              {up ? <TrendingUp size={14} className="text-emerald-600" /> : <TrendingDown size={14} className="text-red-500" />}
+                              <span className={`text-sm font-bold ${up ? 'text-emerald-700' : 'text-red-600'}`}>{pct}</span>
                             </div>
-                            <p className="text-xs text-dinamo-muted mt-1">{current} vs {prev} prosjek</p>
+                            <p className="text-[10px] text-gray-500 mt-1">{label}</p>
                           </div>
                         ))
                       })()}
                     </div>
                   </div>
-                </>
-              )}
+                )}
 
-              {/* Caption */}
-              {selectedPost.caption_hr && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">{selectedPost.metrics ? 'Caption' : 'Predloženi caption'}</h3>
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">{selectedPost.caption_hr}</p>
-                </div>
-              )}
-
-              {/* Description (for future/draft) */}
-              {!selectedPost.metrics && selectedPost.description && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Opis ideje</h3>
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">{selectedPost.description}</p>
-                </div>
-              )}
-
-              {/* Visual brief */}
-              {selectedPost.visual_brief && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Vizualni smjer</h3>
-                  <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">{selectedPost.visual_brief}</p>
-                </div>
-              )}
-
-              {/* Hashtags */}
-              {selectedPost.hashtags && selectedPost.hashtags.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Hashtags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedPost.hashtags.map((tag) => (
-                      <span key={tag} className="text-xs px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full">{tag}</span>
-                    ))}
+                {/* Description */}
+                {selectedPost.description && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Opis</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{selectedPost.description}</p>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* Caption */}
+                {selectedPost.caption_hr && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      {selectedPost.metrics ? 'Caption' : 'Predloženi caption'}
+                    </p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                      <p className="text-sm text-gray-700 leading-relaxed">{selectedPost.caption_hr}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Visual brief */}
+                {selectedPost.visual_brief && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Vizualni smjer</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                      <p className="text-sm text-gray-600 leading-relaxed">{selectedPost.visual_brief}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hashtags */}
+                {selectedPost.hashtags && selectedPost.hashtags.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Hashtags</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedPost.hashtags.map((tag) => (
+                        <span key={tag} className="text-[12px] px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg font-medium">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

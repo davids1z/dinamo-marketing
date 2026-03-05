@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, Calendar, Trophy, X } from 'lucide-react'
+import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, Calendar, Trophy, ChevronRight, X } from 'lucide-react'
 import { useSidebar } from './Layout'
 
 interface HeaderProps {
@@ -8,49 +8,77 @@ interface HeaderProps {
   actions?: React.ReactNode
 }
 
-const notifications = [
+interface Notification {
+  id: number
+  icon: typeof TrendingUp
+  iconColor: string
+  iconBg: string
+  accentColor: string
+  title: string
+  desc: string
+  detail: string
+  time: string
+  unread: boolean
+}
+
+const notifications: Notification[] = [
   {
     id: 1,
     icon: TrendingUp,
-    color: 'text-green-500 bg-green-50',
+    iconColor: 'text-emerald-600',
+    iconBg: 'bg-emerald-50',
+    accentColor: 'border-l-emerald-500',
     title: 'Engagement porastao +23%',
     desc: 'Instagram reels imaju 23% veći engagement nego prošli tjedan',
+    detail: 'Prosječni engagement rate za Reels porastao s 6.2% na 7.6% u zadnjih 7 dana. Najbolji post: "Petković golčina" s 9.4% engagement rate-om. Preporuka: nastaviti s kratkim highlight formatom.',
     time: 'Prije 2h',
     unread: true,
   },
   {
     id: 2,
     icon: AlertTriangle,
-    color: 'text-amber-500 bg-amber-50',
+    iconColor: 'text-amber-600',
+    iconBg: 'bg-amber-50',
+    accentColor: 'border-l-amber-500',
     title: 'Negativni sentiment detektiran',
-    desc: 'Porast negativnih komentara na posljednju objavu o transferu',
+    desc: 'Porast negativnih komentara na objavu o transferu',
+    detail: 'Detektiran porast negativnog sentimenta od 34% na posljednju objavu o mogućem transferu igrača. 89 negativnih komentara u zadnja 4 sata. Preporuka: pripremiti službeno priopćenje.',
     time: 'Prije 4h',
     unread: true,
   },
   {
     id: 3,
     icon: Zap,
-    color: 'text-blue-500 bg-blue-50',
+    iconColor: 'text-blue-600',
+    iconBg: 'bg-blue-50',
+    accentColor: 'border-l-blue-500',
     title: 'Viralni sadržaj',
     desc: 'TikTok video "Petković golčina" prešao 500K pregleda',
+    detail: 'Video je dosegao 500K pregleda za samo 6 sati. Share rate: 4.2% (prosjek 1.8%). Dolazi na For You Page u regiji. Preporuka: cross-post na Instagram Reels i YouTube Shorts.',
     time: 'Prije 6h',
-    unread: true,
+    unread: false,
   },
   {
     id: 4,
     icon: Calendar,
-    color: 'text-purple-500 bg-purple-50',
+    iconColor: 'text-violet-600',
+    iconBg: 'bg-violet-50',
+    accentColor: 'border-l-violet-500',
     title: 'Zakazane objave sutra',
     desc: '4 objave čekaju odobrenje za sutrašnji matchday',
+    detail: 'Čekaju odobrenje: 1× Instagram Reel (Matchday hype), 1× TikTok (Tunnel cam), 1× Facebook Event, 1× YouTube Short. Rok za odobrenje: danas do 20:00.',
     time: 'Prije 8h',
     unread: false,
   },
   {
     id: 5,
     icon: Trophy,
-    color: 'text-dinamo-accent bg-lime-50',
+    iconColor: 'text-dinamo-accent-dark',
+    iconBg: 'bg-lime-50',
+    accentColor: 'border-l-dinamo-accent',
     title: 'Mjesečni cilj dostignut',
-    desc: 'Ukupni reach premašio 2M za ovaj mjesec — novi rekord!',
+    desc: 'Ukupni reach premašio 2M — novi rekord!',
+    detail: 'Ukupni reach za ožujak: 2.14M (cilj: 2M). To je porast od 28% u odnosu na veljače. Top platforma: Instagram (1.2M), TikTok (680K), YouTube (260K). Novi mjesečni rekord!',
     time: 'Prije 1d',
     unread: false,
   },
@@ -59,6 +87,7 @@ const notifications = [
 export default function Header({ title, subtitle, actions }: HeaderProps) {
   const { toggleSidebar } = useSidebar()
   const [showNotifs, setShowNotifs] = useState(false)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
   const [dismissed, setDismissed] = useState<number[]>([])
   const notifRef = useRef<HTMLDivElement>(null)
 
@@ -66,6 +95,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
     const handleClick = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifs(false)
+        setExpandedId(null)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -104,55 +134,89 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
-            onClick={() => setShowNotifs(!showNotifs)}
+            onClick={() => { setShowNotifs(!showNotifs); setExpandedId(null) }}
             className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <Bell className="w-5 h-5 text-gray-500" />
             {unreadCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[11px] font-bold rounded-full px-1.5 ring-2 ring-white">
                 {unreadCount}
               </span>
             )}
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 top-full mt-2 w-[360px] sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-fade-in" style={{ right: 0, maxWidth: 'calc(100vw - 24px)' }}>
-              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-headline text-sm font-bold tracking-wider text-gray-900">OBAVIJESTI</h3>
+            <div
+              className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
+              style={{ width: '420px', maxWidth: 'calc(100vw - 24px)' }}
+            >
+              {/* Header */}
+              <div className="px-5 py-4 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Obavijesti</h3>
+                    <p className="text-[11px] text-gray-500">{visibleNotifs.length} ukupno · {unreadCount} nepročitane</p>
+                  </div>
+                </div>
                 {unreadCount > 0 && (
-                  <span className="text-xs font-medium text-dinamo-accent bg-dinamo-accent/10 px-2 py-0.5 rounded-full">
-                    {unreadCount} novo
+                  <span className="text-[11px] font-semibold text-white bg-red-500 px-2.5 py-1 rounded-full">
+                    {unreadCount}
                   </span>
                 )}
               </div>
-              <div className="max-h-96 overflow-y-auto">
+
+              {/* Notification list */}
+              <div className="max-h-[440px] overflow-y-auto divide-y divide-gray-50">
                 {visibleNotifs.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-sm text-gray-400">Nema obavijesti</div>
+                  <div className="px-5 py-12 text-center">
+                    <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400">Nema obavijesti</p>
+                  </div>
                 ) : (
-                  visibleNotifs.map((n) => (
-                    <div
-                      key={n.id}
-                      className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3 ${n.unread ? 'bg-blue-50/30' : ''}`}
-                    >
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${n.color}`}>
-                        <n.icon className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-semibold text-gray-900 leading-tight">{n.title}</p>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]) }}
-                            className="text-gray-300 hover:text-gray-500 flex-shrink-0 mt-0.5"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+                  visibleNotifs.map((n) => {
+                    const isExpanded = expandedId === n.id
+                    return (
+                      <div key={n.id} className={`border-l-[3px] ${n.accentColor} transition-colors ${n.unread ? 'bg-blue-50/20' : 'bg-white'}`}>
+                        <div
+                          className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50/80 transition-colors"
+                          onClick={() => setExpandedId(isExpanded ? null : n.id)}
+                        >
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${n.iconBg}`}>
+                            <n.icon className={`w-4 h-4 ${n.iconColor}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[13px] font-semibold text-gray-900 leading-tight truncate">{n.title}</p>
+                              {n.unread && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
+                            </div>
+                            <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">{n.desc}</p>
+                            <p className="text-[11px] text-gray-400 mt-1">{n.time}</p>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0 mt-1">
+                            <ChevronRight className={`w-4 h-4 text-gray-300 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5 leading-snug">{n.desc}</p>
-                        <p className="text-[10px] text-gray-400 mt-1">{n.time}</p>
+
+                        {/* Expanded detail */}
+                        {isExpanded && (
+                          <div className="px-4 pb-3.5 ml-12 mr-4 animate-fade-in">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                              <p className="text-[12px] text-gray-600 leading-relaxed">{n.detail}</p>
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]); setExpandedId(null) }}
+                              className="mt-2 text-[11px] text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              Ukloni obavijest
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {n.unread && <div className="w-2 h-2 rounded-full bg-dinamo-accent flex-shrink-0 mt-1.5" />}
-                    </div>
-                  ))
+                    )
+                  })
                 )}
               </div>
             </div>
