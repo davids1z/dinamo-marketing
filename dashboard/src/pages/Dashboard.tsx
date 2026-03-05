@@ -66,7 +66,7 @@ export default function Dashboard() {
   // Use API data if available, otherwise fallback
   const d = apiData || fallbackOverview
 
-  if (loading && !apiData) return <><Header title="NADZORNA PLOCA" subtitle="Pregled" /><PageLoader /></>
+  if (loading && !apiData) return <><Header title="NADZORNA PLOČA" subtitle="Pregled" /><PageLoader /></>
 
   const sentiment = d.sentiment_breakdown || { positive: 65, neutral: 25, negative: 10 }
   const engagementData = d.engagement_trend || fallbackOverview.engagement_trend
@@ -74,7 +74,7 @@ export default function Dashboard() {
 
   return (
     <div className="animate-fade-in">
-      <Header title="NADZORNA PLOCA" subtitle="Pregled svih metrika u realnom vremenu" />
+      <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
 
       <div className="page-wrapper space-y-6">
         {/* Metric Cards */}

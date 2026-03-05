@@ -394,7 +394,7 @@ export default function ContentCalendar() {
   return (
     <div className="animate-fade-in">
       <Header
-        title="KALENDAR SADRZAJA"
+        title="KALENDAR SADRŽAJA"
         subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
         actions={
           <button

@@ -79,13 +79,13 @@ export default function MarketResearch() {
     refetch()
   }
 
-  if (loading && !apiData) return <><Header title="ISTRAZIVANJE TRZISTA" subtitle="Trzisna inteligencija" /><PageLoader /></>
+  if (loading && !apiData) return <><Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija" /><PageLoader /></>
 
   return (
     <div className="animate-fade-in">
       <Header
-        title="ISTRAZIVANJE TRZISTA"
-        subtitle="Trzisna inteligencija i bodovanje prilika"
+        title="ISTRAŽIVANJE TRŽIŠTA"
+        subtitle="Tržišna inteligencija i bodovanje prilika"
       />
 
       <div className="page-wrapper space-y-6">
