@@ -33,14 +33,14 @@ const formatBreakdown = [
 
 export default function ChannelAudit() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="CHANNEL AUDIT" subtitle="Platform Performance & Health Check" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Platform Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {platformStats.map((p) => (
-            <div key={p.platform} className="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-4">
+            <div key={p.platform} className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <PlatformIcon platform={p.platform} size={28} showLabel />
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
@@ -58,8 +58,8 @@ export default function ChannelAudit() {
                       : `${(p.followers / 1000).toFixed(0)}K`
                   }
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Eng. Rate: <span className="text-gray-300">{p.engagement}%</span>
+                <p className="text-xs text-dinamo-muted mt-1">
+                  Stopa ang.: <span className="text-gray-300">{p.engagement}%</span>
                 </p>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-1.5">
@@ -73,13 +73,13 @@ export default function ChannelAudit() {
         </div>
 
         {/* Engagement Over Time */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <EngagementChart data={engagementData30} title="30-Day Engagement & Reach (All Platforms)" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <EngagementChart data={engagementData30} title="30-dnevni angažman i doseg (sve platforme)" />
         </div>
 
         {/* Format Breakdown */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Content Format Breakdown</h2>
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Raspodjela formata sadržaja</h2>
           <div className="space-y-3">
             {formatBreakdown.map((f) => (
               <div key={f.type} className="flex items-center gap-4">
@@ -90,9 +90,9 @@ export default function ChannelAudit() {
                     style={{ width: `${f.share}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-12 text-right">{f.share}%</span>
-                <span className="text-sm text-gray-500 w-20 text-right">{f.posts} posts</span>
-                <span className="text-sm text-emerald-400 w-16 text-right">{f.avgEngagement}% eng</span>
+                <span className="text-sm text-dinamo-muted w-12 text-right">{f.share}%</span>
+                <span className="text-sm text-dinamo-muted w-20 text-right">{f.posts} objava</span>
+                <span className="text-sm text-emerald-400 w-16 text-right">{f.avgEngagement}% ang</span>
               </div>
             ))}
           </div>

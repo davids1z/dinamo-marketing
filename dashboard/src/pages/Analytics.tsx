@@ -40,7 +40,7 @@ const funnelSteps = [
 const topPosts = [
   {
     id: 1,
-    title: 'UCL Group Stage Draw Reaction',
+    title: 'Reakcija na ždrijeb UCL grupe',
     platform: 'Instagram Reel',
     date: 'Feb 28, 2026',
     reach: 892000,
@@ -49,7 +49,7 @@ const topPosts = [
   },
   {
     id: 2,
-    title: 'New Kit Reveal - Season 2026/27',
+    title: 'Predstavljanje novog dresa — sezona 2026/27',
     platform: 'TikTok',
     date: 'Mar 1, 2026',
     reach: 756000,
@@ -58,7 +58,7 @@ const topPosts = [
   },
   {
     id: 3,
-    title: 'Petkovic Hat-trick Highlights',
+    title: 'Petković hat-trick highlights',
     platform: 'Instagram Reel',
     date: 'Mar 2, 2026',
     reach: 645000,
@@ -67,7 +67,7 @@ const topPosts = [
   },
   {
     id: 4,
-    title: 'Academy U19 Final Victory',
+    title: 'Pobjeda U19 akademije u finalu',
     platform: 'YouTube Short',
     date: 'Feb 25, 2026',
     reach: 412000,
@@ -76,7 +76,7 @@ const topPosts = [
   },
   {
     id: 5,
-    title: 'Fan Tifo Display - Maksimir',
+    title: 'Navijačka koreografija — Maksimir',
     platform: 'Instagram Carousel',
     date: 'Feb 22, 2026',
     reach: 389000,
@@ -87,66 +87,66 @@ const topPosts = [
 
 export default function Analytics() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="ANALYTICS" subtitle="Deep Performance Analytics & Insights" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Reach Chart */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <ReachChart data={reachData} title="Reach & Impressions (30 Days)" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <ReachChart data={reachData} title="Doseg i prikazivanja (30 dana)" />
         </div>
 
         {/* Campaign Comparison + Funnel */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-            <CampaignChart data={campaignData} bars={campaignBars} title="Campaign Performance by Platform" />
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+            <CampaignChart data={campaignData} bars={campaignBars} title="Performanse kampanja po platformi" />
           </div>
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-            <FunnelChart steps={funnelSteps} title="Conversion Funnel" />
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+            <FunnelChart steps={funnelSteps} title="Konverzijski lijevak" />
           </div>
         </div>
 
         {/* Top Performing Posts */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Trophy size={20} className="text-yellow-400" />
-            <h2 className="text-lg font-semibold text-white">Top 5 Performing Posts</h2>
+            <h2 className="text-lg font-semibold text-white">Top 5 objava po performansu</h2>
           </div>
 
           <div className="space-y-3">
             {topPosts.map((post, index) => (
-              <div key={post.id} className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors">
+              <div key={post.id} className="flex items-center gap-4 p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-sm font-bold text-gray-300">
                   {index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-white truncate">{post.title}</h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-gray-500">{post.platform}</span>
-                    <span className="text-xs text-gray-600">|</span>
-                    <span className="text-xs text-gray-500">{post.date}</span>
+                    <span className="text-xs text-dinamo-muted">{post.platform}</span>
+                    <span className="text-xs text-dinamo-muted">|</span>
+                    <span className="text-xs text-dinamo-muted">{post.date}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
                   <div className="text-center">
-                    <div className="flex items-center gap-1 text-gray-400">
+                    <div className="flex items-center gap-1 text-dinamo-muted">
                       <Eye size={14} />
                       <span className="font-mono">{(post.reach / 1000).toFixed(0)}K</span>
                     </div>
-                    <p className="text-xs text-gray-600">Reach</p>
+                    <p className="text-xs text-dinamo-muted">Doseg</p>
                   </div>
                   <div className="text-center">
-                    <div className="flex items-center gap-1 text-gray-400">
+                    <div className="flex items-center gap-1 text-dinamo-muted">
                       <Heart size={14} />
                       <span className="font-mono">{(post.engagement / 1000).toFixed(1)}K</span>
                     </div>
-                    <p className="text-xs text-gray-600">Engagement</p>
+                    <p className="text-xs text-dinamo-muted">Angažman</p>
                   </div>
                   <div className="text-center">
                     <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-400' : 'text-gray-300'}`}>
                       {post.engRate}%
                     </span>
-                    <p className="text-xs text-gray-600">Eng Rate</p>
+                    <p className="text-xs text-dinamo-muted">Stopa ang.</p>
                   </div>
                 </div>
               </div>

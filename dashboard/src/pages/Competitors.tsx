@@ -34,13 +34,13 @@ const formatFollowers = (n: number): string => {
 };
 
 const columns = [
-  { key: 'club', header: 'Club', render: (row: CompetitorRow) => (
+  { key: 'club', header: 'Klub', render: (row: CompetitorRow) => (
     <div>
       <span className="text-white font-medium">{row.club}</span>
-      <span className="text-xs text-gray-500 ml-2">{row.country}</span>
+      <span className="text-xs text-dinamo-muted ml-2">{row.country}</span>
     </div>
   )},
-  { key: 'tier', header: 'Tier', render: (row: CompetitorRow) => (
+  { key: 'tier', header: 'Skupina', render: (row: CompetitorRow) => (
     <span className={`text-xs px-2 py-0.5 rounded-full ${
       row.tier === 'aspirational' ? 'bg-purple-900/40 text-purple-400' :
       row.tier === 'stretch' ? 'bg-yellow-900/40 text-yellow-400' :
@@ -49,10 +49,10 @@ const columns = [
       {row.tier}
     </span>
   )},
-  { key: 'igFollowers', header: 'IG Followers', render: (row: CompetitorRow) => (
+  { key: 'igFollowers', header: 'IG pratitelji', render: (row: CompetitorRow) => (
     <span className="text-gray-200 font-mono">{formatFollowers(row.igFollowers)}</span>
   )},
-  { key: 'igEngagement', header: 'IG Engagement', render: (row: CompetitorRow) => (
+  { key: 'igEngagement', header: 'IG angažman', render: (row: CompetitorRow) => (
     <div className="flex items-center gap-2">
       <span className={`text-sm ${row.igEngagement > 2.5 ? 'text-green-400' : row.igEngagement > 1.5 ? 'text-yellow-400' : 'text-red-400'}`}>
         {row.igEngagement}%
@@ -62,7 +62,7 @@ const columns = [
   { key: 'tiktokFollowers', header: 'TikTok', render: (row: CompetitorRow) => (
     <span className="text-gray-200 font-mono">{formatFollowers(row.tiktokFollowers)}</span>
   )},
-  { key: 'gapVsDinamo', header: 'Gap vs Dinamo', render: (row: CompetitorRow) => {
+  { key: 'gapVsDinamo', header: 'Jaz prema Dinamu', render: (row: CompetitorRow) => {
     const icon = row.gapVsDinamo > 0 ? <TrendingUp size={14} /> : row.gapVsDinamo < 0 ? <TrendingDown size={14} /> : <Minus size={14} />;
     return (
       <div className={`flex items-center gap-1 text-sm font-mono ${
@@ -82,38 +82,38 @@ const followerComparison = [
 
 export default function Competitors() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="COMPETITORS" subtitle="Competitive Benchmarking & Gap Analysis" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-            <p className="text-sm text-gray-400">Direct Competitors</p>
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-5">
+            <p className="text-sm text-dinamo-muted">Direktni konkurenti</p>
             <p className="text-3xl font-bold text-white mt-1">4</p>
-            <p className="text-xs text-green-400 mt-1">Dinamo leads 3 of 4</p>
+            <p className="text-xs text-green-400 mt-1">Dinamo vodi u 3 od 4</p>
           </div>
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-            <p className="text-sm text-gray-400">Dinamo IG Followers</p>
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-5">
+            <p className="text-sm text-dinamo-muted">Dinamo IG pratitelji</p>
             <p className="text-3xl font-bold text-white mt-1">567K</p>
-            <p className="text-xs text-blue-400 mt-1">Ranked #1 in direct tier</p>
+            <p className="text-xs text-blue-400 mt-1">Rangirani #1 u direktnoj skupini</p>
           </div>
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-            <p className="text-sm text-gray-400">Avg Engagement (Direct)</p>
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-5">
+            <p className="text-sm text-dinamo-muted">Prosj. angažman (direktni)</p>
             <p className="text-3xl font-bold text-white mt-1">2.7%</p>
-            <p className="text-xs text-yellow-400 mt-1">Dinamo: 3.2% (above avg)</p>
+            <p className="text-xs text-yellow-400 mt-1">Dinamo: 3.2% (iznad prosjeka)</p>
           </div>
         </div>
 
         {/* Direct Competitor Comparison */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <ComparisonBar data={followerComparison} title="Instagram Followers -- Direct Competitors" valueLabel="Followers" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <ComparisonBar data={followerComparison} title="Instagram pratitelji — direktni konkurenti" valueLabel="Followers" />
         </div>
 
         {/* Full Competitor Table */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">All Tracked Competitors</h2>
-          <DataTable columns={columns} data={competitors} emptyMessage="No competitors tracked" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Svi praćeni konkurenti</h2>
+          <DataTable columns={columns} data={competitors} emptyMessage="Nema praćenih konkurenata" />
         </div>
       </main>
     </div>

@@ -31,16 +31,16 @@ const academyPlayers: PlayerRow[] = [
 ];
 
 const columns = [
-  { key: 'name', header: 'Player', render: (row: PlayerRow) => (
+  { key: 'name', header: 'Igrač', render: (row: PlayerRow) => (
     <div className="flex items-center gap-2">
       <span className="text-white font-medium">{row.name}</span>
       {row.featured && <Star size={14} className="text-yellow-400" />}
     </div>
   )},
-  { key: 'position', header: 'Pos', render: (row: PlayerRow) => (
+  { key: 'position', header: 'Poz', render: (row: PlayerRow) => (
     <span className="text-xs px-2 py-0.5 rounded bg-gray-700 text-gray-300 font-mono">{row.position}</span>
   )},
-  { key: 'ageGroup', header: 'Age Group', render: (row: PlayerRow) => (
+  { key: 'ageGroup', header: 'Dobna skupina', render: (row: PlayerRow) => (
     <span className={`text-xs px-2 py-0.5 rounded-full ${
       row.ageGroup === 'U17' ? 'bg-green-900/40 text-green-400' :
       row.ageGroup === 'U19' ? 'bg-blue-900/40 text-blue-400' :
@@ -49,73 +49,73 @@ const columns = [
       {row.ageGroup}
     </span>
   )},
-  { key: 'appearances', header: 'Apps', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.appearances}</span> },
+  { key: 'appearances', header: 'Nast', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.appearances}</span> },
   { key: 'goals', header: 'G', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.goals}</span> },
   { key: 'assists', header: 'A', render: (row: PlayerRow) => <span className="text-gray-300 font-mono">{row.assists}</span> },
-  { key: 'socialMentions', header: 'Social Mentions', render: (row: PlayerRow) => (
-    <span className="text-gray-400 font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
+  { key: 'socialMentions', header: 'Spominjanja', render: (row: PlayerRow) => (
+    <span className="text-dinamo-muted font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
   )},
-  { key: 'featured', header: 'Content', render: (row: PlayerRow) => (
-    <span className={`text-xs ${row.featured ? 'text-green-400' : 'text-gray-600'}`}>
-      {row.featured ? 'Featured' : 'Pending'}
+  { key: 'featured', header: 'Sadržaj', render: (row: PlayerRow) => (
+    <span className={`text-xs ${row.featured ? 'text-green-400' : 'text-dinamo-muted'}`}>
+      {row.featured ? 'Istaknuto' : 'U čekanju'}
     </span>
   )},
 ];
 
 const contentPipeline = [
-  { id: 1, title: 'U19 Final Highlights Reel', type: 'Video', platform: 'Instagram + TikTok', status: 'In Production', due: 'Mar 7' },
-  { id: 2, title: 'Perisic: From U17 to First Team', type: 'Documentary', platform: 'YouTube', status: 'Script Review', due: 'Mar 12' },
-  { id: 3, title: 'Academy Camp Registration Promo', type: 'Carousel', platform: 'Instagram + Facebook', status: 'Ready', due: 'Mar 6' },
-  { id: 4, title: 'Youth Cup Behind the Scenes', type: 'Story Series', platform: 'Instagram', status: 'Shooting', due: 'Mar 9' },
-  { id: 5, title: 'Monthly Academy Newsletter', type: 'Email + Web', platform: 'Website', status: 'Draft', due: 'Mar 15' },
+  { id: 1, title: 'U19 finale highlights reel', type: 'Video', platform: 'Instagram + TikTok', status: 'U produkciji', due: 'Mar 7' },
+  { id: 2, title: 'Perišić: Od U17 do prvog tima', type: 'Dokumentarac', platform: 'YouTube', status: 'Pregled scenarija', due: 'Mar 12' },
+  { id: 3, title: 'Promocija upisa na kamp akademije', type: 'Karusel', platform: 'Instagram + Facebook', status: 'Spremno', due: 'Mar 6' },
+  { id: 4, title: 'Omladinski kup iza kulisa', type: 'Serija priča', platform: 'Instagram', status: 'Snimanje', due: 'Mar 9' },
+  { id: 5, title: 'Mjesečni bilten akademije', type: 'Email + Web', platform: 'Web stranica', status: 'Nacrt', due: 'Mar 15' },
 ];
 
 export default function Academy() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="ACADEMY" subtitle="Youth Development & Content Pipeline" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadržajni pipeline" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Players Promoted" value={8} previousValue={5} format="number" icon={GraduationCap} />
-          <MetricCard label="Transfer Revenue" value={45000000} previousValue={32000000} format="currency" icon={DollarSign} />
-          <MetricCard label="Active Camps" value={4} format="number" icon={Users} />
+          <MetricCard label="Promovirani igrači" value={8} previousValue={5} format="number" icon={GraduationCap} />
+          <MetricCard label="Prihodi od transfera" value={45000000} previousValue={32000000} format="currency" icon={DollarSign} />
+          <MetricCard label="Aktivni kampovi" value={4} format="number" icon={Users} />
         </div>
 
         {/* Players Table */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Academy Talent Roster</h2>
-          <DataTable columns={columns} data={academyPlayers} emptyMessage="No players found" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Popis talenata akademije</h2>
+          <DataTable columns={columns} data={academyPlayers} emptyMessage="Nema pronađenih igrača" />
         </div>
 
         {/* Content Pipeline */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Video size={20} className="text-purple-400" />
-            <h2 className="text-lg font-semibold text-white">Content Pipeline</h2>
+            <h2 className="text-lg font-semibold text-white">Sadržajni pipeline</h2>
           </div>
           <div className="space-y-3">
             {contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
                 <div className="flex-1">
                   <h3 className="text-sm font-medium text-white">{item.title}</h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-gray-500">{item.type}</span>
-                    <span className="text-xs text-gray-600">|</span>
-                    <span className="text-xs text-gray-500">{item.platform}</span>
+                    <span className="text-xs text-dinamo-muted">{item.type}</span>
+                    <span className="text-xs text-dinamo-muted">|</span>
+                    <span className="text-xs text-dinamo-muted">{item.platform}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    item.status === 'Ready' ? 'bg-green-900/40 text-green-400' :
-                    item.status === 'In Production' || item.status === 'Shooting' ? 'bg-blue-900/40 text-blue-400' :
-                    item.status === 'Script Review' ? 'bg-yellow-900/40 text-yellow-400' :
+                    item.status === 'Spremno' ? 'bg-green-900/40 text-green-400' :
+                    item.status === 'U produkciji' || item.status === 'Snimanje' ? 'bg-blue-900/40 text-blue-400' :
+                    item.status === 'Pregled scenarija' ? 'bg-yellow-900/40 text-yellow-400' :
                     'bg-gray-700 text-gray-300'
                   }`}>
                     {item.status}
                   </span>
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-dinamo-muted">
                     <Calendar size={12} />
                     {item.due}
                   </div>

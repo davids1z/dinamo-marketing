@@ -24,7 +24,7 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
     <div className="card">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">{label}</p>
+          <p className="text-xs uppercase tracking-wider text-dinamo-muted mb-1">{label}</p>
           <p className="stat-number text-white">{formattedValue}</p>
         </div>
         {Icon && <div className="text-dinamo-accent"><Icon size={20} /></div>}
@@ -34,7 +34,7 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
           trend >= 0 ? 'text-green-400' : 'text-red-400'
         )}>
           {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {trend >= 0 ? '+' : ''}{trend.toFixed(1)}% vs prethodni period
+          {trend >= 0 ? '+' : ''}{trend.toFixed(1)}% u odnosu na prošli period
         </div>
       )}
     </div>

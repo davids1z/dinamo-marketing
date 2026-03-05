@@ -5,12 +5,13 @@
 @layer base {
   body {
     @apply bg-dinamo-dark text-gray-100 antialiased;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 0.05em;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
   }
 
   /* Scrollbar */
@@ -22,10 +23,10 @@
     @apply bg-dinamo-dark;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-dinamo-primary/40 rounded-full;
+    @apply bg-dinamo-accent/40 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-dinamo-primary/60;
+    @apply bg-dinamo-accent/60;
   }
 }
 
@@ -40,10 +41,10 @@
     @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-white font-semibold py-2 px-4 rounded-lg transition-colors;
   }
   .btn-secondary {
-    @apply bg-dinamo-primary/20 hover:bg-dinamo-primary/30 text-dinamo-accent border border-dinamo-primary/30 font-semibold py-2 px-4 rounded-lg transition-colors;
+    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-lg transition-colors;
   }
   .stat-number {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     @apply text-3xl font-bold tracking-tight;
   }
   .badge {

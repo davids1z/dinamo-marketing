@@ -3,7 +3,7 @@ import Header from '../components/layout/Header';
 import StatusBadge from '../components/common/StatusBadge';
 import { Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Image, Video, FileText } from 'lucide-react';
 
-const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAYS_OF_WEEK = ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'];
 
 interface ScheduledPost {
   id: string;
@@ -91,11 +91,11 @@ const calendarData: Record<number, ScheduledPost[]> = {
 };
 
 const approvalQueue = [
-  { id: 1, title: 'Match Day Preview: Dinamo vs Hajduk', platform: 'Instagram Reel', author: 'Content Team', submitted: '2 hours ago', pillar: 'Match Day' },
-  { id: 2, title: 'Academy Spotlight: Youth Cup Highlights', platform: 'TikTok Video', author: 'Academy Media', submitted: '5 hours ago', pillar: 'Academy' },
-  { id: 3, title: 'Fan Q&A with Petkovic', platform: 'YouTube Short', author: 'Player Relations', submitted: '1 day ago', pillar: 'Players' },
-  { id: 4, title: 'Behind the Scenes: Training Session', platform: 'Instagram Carousel', author: 'Content Team', submitted: '1 day ago', pillar: 'BTS' },
-  { id: 5, title: 'Diaspora Fan Event - Vienna', platform: 'Facebook Event', author: 'Community Team', submitted: '2 days ago', pillar: 'Community' },
+  { id: 1, title: 'Najava utakmice: Dinamo vs Hajduk', platform: 'Instagram Reel', author: 'Tim za sadržaj', submitted: 'prije 2 sata', pillar: 'Dan utakmice' },
+  { id: 2, title: 'Akademija u fokusu: Highlights omladinskog kupa', platform: 'TikTok video', author: 'Mediji akademije', submitted: 'prije 5 sati', pillar: 'Akademija' },
+  { id: 3, title: 'Fan Q&A s Petkovićem', platform: 'YouTube Short', author: 'Odnosi s igračima', submitted: 'prije 1 dan', pillar: 'Igrači' },
+  { id: 4, title: 'Iza kulisa: Trening', platform: 'Instagram karusel', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Iza kulisa' },
+  { id: 5, title: 'Navijački event dijaspore — Beč', platform: 'Facebook event', author: 'Tim za zajednicu', submitted: 'prije 2 dana', pillar: 'Zajednica' },
 ];
 
 export default function ContentCalendar() {
@@ -108,8 +108,8 @@ export default function ContentCalendar() {
   const totalCells = Math.ceil((firstDayOffset + daysInMonth) / 7) * 7;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="CONTENT CALENDAR" subtitle="March 2026 - Scheduling & Approvals" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="KALENDAR SADRŽAJA" subtitle="Ožujak 2026 — Planiranje i odobrenja" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Tabs */}
@@ -119,35 +119,35 @@ export default function ContentCalendar() {
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'calendar'
                 ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                : 'border-transparent text-dinamo-muted hover:text-gray-200'
             }`}
           >
             <Calendar size={16} className="inline mr-2" />
-            Calendar View
+            Kalendar
           </button>
           <button
             onClick={() => setActiveTab('approvals')}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'approvals'
                 ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                : 'border-transparent text-dinamo-muted hover:text-gray-200'
             }`}
           >
             <Clock size={16} className="inline mr-2" />
-            Approval Queue
+            Red za odobrenje
             <span className="ml-2 text-xs bg-yellow-600 text-white px-1.5 py-0.5 rounded-full">{approvalQueue.length}</span>
           </button>
         </div>
 
         {activeTab === 'calendar' && (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-6">
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+              <button className="p-2 text-dinamo-muted hover:text-white hover:bg-dinamo-dark-light rounded-lg transition-colors">
                 <ChevronLeft size={20} />
               </button>
-              <h2 className="text-xl font-bold text-white">March 2026</h2>
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+              <h2 className="text-xl font-bold text-white">Ožujak 2026</h2>
+              <button className="p-2 text-dinamo-muted hover:text-white hover:bg-dinamo-dark-light rounded-lg transition-colors">
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -155,7 +155,7 @@ export default function ContentCalendar() {
             {/* Day headers */}
             <div className="grid grid-cols-7 gap-1 mb-1">
               {DAYS_OF_WEEK.map((day) => (
-                <div key={day} className="text-center text-xs text-gray-500 font-medium py-2">
+                <div key={day} className="text-center text-xs text-dinamo-muted font-medium py-2">
                   {day}
                 </div>
               ))}
@@ -182,7 +182,7 @@ export default function ContentCalendar() {
                   >
                     {isCurrentMonth && (
                       <>
-                        <span className={`text-xs font-medium ${isToday ? 'text-blue-400' : 'text-gray-400'}`}>
+                        <span className={`text-xs font-medium ${isToday ? 'text-blue-400' : 'text-dinamo-muted'}`}>
                           {dayNum}
                         </span>
                         <div className="flex gap-1 mt-1 flex-wrap">
@@ -203,42 +203,42 @@ export default function ContentCalendar() {
 
             {/* Legend */}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-800">
-              <span className="text-xs text-gray-500">Platforms:</span>
-              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-pink-500" /><span className="text-xs text-gray-400">Instagram</span></div>
-              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-xs text-gray-400">Facebook</span></div>
-              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-xs text-gray-400">TikTok</span></div>
-              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-xs text-gray-400">YouTube</span></div>
+              <span className="text-xs text-dinamo-muted">Platforme:</span>
+              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-pink-500" /><span className="text-xs text-dinamo-muted">Instagram</span></div>
+              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-xs text-dinamo-muted">Facebook</span></div>
+              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-xs text-dinamo-muted">TikTok</span></div>
+              <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-xs text-dinamo-muted">YouTube</span></div>
             </div>
           </div>
         )}
 
         {activeTab === 'approvals' && (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Pending Approvals</h2>
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Čeka odobrenje</h2>
             <div className="space-y-3">
               {approvalQueue.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors">
+                <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-sm font-medium text-white">{item.title}</h3>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{item.pillar}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-gray-500">{item.platform}</span>
-                      <span className="text-xs text-gray-600">|</span>
-                      <span className="text-xs text-gray-500">by {item.author}</span>
-                      <span className="text-xs text-gray-600">|</span>
-                      <span className="text-xs text-gray-500">{item.submitted}</span>
+                      <span className="text-xs text-dinamo-muted">{item.platform}</span>
+                      <span className="text-xs text-dinamo-muted">|</span>
+                      <span className="text-xs text-dinamo-muted">{item.author}</span>
+                      <span className="text-xs text-dinamo-muted">|</span>
+                      <span className="text-xs text-dinamo-muted">{item.submitted}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs rounded-lg transition-colors">
                       <Check size={14} />
-                      Approve
+                      Odobri
                     </button>
                     <button className="flex items-center gap-1 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs rounded-lg border border-red-600/30 transition-colors">
                       <X size={14} />
-                      Reject
+                      Odbij
                     </button>
                   </div>
                 </div>

@@ -1,14 +1,15 @@
 export const DINAMO_BRAND = {
   colors: {
-    primary: '#0057A8',
-    primaryLight: '#1a6fbf',
-    primaryDark: '#004080',
-    dark: '#0A0E1A',
-    darkLight: '#141927',
-    darkCard: '#1a1f33',
-    accent: '#00A8E8',
-    accentHover: '#0090c8',
-    white: '#FFFFFF',
+    primary: '#0A1A28',
+    primaryLight: '#112233',
+    dark: '#0A1A28',
+    darkLight: '#112233',
+    darkCard: '#112233',
+    accent: '#BD9A57',
+    accentHover: '#D4AF6A',
+    muted: '#7298BE',
+    blue: '#0057A8',
+    white: '#F1F1F1',
     success: '#22C55E',
     warning: '#F59E0B',
     danger: '#EF4444',
@@ -17,9 +18,9 @@ export const DINAMO_BRAND = {
     negative: '#EF4444',
   },
   fonts: {
-    headline: "'Bebas Neue', sans-serif",
-    body: "'Barlow Condensed', sans-serif",
-    stats: "'Oswald', sans-serif",
+    headline: "'Montserrat', sans-serif",
+    body: "'Montserrat', sans-serif",
+    stats: "'Montserrat', sans-serif",
   },
 } as const
 
@@ -28,30 +29,30 @@ export const PLATFORMS = {
   facebook: { name: 'Facebook', color: '#1877F2', icon: 'facebook' },
   tiktok: { name: 'TikTok', color: '#000000', icon: 'music-2' },
   youtube: { name: 'YouTube', color: '#FF0000', icon: 'youtube' },
-  web: { name: 'Website', color: '#0057A8', icon: 'globe' },
+  web: { name: 'Web stranica', color: '#0057A8', icon: 'globe' },
   twitter: { name: 'X / Twitter', color: '#1DA1F2', icon: 'twitter' },
 } as const
 
 export const CONTENT_PILLARS = [
-  { id: 'match_highlights', name: 'Match Highlights', color: '#EF4444' },
-  { id: 'player_interviews', name: 'Player Interviews', color: '#F59E0B' },
-  { id: 'behind_scenes', name: 'Behind the Scenes', color: '#8B5CF6' },
-  { id: 'academy', name: 'Academy Spotlight', color: '#22C55E' },
-  { id: 'tactical', name: 'Tactical Analysis', color: '#3B82F6' },
-  { id: 'fan_engagement', name: 'Fan Engagement', color: '#EC4899' },
-  { id: 'lifestyle', name: 'Lifestyle & Culture', color: '#14B8A6' },
+  { id: 'match_highlights', name: 'Highlights utakmica', color: '#EF4444' },
+  { id: 'player_interviews', name: 'Intervjui s igračima', color: '#F59E0B' },
+  { id: 'behind_scenes', name: 'Iza kulisa', color: '#8B5CF6' },
+  { id: 'academy', name: 'Akademija', color: '#22C55E' },
+  { id: 'tactical', name: 'Taktička analiza', color: '#3B82F6' },
+  { id: 'fan_engagement', name: 'Angažman navijača', color: '#EC4899' },
+  { id: 'lifestyle', name: 'Lifestyle i kultura', color: '#14B8A6' },
 ] as const
 
 export const LIFECYCLE_STAGES = [
-  { id: 'new', name: 'New Fan', color: '#6B7280' },
-  { id: 'casual', name: 'Casual', color: '#3B82F6' },
-  { id: 'engaged', name: 'Engaged', color: '#22C55E' },
+  { id: 'new', name: 'Novi navijač', color: '#6B7280' },
+  { id: 'casual', name: 'Povremeni', color: '#3B82F6' },
+  { id: 'engaged', name: 'Aktivni', color: '#22C55E' },
   { id: 'superfan', name: 'Superfan', color: '#F59E0B' },
-  { id: 'ambassador', name: 'Ambassador', color: '#EF4444' },
+  { id: 'ambassador', name: 'Ambasador', color: '#EF4444' },
 ] as const
 
 export const CHART_COLORS = [
-  '#0057A8', '#00A8E8', '#22C55E', '#F59E0B',
+  '#BD9A57', '#7298BE', '#22C55E', '#F59E0B',
   '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6',
 ] as const
 

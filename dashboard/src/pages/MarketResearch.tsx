@@ -42,16 +42,16 @@ const marketData: MarketRow[] = [
 ];
 
 const columns = [
-  { key: 'rank', header: '#', render: (row: MarketRow) => <span className="text-gray-400 font-mono">{row.rank}</span> },
-  { key: 'country', header: 'Country', render: (row: MarketRow) => (
+  { key: 'rank', header: '#', render: (row: MarketRow) => <span className="text-dinamo-muted font-mono">{row.rank}</span> },
+  { key: 'country', header: 'Država', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500 font-mono w-6">{row.code}</span>
+      <span className="text-xs text-dinamo-muted font-mono w-6">{row.code}</span>
       <span className="text-white font-medium">{row.country}</span>
     </div>
   )},
-  { key: 'region', header: 'Region', render: (row: MarketRow) => <span className="text-gray-400">{row.region}</span> },
-  { key: 'population', header: 'Population', render: (row: MarketRow) => <span className="text-gray-300">{row.population}</span> },
-  { key: 'footballInterest', header: 'Football Interest', render: (row: MarketRow) => (
+  { key: 'region', header: 'Regija', render: (row: MarketRow) => <span className="text-dinamo-muted">{row.region}</span> },
+  { key: 'population', header: 'Populacija', render: (row: MarketRow) => <span className="text-gray-300">{row.population}</span> },
+  { key: 'footballInterest', header: 'Interes za nogomet', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <div className="w-16 bg-gray-700 rounded-full h-2">
         <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${row.footballInterest}%` }} />
@@ -59,7 +59,7 @@ const columns = [
       <span className="text-gray-300 text-sm">{row.footballInterest}</span>
     </div>
   )},
-  { key: 'diaspora', header: 'Diaspora', render: (row: MarketRow) => (
+  { key: 'diaspora', header: 'Dijaspora', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <div className="w-16 bg-gray-700 rounded-full h-2">
         <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${row.diaspora}%` }} />
@@ -67,7 +67,7 @@ const columns = [
       <span className="text-gray-300 text-sm">{row.diaspora}</span>
     </div>
   )},
-  { key: 'trendsScore', header: 'Trends', render: (row: MarketRow) => (
+  { key: 'trendsScore', header: 'Trendovi', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <div className="w-16 bg-gray-700 rounded-full h-2">
         <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${row.trendsScore}%` }} />
@@ -75,8 +75,8 @@ const columns = [
       <span className="text-gray-300 text-sm">{row.trendsScore}</span>
     </div>
   )},
-  { key: 'totalScore', header: 'Total Score', render: (row: MarketRow) => (
-    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-400' : row.rank <= 10 ? 'text-white' : 'text-gray-400'}`}>
+  { key: 'totalScore', header: 'Ukupni rezultat', render: (row: MarketRow) => (
+    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-400' : row.rank <= 10 ? 'text-white' : 'text-dinamo-muted'}`}>
       {row.totalScore}
     </span>
   )},
@@ -86,34 +86,34 @@ const topMarkets = marketData.slice(0, 5).map(m => ({ name: m.country, value: m.
 
 export default function MarketResearch() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="MARKET RESEARCH" subtitle="Market Intelligence & Opportunity Scoring" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija i bodovanje prilika" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Actions */}
         <div className="flex items-center justify-between">
-          <p className="text-gray-400 text-sm">Scoring {marketData.length} target markets across 4 dimensions</p>
+          <p className="text-dinamo-muted text-sm">Bodovanje {marketData.length} ciljnih tržišta po 4 dimenzije</p>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-dinamo-dark-light border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors">
               <Download size={16} />
-              Export CSV
+              Izvezi CSV
             </button>
             <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-500 transition-colors">
               <Search size={16} />
-              Run Scan
+              Pokreni skeniranje
             </button>
           </div>
         </div>
 
         {/* Top Markets Chart */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <ComparisonBar data={topMarkets} title="Top 5 Markets by Total Score" valueLabel="Score" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <ComparisonBar data={topMarkets} title="Top 5 tržišta po ukupnom rezultatu" valueLabel="Score" />
         </div>
 
         {/* Full Market Table */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Market Opportunity Matrix</h2>
-          <DataTable columns={columns} data={marketData} emptyMessage="No market data available" />
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Matrica tržišnih prilika</h2>
+          <DataTable columns={columns} data={marketData} emptyMessage="Nema dostupnih tržišnih podataka" />
         </div>
       </main>
     </div>

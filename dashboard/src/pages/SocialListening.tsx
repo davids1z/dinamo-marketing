@@ -11,7 +11,7 @@ const recentMentions = [
     author: '@FootballCroatia',
     text: 'Dinamo Zagreb continues to impress in the UCL group stage. Their academy pipeline is unmatched in the region. #DynamoZagreb #UCL',
     sentiment: 'positive',
-    time: '15 min ago',
+    time: 'prije 15 min',
     reach: 12400,
   },
   {
@@ -20,7 +20,7 @@ const recentMentions = [
     author: '@balkan_football_daily',
     text: 'Petkovic scores a brace! Dinamo showing why they are the dominant force in Croatian football. The new kit looks incredible too.',
     sentiment: 'positive',
-    time: '1 hour ago',
+    time: 'prije 1 sat',
     reach: 8900,
   },
   {
@@ -29,7 +29,7 @@ const recentMentions = [
     author: 'Dinamo Fan Club Vienna',
     text: 'Watching tonight\'s match at our fan hub in Wien. 200+ Croatian diaspora fans. Atmosphere is electric! Ajmo Dinamo!',
     sentiment: 'positive',
-    time: '2 hours ago',
+    time: 'prije 2 sata',
     reach: 3200,
   },
   {
@@ -38,7 +38,7 @@ const recentMentions = [
     author: '@hrvatski_sport',
     text: 'Another questionable referee decision against Dinamo. The league needs VAR consistency. This is getting ridiculous.',
     sentiment: 'negative',
-    time: '3 hours ago',
+    time: 'prije 3 sata',
     reach: 45000,
   },
   {
@@ -47,58 +47,58 @@ const recentMentions = [
     author: 'Balkan Sports TV',
     text: 'Analysis: How Dinamo Zagreb\'s 3-4-3 formation is revolutionizing their attacking play this season. Full breakdown in our latest video.',
     sentiment: 'neutral',
-    time: '5 hours ago',
+    time: 'prije 5 sati',
     reach: 18500,
   },
 ];
 
 const trendingTopics = [
-  { id: 1, topic: '#DinamoZagreb', mentions: 4250, change: '+32%', velocity: 'rising' },
-  { id: 2, topic: '#UCL', mentions: 3800, change: '+28%', velocity: 'rising' },
-  { id: 3, topic: 'Petkovic', mentions: 2100, change: '+65%', velocity: 'spiking' },
-  { id: 4, topic: '#Maksimir', mentions: 1450, change: '+12%', velocity: 'stable' },
-  { id: 5, topic: '#HNL', mentions: 1200, change: '+8%', velocity: 'stable' },
-  { id: 6, topic: '#DynamoAcademy', mentions: 890, change: '+45%', velocity: 'rising' },
-  { id: 7, topic: 'Transfer Rumors', mentions: 760, change: '+120%', velocity: 'spiking' },
+  { id: 1, topic: '#DinamoZagreb', mentions: 4250, change: '+32%', velocity: 'raste' },
+  { id: 2, topic: '#UCL', mentions: 3800, change: '+28%', velocity: 'raste' },
+  { id: 3, topic: 'Petkovic', mentions: 2100, change: '+65%', velocity: 'u porastu' },
+  { id: 4, topic: '#Maksimir', mentions: 1450, change: '+12%', velocity: 'stabilno' },
+  { id: 5, topic: '#HNL', mentions: 1200, change: '+8%', velocity: 'stabilno' },
+  { id: 6, topic: '#DynamoAcademy', mentions: 890, change: '+45%', velocity: 'raste' },
+  { id: 7, topic: 'Transfer Rumors', mentions: 760, change: '+120%', velocity: 'u porastu' },
 ];
 
 const sentimentIcon = (s: string) => {
   if (s === 'positive') return <ThumbsUp size={14} className="text-green-400" />;
   if (s === 'negative') return <ThumbsDown size={14} className="text-red-400" />;
-  return <Minus size={14} className="text-gray-400" />;
+  return <Minus size={14} className="text-dinamo-muted" />;
 };
 
 export default function SocialListening() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="SOCIAL LISTENING" subtitle="Brand Monitoring & Mention Tracking" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="SOCIAL LISTENING" subtitle="Praćenje brenda i spominjanja" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Total Mentions" value={2450} previousValue={1980} format="number" icon={MessageSquare} />
-          <MetricCard label="Share of Voice" value={38} previousValue={32} format="percent" icon={Volume2} />
-          <MetricCard label="Trending Topics" value={7} format="number" icon={TrendingUp} />
+          <MetricCard label="Ukupno spominjanja" value={2450} previousValue={1980} format="number" icon={MessageSquare} />
+          <MetricCard label="Udio u komunikaciji" value={38} previousValue={32} format="percent" icon={Volume2} />
+          <MetricCard label="Trendovi" value={7} format="number" icon={TrendingUp} />
         </div>
 
         {/* Mentions + Topics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Mentions */}
-          <div className="lg:col-span-2 bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="lg:col-span-2 bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Globe size={20} className="text-blue-400" />
-              <h2 className="text-lg font-semibold text-white">Recent Mentions</h2>
+              <h2 className="text-lg font-semibold text-white">Nedavna spominjanja</h2>
             </div>
             <div className="space-y-3">
               {recentMentions.map((mention) => (
-                <div key={mention.id} className="p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors">
+                <div key={mention.id} className="p-4 bg-dinamo-dark-light/50 rounded-lg hover:bg-dinamo-dark-light transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <PlatformIcon platform={mention.platform} size={16} />
                       <span className="text-sm font-medium text-blue-400">{mention.author}</span>
                       {sentimentIcon(mention.sentiment)}
                     </div>
-                    <span className="text-xs text-gray-500">{mention.time}</span>
+                    <span className="text-xs text-dinamo-muted">{mention.time}</span>
                   </div>
                   <p className="text-sm text-gray-300 mt-2 leading-relaxed">{mention.text}</p>
                   <div className="flex items-center gap-3 mt-2">
@@ -109,7 +109,7 @@ export default function SocialListening() {
                     }`}>
                       {mention.sentiment}
                     </span>
-                    <span className="text-xs text-gray-500">Reach: {(mention.reach / 1000).toFixed(1)}K</span>
+                    <span className="text-xs text-dinamo-muted">Doseg: {(mention.reach / 1000).toFixed(1)}K</span>
                   </div>
                 </div>
               ))}
@@ -117,33 +117,33 @@ export default function SocialListening() {
           </div>
 
           {/* Trending Topics */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Hash size={20} className="text-purple-400" />
-              <h2 className="text-lg font-semibold text-white">Trending Topics</h2>
+              <h2 className="text-lg font-semibold text-white">Trendovi</h2>
             </div>
             <div className="space-y-3">
               {trendingTopics.map((topic, index) => (
-                <div key={topic.id} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                <div key={topic.id} className="flex items-center justify-between p-3 bg-dinamo-dark-light/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500 font-mono w-4">{index + 1}</span>
+                    <span className="text-xs text-dinamo-muted font-mono w-4">{index + 1}</span>
                     <div>
                       <p className="text-sm font-medium text-white">{topic.topic}</p>
-                      <p className="text-xs text-gray-500">{topic.mentions.toLocaleString()} mentions</p>
+                      <p className="text-xs text-dinamo-muted">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <span className={`text-xs font-mono ${
-                      topic.velocity === 'spiking' ? 'text-red-400' :
-                      topic.velocity === 'rising' ? 'text-green-400' :
-                      'text-gray-400'
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
+                      topic.velocity === 'raste' ? 'text-green-400' :
+                      'text-dinamo-muted'
                     }`}>
                       {topic.change}
                     </span>
                     <p className={`text-xs mt-0.5 ${
-                      topic.velocity === 'spiking' ? 'text-red-400' :
-                      topic.velocity === 'rising' ? 'text-green-400' :
-                      'text-gray-500'
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
+                      topic.velocity === 'raste' ? 'text-green-400' :
+                      'text-dinamo-muted'
                     }`}>
                       {topic.velocity}
                     </p>

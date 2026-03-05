@@ -18,20 +18,20 @@ import {
 import { clsx } from 'clsx'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Market Research', href: '/market-research', icon: Globe },
-  { name: 'Channel Audit', href: '/channels', icon: Radio },
-  { name: 'Competitors', href: '/competitors', icon: Users },
-  { name: 'Fan Insights', href: '/fans', icon: Heart },
-  { name: 'Content Calendar', href: '/content', icon: CalendarDays },
-  { name: 'Campaigns', href: '/campaigns', icon: Megaphone },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Nadzorna ploča', href: '/', icon: LayoutDashboard },
+  { name: 'Istraživanje tržišta', href: '/market-research', icon: Globe },
+  { name: 'Audit kanala', href: '/channels', icon: Radio },
+  { name: 'Konkurencija', href: '/competitors', icon: Users },
+  { name: 'Uvidi o navijačima', href: '/fans', icon: Heart },
+  { name: 'Kalendar sadržaja', href: '/content', icon: CalendarDays },
+  { name: 'Kampanje', href: '/campaigns', icon: Megaphone },
+  { name: 'Analitika', href: '/analytics', icon: BarChart3 },
   { name: 'Sentiment', href: '/sentiment', icon: MessageCircle },
-  { name: 'Social Listening', href: '/social-listening', icon: Ear },
-  { name: 'Academy', href: '/academy', icon: GraduationCap },
-  { name: 'Diaspora', href: '/diaspora', icon: MapPin },
-  { name: 'Reports', href: '/reports', icon: FileText },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Social listening', href: '/social-listening', icon: Ear },
+  { name: 'Akademija', href: '/academy', icon: GraduationCap },
+  { name: 'Dijaspora', href: '/diaspora', icon: MapPin },
+  { name: 'Izvještaji', href: '/reports', icon: FileText },
+  { name: 'Postavke', href: '/settings', icon: Settings },
 ]
 
 export default function Sidebar() {
@@ -40,15 +40,15 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-dinamo-primary flex items-center justify-center">
-            <span className="font-headline text-lg text-white">D</span>
+          <div className="w-8 h-8 rounded-lg bg-dinamo-accent flex items-center justify-center">
+            <span className="font-headline text-lg text-white font-bold">D</span>
           </div>
           <div>
-            <h1 className="font-headline text-xl tracking-wider text-white leading-none">
+            <h1 className="font-headline text-xl tracking-wider text-white leading-none font-bold">
               DINAMO
             </h1>
             <p className="text-[10px] uppercase tracking-[0.2em] text-dinamo-accent">
-              Marketing Platform
+              Marketing Platforma
             </p>
           </div>
         </div>
@@ -66,8 +66,8 @@ export default function Sidebar() {
                   clsx(
                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
                     isActive
-                      ? 'bg-dinamo-primary/15 text-dinamo-accent border-l-2 border-dinamo-accent'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-dinamo-accent/15 text-dinamo-accent border-l-2 border-dinamo-accent'
+                      : 'text-dinamo-muted hover:text-white hover:bg-white/5'
                   )
                 }
               >
@@ -83,7 +83,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-white/5">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-xs text-gray-500">Mock Mode Active</span>
+          <span className="text-xs text-dinamo-muted">Mock način aktivan</span>
         </div>
       </div>
     </aside>

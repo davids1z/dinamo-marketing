@@ -10,9 +10,9 @@ interface SentimentDonutProps {
 
 export function SentimentDonut({ positive, neutral, negative, title }: SentimentDonutProps) {
   const data = [
-    { name: 'Positive', value: positive, color: DINAMO_BRAND.colors.positive },
-    { name: 'Neutral', value: neutral, color: DINAMO_BRAND.colors.neutral },
-    { name: 'Negative', value: negative, color: DINAMO_BRAND.colors.negative },
+    { name: 'Pozitivno', value: positive, color: DINAMO_BRAND.colors.positive },
+    { name: 'Neutralno', value: neutral, color: DINAMO_BRAND.colors.neutral },
+    { name: 'Negativno', value: negative, color: DINAMO_BRAND.colors.negative },
   ]
 
   const total = positive + neutral + negative

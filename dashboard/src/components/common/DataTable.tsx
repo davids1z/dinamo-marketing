@@ -19,12 +19,12 @@ export default function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   onRowClick,
-  emptyMessage = 'No data available',
+  emptyMessage = 'Nema dostupnih podataka',
 }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
       <div className="card text-center py-12">
-        <p className="text-gray-500">{emptyMessage}</p>
+        <p className="text-dinamo-muted">{emptyMessage}</p>
       </div>
     )
   }
@@ -38,7 +38,7 @@ export default function DataTable<T extends Record<string, unknown>>({
               <th
                 key={col.key}
                 className={clsx(
-                  'px-4 py-3 text-xs uppercase tracking-wider text-gray-500 font-medium',
+                  'px-4 py-3 text-xs uppercase tracking-wider text-dinamo-muted font-medium',
                   col.align === 'right' ? 'text-right' :
                   col.align === 'center' ? 'text-center' : 'text-left'
                 )}

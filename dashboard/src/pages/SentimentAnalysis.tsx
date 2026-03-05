@@ -27,18 +27,18 @@ const alerts = [
   {
     id: 1,
     severity: 'warning',
-    title: 'Negative Sentiment Spike Detected',
-    description: 'Referee controversy from Dinamo vs Rijeka match generating 420+ negative mentions. 68% negative sentiment on Facebook. Consider publishing official statement or behind-the-scenes content to shift narrative.',
-    time: '3 hours ago',
+    title: 'Detektiran porast negativnog sentimenta',
+    description: 'Kontroverza oko sudaca s utakmice Dinamo — Rijeka generira 420+ negativnih spominjanja. 68% negativnog sentimenta na Facebooku. Razmotriti objavu službene izjave ili sadržaja iza kulisa za promjenu narativa.',
+    time: 'prije 3 sata',
     platform: 'Facebook',
     mentions: 420,
   },
   {
     id: 2,
     severity: 'info',
-    title: 'Positive Trend: Academy Content',
-    description: 'Academy youth cup victory content receiving 92% positive sentiment across all platforms. Consider amplifying with follow-up content featuring winning players.',
-    time: '1 day ago',
+    title: 'Pozitivan trend: Sadržaj akademije',
+    description: 'Sadržaj o pobjedi akademije na omladinskom kupu prima 92% pozitivnog sentimenta na svim platformama. Razmotriti pojačanje s dodatnim sadržajem koji prikazuje pobjedničke igrače.',
+    time: 'prije 1 dan',
     platform: 'All Platforms',
     mentions: 890,
   },
@@ -46,37 +46,37 @@ const alerts = [
 
 export default function SentimentAnalysis() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <Header title="SENTIMENT ANALYSIS" subtitle="Brand Sentiment & Public Perception" />
+    <div className="min-h-screen bg-dinamo-dark text-white">
+      <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Donut + Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             <SentimentDonut positive={65} neutral={25} negative={10} title="Overall Sentiment" />
           </div>
-          <div className="lg:col-span-2 bg-gray-900 rounded-xl border border-gray-800 p-6 space-y-4">
-            <h3 className="text-sm text-gray-400 font-medium">Sentiment Summary</h3>
+          <div className="lg:col-span-2 bg-dinamo-dark-card rounded-xl border border-gray-800 p-6 space-y-4">
+            <h3 className="text-sm text-dinamo-muted font-medium">Sažetak sentimenta</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-green-950/30 border border-green-900/30 rounded-lg p-4">
                 <p className="text-3xl font-bold text-green-400">65%</p>
-                <p className="text-sm text-gray-400 mt-1">Positive</p>
+                <p className="text-sm text-dinamo-muted mt-1">Pozitivno</p>
                 <p className="text-xs text-green-400 flex items-center gap-1 mt-2">
-                  <TrendingUp size={12} /> +4.2% vs last week
+                  <TrendingUp size={12} /> +4.2% u odnosu na prošli tjedan
                 </p>
               </div>
-              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+              <div className="bg-dinamo-dark-light/50 border border-gray-700 rounded-lg p-4">
                 <p className="text-3xl font-bold text-gray-300">25%</p>
-                <p className="text-sm text-gray-400 mt-1">Neutral</p>
-                <p className="text-xs text-gray-400 flex items-center gap-1 mt-2">
-                  <TrendingDown size={12} /> -2.1% vs last week
+                <p className="text-sm text-dinamo-muted mt-1">Neutralno</p>
+                <p className="text-xs text-dinamo-muted flex items-center gap-1 mt-2">
+                  <TrendingDown size={12} /> -2.1% u odnosu na prošli tjedan
                 </p>
               </div>
               <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-4">
                 <p className="text-3xl font-bold text-red-400">10%</p>
-                <p className="text-sm text-gray-400 mt-1">Negative</p>
+                <p className="text-sm text-dinamo-muted mt-1">Negativno</p>
                 <p className="text-xs text-red-400 flex items-center gap-1 mt-2">
-                  <TrendingUp size={12} /> +2.1% vs last week
+                  <TrendingUp size={12} /> +2.1% u odnosu na prošli tjedan
                 </p>
               </div>
             </div>
@@ -84,29 +84,29 @@ export default function SentimentAnalysis() {
         </div>
 
         {/* Sentiment Over Time */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
           <EngagementChart
             data={sentimentTimeline}
-            title="Sentiment Trend (Positive % vs Negative %)"
+            title="Trend sentimenta (pozitivni % vs negativni %)"
           />
         </div>
 
         {/* Topics + Alerts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Topics */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Hash size={20} className="text-blue-400" />
-              <h2 className="text-lg font-semibold text-white">Top Topics</h2>
+              <h2 className="text-lg font-semibold text-white">Najčešće teme</h2>
             </div>
             <div className="space-y-3">
               {topTopics.map((topic) => (
-                <div key={topic.topic} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                <div key={topic.topic} className="flex items-center justify-between p-3 bg-dinamo-dark-light/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{topic.icon}</span>
                     <div>
                       <p className="text-sm font-medium text-white">{topic.topic}</p>
-                      <p className="text-xs text-gray-500">{topic.mentions.toLocaleString()} mentions</p>
+                      <p className="text-xs text-dinamo-muted">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -118,7 +118,7 @@ export default function SentimentAnalysis() {
                     }`}>
                       {topic.sentiment}
                     </span>
-                    <p className={`text-xs mt-1 ${topic.change.startsWith('+') ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-xs mt-1 ${topic.change.startsWith('+') ? 'text-dinamo-muted' : 'text-dinamo-muted'}`}>
                       {topic.change} volume
                     </p>
                   </div>
@@ -128,10 +128,10 @@ export default function SentimentAnalysis() {
           </div>
 
           {/* Alerts */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+          <div className="bg-dinamo-dark-card rounded-xl border border-gray-800 p-6">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle size={20} className="text-yellow-400" />
-              <h2 className="text-lg font-semibold text-white">Sentiment Alerts</h2>
+              <h2 className="text-lg font-semibold text-white">Upozorenja sentimenta</h2>
             </div>
             <div className="space-y-4">
               {alerts.map((alert) => (
@@ -149,13 +149,13 @@ export default function SentimentAnalysis() {
                     }`}>
                       {alert.title}
                     </h3>
-                    <span className="text-xs text-gray-500">{alert.time}</span>
+                    <span className="text-xs text-dinamo-muted">{alert.time}</span>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2 leading-relaxed">{alert.description}</p>
+                  <p className="text-xs text-dinamo-muted mt-2 leading-relaxed">{alert.description}</p>
                   <div className="flex items-center gap-3 mt-3">
-                    <span className="text-xs text-gray-500">{alert.platform}</span>
-                    <span className="text-xs text-gray-600">|</span>
-                    <span className="text-xs text-gray-500">{alert.mentions} mentions</span>
+                    <span className="text-xs text-dinamo-muted">{alert.platform}</span>
+                    <span className="text-xs text-dinamo-muted">|</span>
+                    <span className="text-xs text-dinamo-muted">{alert.mentions} spominjanja</span>
                   </div>
                 </div>
               ))}

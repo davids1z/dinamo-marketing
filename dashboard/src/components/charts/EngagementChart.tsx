@@ -19,8 +19,8 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="date" stroke="#6B7280" fontSize={12} />
-          <YAxis stroke="#6B7280" fontSize={12} />
+          <XAxis dataKey="date" stroke="#7298BE" fontSize={12} />
+          <YAxis stroke="#7298BE" fontSize={12} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,
@@ -35,15 +35,15 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
             stroke={DINAMO_BRAND.colors.accent}
             strokeWidth={2}
             dot={false}
-            name="Engagement Rate"
+            name="Angažman"
           />
           <Line
             type="monotone"
             dataKey="reach"
-            stroke={DINAMO_BRAND.colors.primary}
+            stroke={DINAMO_BRAND.colors.muted}
             strokeWidth={2}
             dot={false}
-            name="Reach"
+            name="Doseg"
           />
         </LineChart>
       </ResponsiveContainer>

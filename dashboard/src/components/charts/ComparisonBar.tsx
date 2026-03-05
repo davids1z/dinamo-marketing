@@ -7,15 +7,15 @@ interface ComparisonBarProps {
   valueLabel?: string
 }
 
-export function ComparisonBar({ data, title, valueLabel = 'Value' }: ComparisonBarProps) {
+export function ComparisonBar({ data, title, valueLabel = 'Vrijednost' }: ComparisonBarProps) {
   return (
     <div className="card">
       {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-          <XAxis type="number" stroke="#6B7280" fontSize={12} />
-          <YAxis dataKey="name" type="category" stroke="#6B7280" fontSize={11} width={100} />
+          <XAxis type="number" stroke="#7298BE" fontSize={12} />
+          <YAxis dataKey="name" type="category" stroke="#7298BE" fontSize={11} width={100} />
           <Tooltip
             contentStyle={{
               backgroundColor: DINAMO_BRAND.colors.darkCard,
