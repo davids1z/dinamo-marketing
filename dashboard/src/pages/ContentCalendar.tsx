@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { contentApi } from '../api/content'
@@ -281,6 +281,16 @@ export default function ContentCalendar() {
   const [generating, setGenerating] = useState(false)
   const [generatedData, setGeneratedData] = useState<Record<number, Post[]> | null>(null)
 
+  // Lock body scroll when post detail modal is open
+  useEffect(() => {
+    if (selectedPost) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [selectedPost])
+
   const queue = fallbackQueue
 
   const calendarData = generatedData || fallbackCalendar
@@ -481,12 +491,12 @@ export default function ContentCalendar() {
 
                   return (
                     <div key={i} onClick={() => isValid && setSelectedDay(isSelected ? null : dayNum)}
-                      className={`min-h-[72px] sm:min-h-[80px] p-2 rounded-lg border transition-all cursor-pointer ${
-                        isSelected ? 'border-dinamo-accent bg-dinamo-accent/5 ring-1 ring-dinamo-accent/20'
-                        : isToday ? 'border-blue-400 bg-blue-50'
-                        : isPast ? 'border-gray-200 bg-gray-50/50'
-                        : isValid ? 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'
-                        : 'border-transparent bg-transparent cursor-default'
+                      className={`min-h-[72px] sm:min-h-[80px] p-2 rounded-lg border transition-all ${
+                        !isValid ? 'border-transparent bg-transparent pointer-events-none'
+                        : isSelected ? 'border-dinamo-accent bg-dinamo-accent/5 ring-1 ring-dinamo-accent/20 cursor-pointer'
+                        : isToday ? 'border-blue-400 bg-blue-50 cursor-pointer'
+                        : isPast ? 'border-gray-200 bg-gray-50/50 cursor-pointer'
+                        : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
                       }`}>
                       {isValid && (
                         <>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, Calendar, Trophy, ChevronRight, X } from 'lucide-react'
+import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, Calendar, Trophy, ChevronRight } from 'lucide-react'
 import { useSidebar } from './Layout'
 
 interface HeaderProps {
@@ -102,6 +102,16 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  // Lock body scroll when notification dropdown is open
+  useEffect(() => {
+    if (showNotifs) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [showNotifs])
+
   const visibleNotifs = notifications.filter(n => !dismissed.includes(n.id))
   const unreadCount = visibleNotifs.filter(n => n.unread).length
 
@@ -146,6 +156,9 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
           </button>
 
           {showNotifs && (
+            <>
+            {/* Backdrop overlay to block background interaction */}
+            <div className="fixed inset-0 z-40" onClick={() => { setShowNotifs(false); setExpandedId(null) }} />
             <div
               className="absolute top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
               style={{ width: '380px', maxWidth: 'calc(100vw - 24px)', right: '-8px' }}
@@ -220,6 +233,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                 )}
               </div>
             </div>
+            </>
           )}
         </div>
       </div>
