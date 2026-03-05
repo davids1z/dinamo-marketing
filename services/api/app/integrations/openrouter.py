@@ -118,12 +118,23 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
         "response_format": {"type": "json_object"},
     }
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
+    async with httpx.AsyncClient(timeout=180.0) as client:
         response = await client.post(OPENROUTER_URL, json=payload, headers=headers)
         response.raise_for_status()
 
     data = response.json()
     content = data["choices"][0]["message"]["content"]
+    logger.info(f"Raw AI response length: {len(content)} chars")
+
+    posts = _parse_ai_response(content)
+
+    logger.info(f"Generated {len(posts)} posts for {month_name} {year}")
+    return posts
+
+
+def _parse_ai_response(content: str) -> list[dict]:
+    """Parse AI response, handling various JSON formats and quirks."""
+    import re
 
     # Strip markdown fences if present
     content = content.strip()
@@ -134,26 +145,66 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
         content = content[:-3]
     content = content.strip()
 
-    # Try to extract JSON array even if there's extra text
+    # Fix common JSON issues before any parsing
+    content = _fix_json(content)
+
+    # Try direct parse first
     try:
-        posts = json.loads(content)
+        result = json.loads(content)
+        return _extract_posts_list(result)
     except json.JSONDecodeError:
-        # Try to find JSON array in the content
-        start = content.find("[")
-        end = content.rfind("]")
-        if start != -1 and end != -1:
-            json_str = content[start:end + 1]
-            # Fix common JSON issues: trailing commas, unescaped chars
-            json_str = _fix_json(json_str)
-            posts = json.loads(json_str)
-        else:
-            raise ValueError("Could not find JSON array in AI response")
+        pass
 
-    if not isinstance(posts, list):
-        raise ValueError("Expected a JSON array from AI response")
+    # Try to find a JSON array
+    start = content.find("[")
+    end = content.rfind("]")
+    if start != -1 and end != -1:
+        json_str = content[start:end + 1]
+        json_str = _fix_json(json_str)
+        try:
+            result = json.loads(json_str)
+            if isinstance(result, list):
+                return result
+        except json.JSONDecodeError:
+            pass
 
-    logger.info(f"Generated {len(posts)} posts for {month_name} {year}")
-    return posts
+    # Try to find a JSON object that contains an array
+    start = content.find("{")
+    end = content.rfind("}")
+    if start != -1 and end != -1:
+        json_str = content[start:end + 1]
+        json_str = _fix_json(json_str)
+        try:
+            result = json.loads(json_str)
+            return _extract_posts_list(result)
+        except json.JSONDecodeError:
+            pass
+
+    # Last resort: try to fix unescaped control characters and retry
+    cleaned = re.sub(r'[\x00-\x1f]', lambda m: '\\n' if m.group() == '\n' else '', content)
+    try:
+        result = json.loads(cleaned)
+        return _extract_posts_list(result)
+    except json.JSONDecodeError as e:
+        logger.error(f"All JSON parsing attempts failed. Last error: {e}")
+        logger.error(f"First 500 chars of response: {content[:500]}")
+        raise ValueError(f"Could not parse AI response as JSON: {e}")
+
+
+def _extract_posts_list(result) -> list[dict]:
+    """Extract a list of posts from parsed JSON (could be list or dict with list)."""
+    if isinstance(result, list):
+        return result
+    if isinstance(result, dict):
+        # Look for any key that contains a list of dicts
+        for key in ("posts", "content_plan", "plan", "data", "items"):
+            if key in result and isinstance(result[key], list):
+                return result[key]
+        # Try any key that's a list
+        for value in result.values():
+            if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                return value
+    raise ValueError(f"Expected a JSON array or object with posts array, got {type(result)}")
 
 
 def _fix_json(s: str) -> str:
@@ -161,6 +212,7 @@ def _fix_json(s: str) -> str:
     import re
     # Remove trailing commas before ] or }
     s = re.sub(r',\s*([}\]])', r'\1', s)
-    # Replace single quotes with double quotes (but not inside strings)
-    # This is a simple approach - may not cover all edge cases
+    # Fix unescaped newlines inside JSON strings (between quotes)
+    # Remove control characters except common whitespace
+    s = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', s)
     return s
