@@ -116,7 +116,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-fade-in">
+            <div className="absolute right-0 top-full mt-2 w-[360px] sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-fade-in" style={{ right: 0, maxWidth: 'calc(100vw - 24px)' }}>
               <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                 <h3 className="font-headline text-sm font-bold tracking-wider text-gray-900">OBAVIJESTI</h3>
                 {unreadCount > 0 && (
