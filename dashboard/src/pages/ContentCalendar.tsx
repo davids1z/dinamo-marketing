@@ -457,7 +457,7 @@ export default function ContentCalendar() {
         {activeTab === 'calendar' && viewMode === 'month' && !generating && (
           <div className="flex gap-6">
             {/* Calendar Grid */}
-            <div className={`card flex-1 ${selectedDay ? 'lg:flex-[2]' : ''}`}>
+            <div className="card flex-1 min-w-0">
               <div className="flex items-center justify-between mb-6">
                 <button onClick={prevMonth} className="p-2 text-dinamo-muted hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
                 <h2 className="text-xl font-bold text-gray-900">{monthNames[currentMonth].toUpperCase()} {currentYear}</h2>
@@ -526,7 +526,7 @@ export default function ContentCalendar() {
 
             {/* Day Detail Panel */}
             {selectedDay && (
-              <div className="hidden lg:block card w-96 animate-slide-in max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="hidden lg:block card w-96 flex-shrink-0 animate-slide-in max-h-[calc(100vh-200px)] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2 border-b border-gray-100">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">{selectedDay}. {monthNames[currentMonth]}</h3>
