@@ -70,7 +70,7 @@ export default function ChannelAudit() {
       <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Platform Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">

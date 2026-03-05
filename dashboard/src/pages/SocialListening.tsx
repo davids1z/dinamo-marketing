@@ -116,7 +116,7 @@ export default function SocialListening() {
       <Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

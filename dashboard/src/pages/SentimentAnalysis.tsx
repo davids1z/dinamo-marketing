@@ -83,7 +83,7 @@ export default function SentimentAnalysis() {
       <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Donut + Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

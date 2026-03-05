@@ -125,7 +125,7 @@ export default function Settings() {
       <Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* API Integrations */}
         <div className="card">

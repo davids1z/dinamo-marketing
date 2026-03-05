@@ -103,7 +103,7 @@ export default function Reports() {
       <Header title="IZVJE\u0160TAJI" subtitle="Automatsko generiranje izvje\u0161taja i arhiva" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Actions & Tabs */}
         <div className="flex items-center justify-between">

@@ -117,7 +117,7 @@ export default function Competitors() {
       <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

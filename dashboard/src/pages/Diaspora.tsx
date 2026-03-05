@@ -120,7 +120,7 @@ export default function Diaspora() {
       <Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">

@@ -110,7 +110,7 @@ export default function Academy() {
       <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadr\u017Eajni pipeline" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

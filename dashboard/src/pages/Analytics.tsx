@@ -68,7 +68,7 @@ export default function Analytics() {
       <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
 
       <div className="page-wrapper space-y-6">
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Reach Chart */}
         <div className="card">

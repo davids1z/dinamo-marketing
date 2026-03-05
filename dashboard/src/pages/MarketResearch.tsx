@@ -108,7 +108,7 @@ export default function MarketResearch() {
           </div>
         </div>
 
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Top Markets Chart */}
         <div className="card">

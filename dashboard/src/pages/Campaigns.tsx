@@ -124,7 +124,7 @@ export default function Campaigns() {
           <MetricCard label="Prosj. ROAS" value={Number(avgRoas.toFixed(1))} format="number" icon={BarChart3} />
         </div>
 
-        {error && <ErrorState message={error} onRetry={refetch} />}
+        
 
         {/* Campaigns Table */}
         <div className="card overflow-hidden">
