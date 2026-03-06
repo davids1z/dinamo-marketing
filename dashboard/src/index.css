@@ -1,8 +1,8 @@
+@import './styles/studio-animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './styles/studio-animations.css';
 
 @layer base {
   body {
