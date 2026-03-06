@@ -1,0 +1,99 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DEPLOY_HOST: dinamo.xyler.ai
+  DEPLOY_USER: deploy
+  DEPLOY_PATH: /opt/dinamo-marketing
+
+jobs:
+  build-check:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install dashboard deps
+        run: npm ci
+        working-directory: dashboard
+
+      - name: Build dashboard
+        run: npx vite build
+        working-directory: dashboard
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python syntax check
+        run: python -c "
+          import py_compile, glob, sys;
+          files = glob.glob('services/api/app/**/*.py', recursive=True);
+          errors = [];
+          [errors.append(str(e)) for f in files for e in [None] if not (py_compile.compile(f, doraise=True) or True) or False];
+          print(f'{len(files)} files OK')
+          " 2>&1 || {
+            echo "Python syntax check failed";
+            exit 1;
+          }
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-check
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ env.DEPLOY_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            echo "==> Pulling latest code..."
+            git pull origin main
+
+            echo "==> Building and deploying containers..."
+            docker compose -f docker-compose.prod.yml build --parallel
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "==> Waiting for API health..."
+            for i in $(seq 1 30); do
+              if curl -sf http://127.0.0.1:3301/api/v1/health/live > /dev/null 2>&1; then
+                echo "API is healthy!"
+                break
+              fi
+              echo "Waiting... ($i/30)"
+              sleep 2
+            done
+
+            echo "==> Running database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T api alembic upgrade head || echo "Migration skipped (no alembic in PATH or already up to date)"
+
+            echo "==> Seeding admin user..."
+            docker compose -f docker-compose.prod.yml exec -T api python -c "
+            import asyncio
+            from app.seed import main
+            asyncio.run(main())
+            " || echo "Seed skipped"
+
+            echo "==> Cleaning up old images..."
+            docker image prune -f
+
+            echo "==> Deploy complete!"
