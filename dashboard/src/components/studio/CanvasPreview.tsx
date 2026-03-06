@@ -23,11 +23,12 @@ export default function CanvasPreview({
 
   const dims = ASPECT_DIMENSIONS[aspectRatio]
 
-  // Calculate scaled preview size to fit container
+  // Calculate scaled preview size to fit container while maintaining aspect ratio
   const previewStyle = useMemo(() => {
+    // Use height as primary dimension, aspect-ratio determines width
     return {
       aspectRatio: `${dims.width} / ${dims.height}`,
-      maxHeight: '100%',
+      height: '100%',
       maxWidth: '100%',
     }
   }, [dims])
