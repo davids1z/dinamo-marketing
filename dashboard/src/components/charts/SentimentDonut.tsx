@@ -19,7 +19,11 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
 
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && (
+        <div className="mb-5">
+          <h3 className="font-headline text-base tracking-wider text-gray-900">{title}</h3>
+        </div>
+      )}
       <div className="flex items-center gap-6">
         <ResponsiveContainer width={160} height={160}>
           <PieChart>
@@ -27,8 +31,8 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={45}
-              outerRadius={70}
+              innerRadius={48}
+              outerRadius={72}
               dataKey="value"
               strokeWidth={0}
             >
@@ -38,21 +42,23 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: DINAMO_BRAND.colors.darkCard,
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '8px',
-                color: '#fff',
+                backgroundColor: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                color: '#1e293b',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                padding: '8px 12px',
               }}
             />
           </PieChart>
         </ResponsiveContainer>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {data.map((item) => (
             <div key={item.name} className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
               <div>
-                <p className="text-sm text-gray-600">{item.name}</p>
-                <p className="font-stats text-lg text-gray-900">
+                <p className="text-xs text-gray-500 leading-none">{item.name}</p>
+                <p className="font-stats text-lg text-gray-900 leading-tight mt-0.5">
                   {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
                 </p>
               </div>

@@ -15,25 +15,31 @@ interface EngagementChartProps {
 export function EngagementChart({ data, title }: EngagementChartProps) {
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && (
+        <div className="mb-5">
+          <h3 className="font-headline text-base tracking-wider text-gray-900">{title}</h3>
+        </div>
+      )}
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-          <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-          <YAxis stroke="#94a3b8" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" vertical={false} />
+          <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+          <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
           <Tooltip
             contentStyle={{
-              backgroundColor: DINAMO_BRAND.colors.darkCard,
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              color: '#fff',
+              backgroundColor: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              color: '#1e293b',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              padding: '10px 14px',
             }}
           />
           <Line
             type="monotone"
             dataKey="engagement"
             stroke={DINAMO_BRAND.colors.accentDark}
-            strokeWidth={2}
+            strokeWidth={2.5}
             dot={false}
             name="Angažman"
           />
@@ -41,7 +47,7 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
             type="monotone"
             dataKey="reach"
             stroke={DINAMO_BRAND.colors.blue}
-            strokeWidth={2}
+            strokeWidth={2.5}
             dot={false}
             name="Doseg"
           />

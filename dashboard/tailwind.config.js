@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -32,6 +31,11 @@ export default {
         body: ["'Inter'", 'sans-serif'],
         stats: ["'Tektur'", 'sans-serif'],
         mono: ["'JetBrains Mono'", 'monospace'],
+      },
+      boxShadow: {
+        'card': '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+        'card-hover': '0 10px 30px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04)',
+        'glass': '0 1px 8px rgba(0,0,0,0.04)',
       },
     },
   },

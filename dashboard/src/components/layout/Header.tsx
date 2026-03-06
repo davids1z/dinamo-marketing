@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, ChevronRight, Moon, Sun } from 'lucide-react'
+import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, ChevronRight } from 'lucide-react'
 import { useSidebar } from './Layout'
 import { useNotifications, type Notification } from '../../hooks/useNotifications'
-import { useDarkMode } from '../../contexts/DarkModeContext'
 
 interface HeaderProps {
   title: string
@@ -29,7 +28,6 @@ function timeAgo(dateStr: string): string {
 
 export default function Header({ title, subtitle, actions }: HeaderProps) {
   const { toggleSidebar } = useSidebar()
-  const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { notifications, unreadCount, markRead } = useNotifications()
   const [showNotifs, setShowNotifs] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -57,49 +55,40 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
   }, [showNotifs])
 
   return (
-    <header className="h-16 border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 bg-white sticky top-0 z-30">
+    <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-xl sticky top-0 z-30 shadow-glass">
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors"
         >
-          <Menu className="w-5 h-5 text-gray-600" />
+          <Menu className="w-5 h-5 text-gray-500" />
         </button>
         <div className="min-w-0">
-          <h2 className="font-headline text-lg sm:text-2xl tracking-wider text-gray-900 font-bold truncate">{title}</h2>
-          {subtitle && <p className="text-xs sm:text-sm text-dinamo-muted truncate -mt-0.5">{subtitle}</p>}
+          <h2 className="font-headline text-lg sm:text-xl tracking-wider text-gray-900 font-bold truncate">{title}</h2>
+          {subtitle && <p className="text-xs text-dinamo-muted truncate -mt-0.5">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
         {actions}
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Pretraži..."
-            className="bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-dinamo-accent/50 w-48"
+            className="bg-gray-50/80 border border-gray-200/80 rounded-xl pl-9 pr-4 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 w-52 transition-all"
           />
         </div>
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          title={isDark ? 'Svijetli način' : 'Tamni način'}
-        >
-          {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-gray-500" />}
-        </button>
 
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setShowNotifs(!showNotifs); setExpandedId(null) }}
-            className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
           >
             <Bell className="w-5 h-5 text-gray-500" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[11px] font-bold rounded-full px-1.5 ring-2 ring-white">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 ring-2 ring-white">
                 {unreadCount}
               </span>
             )}
@@ -110,13 +99,13 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
             {/* Backdrop overlay to block background interaction */}
             <div className="fixed inset-0 z-40" onClick={() => { setShowNotifs(false); setExpandedId(null) }} />
             <div
-              className="absolute top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
+              className="absolute top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
               style={{ width: '380px', maxWidth: 'calc(100vw - 24px)', right: '-8px' }}
             >
               {/* Header */}
-              <div className="px-5 py-4 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
+              <div className="px-5 py-4 bg-slate-50/80 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center">
                     <Bell className="w-4 h-4 text-white" />
                   </div>
                   <div>
@@ -144,9 +133,9 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                     const cfg = severityConfig[n.severity] || severityConfig.info
                     const Icon = cfg.icon
                     return (
-                      <div key={n.id} className={`border-l-[3px] ${cfg.accentColor} transition-colors ${!n.is_read ? 'bg-blue-50/20' : 'bg-white'}`}>
+                      <div key={n.id} className={`border-l-[3px] ${cfg.accentColor} transition-colors ${!n.is_read ? 'bg-blue-50/30' : 'bg-white'}`}>
                         <div
-                          className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50/80 transition-colors"
+                          className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50/80 transition-colors"
                           onClick={() => setExpandedId(isExpanded ? null : n.id)}
                         >
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.iconBg}`}>

@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100;
+    @apply bg-slate-50 text-gray-900 antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -16,84 +16,84 @@
 
   /* Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-gray-800;
+    @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full dark:bg-gray-600;
+    @apply bg-gray-300/60 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-gray-500;
+    @apply bg-gray-400/80;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm overflow-hidden dark:bg-gray-800 dark:border-gray-700;
+    @apply bg-white border border-gray-100 rounded-2xl p-5 shadow-card overflow-hidden;
   }
   .card-hover {
-    @apply card transition-all duration-200 hover:border-dinamo-accent/40 hover:shadow-lg hover:shadow-dinamo-accent/10 hover:-translate-y-0.5 dark:hover:border-dinamo-accent/50;
+    @apply card transition-all duration-300 hover:border-dinamo-accent/30 hover:shadow-card-hover hover:-translate-y-0.5;
   }
   .btn-primary {
-    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-gray-900 font-semibold py-2 px-4 rounded-lg transition-all duration-200 active:scale-95;
+    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md;
   }
   .btn-secondary {
-    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent-dark border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-lg transition-all duration-200 active:scale-95;
+    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent-dark border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95;
   }
   .btn-ghost {
-    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium py-2 px-4 rounded-lg transition-all duration-200 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700;
+    @apply text-gray-500 hover:text-gray-900 hover:bg-gray-100 font-medium py-2 px-4 rounded-xl transition-all duration-200;
   }
   .stat-number {
     font-family: 'Tektur', sans-serif;
-    @apply text-2xl sm:text-3xl font-bold tracking-tight;
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-gray-900;
   }
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
   .badge-success {
-    @apply badge bg-green-100 text-green-700;
+    @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50;
   }
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-700;
+    @apply badge bg-amber-50 text-amber-700 ring-1 ring-amber-200/50;
   }
   .badge-danger {
-    @apply badge bg-red-100 text-red-700;
+    @apply badge bg-red-50 text-red-700 ring-1 ring-red-200/50;
   }
   .badge-info {
-    @apply badge bg-lime-100 text-lime-700;
+    @apply badge bg-lime-50 text-lime-700 ring-1 ring-lime-200/50;
   }
 
   /* Page wrapper with consistent padding */
   .page-wrapper {
-    @apply p-4 sm:p-6 max-w-[1600px] mx-auto;
+    @apply p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto;
   }
 
   /* Section title pattern */
   .section-title {
-    @apply font-headline text-lg tracking-wider text-gray-900 font-bold dark:text-gray-100;
+    @apply font-headline text-base tracking-wider text-gray-900 font-bold;
   }
 
   /* Skeleton loading */
   .skeleton {
-    @apply bg-gray-200 rounded animate-pulse dark:bg-gray-700;
+    @apply bg-gray-100 rounded-xl animate-pulse;
   }
   .skeleton-text {
     @apply skeleton h-4 w-full;
   }
   .skeleton-card {
-    @apply skeleton h-32 w-full rounded-xl;
+    @apply skeleton h-32 w-full rounded-2xl;
   }
 
   /* Toast notifications */
   .toast {
-    @apply fixed bottom-4 right-4 z-[100] px-4 py-3 rounded-xl shadow-lg text-sm font-medium
+    @apply fixed bottom-4 right-4 z-[100] px-5 py-3.5 rounded-2xl shadow-xl backdrop-blur-sm text-sm font-medium
     transform transition-all duration-300;
   }
   .toast-success {
-    @apply toast bg-green-600 text-white;
+    @apply toast bg-emerald-600 text-white;
   }
   .toast-error {
     @apply toast bg-red-600 text-white;
@@ -101,7 +101,7 @@
 
   /* Responsive grid patterns */
   .metric-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5;
   }
   .content-grid {
     @apply grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6;

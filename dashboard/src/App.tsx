@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
-import { DarkModeProvider } from './contexts/DarkModeContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/layout/Layout'
 
@@ -32,7 +31,6 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <DarkModeProvider>
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
@@ -55,6 +53,5 @@ export default function App() {
         </Route>
       </Routes>
     </AuthProvider>
-    </DarkModeProvider>
   )
 }
