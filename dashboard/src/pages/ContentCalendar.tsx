@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { contentApi } from '../api/content'
@@ -6,6 +7,7 @@ import {
   Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Sparkles,
   Eye, Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown,
   LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap, GripVertical,
+  Film,
 } from 'lucide-react'
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useAuth } from '../contexts/AuthContext'
@@ -308,6 +310,7 @@ type ViewMode = 'month' | 'week' | 'sixmonth'
 type TabMode = 'calendar' | 'approvals'
 
 export default function ContentCalendar() {
+  const navigate = useNavigate()
   const { canApprove } = useAuth()
   const [activeTab, setActiveTab] = useState<TabMode>('calendar')
   const [viewMode, setViewMode] = useState<ViewMode>('month')
@@ -1031,6 +1034,17 @@ export default function ContentCalendar() {
                     <p className="text-sm text-red-700">{selectedPost.publish_error}</p>
                   </div>
                 )}
+
+                {/* Open Studio button */}
+                <div className="pt-2">
+                  <button
+                    onClick={() => navigate(`/studio/${selectedPost.id}`)}
+                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Film size={16} />
+                    Otvori Content Studio
+                  </button>
+                </div>
 
                 {/* Publish Now button */}
                 {(selectedPost.status === 'approved' || selectedPost.status === 'failed') && (

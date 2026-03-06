@@ -17,6 +17,7 @@ from app.routers import (
     sentiment,
     settings,
     social_listening,
+    studio,
 )
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "sentiment",
     "settings",
     "social_listening",
+    "studio",
 ]

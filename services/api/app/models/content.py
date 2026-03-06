@@ -76,6 +76,9 @@ class ContentPost(BaseModel):
     metrics: Mapped[list["PostMetric"]] = relationship(
         "PostMetric", back_populates="post", foreign_keys="[PostMetric.post_id]"
     )
+    studio_project: Mapped["StudioProject | None"] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        "StudioProject", back_populates="post", uselist=False
+    )
 
 
 class ContentTemplate(BaseModel):

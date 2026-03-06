@@ -1,0 +1,259 @@
+/* ------------------------------------------------------------------ */
+/* Content Studio CSS Animations                                       */
+/* ------------------------------------------------------------------ */
+
+/* === Entry Animations === */
+
+@keyframes studio-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes studio-slide-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes studio-slide-down {
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes studio-slide-left {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes studio-slide-right {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes studio-scale-up {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes studio-scale-down {
+  from { opacity: 0; transform: scale(1.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes studio-bounce {
+  0% { opacity: 0; transform: translateY(30px); }
+  60% { opacity: 1; transform: translateY(-10px); }
+  80% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes studio-pulse {
+  0% { opacity: 0; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes studio-blur-in {
+  from { opacity: 0; filter: blur(12px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+/* === Animation Classes === */
+
+.anim-fade_in {
+  animation: studio-fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-slide_up {
+  animation: studio-slide-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-slide_down {
+  animation: studio-slide-down 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-slide_left {
+  animation: studio-slide-left 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-slide_right {
+  animation: studio-slide-right 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-scale_up {
+  animation: studio-scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.anim-scale_down {
+  animation: studio-scale-down 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-typewriter {
+  animation: studio-fade-in 0.3s ease-out forwards;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid currentColor;
+  animation: studio-fade-in 0.3s ease-out forwards, typing 2s steps(30) forwards, blink 0.7s step-end infinite;
+}
+
+@keyframes typing {
+  from { max-width: 0; }
+  to { max-width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+.anim-bounce {
+  animation: studio-bounce 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-pulse {
+  animation: studio-pulse 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-blur_in {
+  animation: studio-blur-in 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+.anim-none {
+  opacity: 1;
+}
+
+/* === Scene Transitions === */
+
+@keyframes scene-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scene-slide-left {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scene-slide-up {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scene-zoom-in {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scene-zoom-out {
+  from { opacity: 0; transform: scale(1.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.transition-fade {
+  animation: scene-fade-in 0.4s ease-out;
+}
+
+.transition-slide_left {
+  animation: scene-slide-left 0.4s ease-out;
+}
+
+.transition-slide_up {
+  animation: scene-slide-up 0.4s ease-out;
+}
+
+.transition-zoom_in {
+  animation: scene-zoom-in 0.4s ease-out;
+}
+
+.transition-zoom_out {
+  animation: scene-zoom-out 0.4s ease-out;
+}
+
+.transition-none {
+  /* No transition */
+}
+
+/* === Canvas Preview === */
+
+.studio-canvas {
+  position: relative;
+  overflow: hidden;
+  background: #0A1A28;
+}
+
+.studio-canvas .scene-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.studio-canvas .text-layer {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: pre-wrap;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.studio-canvas .overlay-layer {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* === Timeline === */
+
+.scene-timeline {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.scene-timeline::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scene-timeline::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.scene-thumb {
+  flex-shrink: 0;
+  width: 80px;
+  height: 45px;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.scene-thumb:hover {
+  transform: scale(1.05);
+}
+
+.scene-thumb.active {
+  border-color: #B8FF00;
+  box-shadow: 0 0 12px rgba(184, 255, 0, 0.3);
+}
+
+.scene-thumb .duration-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}

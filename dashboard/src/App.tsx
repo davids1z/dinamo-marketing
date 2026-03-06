@@ -20,6 +20,7 @@ const Diaspora = lazy(() => import('./pages/Diaspora'))
 const Reports = lazy(() => import('./pages/Reports'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Admin = lazy(() => import('./pages/Admin'))
+const ContentStudio = lazy(() => import('./pages/ContentStudio'))
 
 function PageLoader() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
           <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
           <Route path="admin" element={<Suspense fallback={<PageLoader />}><Admin /></Suspense>} />
+          <Route path="studio/:postId" element={<Suspense fallback={<PageLoader />}><ContentStudio /></Suspense>} />
         </Route>
       </Routes>
     </AuthProvider>

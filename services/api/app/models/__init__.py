@@ -22,6 +22,7 @@ from app.models.optimization import OptimizationLog, OptimizationRule
 from app.models.report import MonthlyReport, WeeklyReport
 from app.models.notification import Notification
 from app.models.user import User
+from app.models.media import MediaAsset, StudioProject
 
 __all__ = [
     "Base",
@@ -70,4 +71,6 @@ __all__ = [
     "MonthlyReport",
     "Notification",
     "User",
+    "MediaAsset",
+    "StudioProject",
 ]

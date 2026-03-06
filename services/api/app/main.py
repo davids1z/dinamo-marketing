@@ -32,6 +32,7 @@ from app.routers import (
     sentiment,
     settings as settings_router,
     social_listening,
+    studio,
 )
 
 logger = logging.getLogger(__name__)
@@ -114,6 +115,7 @@ app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytic
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"], dependencies=_auth)
 app.include_router(engagement.router, prefix="/api/v1/engagement", tags=["Engagement"], dependencies=_auth)
 app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Settings"], dependencies=_auth)
+app.include_router(studio.router, prefix="/api/v1/studio", tags=["Content Studio"], dependencies=_auth)
 
 
 # Static media files (generated images)

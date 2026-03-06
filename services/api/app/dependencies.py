@@ -172,3 +172,9 @@ def get_media_storage():
 def get_content_creator():
     from app.services.content_creator import ContentCreatorService
     return ContentCreatorService(get_image_gen_client(), get_media_storage())
+
+
+@lru_cache
+def get_studio_service():
+    from app.services.studio_service import StudioService
+    return StudioService(settings.MEDIA_ROOT)
