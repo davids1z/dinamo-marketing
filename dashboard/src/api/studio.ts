@@ -49,6 +49,8 @@ export const studioApi = {
   },
 
   // --- Publishing ---
-  publish: (postId: string) =>
-    api.post<PublishResult>(`/studio/projects/${postId}/publish`),
+  publish: (postId: string, targetPlatform?: string) =>
+    api.post<PublishResult>(`/studio/projects/${postId}/publish`, {
+      target_platform: targetPlatform || null,
+    }),
 }

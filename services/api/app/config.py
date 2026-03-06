@@ -67,6 +67,10 @@ class Settings(BaseSettings):
     BUFFER_CLIENT_ID: str = ""
     BUFFER_CLIENT_SECRET: str = ""
 
+    # Telegram (test publishing)
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_CHANNEL_ID: str = ""
+
     # Image Generation
     OPENAI_API_KEY: str = ""
     STABILITY_API_KEY: str = ""

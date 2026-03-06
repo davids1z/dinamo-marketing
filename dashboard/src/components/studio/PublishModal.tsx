@@ -3,6 +3,14 @@ import { X, Send, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { studioApi } from '../../api/studio'
 import type { PublishResult } from '../../types/studio'
 
+const PLATFORM_OPTIONS = [
+  { value: 'telegram', label: 'Telegram (test)', icon: '✈️', description: 'Test kanal' },
+  { value: 'instagram', label: 'Instagram', icon: '📸', description: 'Feed / Reel / Story' },
+  { value: 'facebook', label: 'Facebook', icon: '📘', description: 'Stranica' },
+  { value: 'tiktok', label: 'TikTok', icon: '🎵', description: 'Video' },
+  { value: 'youtube', label: 'YouTube', icon: '▶️', description: 'Video / Short' },
+]
+
 interface PublishModalProps {
   postId: string
   platform: string
@@ -24,6 +32,7 @@ export default function PublishModal({
 }: PublishModalProps) {
   const [editCaption, setEditCaption] = useState(caption)
   const [editHashtags, setEditHashtags] = useState(hashtags.join(' '))
+  const [selectedPlatform, setSelectedPlatform] = useState('telegram')
   const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<PublishResult | null>(null)
   const [error, setError] = useState('')
@@ -39,7 +48,7 @@ export default function PublishModal({
         generated_hashtags: editHashtags.split(/\s+/).filter(Boolean),
       })
 
-      const resp = await studioApi.publish(postId)
+      const resp = await studioApi.publish(postId, selectedPlatform)
       setResult(resp.data)
       onPublished(resp.data)
     } catch (err: unknown) {
@@ -98,12 +107,46 @@ export default function PublishModal({
           ) : (
             /* Edit state */
             <>
-              {/* Platform badge */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-gray-500">Platforma:</span>
-                <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-full capitalize">
-                  {platform}
-                </span>
+              {/* Platform selector */}
+              <div>
+                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                  Odaberi platformu
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {PLATFORM_OPTIONS.map((p) => (
+                    <button
+                      key={p.value}
+                      onClick={() => setSelectedPlatform(p.value)}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-2 transition-all text-left ${
+                        selectedPlatform === p.value
+                          ? 'border-dinamo-accent bg-dinamo-accent/10'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <span className="text-lg">{p.icon}</span>
+                      <div>
+                        <div className={`text-xs font-bold ${
+                          selectedPlatform === p.value ? 'text-gray-900' : 'text-gray-700'
+                        }`}>
+                          {p.label}
+                        </div>
+                        <div className="text-[10px] text-gray-400">{p.description}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {selectedPlatform === 'telegram' && (
+                  <p className="text-[10px] text-emerald-600 mt-1.5 px-1">
+                    Telegram je konfiguriran za testno objavljivanje
+                  </p>
+                )}
+                {selectedPlatform !== 'telegram' && (
+                  <p className="text-[10px] text-amber-500 mt-1.5 px-1">
+                    {platform === selectedPlatform
+                      ? 'Potrebni su API ključevi za ovu platformu'
+                      : `Originalna platforma posta: ${platform}`}
+                  </p>
+                )}
               </div>
 
               {/* Preview */}
@@ -175,7 +218,9 @@ export default function PublishModal({
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              {publishing ? 'Objavljivanje...' : 'Objavi'}
+              {publishing ? 'Objavljivanje...' : `Objavi na ${
+                PLATFORM_OPTIONS.find(p => p.value === selectedPlatform)?.label || selectedPlatform
+              }`}
             </button>
           </div>
         )}

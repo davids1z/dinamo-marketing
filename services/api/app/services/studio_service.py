@@ -340,10 +340,13 @@ class StudioService:
     # ------------------------------------------------------------------
 
     async def publish(
-        self, db: AsyncSession, post_id: uuid.UUID
+        self, db: AsyncSession, post_id: uuid.UUID, target_platform: str | None = None
     ) -> dict:
-        """Set visual_url on ContentPost and publish via UnifiedPublisher."""
-        from app.dependencies import get_publisher
+        """Publish content — routes to Telegram or UnifiedPublisher.
+
+        Args:
+            target_platform: Override platform. Use 'telegram' for test publishing.
+        """
         from datetime import datetime, timezone
 
         project_q = select(StudioProject).where(StudioProject.post_id == post_id)
@@ -362,12 +365,40 @@ class StudioService:
         if not post:
             raise ValueError(f"Post {post_id} not found")
 
-        # Update post with studio output
-        # Build full URL for publisher
+        # Build caption with hashtags
+        caption = project.generated_caption or post.caption_hr or post.title or ""
+        hashtags = project.generated_hashtags or post.hashtags or []
+        if isinstance(hashtags, list) and hashtags:
+            caption = f"{caption}\n\n{' '.join(hashtags)}"
+
+        # Resolve output file path
+        output_file = None
+        if project.output_url and not project.output_url.startswith("http"):
+            # It's a local /media/ path
+            local_path = self._root / project.output_url.lstrip("/media/").lstrip("/")
+            if local_path.exists():
+                output_file = str(local_path)
+            else:
+                # Try absolute from media root
+                rel = project.output_url.replace("/media/", "", 1)
+                alt_path = self._root / rel
+                if alt_path.exists():
+                    output_file = str(alt_path)
+
+        platform = (target_platform or post.platform or "").lower().strip()
+
+        # ----- TELEGRAM (test publishing) -----
+        if platform == "telegram":
+            return await self._publish_telegram(
+                db, post, project, caption, output_file
+            )
+
+        # ----- Standard platforms via UnifiedPublisher -----
+        from app.dependencies import get_publisher
+
         base_url = settings.CORS_ORIGINS.split(",")[0].strip()
         full_output_url = project.output_url
         if not full_output_url.startswith("http"):
-            # Make absolute for API-based publishing
             full_output_url = f"{base_url}{full_output_url}"
 
         post.visual_url = full_output_url
@@ -378,7 +409,6 @@ class StudioService:
         post.status = "approved"
         await db.commit()
 
-        # Publish via UnifiedPublisher
         publisher = get_publisher()
         result = await publisher.publish_post(post)
 
@@ -407,6 +437,88 @@ class StudioService:
             "error": result.error,
             "status": post.status,
         }
+
+    async def _publish_telegram(
+        self, db, post, project, caption: str, output_file: str | None,
+    ) -> dict:
+        """Publish to Telegram channel via Bot API."""
+        from datetime import datetime, timezone
+        from app.integrations.telegram import TelegramPublisher
+
+        bot_token = settings.TELEGRAM_BOT_TOKEN
+        channel_id = settings.TELEGRAM_CHANNEL_ID
+
+        if not bot_token or not channel_id:
+            return {
+                "success": False,
+                "post_id": str(post.id),
+                "platform": "telegram",
+                "platform_post_id": "",
+                "platform_post_url": "",
+                "error": "TELEGRAM_BOT_TOKEN and TELEGRAM_CHANNEL_ID must be configured in .env",
+                "status": post.status,
+            }
+
+        tg = TelegramPublisher(bot_token, channel_id)
+
+        try:
+            # Determine if it's a photo or video
+            output_type = project.output_type or "image"
+
+            if output_file and output_type == "image":
+                result = await tg.send_photo_file(output_file, caption)
+            elif output_file and output_type == "video":
+                result = await tg.send_video_file(output_file, caption)
+            else:
+                # Fallback: send as text with URL
+                text = caption
+                if project.output_url:
+                    text += f"\n\n📷 {project.output_url}"
+                result = await tg.send_message(text)
+
+            # Extract message link
+            msg_id = result.get("message_id", "")
+            # For public channels, construct the link
+            clean_channel = channel_id.lstrip("@").lstrip("-100")
+            post_url = f"https://t.me/{clean_channel}/{msg_id}" if msg_id else ""
+
+            # Update post status
+            post.status = "published"
+            post.published_at = datetime.now(timezone.utc)
+            post.platform_post_id = str(msg_id)
+            post.platform_post_url = post_url
+            post.publish_error = None
+            project.status = "published"
+            await db.commit()
+            await db.refresh(post)
+
+            logger.info("Published to Telegram: %s", post_url)
+
+            return {
+                "success": True,
+                "post_id": str(post.id),
+                "platform": "telegram",
+                "platform_post_id": str(msg_id),
+                "platform_post_url": post_url,
+                "error": "",
+                "status": "published",
+            }
+
+        except Exception as e:
+            logger.error("Telegram publish failed: %s", e)
+            post.publish_attempts = (post.publish_attempts or 0) + 1
+            post.publish_error = str(e)
+            await db.commit()
+
+            return {
+                "success": False,
+                "post_id": str(post.id),
+                "platform": "telegram",
+                "platform_post_id": "",
+                "platform_post_url": "",
+                "error": str(e),
+                "status": post.status,
+            }
 
     # ------------------------------------------------------------------
     # Helpers

@@ -272,12 +272,17 @@ async def export_image(
 @router.post("/projects/{post_id}/publish")
 async def publish_project(
     post_id: UUID,
+    target_platform: str | None = Body(None, embed=True),
     db: AsyncSession = Depends(get_db),
 ):
-    """Publish the studio project output to the target platform."""
+    """Publish the studio project output to the target platform.
+
+    Pass target_platform='telegram' to publish to the test Telegram channel.
+    If omitted, publishes to the post's original platform via UnifiedPublisher.
+    """
     service = get_studio_service()
     try:
-        result = await service.publish(db, post_id)
+        result = await service.publish(db, post_id, target_platform=target_platform)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
