@@ -103,6 +103,14 @@ class TikTokMockClient(TikTokClientBase):
             },
         }
 
+    async def publish_video(self, video_url: str, caption: str, hashtags: list[str] | None = None) -> dict:
+        return {
+            "publish_id": "tt_pub_mock_7400000000000000001",
+            "status": "PUBLISH_COMPLETE",
+            "share_url": "https://www.tiktok.com/@dinamoofficial/video/7400000000000000001",
+            "success": True,
+        }
+
     async def create_campaign(self, data: dict) -> dict:
         return {
             "campaign_id": "tt_camp_mock_89201",

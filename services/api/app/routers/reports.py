@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
@@ -6,6 +9,7 @@ from uuid import UUID
 from app.database import get_db
 from app.dependencies import get_claude_client
 from app.services.report_generator import ReportGeneratorService
+from app.config import settings
 
 router = APIRouter()
 
@@ -74,3 +78,29 @@ async def get_monthly_report(report_id: UUID, db: AsyncSession = Depends(get_db)
     if not report:
         raise HTTPException(status_code=404, detail="Monthly report not found")
     return report
+
+
+@router.get("/weekly/{report_id}/download")
+async def download_weekly_pdf(report_id: UUID):
+    """Download the weekly report PDF."""
+    pdf_path = Path(settings.MEDIA_ROOT) / f"reports/weekly_{report_id}.pdf"
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="PDF not found. Generate the report first.")
+    return FileResponse(
+        path=str(pdf_path),
+        media_type="application/pdf",
+        filename=f"dinamo_weekly_{report_id}.pdf",
+    )
+
+
+@router.get("/monthly/{report_id}/download")
+async def download_monthly_pdf(report_id: UUID):
+    """Download the monthly report PDF."""
+    pdf_path = Path(settings.MEDIA_ROOT) / f"reports/monthly_{report_id}.pdf"
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="PDF not found. Generate the report first.")
+    return FileResponse(
+        path=str(pdf_path),
+        media_type="application/pdf",
+        filename=f"dinamo_monthly_{report_id}.pdf",
+    )

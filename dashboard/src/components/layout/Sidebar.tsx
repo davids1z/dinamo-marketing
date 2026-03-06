@@ -14,10 +14,13 @@ import {
   MapPin,
   FileText,
   Settings,
+  Shield,
   X,
+  LogOut,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useSidebar } from './Layout'
+import { useAuth } from '../../contexts/AuthContext'
 
 const navigation = [
   { name: 'Nadzorna ploča', href: '/', icon: LayoutDashboard },
@@ -34,11 +37,13 @@ const navigation = [
   { name: 'Dijaspora', href: '/diaspora', icon: MapPin },
   { name: 'Izvještaji', href: '/reports', icon: FileText },
   { name: 'Postavke', href: '/settings', icon: Settings },
-]
+  { name: 'Administracija', href: '/admin', icon: Shield, adminOnly: true },
+] as const
 
 export default function Sidebar() {
   const { collapsed, mobileOpen, setMobileOpen, toggleSidebar } = useSidebar()
   const location = useLocation()
+  const { user, logout } = useAuth()
 
   const handleNavClick = () => {
     if (mobileOpen) setMobileOpen(false)
@@ -85,7 +90,7 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-2">
           <ul className="space-y-0.5">
-            {navigation.map((item) => {
+            {navigation.filter((item) => !('adminOnly' in item && item.adminOnly) || user?.role === 'admin').map((item) => {
               const isActive = item.href === '/'
                 ? location.pathname === '/'
                 : location.pathname.startsWith(item.href)
@@ -123,8 +128,30 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className={clsx('p-3 border-t border-white/5', collapsed && 'flex justify-center')}>
-          <div className="flex items-center gap-2">
+        <div className={clsx('p-3 border-t border-white/5', collapsed && 'flex flex-col items-center gap-2')}>
+          {!collapsed && user && (
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <div className="w-7 h-7 rounded-full bg-dinamo-accent/20 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-dinamo-accent">{user.full_name?.[0] || 'U'}</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-white truncate">{user.full_name}</p>
+                <p className="text-[10px] text-dinamo-muted-light truncate">{user.role}</p>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={logout}
+            title={collapsed ? 'Odjava' : undefined}
+            className={clsx(
+              'flex items-center gap-2 text-dinamo-muted-light hover:text-white hover:bg-white/5 rounded-lg transition-colors w-full',
+              collapsed ? 'px-3 py-2 justify-center' : 'px-3 py-2'
+            )}
+          >
+            <LogOut className="w-4 h-4" />
+            {!collapsed && <span className="text-xs">Odjava</span>}
+          </button>
+          <div className="flex items-center gap-2 mt-1">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
             {!collapsed && <span className="text-xs text-dinamo-muted-light truncate">Mock način aktivan</span>}
           </div>

@@ -21,6 +21,7 @@ celery_app = Celery(
         "app.tasks.weekly_report",
         "app.tasks.monthly_cycle",
         "app.tasks.fan_lifecycle",
+        "app.tasks.content_visual",
     ],
 )
 

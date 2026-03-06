@@ -9,4 +9,6 @@ export const settingsApi = {
   updateBrand: (data: Record<string, unknown>) =>
     api.put('/settings/brand', data),
   getNotifications: () => api.get('/settings/notifications'),
+  getQuotas: () => api.get('/settings/quotas'),
+  getSystemHealth: () => api.get('/settings/health'),
 };

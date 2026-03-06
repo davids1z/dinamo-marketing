@@ -86,6 +86,87 @@ MOCK_MARKET_POSITION = {
 # Monthly report generation
 # ---------------------------------------------------------------------------
 
+def _query_monthly_organic(year: int, month: int) -> dict:
+    """Aggregate organic post metrics for a given month from real DB."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import PostMetric
+    from sqlalchemy import select, func
+
+    days = monthrange(year, month)[1]
+    start = datetime(year, month, 1, tzinfo=timezone.utc)
+    end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
+
+    with SyncSessionLocal() as db:
+        row = db.execute(
+            select(
+                func.count(PostMetric.id).label("cnt"),
+                func.sum(PostMetric.impressions).label("imp"),
+                func.sum(PostMetric.reach).label("reach"),
+                func.avg(PostMetric.engagement_rate).label("eng"),
+                func.sum(PostMetric.likes).label("likes"),
+                func.sum(PostMetric.comments).label("comments"),
+                func.sum(PostMetric.shares).label("shares"),
+                func.sum(PostMetric.new_followers_attributed).label("followers"),
+            ).where(PostMetric.timestamp >= start, PostMetric.timestamp <= end)
+        ).one()
+
+        has_data = (row.cnt or 0) > 0
+        if has_data:
+            return {
+                "total_posts": row.cnt or 0,
+                "total_impressions": row.imp or 0,
+                "total_reach": row.reach or 0,
+                "avg_engagement_rate": round(float(row.eng or 0), 1),
+                "total_likes": row.likes or 0,
+                "total_comments": row.comments or 0,
+                "total_shares": row.shares or 0,
+                "followers_gained": {"total": row.followers or 0},
+            }
+    return MOCK_MONTHLY_ORGANIC
+
+
+def _query_monthly_paid(year: int, month: int) -> dict:
+    """Aggregate ad metrics for a given month from real DB."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import AdMetric
+    from sqlalchemy import select, func
+
+    days = monthrange(year, month)[1]
+    start = datetime(year, month, 1, tzinfo=timezone.utc)
+    end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
+
+    with SyncSessionLocal() as db:
+        row = db.execute(
+            select(
+                func.count(AdMetric.id).label("cnt"),
+                func.sum(AdMetric.spend).label("spend"),
+                func.sum(AdMetric.impressions).label("imp"),
+                func.sum(AdMetric.conversions).label("conv"),
+                func.sum(AdMetric.conversion_value).label("revenue"),
+                func.avg(AdMetric.roas).label("roas"),
+                func.avg(AdMetric.ctr).label("ctr"),
+                func.avg(AdMetric.cpc).label("cpc"),
+            ).where(AdMetric.timestamp >= start, AdMetric.timestamp <= end)
+        ).one()
+
+        has_data = (row.cnt or 0) > 0
+        if has_data:
+            spend = float(row.spend or 0)
+            revenue = float(row.revenue or 0)
+            return {
+                "total_campaigns": row.cnt or 0,
+                "total_spend": round(spend, 2),
+                "total_impressions": row.imp or 0,
+                "total_conversions": row.conv or 0,
+                "total_revenue": round(revenue, 2),
+                "weighted_roas": round(float(row.roas or 0), 2),
+                "avg_ctr": round(float(row.ctr or 0), 1),
+                "avg_cpc": round(float(row.cpc or 0), 2),
+                "budget_utilization_pct": 0,
+            }
+    return MOCK_MONTHLY_PAID
+
+
 def _generate_monthly_report() -> dict:
     """Generate the full monthly performance report."""
     now = datetime.now(timezone.utc)
@@ -93,6 +174,15 @@ def _generate_monthly_report() -> dict:
     month = now.month - 1 if now.month > 1 else 12
     report_year = year if now.month > 1 else year - 1
     days_in_month = monthrange(report_year, month)[1]
+
+    organic = _query_monthly_organic(report_year, month)
+    paid = _query_monthly_paid(report_year, month)
+
+    total_engagement = (organic.get("total_likes", 0) +
+                        organic.get("total_comments", 0) +
+                        organic.get("total_shares", 0))
+    spend = paid.get("total_spend", 0)
+    revenue = paid.get("total_revenue", 0)
 
     return {
         "report_type": "monthly",
@@ -104,16 +194,16 @@ def _generate_monthly_report() -> dict:
             "end": f"{report_year}-{month:02d}-{days_in_month}",
         },
         "executive_summary": {
-            "headline": f"Strong month with {MOCK_MONTHLY_PAID['weighted_roas']:.1f}x ROAS and {MOCK_MONTHLY_ORGANIC['avg_engagement_rate']}% engagement",
-            "total_reach": MOCK_MONTHLY_ORGANIC["total_reach"],
-            "total_engagement": MOCK_MONTHLY_ORGANIC["total_likes"] + MOCK_MONTHLY_ORGANIC["total_comments"] + MOCK_MONTHLY_ORGANIC["total_shares"],
-            "total_spend": MOCK_MONTHLY_PAID["total_spend"],
-            "total_revenue": MOCK_MONTHLY_PAID["total_revenue"],
-            "profit": round(MOCK_MONTHLY_PAID["total_revenue"] - MOCK_MONTHLY_PAID["total_spend"], 2),
-            "sentiment_score": MOCK_MONTHLY_SENTIMENT["nps_estimate"],
+            "headline": f"Month with {paid.get('weighted_roas', 0):.1f}x ROAS and {organic.get('avg_engagement_rate', 0)}% engagement",
+            "total_reach": organic.get("total_reach", 0),
+            "total_engagement": total_engagement,
+            "total_spend": spend,
+            "total_revenue": revenue,
+            "profit": round(revenue - spend, 2),
+            "sentiment_score": MOCK_MONTHLY_SENTIMENT.get("nps_estimate", 0),
         },
-        "organic": MOCK_MONTHLY_ORGANIC,
-        "paid": MOCK_MONTHLY_PAID,
+        "organic": organic,
+        "paid": paid,
         "sentiment": MOCK_MONTHLY_SENTIMENT,
         "market_position": MOCK_MARKET_POSITION,
         "generated_at": now.isoformat(),

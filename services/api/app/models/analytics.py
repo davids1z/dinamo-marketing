@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +12,11 @@ from app.models.base import BaseModel
 
 class PostMetric(BaseModel):
     __tablename__ = "post_metrics"
+    __table_args__ = (
+        Index("ix_post_metrics_post_id", "post_id"),
+        Index("ix_post_metrics_timestamp", "timestamp"),
+        Index("ix_post_metrics_engagement_rate", "engagement_rate"),
+    )
 
     post_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("content_posts.id"), nullable=False
@@ -36,6 +41,10 @@ class PostMetric(BaseModel):
 
 class AdMetric(BaseModel):
     __tablename__ = "ad_metrics"
+    __table_args__ = (
+        Index("ix_ad_metrics_ad_id", "ad_id"),
+        Index("ix_ad_metrics_timestamp", "timestamp"),
+    )
 
     ad_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("ads.id"), nullable=False

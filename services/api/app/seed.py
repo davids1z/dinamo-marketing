@@ -15,6 +15,8 @@ from app.models.market import Country, DiasporaData, MarketAudience
 from app.models.channel import SocialChannel
 from app.models.competitor import Competitor
 from app.models.academy import AcademyPlayer
+from app.models.user import User
+from app.services.auth_service import hash_password
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +27,26 @@ MOCK_DIR = Path("/app/mock-data")
 def load_json(path: str) -> dict:
     with open(MOCK_DIR / path) as f:
         return json.load(f)
+
+
+async def seed_admin_user(session: AsyncSession):
+    """Create default admin user if not exists."""
+    existing = (await session.execute(
+        select(User).where(User.email == "admin@dinamo.hr")
+    )).scalar_one_or_none()
+    if existing:
+        logger.info("Admin user already exists, skipping")
+        return
+    admin = User(
+        email="admin@dinamo.hr",
+        hashed_password=hash_password("dinamo2026"),
+        full_name="Dinamo Admin",
+        role="admin",
+        is_active=True,
+    )
+    session.add(admin)
+    await session.flush()
+    logger.info("Seeded admin user: admin@dinamo.hr")
 
 
 async def seed_countries(session: AsyncSession):
@@ -290,6 +312,7 @@ async def main():
             await session.execute(text("SELECT 1"))
             logger.info("Database connection OK")
 
+            await seed_admin_user(session)
             await seed_countries(session)
             await seed_diaspora(session)
             await seed_competitors(session)

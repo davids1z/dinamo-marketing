@@ -2,7 +2,49 @@
 
 from functools import lru_cache
 
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.config import settings
+from app.database import get_db
+from app.services.auth_service import verify_token
+
+_security = HTTPBearer()
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(_security),
+    db: AsyncSession = Depends(get_db),
+):
+    """Extract Bearer token, verify JWT, load user from DB."""
+    from app.models.user import User
+
+    payload = verify_token(credentials.credentials)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nevažeći ili istekli token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    email = payload.get("sub")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nevažeći token",
+        )
+
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Korisnik nije pronađen",
+        )
+
+    return user
 
 
 @lru_cache
@@ -108,3 +150,25 @@ def get_trends_client():
         return TrendsMockClient()
     from app.integrations.trends.client import TrendsClient
     return TrendsClient()
+
+
+def get_publisher():
+    """Create a UnifiedPublisher wired to the active API clients."""
+    from app.services.publisher import UnifiedPublisher
+    return UnifiedPublisher(
+        meta_client=get_meta_client(),
+        tiktok_client=get_tiktok_client(),
+        youtube_client=get_youtube_client(),
+        buffer_client=get_buffer_client(),
+    )
+
+
+@lru_cache
+def get_media_storage():
+    from app.services.media_storage import MediaStorageService
+    return MediaStorageService(settings.MEDIA_ROOT)
+
+
+def get_content_creator():
+    from app.services.content_creator import ContentCreatorService
+    return ContentCreatorService(get_image_gen_client(), get_media_storage())

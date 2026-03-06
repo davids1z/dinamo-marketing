@@ -1,146 +1,226 @@
 """
 Dinamo Marketing Platform - Metrics Pull Task
-Pulls metrics from all connected platforms (Meta, TikTok, YouTube, GA4)
-for all active posts and ads. Runs every 15 minutes via Celery Beat.
+
+Pulls metrics from all connected platforms (Meta, TikTok, YouTube) for
+published posts, stores results in PostMetric table. Runs every hour
+via Celery Beat.
 """
 
+import asyncio
 import logging
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from app.tasks.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
+
 # ---------------------------------------------------------------------------
-# Mock platform connectors
+# Platform metric fetchers (async, using real API clients)
 # ---------------------------------------------------------------------------
 
-PLATFORMS = ["meta", "tiktok", "youtube", "ga4"]
+async def _fetch_meta_metrics(meta_client, post) -> dict:
+    """Fetch metrics for an Instagram/Facebook post via Meta API."""
+    platform_id = post.platform_post_id
+    platform = post.platform
 
-MOCK_ACTIVE_POSTS = [
-    {"id": "post_001", "platform": "meta", "type": "organic", "text": "Dinamo Zagreb matchday vibes!"},
-    {"id": "post_002", "platform": "meta", "type": "ad", "campaign_id": "camp_101", "text": "Season ticket promo"},
-    {"id": "post_003", "platform": "tiktok", "type": "organic", "text": "Behind the scenes training"},
-    {"id": "post_004", "platform": "tiktok", "type": "ad", "campaign_id": "camp_102", "text": "Merch drop"},
-    {"id": "post_005", "platform": "youtube", "type": "organic", "text": "Match highlights vs Hajduk"},
-    {"id": "post_006", "platform": "youtube", "type": "ad", "campaign_id": "camp_103", "text": "UCL ticket sale"},
-    {"id": "post_007", "platform": "meta", "type": "organic", "text": "Player interview - Petkovic"},
-    {"id": "post_008", "platform": "meta", "type": "ad", "campaign_id": "camp_104", "text": "Fan zone event"},
-]
+    if platform == "instagram":
+        # get_instagram_media returns a list; find our post by ID
+        try:
+            media_list = await meta_client.get_instagram_media(
+                account_id="me", limit=50
+            )
+            for item in media_list:
+                if item.get("id") == platform_id:
+                    return {
+                        "impressions": item.get("impressions", 0),
+                        "reach": item.get("reach", 0),
+                        "likes": item.get("like_count", 0),
+                        "comments": item.get("comments_count", 0),
+                        "shares": 0,
+                        "saves": item.get("saved", 0),
+                        "engagement_rate": item.get("engagement", 0.0),
+                    }
+        except Exception:
+            pass
 
-MOCK_GA4_PROPERTIES = [
-    {"property_id": "ga4_dinamo_web", "name": "dinamo.hr"},
-    {"property_id": "ga4_dinamo_shop", "name": "shop.dinamo.hr"},
-]
-
-
-def _pull_meta_metrics(post: dict) -> dict:
-    """Simulate pulling metrics from Meta Graph API."""
-    is_ad = post["type"] == "ad"
-    metrics = {
-        "impressions": random.randint(5_000, 120_000),
-        "reach": random.randint(3_000, 90_000),
-        "likes": random.randint(100, 8_000),
-        "comments": random.randint(10, 600),
-        "shares": random.randint(5, 1_200),
-        "saves": random.randint(2, 300),
-        "engagement_rate": round(random.uniform(1.0, 8.5), 2),
-    }
-    if is_ad:
-        metrics.update({
-            "spend": round(random.uniform(10.0, 500.0), 2),
-            "ctr": round(random.uniform(0.5, 4.5), 2),
-            "cpc": round(random.uniform(0.05, 1.20), 2),
-            "cpm": round(random.uniform(2.0, 15.0), 2),
-            "conversions": random.randint(0, 200),
-            "roas": round(random.uniform(0.8, 7.0), 2),
-            "frequency": round(random.uniform(1.0, 6.0), 2),
-        })
-    return metrics
-
-
-def _pull_tiktok_metrics(post: dict) -> dict:
-    """Simulate pulling metrics from TikTok Business API."""
-    is_ad = post["type"] == "ad"
-    metrics = {
-        "views": random.randint(10_000, 500_000),
-        "likes": random.randint(500, 30_000),
-        "comments": random.randint(20, 2_000),
-        "shares": random.randint(10, 5_000),
-        "avg_watch_time": round(random.uniform(2.0, 15.0), 1),
-        "completion_rate": round(random.uniform(15.0, 75.0), 1),
-        "engagement_rate": round(random.uniform(2.0, 12.0), 2),
-    }
-    if is_ad:
-        metrics.update({
-            "spend": round(random.uniform(15.0, 400.0), 2),
-            "ctr": round(random.uniform(0.8, 5.0), 2),
-            "cpc": round(random.uniform(0.03, 0.80), 2),
-            "conversions": random.randint(0, 150),
-            "roas": round(random.uniform(1.0, 8.0), 2),
-            "frequency": round(random.uniform(1.0, 5.5), 2),
-        })
-    return metrics
-
-
-def _pull_youtube_metrics(post: dict) -> dict:
-    """Simulate pulling metrics from YouTube Data API."""
-    is_ad = post["type"] == "ad"
-    metrics = {
-        "views": random.randint(2_000, 200_000),
-        "likes": random.randint(50, 10_000),
-        "dislikes": random.randint(0, 200),
-        "comments": random.randint(5, 800),
-        "avg_view_duration": round(random.uniform(30.0, 300.0), 1),
-        "watch_time_hours": round(random.uniform(10.0, 5_000.0), 1),
-        "subscribers_gained": random.randint(0, 500),
-        "engagement_rate": round(random.uniform(1.5, 9.0), 2),
-    }
-    if is_ad:
-        metrics.update({
-            "spend": round(random.uniform(20.0, 600.0), 2),
-            "cpv": round(random.uniform(0.01, 0.15), 3),
-            "view_rate": round(random.uniform(15.0, 55.0), 1),
-            "conversions": random.randint(0, 100),
-            "roas": round(random.uniform(0.5, 6.0), 2),
-            "frequency": round(random.uniform(1.0, 4.5), 2),
-        })
-    return metrics
-
-
-def _pull_ga4_metrics(property_info: dict) -> dict:
-    """Simulate pulling web analytics from GA4 Reporting API."""
+    # Fallback: return basic metrics structure
     return {
-        "property": property_info["name"],
-        "sessions": random.randint(1_000, 50_000),
-        "users": random.randint(800, 40_000),
-        "new_users": random.randint(200, 15_000),
-        "page_views": random.randint(3_000, 120_000),
-        "avg_session_duration": round(random.uniform(30.0, 240.0), 1),
-        "bounce_rate": round(random.uniform(25.0, 70.0), 1),
-        "conversions": {
-            "ticket_purchase": random.randint(0, 300),
-            "merch_purchase": random.randint(0, 150),
-            "newsletter_signup": random.randint(0, 500),
-            "membership_signup": random.randint(0, 50),
-        },
-        "revenue": round(random.uniform(0.0, 25_000.0), 2),
-        "top_channels": {
-            "organic_social": round(random.uniform(15.0, 40.0), 1),
-            "paid_social": round(random.uniform(10.0, 30.0), 1),
-            "direct": round(random.uniform(10.0, 25.0), 1),
-            "organic_search": round(random.uniform(5.0, 20.0), 1),
-            "email": round(random.uniform(3.0, 15.0), 1),
-        },
+        "impressions": 0,
+        "reach": 0,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "saves": 0,
+        "engagement_rate": 0.0,
     }
 
 
-PLATFORM_PULLERS = {
-    "meta": _pull_meta_metrics,
-    "tiktok": _pull_tiktok_metrics,
-    "youtube": _pull_youtube_metrics,
-}
+async def _fetch_tiktok_metrics(tiktok_client, post) -> dict:
+    """Fetch metrics for a TikTok video."""
+    try:
+        data = await tiktok_client.get_video_insights(post.platform_post_id)
+        return {
+            "impressions": data.get("views", 0),
+            "reach": data.get("views", 0),
+            "likes": data.get("likes", 0),
+            "comments": data.get("comments", 0),
+            "shares": data.get("shares", 0),
+            "saves": 0,
+            "engagement_rate": data.get("engagement_rate", 0.0),
+        }
+    except Exception:
+        return {"impressions": 0, "reach": 0, "likes": 0, "comments": 0,
+                "shares": 0, "saves": 0, "engagement_rate": 0.0}
+
+
+async def _fetch_youtube_metrics(youtube_client, post) -> dict:
+    """Fetch metrics for a YouTube video."""
+    try:
+        data = await youtube_client.get_video_stats(post.platform_post_id)
+        stats = data.get("statistics", data)
+        return {
+            "impressions": int(stats.get("viewCount", stats.get("views", 0))),
+            "reach": int(stats.get("viewCount", stats.get("views", 0))),
+            "likes": int(stats.get("likeCount", stats.get("likes", 0))),
+            "comments": int(stats.get("commentCount", stats.get("comments", 0))),
+            "shares": 0,
+            "saves": int(stats.get("favoriteCount", 0)),
+            "engagement_rate": 0.0,
+        }
+    except Exception:
+        return {"impressions": 0, "reach": 0, "likes": 0, "comments": 0,
+                "shares": 0, "saves": 0, "engagement_rate": 0.0}
+
+
+# ---------------------------------------------------------------------------
+# Mock metric generators (used when mock mode is enabled)
+# ---------------------------------------------------------------------------
+
+def _mock_post_metrics(post) -> dict:
+    """Generate realistic random metrics for a published post."""
+    platform = (post.platform or "").lower()
+    base_mult = {"tiktok": 3, "youtube": 2, "instagram": 2, "facebook": 1}.get(platform, 1)
+    impressions = random.randint(5_000, 120_000) * base_mult
+    reach = int(impressions * random.uniform(0.6, 0.85))
+    likes = random.randint(100, 8_000) * base_mult
+    comments = random.randint(10, 600)
+    shares = random.randint(5, 1_200)
+    saves = random.randint(2, 300)
+    total_eng = likes + comments + shares + saves
+    eng_rate = round((total_eng / reach * 100) if reach > 0 else 0, 2)
+
+    return {
+        "impressions": impressions,
+        "reach": reach,
+        "likes": likes,
+        "comments": comments,
+        "shares": shares,
+        "saves": saves,
+        "engagement_rate": eng_rate,
+    }
+
+
+# ---------------------------------------------------------------------------
+# DB helpers
+# ---------------------------------------------------------------------------
+
+def _get_published_posts():
+    """Query the database for published posts with platform IDs."""
+    from app.database import SyncSessionLocal
+    from app.models.content import ContentPost
+    from sqlalchemy import select
+
+    with SyncSessionLocal() as db:
+        query = (
+            select(ContentPost)
+            .where(ContentPost.status == "published")
+            .where(ContentPost.platform_post_id.isnot(None))
+        )
+        result = db.execute(query)
+        posts = result.scalars().all()
+
+        for post in posts:
+            db.expunge(post)
+        return posts
+
+
+def _upsert_post_metric(post_id, metrics: dict):
+    """Insert a PostMetric row for the given post."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import PostMetric
+
+    with SyncSessionLocal() as db:
+        metric = PostMetric(
+            post_id=post_id,
+            impressions=metrics.get("impressions", 0),
+            reach=metrics.get("reach", 0),
+            likes=metrics.get("likes", 0),
+            comments=metrics.get("comments", 0),
+            shares=metrics.get("shares", 0),
+            saves=metrics.get("saves", 0),
+            clicks=metrics.get("clicks", 0),
+            engagement_rate=metrics.get("engagement_rate", 0.0),
+            new_followers_attributed=metrics.get("new_followers_attributed", 0),
+        )
+        db.add(metric)
+        db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Async metrics runner
+# ---------------------------------------------------------------------------
+
+async def _pull_all_metrics_async(posts, use_mock: bool):
+    """Pull metrics for all published posts."""
+    from app.dependencies import get_meta_client, get_tiktok_client, get_youtube_client
+
+    meta_client = get_meta_client()
+    tiktok_client = get_tiktok_client()
+    youtube_client = get_youtube_client()
+
+    results = {
+        "posts_processed": 0,
+        "platforms": {},
+        "errors": [],
+    }
+
+    for post in posts:
+        platform = (post.platform or "").lower()
+        try:
+            if use_mock or getattr(meta_client, "is_mock", False):
+                metrics = _mock_post_metrics(post)
+            else:
+                if platform in ("instagram", "facebook"):
+                    metrics = await _fetch_meta_metrics(meta_client, post)
+                elif platform == "tiktok":
+                    metrics = await _fetch_tiktok_metrics(tiktok_client, post)
+                elif platform == "youtube":
+                    metrics = await _fetch_youtube_metrics(youtube_client, post)
+                else:
+                    metrics = _mock_post_metrics(post)
+
+            # Store in DB
+            _upsert_post_metric(post.id, metrics)
+            results["posts_processed"] += 1
+            results["platforms"].setdefault(platform, {"success": 0, "failed": 0})
+            results["platforms"][platform]["success"] += 1
+
+            logger.info(
+                "Pulled metrics for post %s [%s] -- impressions=%s, engagement=%.2f%%",
+                post.id, platform,
+                metrics.get("impressions", 0),
+                metrics.get("engagement_rate", 0),
+            )
+
+        except Exception as exc:
+            results["platforms"].setdefault(platform, {"success": 0, "failed": 0})
+            results["platforms"][platform]["failed"] += 1
+            results["errors"].append({"post_id": str(post.id), "error": str(exc)})
+            logger.error("Failed to pull metrics for post %s: %s", post.id, exc)
+
+    return results
 
 
 # ---------------------------------------------------------------------------
@@ -156,100 +236,50 @@ PLATFORM_PULLERS = {
 )
 def pull_all_metrics(self):
     """
-    Pull metrics from all platforms for every active post and ad.
+    Pull metrics from all platforms for every published post.
 
-    Runs every 15 minutes. Stores the latest snapshot so dashboards stay
-    fresh and optimization rules have current data to work with.
+    Runs every hour. Queries ContentPost table for published posts,
+    fetches metrics from platform APIs (or mock), and stores in
+    PostMetric table.
     """
+    from app.config import settings
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Metrics Pull started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
         "posts_processed": 0,
-        "ads_processed": 0,
-        "ga4_properties_processed": 0,
-        "platforms": {p: {"success": 0, "failed": 0} for p in PLATFORMS},
+        "platforms": {},
         "errors": [],
     }
 
     try:
-        # ------------------------------------------------------------------
-        # 1. Pull post / ad metrics per platform
-        # ------------------------------------------------------------------
-        for post in MOCK_ACTIVE_POSTS:
-            platform = post["platform"]
-            puller = PLATFORM_PULLERS.get(platform)
-            if puller is None:
-                logger.warning("No puller for platform=%s, skipping post=%s", platform, post["id"])
-                continue
+        # 1. Get published posts from DB
+        posts = _get_published_posts()
+        if not posts:
+            logger.info("  No published posts to pull metrics for")
+            return results
 
-            try:
-                metrics = puller(post)
-                logger.info(
-                    "Pulled metrics for %s [%s/%s] -- impressions/views=%s, engagement_rate=%s%%",
-                    post["id"],
-                    platform,
-                    post["type"],
-                    metrics.get("impressions") or metrics.get("views"),
-                    metrics.get("engagement_rate"),
-                )
+        logger.info("  Found %d published posts", len(posts))
 
-                if post["type"] == "ad":
-                    results["ads_processed"] += 1
-                    logger.info(
-                        "  Ad %s -- spend=EUR%.2f, ctr=%.2f%%, roas=%.1fx, frequency=%.1f",
-                        post["id"],
-                        metrics.get("spend", 0),
-                        metrics.get("ctr", 0),
-                        metrics.get("roas", 0),
-                        metrics.get("frequency", 0),
-                    )
-                else:
-                    results["posts_processed"] += 1
+        # 2. Pull metrics (async)
+        use_mock = settings.DM_USE_MOCK_APIS
+        loop = asyncio.new_event_loop()
+        try:
+            pull_results = loop.run_until_complete(
+                _pull_all_metrics_async(posts, use_mock)
+            )
+        finally:
+            loop.close()
 
-                results["platforms"][platform]["success"] += 1
+        results.update(pull_results)
 
-                # In production: upsert into metrics_snapshots table
-                # db.execute(insert(MetricSnapshot).values(...).on_conflict_do_update(...))
-
-            except Exception as exc:
-                results["platforms"][platform]["failed"] += 1
-                results["errors"].append({"post_id": post["id"], "error": str(exc)})
-                logger.error("Failed to pull metrics for %s: %s", post["id"], exc)
-
-        # ------------------------------------------------------------------
-        # 2. Pull GA4 web analytics
-        # ------------------------------------------------------------------
-        for prop in MOCK_GA4_PROPERTIES:
-            try:
-                ga4_data = _pull_ga4_metrics(prop)
-                results["ga4_properties_processed"] += 1
-                results["platforms"]["ga4"]["success"] += 1
-                logger.info(
-                    "Pulled GA4 for %s -- sessions=%s, users=%s, revenue=EUR%.2f",
-                    ga4_data["property"],
-                    ga4_data["sessions"],
-                    ga4_data["users"],
-                    ga4_data["revenue"],
-                )
-            except Exception as exc:
-                results["platforms"]["ga4"]["failed"] += 1
-                results["errors"].append({"ga4_property": prop["property_id"], "error": str(exc)})
-                logger.error("Failed to pull GA4 for %s: %s", prop["property_id"], exc)
-
-        # ------------------------------------------------------------------
-        # Summary
-        # ------------------------------------------------------------------
-        total_ok = sum(p["success"] for p in results["platforms"].values())
-        total_fail = sum(p["failed"] for p in results["platforms"].values())
+        # 3. Summary
         logger.info(
-            "=== Metrics Pull complete -- posts=%d, ads=%d, ga4=%d, ok=%d, failed=%d ===",
+            "=== Metrics Pull complete -- posts=%d, errors=%d ===",
             results["posts_processed"],
-            results["ads_processed"],
-            results["ga4_properties_processed"],
-            total_ok,
-            total_fail,
+            len(results["errors"]),
         )
 
         return results

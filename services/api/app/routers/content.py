@@ -8,7 +8,7 @@ from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies import get_claude_client, get_image_gen_client
+from app.dependencies import get_claude_client, get_image_gen_client, get_publisher
 from app.services.content_engine import ContentEngineService
 from app.config import settings
 
@@ -134,6 +134,12 @@ async def get_approval_queue(db: AsyncSession = Depends(get_db)):
 async def approve_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
     service = _get_service()
     result = await service.approve_post(db, post_id)
+    # Trigger async visual generation via Celery
+    try:
+        from app.tasks.content_visual import generate_post_visual
+        generate_post_visual.delay(str(post_id))
+    except Exception as e:
+        logger.warning("Could not dispatch visual generation task: %s", e)
     return result
 
 
@@ -169,6 +175,89 @@ async def update_post(
     await db.commit()
     await db.refresh(post)
     return post
+
+
+@router.post("/posts/{post_id}/publish")
+async def publish_post_now(post_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Manually trigger publishing for an approved post."""
+    from fastapi import HTTPException
+    from app.models.content import ContentPost
+    from datetime import datetime, timezone
+
+    query = select(ContentPost).where(ContentPost.id == post_id)
+    res = await db.execute(query)
+    post = res.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post.status not in ("approved", "failed"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Post must be approved or failed to publish, current status: {post.status}",
+        )
+
+    publisher = get_publisher()
+    result = await publisher.publish_post(post)
+
+    if result.success:
+        post.status = "published"
+        post.published_at = datetime.now(timezone.utc)
+        post.platform_post_id = result.platform_post_id
+        post.platform_post_url = result.platform_post_url
+        post.publish_error = None
+    else:
+        post.publish_attempts += 1
+        post.publish_error = result.error
+        if post.publish_attempts >= 5:
+            post.status = "failed"
+
+    await db.commit()
+    await db.refresh(post)
+
+    return {
+        "success": result.success,
+        "post_id": str(post.id),
+        "platform": result.platform,
+        "platform_post_id": result.platform_post_id,
+        "platform_post_url": result.platform_post_url,
+        "error": result.error,
+        "status": post.status,
+    }
+
+
+@router.post("/posts/{post_id}/generate-visual")
+async def generate_visual(post_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Manually trigger visual generation for a post."""
+    from fastapi import HTTPException
+    from app.models.content import ContentPost
+    from app.dependencies import get_content_creator
+
+    query = select(ContentPost).where(ContentPost.id == post_id)
+    res = await db.execute(query)
+    post = res.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    creator = get_content_creator()
+    result = await creator.generate_visual(post)
+
+    post.visual_url = result["visual_url"]
+    await db.commit()
+    await db.refresh(post)
+
+    return {
+        "post_id": str(post.id),
+        "visual_url": result["visual_url"],
+        "image_id": result.get("image_id", ""),
+        "model": result.get("model", ""),
+    }
+
+
+@router.post("/plans/{plan_id}/generate-visuals")
+async def generate_plan_visuals_endpoint(plan_id: UUID):
+    """Generate visuals for all posts in a plan (async Celery task)."""
+    from app.tasks.content_visual import generate_plan_visuals
+    task = generate_plan_visuals.delay(str(plan_id))
+    return {"task_id": task.id, "plan_id": str(plan_id), "status": "started"}
 
 
 @router.get("/templates")

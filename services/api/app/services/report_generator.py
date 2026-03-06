@@ -1,14 +1,28 @@
 """Modul 16: Report Generator service."""
 
 import logging
+import os
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.report import MonthlyReport, WeeklyReport
+from app.services.pdf_generator import generate_weekly_pdf, generate_monthly_pdf
 
 logger = logging.getLogger(__name__)
+
+
+def _save_pdf(pdf_bytes: bytes, rel_path: str) -> str:
+    """Save PDF bytes to media directory, return relative URL."""
+    from app.config import settings
+    media_root = Path(settings.MEDIA_ROOT)
+    full_path = media_root / rel_path
+    full_path.parent.mkdir(parents=True, exist_ok=True)
+    full_path.write_bytes(pdf_bytes)
+    logger.info("Saved PDF: %s (%d bytes)", full_path, len(pdf_bytes))
+    return f"/media/{rel_path}"
 
 
 class ReportGeneratorService:
@@ -63,6 +77,37 @@ class ReportGeneratorService:
         db.add(report)
         await db.flush()
 
+        # Generate PDF
+        try:
+            full_data = {
+                "period": {"start": str(week_start), "end": str(week_end), "days": 7},
+                "organic_performance": {
+                    "total_posts": 8, "total_impressions": report_data.get("total_reach", 0),
+                    "avg_engagement_rate": report_data.get("avg_engagement_rate", 0),
+                    "total_likes": report_data.get("total_engagement", 0),
+                    "total_comments": 0, "total_shares": 0,
+                    "top_posts": [{"title": p.get("platform", ""), "platform": p.get("platform", ""),
+                                   "engagement_rate": p.get("engagement", 0) / max(p.get("reach", 1), 1) * 100,
+                                   "impressions": p.get("reach", 0)} for p in top_posts],
+                },
+                "paid_performance": {
+                    "total_ads": 2, "total_spend": report_data.get("total_ad_spend", 0),
+                    "total_impressions": 0, "total_conversions": report_data.get("total_conversions", 0),
+                    "weighted_roas": report_data.get("avg_roas", 0),
+                    "avg_ctr": 0, "avg_cpc": 0,
+                    "top_ads": [{"campaign": a.get("campaign", ""), "platform": a.get("platform", ""),
+                                 "roas": a.get("roas", 0), "spend": a.get("spend", 0),
+                                 "conversions": 0} for a in top_ads],
+                },
+                "sentiment_overview": report_data.get("sentiment", {}),
+                "ai_recommendations": report.recommendations.get("items", []) if isinstance(report.recommendations, dict) else [],
+            }
+            pdf_bytes = generate_weekly_pdf(full_data)
+            pdf_url = _save_pdf(pdf_bytes, f"reports/weekly_{report.id}.pdf")
+        except Exception as exc:
+            logger.warning("PDF generation failed for weekly report: %s", exc)
+            pdf_url = ""
+
         logger.info(f"Generated weekly report for {week_start} to {week_end}")
         return {
             "id": str(report.id),
@@ -70,6 +115,7 @@ class ReportGeneratorService:
             "week_end": str(week_end),
             "data": report_data,
             "recommendations": report.recommendations,
+            "pdf_url": pdf_url,
         }
 
     async def generate_monthly_report(self, db: AsyncSession, month: int, year: int) -> dict:
@@ -124,6 +170,41 @@ class ReportGeneratorService:
         db.add(report)
         await db.flush()
 
+        # Generate PDF
+        try:
+            pdf_data = {
+                "period": {"month": month, "year": year},
+                "executive_summary": {
+                    "headline": f"Monthly report for {month}/{year}",
+                    "total_reach": report_data.get("platforms", {}).get("instagram", {}).get("reach", 0),
+                    "total_engagement": 0,
+                    "total_spend": report_data.get("campaigns", {}).get("total_spend", 0),
+                    "total_revenue": 0,
+                    "profit": 0,
+                },
+                "organic": {
+                    "total_posts": report_data.get("content", {}).get("posts_published", 0),
+                    "total_impressions": 0, "total_reach": 0,
+                    "avg_engagement_rate": report_data.get("content", {}).get("avg_engagement_rate", 0),
+                },
+                "paid": {
+                    "total_campaigns": report_data.get("campaigns", {}).get("total", 0),
+                    "total_spend": report_data.get("campaigns", {}).get("total_spend", 0),
+                    "total_conversions": report_data.get("campaigns", {}).get("total_conversions", 0),
+                    "weighted_roas": report_data.get("campaigns", {}).get("avg_roas", 0),
+                    "avg_ctr": 0,
+                },
+                "sentiment": report_data.get("sentiment", {}),
+                "market_position": {},
+            }
+            pdf_bytes = generate_monthly_pdf(pdf_data)
+            pdf_url = _save_pdf(pdf_bytes, f"reports/monthly_{report.id}.pdf")
+            report.pdf_url = pdf_url
+            await db.flush()
+        except Exception as exc:
+            logger.warning("PDF generation failed for monthly report: %s", exc)
+            pdf_url = ""
+
         logger.info(f"Generated monthly report for {month}/{year}")
         return {
             "id": str(report.id),
@@ -131,4 +212,5 @@ class ReportGeneratorService:
             "year": year,
             "data": report_data,
             "ai_strategy": ai_strategy,
+            "pdf_url": pdf_url,
         }

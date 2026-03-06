@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import Header from '../components/layout/Header'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { PageLoader } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { useApiMutation } from '../hooks/useApiMutation'
+import { reportsApi } from '../api/reports'
 import { FileText, Download, Calendar, Clock, CheckCircle, Loader2, AlertCircle, Plus } from 'lucide-react'
 
 type ReportTab = 'weekly' | 'monthly'
@@ -98,6 +99,13 @@ export default function Reports() {
 
   const isGenerating = activeTab === 'weekly' ? generatingWeekly : generatingMonthly
 
+  const handleDownload = (reportId: number | string) => {
+    const url = activeTab === 'weekly'
+      ? reportsApi.downloadWeeklyPdf(String(reportId))
+      : reportsApi.downloadMonthlyPdf(String(reportId))
+    window.open(url, '_blank')
+  }
+
   return (
     <div className="animate-fade-in">
       <Header title="IZVJE\u0160TAJI" subtitle="Automatsko generiranje izvje\u0161taja i arhiva" />
@@ -184,7 +192,10 @@ export default function Reports() {
                     <>
                       <span className="text-xs text-dinamo-muted">{report.pages} stranica</span>
                       <span className="text-xs text-dinamo-muted">{report.size}</span>
-                      <button className="flex items-center gap-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-200 text-gray-700 text-xs rounded-lg transition-colors">
+                      <button
+                        onClick={() => handleDownload(report.id)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded-lg transition-colors"
+                      >
                         <Download size={14} />
                         Preuzmi
                       </button>

@@ -71,12 +71,44 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     STABILITY_API_KEY: str = ""
 
+    # Media Storage
+    MEDIA_ROOT: str = "./media"
+
     # Email
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
     NOTIFICATION_EMAIL: str = ""
+
+    # Rate Limiting
+    RATE_LIMIT_DEFAULT: str = "60/minute"
+    RATE_LIMIT_HEAVY: str = "10/minute"
+    RATE_LIMIT_ENABLED: bool = True
+
+    # Caching (TTL in seconds)
+    CACHE_TTL_DASHBOARD: int = 300
+    CACHE_TTL_ANALYTICS: int = 600
+    CACHE_TTL_REPORTS: int = 1800
+
+    # Circuit Breaker
+    CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = 5
+    CIRCUIT_BREAKER_RECOVERY_TIMEOUT: int = 60
+
+    # API Quotas (daily limits, 0 = unlimited)
+    QUOTA_META_DAILY: int = 200
+    QUOTA_TIKTOK_DAILY: int = 100
+    QUOTA_YOUTUBE_DAILY: int = 10000
+    QUOTA_CLAUDE_DAILY: int = 500
+    QUOTA_SPORTS_DATA_DAILY: int = 100
+    QUOTA_IMAGE_GEN_DAILY: int = 50
+
+    # Observability
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1
+    SENTRY_ENVIRONMENT: str = "development"
+    LOG_FORMAT: str = "text"
+    LOG_LEVEL: str = "INFO"
 
     def use_mock(self, service: str) -> bool:
         """Check if a specific service should use mock data."""

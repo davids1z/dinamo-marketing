@@ -4,6 +4,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
@@ -13,6 +14,11 @@ RUN mkdir -p app && touch app/__init__.py && \
     rm -rf app
 
 COPY . .
+
+# Non-root user for production security
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 8000
 

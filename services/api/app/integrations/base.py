@@ -15,6 +15,7 @@ class BaseIntegrationClient(ABC):
 
 
 class MetaClientBase(BaseIntegrationClient):
+    # Insights
     @abstractmethod
     async def get_page_insights(self, page_id: str, metrics: list[str], period: str = "day") -> dict: ...
     @abstractmethod
@@ -23,6 +24,18 @@ class MetaClientBase(BaseIntegrationClient):
     async def get_instagram_media(self, account_id: str, limit: int = 25) -> list[dict]: ...
     @abstractmethod
     async def get_audience_demographics(self, account_id: str) -> dict: ...
+    # Publishing
+    @abstractmethod
+    async def publish_photo(self, page_id: str, image_url: str, caption: str) -> dict: ...
+    @abstractmethod
+    async def publish_video(self, page_id: str, video_url: str, caption: str) -> dict: ...
+    @abstractmethod
+    async def publish_instagram_media(self, account_id: str, image_url: str, caption: str) -> dict: ...
+    @abstractmethod
+    async def publish_instagram_reel(self, account_id: str, video_url: str, caption: str) -> dict: ...
+    @abstractmethod
+    async def publish_instagram_carousel(self, account_id: str, media_urls: list[str], caption: str) -> dict: ...
+    # Ads management
     @abstractmethod
     async def create_campaign(self, ad_account_id: str, data: dict) -> dict: ...
     @abstractmethod
@@ -38,12 +51,17 @@ class MetaClientBase(BaseIntegrationClient):
 
 
 class TikTokClientBase(BaseIntegrationClient):
+    # Content
     @abstractmethod
     async def get_account_info(self) -> dict: ...
     @abstractmethod
     async def get_video_list(self, limit: int = 20) -> list[dict]: ...
     @abstractmethod
     async def get_video_insights(self, video_id: str) -> dict: ...
+    # Publishing
+    @abstractmethod
+    async def publish_video(self, video_url: str, caption: str, hashtags: list[str] | None = None) -> dict: ...
+    # Ads management
     @abstractmethod
     async def create_campaign(self, data: dict) -> dict: ...
     @abstractmethod
@@ -55,6 +73,7 @@ class TikTokClientBase(BaseIntegrationClient):
 
 
 class YouTubeClientBase(BaseIntegrationClient):
+    # Read
     @abstractmethod
     async def get_channel_stats(self, channel_id: str) -> dict: ...
     @abstractmethod
@@ -63,6 +82,11 @@ class YouTubeClientBase(BaseIntegrationClient):
     async def get_video_stats(self, video_id: str) -> dict: ...
     @abstractmethod
     async def get_audience_demographics(self, channel_id: str) -> dict: ...
+    # Publishing
+    @abstractmethod
+    async def upload_video(self, video_path: str, title: str, description: str, tags: list[str] | None = None, privacy: str = "public") -> dict: ...
+    @abstractmethod
+    async def upload_short(self, video_path: str, title: str, description: str) -> dict: ...
 
 
 class GA4ClientBase(BaseIntegrationClient):
@@ -98,6 +122,8 @@ class ClaudeClientBase(BaseIntegrationClient):
     async def generate_report_summary(self, data: dict) -> str: ...
     @abstractmethod
     async def generate_strategy_recommendation(self, performance_data: dict) -> dict: ...
+    @abstractmethod
+    async def translate_content(self, text: str, source_lang: str, target_langs: list[str]) -> dict[str, str]: ...
 
 
 class BufferClientBase(BaseIntegrationClient):

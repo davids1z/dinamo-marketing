@@ -20,6 +20,8 @@ from app.models.engagement import FanSpotlight, Poll, PollVote, Prediction, UGCS
 from app.models.academy import AcademyMatch, AcademyPlayer, AcademyStat
 from app.models.optimization import OptimizationLog, OptimizationRule
 from app.models.report import MonthlyReport, WeeklyReport
+from app.models.notification import Notification
+from app.models.user import User
 
 __all__ = [
     "Base",
@@ -66,4 +68,6 @@ __all__ = [
     "OptimizationLog",
     "WeeklyReport",
     "MonthlyReport",
+    "Notification",
+    "User",
 ]

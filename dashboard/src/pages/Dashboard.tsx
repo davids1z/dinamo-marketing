@@ -3,9 +3,30 @@ import MetricCard from '../components/common/MetricCard'
 import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { SentimentDonut } from '../components/charts/SentimentDonut'
-import { useApi, usePolling } from '../hooks/useApi'
+import { useApi } from '../hooks/useApi'
+import { useWebSocket } from '../hooks/useWebSocket'
 import { Users, Eye, TrendingUp, CreditCard, BarChart3, Heart, MessageCircle, UserPlus, AlertTriangle, CheckCircle, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+
+interface ApiOverview {
+  organic?: {
+    impressions: number; reach: number; likes: number; comments: number
+    shares: number; saves: number; clicks: number; avg_engagement_rate: number
+    new_followers: number; total_posts: number
+  }
+  paid?: {
+    total_spend: number; conversions: number; conversion_value: number
+    avg_roas: number; avg_cpm: number; avg_cpc: number
+  }
+  trends?: {
+    impressions_change: number; reach_change: number
+    engagement_change: number; followers_change: number
+  }
+  reach_data?: Array<{ date: string; reach: number; impressions: number }>
+  campaign_data?: Array<Record<string, unknown>>
+  funnel?: Array<{ label: string; value: number; color: string }>
+  top_posts?: Array<Record<string, unknown>>
+}
 
 interface OverviewData {
   total_followers: number
@@ -60,13 +81,52 @@ const activityIcons: Record<string, { icon: LucideIcon; color: string }> = {
   report: { icon: CheckCircle, color: 'text-emerald-600' },
 }
 
+function mapApiToOverview(api: ApiOverview): Partial<OverviewData> {
+  const o = api.organic
+  const p = api.paid
+  const t = api.trends
+  if (!o) return {}
+  const reach = o.reach || 0
+  const engRate = o.avg_engagement_rate || 0
+  // Estimate previous values from trend percentages
+  const prevReach = t?.reach_change ? Math.round(reach / (1 + t.reach_change / 100)) : reach
+  const prevEng = t?.engagement_change ? +(engRate / (1 + t.engagement_change / 100)).toFixed(2) : engRate
+  const spend = p?.total_spend || 0
+  const roas = p?.avg_roas || 0
+
+  // Build engagement_trend from reach_data
+  const engTrend = (api.reach_data || []).slice(-7).map(r => ({
+    date: r.date,
+    engagement: Math.round(r.reach * (engRate / 100)),
+    reach: r.reach,
+  }))
+
+  return {
+    total_followers: o.new_followers || 0,
+    prev_followers: 0,
+    monthly_reach: reach,
+    prev_reach: prevReach,
+    engagement_rate: engRate,
+    prev_engagement_rate: prevEng,
+    ad_spend: spend,
+    prev_ad_spend: 0,
+    roas,
+    prev_roas: 0,
+    engagement_trend: engTrend.length ? engTrend : undefined,
+  }
+}
+
 export default function Dashboard() {
-  const { data: apiData, loading, error, refetch } = useApi<OverviewData>('/analytics/overview')
+  const { data: rawApi, loading } = useApi<ApiOverview>('/analytics/overview')
+  const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live' })
 
-  // Use API data if available, otherwise fallback
-  const d = apiData || fallbackOverview
+  // Use live WebSocket data when available, fallback to API polling
+  const activeApi = liveData || rawApi
+  const mapped = activeApi ? mapApiToOverview(activeApi) : {}
+  const hasRealData = activeApi?.organic && (activeApi.organic.reach > 0 || activeApi.organic.impressions > 0)
+  const d: OverviewData = hasRealData ? { ...fallbackOverview, ...mapped } : fallbackOverview
 
-  if (loading && !apiData) return <><Header title="NADZORNA PLOČA" subtitle="Pregled" /><PageLoader /></>
+  if (loading && !rawApi) return <><Header title="NADZORNA PLOČA" subtitle="Pregled" /><PageLoader /></>
 
   const sentiment = d.sentiment_breakdown || { positive: 65, neutral: 25, negative: 10 }
   const engagementData = d.engagement_trend || fallbackOverview.engagement_trend
@@ -101,10 +161,17 @@ export default function Dashboard() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="section-title">Nedavna aktivnost</h2>
-            <div className="flex items-center gap-2 text-xs text-dinamo-muted">
-              <Zap className="w-3 h-3 text-dinamo-accent" />
-              Azuriranje u realnom vremenu
-            </div>
+            {isConnected ? (
+              <div className="flex items-center gap-2 text-xs text-green-600">
+                <Zap className="w-3 h-3" />
+                Prijenos uživo
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-dinamo-muted">
+                <Zap className="w-3 h-3 text-dinamo-accent" />
+                Ažuriranje u realnom vremenu
+              </div>
+            )}
           </div>
           <div className="space-y-3">
             {activities.map((item) => {

@@ -5,7 +5,6 @@ to manage ad performance, budgets, and creative freshness.
 """
 
 import logging
-import random
 from datetime import datetime, timedelta, timezone
 
 from app.tasks.celery_app import celery_app
@@ -34,42 +33,135 @@ ENGAGEMENT_DROP_THRESHOLD = 0.80  # Below 80% of previous month average
 # Rule 5: Ad fatigue
 FREQUENCY_FATIGUE_THRESHOLD = 4.0  # Frequency > 4 = fatigued
 
+
 # ---------------------------------------------------------------------------
-# Mock active campaigns and ads
+# DB data fetchers
 # ---------------------------------------------------------------------------
 
-MOCK_AB_TESTS = [
-    {
-        "test_id": "ab_001",
-        "campaign_id": "camp_101",
-        "variant_a": {"ad_id": "ad_101a", "name": "Season Ticket - Emotional", "ctr": 3.2, "impressions": 45000, "hours_running": 52},
-        "variant_b": {"ad_id": "ad_101b", "name": "Season Ticket - Promo", "ctr": 2.1, "impressions": 44500, "hours_running": 52},
-        "status": "running",
-    },
-    {
-        "test_id": "ab_002",
-        "campaign_id": "camp_102",
-        "variant_a": {"ad_id": "ad_102a", "name": "Merch Drop - Video", "ctr": 4.5, "impressions": 38000, "hours_running": 50},
-        "variant_b": {"ad_id": "ad_102b", "name": "Merch Drop - Carousel", "ctr": 4.3, "impressions": 37500, "hours_running": 50},
-        "status": "running",
-    },
-    {
-        "test_id": "ab_003",
-        "campaign_id": "camp_105",
-        "variant_a": {"ad_id": "ad_105a", "name": "UCL Hype - Countdown", "ctr": 5.1, "impressions": 20000, "hours_running": 30},
-        "variant_b": {"ad_id": "ad_105b", "name": "UCL Hype - Highlights", "ctr": 2.8, "impressions": 19800, "hours_running": 30},
-        "status": "running",
-    },
-]
+def _query_ab_tests():
+    """Fetch running A/B tests with ad metrics from DB."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import AdMetric
+    from app.models.campaign import ABTest, Ad, AdSet, Campaign
+    from sqlalchemy import select, func
 
-MOCK_ACTIVE_ADS = [
-    {"ad_id": "ad_201", "campaign_id": "camp_201", "name": "Fan Zone Event Promo", "platform": "meta", "status": "active", "ctr": 1.2, "ctr_history_2d": [1.1, 1.3], "roas": 2.1, "spend": 150.0, "budget": 200.0, "frequency": 2.3, "engagement_rate": 3.5, "prev_month_avg_engagement": 4.2},
-    {"ad_id": "ad_202", "campaign_id": "camp_201", "name": "Fan Zone - Retarget", "platform": "meta", "status": "active", "ctr": 0.9, "ctr_history_2d": [0.8, 1.0], "roas": 1.5, "spend": 80.0, "budget": 100.0, "frequency": 3.1, "engagement_rate": 2.8, "prev_month_avg_engagement": 3.0},
-    {"ad_id": "ad_301", "campaign_id": "camp_301", "name": "Matchday Tickets", "platform": "meta", "status": "active", "ctr": 3.8, "ctr_history_2d": [3.5, 4.1], "roas": 5.2, "spend": 400.0, "budget": 500.0, "frequency": 1.8, "engagement_rate": 6.1, "prev_month_avg_engagement": 5.5},
-    {"ad_id": "ad_302", "campaign_id": "camp_301", "name": "Matchday - Last Chance", "platform": "meta", "status": "active", "ctr": 2.5, "ctr_history_2d": [2.3, 2.7], "roas": 4.8, "spend": 350.0, "budget": 400.0, "frequency": 4.5, "engagement_rate": 4.0, "prev_month_avg_engagement": 5.2},
-    {"ad_id": "ad_401", "campaign_id": "camp_401", "name": "Membership Drive", "platform": "tiktok", "status": "active", "ctr": 1.1, "ctr_history_2d": [1.0, 1.2], "roas": 1.8, "spend": 200.0, "budget": 300.0, "frequency": 5.2, "engagement_rate": 2.0, "prev_month_avg_engagement": 3.5},
-    {"ad_id": "ad_501", "campaign_id": "camp_501", "name": "Youth Academy Promo", "platform": "youtube", "status": "active", "ctr": 2.9, "ctr_history_2d": [2.8, 3.0], "roas": 3.2, "spend": 120.0, "budget": 150.0, "frequency": 1.5, "engagement_rate": 5.8, "prev_month_avg_engagement": 5.0},
-]
+    now = datetime.now(timezone.utc)
+    tests = []
+    with SyncSessionLocal() as db:
+        rows = db.execute(
+            select(ABTest)
+            .where(ABTest.status == "running")
+        ).scalars().all()
+
+        for ab in rows:
+            hours_running = (now - ab.started_at).total_seconds() / 3600
+
+            # Get ads for this test's campaign via AdSet
+            ads = db.execute(
+                select(Ad, AdSet)
+                .join(AdSet, Ad.ad_set_id == AdSet.id)
+                .where(AdSet.campaign_id == ab.campaign_id)
+                .where(Ad.status.in_(["active", "winner", "loser"]))
+                .order_by(Ad.variant_label)
+            ).all()
+
+            variants = []
+            for ad, ad_set in ads:
+                # Get latest metrics for this ad
+                latest = db.execute(
+                    select(AdMetric)
+                    .where(AdMetric.ad_id == ad.id)
+                    .order_by(AdMetric.timestamp.desc())
+                    .limit(1)
+                ).scalar_one_or_none()
+
+                variants.append({
+                    "ad_id": str(ad.id),
+                    "name": ad.headline[:60],
+                    "ctr": float(latest.ctr) if latest else 0.0,
+                    "impressions": latest.impressions if latest else 0,
+                    "hours_running": round(hours_running),
+                })
+
+            if len(variants) >= 2:
+                tests.append({
+                    "test_id": str(ab.id),
+                    "campaign_id": str(ab.campaign_id),
+                    "variant_a": variants[0],
+                    "variant_b": variants[1],
+                    "status": "running",
+                })
+
+    return tests
+
+
+def _query_active_ads():
+    """Fetch active ads with latest metrics from DB."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import AdMetric
+    from app.models.campaign import Ad, AdSet, Campaign
+    from sqlalchemy import select, func
+
+    now = datetime.now(timezone.utc)
+    prev_month_start = (now.replace(day=1) - timedelta(days=1)).replace(day=1)
+    prev_month_end = now.replace(day=1)
+    result = []
+
+    with SyncSessionLocal() as db:
+        rows = db.execute(
+            select(Ad, AdSet, Campaign)
+            .join(AdSet, Ad.ad_set_id == AdSet.id)
+            .join(Campaign, AdSet.campaign_id == Campaign.id)
+            .where(Ad.status == "active")
+        ).all()
+
+        for ad, ad_set, campaign in rows:
+            # Latest metric snapshot
+            latest = db.execute(
+                select(AdMetric)
+                .where(AdMetric.ad_id == ad.id)
+                .order_by(AdMetric.timestamp.desc())
+                .limit(1)
+            ).scalar_one_or_none()
+            if not latest:
+                continue
+
+            # CTR history: last 2 daily snapshots
+            two_days_ago = now - timedelta(days=2)
+            history_rows = db.execute(
+                select(AdMetric.ctr)
+                .where(AdMetric.ad_id == ad.id)
+                .where(AdMetric.timestamp >= two_days_ago)
+                .order_by(AdMetric.timestamp)
+            ).scalars().all()
+            ctr_history = [round(float(c), 2) for c in history_rows[-2:]] if history_rows else []
+
+            # Previous month avg engagement (using CTR as proxy)
+            prev_avg_row = db.execute(
+                select(func.avg(AdMetric.ctr))
+                .where(AdMetric.ad_id == ad.id)
+                .where(AdMetric.timestamp >= prev_month_start)
+                .where(AdMetric.timestamp < prev_month_end)
+            ).scalar()
+            prev_avg = round(float(prev_avg_row), 2) if prev_avg_row else 0.0
+
+            result.append({
+                "ad_id": str(ad.id),
+                "campaign_id": str(campaign.id),
+                "name": ad.headline[:60],
+                "platform": campaign.platform or "meta",
+                "status": "active",
+                "ctr": round(float(latest.ctr), 2),
+                "ctr_history_2d": ctr_history,
+                "roas": round(float(latest.roas), 2),
+                "spend": round(float(latest.spend), 2),
+                "budget": round(float(ad_set.budget), 2),
+                "frequency": round(float(latest.frequency), 2),
+                "engagement_rate": round(float(latest.ctr), 2),
+                "prev_month_avg_engagement": prev_avg,
+            })
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -273,11 +365,26 @@ def run_optimization_cycle(self):
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Campaign Optimization Cycle started at %s ===", run_ts)
 
+    # Fetch real data from DB, log if falling back empty
+    try:
+        ab_tests = _query_ab_tests()
+        logger.info("Loaded %d running A/B tests from DB", len(ab_tests))
+    except Exception as exc:
+        logger.warning("Failed to query A/B tests from DB: %s — using empty list", exc)
+        ab_tests = []
+
+    try:
+        active_ads = _query_active_ads()
+        logger.info("Loaded %d active ads from DB", len(active_ads))
+    except Exception as exc:
+        logger.warning("Failed to query active ads from DB: %s — using empty list", exc)
+        active_ads = []
+
     results = {
         "timestamp": run_ts,
         "rules_evaluated": 5,
-        "ads_evaluated": len(MOCK_ACTIVE_ADS),
-        "ab_tests_evaluated": len(MOCK_AB_TESTS),
+        "ads_evaluated": len(active_ads),
+        "ab_tests_evaluated": len(ab_tests),
         "actions_taken": [],
         "summary": {
             "R1_AB_WINNER": 0,
@@ -298,7 +405,7 @@ def run_optimization_cycle(self):
         # ------------------------------------------------------------------
         logger.info("--- Rule 1: A/B Winner Detection ---")
         try:
-            r1_actions = _rule_1_ab_winner(MOCK_AB_TESTS)
+            r1_actions = _rule_1_ab_winner(ab_tests)
             for action in r1_actions:
                 logger.info("  R1 ACTION: %s", action["action"])
                 results["actions_taken"].append(action)
@@ -315,7 +422,7 @@ def run_optimization_cycle(self):
         # ------------------------------------------------------------------
         logger.info("--- Rule 2: Low CTR Pause ---")
         try:
-            r2_actions = _rule_2_low_ctr(MOCK_ACTIVE_ADS)
+            r2_actions = _rule_2_low_ctr(active_ads)
             for action in r2_actions:
                 logger.info("  R2 ACTION: %s", action["action"])
                 results["actions_taken"].append(action)
@@ -332,7 +439,7 @@ def run_optimization_cycle(self):
         # ------------------------------------------------------------------
         logger.info("--- Rule 3: High ROAS Budget Scaling ---")
         try:
-            r3_actions = _rule_3_high_roas(MOCK_ACTIVE_ADS)
+            r3_actions = _rule_3_high_roas(active_ads)
             for action in r3_actions:
                 logger.info("  R3 ACTION: %s", action["action"])
                 results["actions_taken"].append(action)
@@ -350,7 +457,7 @@ def run_optimization_cycle(self):
         # ------------------------------------------------------------------
         logger.info("--- Rule 4: Low Engagement Detection ---")
         try:
-            r4_actions = _rule_4_low_engagement(MOCK_ACTIVE_ADS)
+            r4_actions = _rule_4_low_engagement(active_ads)
             for action in r4_actions:
                 logger.info("  R4 ACTION: %s", action["action"])
                 results["actions_taken"].append(action)
@@ -367,7 +474,7 @@ def run_optimization_cycle(self):
         # ------------------------------------------------------------------
         logger.info("--- Rule 5: Ad Fatigue Detection ---")
         try:
-            r5_actions = _rule_5_ad_fatigue(MOCK_ACTIVE_ADS)
+            r5_actions = _rule_5_ad_fatigue(active_ads)
             for action in r5_actions:
                 logger.info("  R5 ACTION: %s", action["action"])
                 results["actions_taken"].append(action)

@@ -76,6 +76,32 @@ class ContentEngineService:
             posts.append(post)
 
         await db.flush()
+
+        # Auto-translate captions: HR → EN, DE
+        translated = 0
+        for post in posts:
+            if post.caption_hr and (not post.caption_en or not post.caption_de):
+                try:
+                    target = []
+                    if not post.caption_en:
+                        target.append("en")
+                    if not post.caption_de:
+                        target.append("de")
+                    translations = await self.claude_client.translate_content(
+                        post.caption_hr, "hr", target
+                    )
+                    if not post.caption_en and "en" in translations:
+                        post.caption_en = translations["en"]
+                    if not post.caption_de and "de" in translations:
+                        post.caption_de = translations["de"]
+                    translated += 1
+                except Exception as exc:
+                    logger.warning("Translation failed for post %s: %s", post.id, exc)
+
+        if translated:
+            await db.flush()
+            logger.info("Auto-translated %d posts (HR → EN, DE)", translated)
+
         logger.info(f"Generated plan with {len(posts)} posts for {month}/{year}")
 
         return {

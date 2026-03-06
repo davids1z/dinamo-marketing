@@ -159,6 +159,48 @@ class MetaMockClient(MetaClientBase):
         }
 
     # ------------------------------------------------------------------
+    # Publishing
+    # ------------------------------------------------------------------
+
+    async def publish_photo(self, page_id: str, image_url: str, caption: str) -> dict:
+        return {
+            "id": "fb_photo_mock_123456789",
+            "post_id": f"{page_id}_mock_photo_987654321",
+            "url": f"https://www.facebook.com/{page_id}/posts/mock_photo_987654321",
+            "success": True,
+        }
+
+    async def publish_video(self, page_id: str, video_url: str, caption: str) -> dict:
+        return {
+            "id": "fb_video_mock_223456789",
+            "post_id": f"{page_id}_mock_video_887654321",
+            "url": f"https://www.facebook.com/{page_id}/videos/mock_video_887654321",
+            "success": True,
+        }
+
+    async def publish_instagram_media(self, account_id: str, image_url: str, caption: str) -> dict:
+        return {
+            "id": "ig_media_mock_17895695099999999",
+            "permalink": "https://www.instagram.com/p/MOCK_ABC123/",
+            "success": True,
+        }
+
+    async def publish_instagram_reel(self, account_id: str, video_url: str, caption: str) -> dict:
+        return {
+            "id": "ig_reel_mock_17895695088888888",
+            "permalink": "https://www.instagram.com/reel/MOCK_DEF456/",
+            "success": True,
+        }
+
+    async def publish_instagram_carousel(self, account_id: str, media_urls: list[str], caption: str) -> dict:
+        return {
+            "id": "ig_carousel_mock_17895695077777777",
+            "permalink": "https://www.instagram.com/p/MOCK_GHI789/",
+            "children_count": len(media_urls),
+            "success": True,
+        }
+
+    # ------------------------------------------------------------------
     # Ads management
     # ------------------------------------------------------------------
 

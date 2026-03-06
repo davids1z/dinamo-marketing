@@ -1,7 +1,13 @@
-from fastapi import APIRouter, Body, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, text
+import logging
+import time
+from uuid import UUID
 
+import redis.asyncio as aioredis
+from fastapi import APIRouter, Body, Depends, HTTPException
+from sqlalchemy import select, text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
 from app.database import get_db
 from app.dependencies import (
     get_meta_client,
@@ -15,17 +21,58 @@ from app.dependencies import (
     get_trends_client,
 )
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 @router.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db)):
-    db_status = "healthy"
-    try:
-        await db.execute(text("SELECT 1"))
-    except Exception as e:
-        db_status = f"unhealthy: {str(e)}"
+    checks = {}
+    overall = "healthy"
 
+    # DB check with latency
+    try:
+        t0 = time.monotonic()
+        await db.execute(text("SELECT 1"))
+        latency = round((time.monotonic() - t0) * 1000, 1)
+        checks["database"] = {"status": "healthy", "latency_ms": latency}
+    except Exception as e:
+        checks["database"] = {"status": "unhealthy", "error": str(e)}
+        overall = "degraded"
+
+    # Redis check
+    try:
+        r = aioredis.from_url(settings.REDIS_URL)
+        await r.ping()
+        checks["redis"] = {"status": "healthy"}
+        await r.aclose()
+    except Exception as e:
+        checks["redis"] = {"status": "unhealthy", "error": str(e)}
+        overall = "degraded"
+
+    # Celery check
+    try:
+        from app.tasks.celery_app import celery_app
+
+        inspect = celery_app.control.inspect(timeout=2.0)
+        active = inspect.active_queues()
+        worker_count = len(active) if active else 0
+        checks["celery"] = {
+            "status": "healthy" if worker_count > 0 else "no_workers",
+            "workers": worker_count,
+        }
+    except Exception as e:
+        checks["celery"] = {"status": "unknown", "error": str(e)}
+
+    # Circuit breaker statuses
+    try:
+        from app.services.circuit_breaker import get_all_breaker_statuses
+
+        checks["circuit_breakers"] = get_all_breaker_statuses()
+    except Exception:
+        checks["circuit_breakers"] = {}
+
+    # API client modes
     clients = {
         "meta": get_meta_client(),
         "tiktok": get_tiktok_client(),
@@ -47,8 +94,11 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         }
 
     return {
-        "status": "ok" if db_status == "healthy" else "degraded",
-        "database": db_status,
+        "status": overall,
+        "database": checks.get("database", {}),
+        "redis": checks.get("redis", {}),
+        "celery": checks.get("celery", {}),
+        "circuit_breakers": checks.get("circuit_breakers", {}),
         "apis": api_status,
     }
 
@@ -140,3 +190,52 @@ async def get_notification_settings():
         {"id": "competitor_alert", "label": "Competitor Activity", "description": "Notify on significant competitor changes", "enabled": False},
         {"id": "content_approval", "label": "Content Approval Required", "description": "Alert when content needs approval", "enabled": True},
     ]
+
+
+@router.get("/notifications/recent")
+async def get_recent_notifications(db: AsyncSession = Depends(get_db)):
+    """Get recent notifications from DB."""
+    from app.models.notification import Notification
+
+    result = await db.execute(
+        select(Notification).order_by(Notification.created_at.desc()).limit(20)
+    )
+    notifications = result.scalars().all()
+    return [
+        {
+            "id": str(n.id),
+            "type": n.type,
+            "title": n.title,
+            "body": n.body,
+            "severity": n.severity,
+            "is_read": n.is_read,
+            "link": n.link,
+            "created_at": n.created_at.isoformat() if n.created_at else "",
+        }
+        for n in notifications
+    ]
+
+
+@router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: UUID, db: AsyncSession = Depends(get_db)
+):
+    """Mark a notification as read."""
+    from app.models.notification import Notification
+
+    result = await db.execute(
+        select(Notification).where(Notification.id == notification_id)
+    )
+    notif = result.scalar_one_or_none()
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notif.is_read = True
+    return {"status": "ok"}
+
+
+@router.get("/quotas")
+async def get_api_quotas():
+    """Get API quota usage for all tracked services."""
+    from app.services.quota_tracker import quota_tracker
+
+    return await quota_tracker.get_all_usage()

@@ -14,6 +14,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           recharts: ['recharts'],
+          'dnd-kit': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
       },

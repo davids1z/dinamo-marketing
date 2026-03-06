@@ -17,5 +17,10 @@ export const contentApi = {
     api.patch(`/content/posts/${id}/reject`, { reason }),
   updatePost: (id: string, data: Record<string, unknown>) =>
     api.patch(`/content/posts/${id}`, data),
+  publishPost: (id: string) => api.post(`/content/posts/${id}/publish`),
+  generateVisual: (id: string) => api.post(`/content/posts/${id}/generate-visual`),
+  generatePlanVisuals: (planId: string) => api.post(`/content/plans/${planId}/generate-visuals`),
   getTemplates: () => api.get('/content/templates'),
+  reschedulePost: (id: string, data: { day: number; month: number; year: number }) =>
+    api.patch(`/content/posts/${id}/reschedule`, data),
 };

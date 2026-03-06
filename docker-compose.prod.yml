@@ -7,20 +7,37 @@ services:
       POSTGRES_DB: dinamo_marketing
     volumes:
       - pgdata:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=512MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dinamo -d dinamo_marketing"]
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 192M
     restart: unless-stopped
 
   api:
@@ -36,6 +53,17 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
       DM_USE_MOCK_APIS: "true"
+      RATE_LIMIT_ENABLED: "true"
+      LOG_FORMAT: "json"
+      LOG_LEVEL: "INFO"
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: "production"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     depends_on:
       db:
         condition: service_healthy
@@ -43,6 +71,11 @@ services:
         condition: service_healthy
     volumes:
       - ./mock-data:/app/mock-data
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
     restart: unless-stopped
 
   celery-worker:
@@ -56,6 +89,16 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
       DM_USE_MOCK_APIS: "true"
+      LOG_FORMAT: "json"
+      LOG_LEVEL: "INFO"
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: "production"
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.tasks.celery_app", "inspect", "ping", "--timeout", "5"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     depends_on:
       db:
         condition: service_healthy
@@ -64,6 +107,11 @@ services:
     volumes:
       - ./mock-data:/app/mock-data
     command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
     restart: unless-stopped
 
   celery-beat:
@@ -77,6 +125,8 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
       DM_USE_MOCK_APIS: "true"
+      LOG_FORMAT: "json"
+      LOG_LEVEL: "INFO"
     depends_on:
       db:
         condition: service_healthy
@@ -85,6 +135,11 @@ services:
     volumes:
       - ./mock-data:/app/mock-data
     command: celery -A app.tasks.celery_app beat --loglevel=info
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
     restart: unless-stopped
 
   dashboard:
@@ -95,6 +150,11 @@ services:
       - "127.0.0.1:3300:80"
     depends_on:
       - api
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
     restart: unless-stopped
 
 volumes:

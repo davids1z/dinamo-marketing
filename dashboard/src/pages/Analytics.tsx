@@ -4,7 +4,7 @@ import { CampaignChart } from '../components/charts/CampaignChart'
 import { FunnelChart } from '../components/charts/FunnelChart'
 import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import { Eye, Heart, Trophy } from 'lucide-react'
+import { Eye, Heart, Trophy, DollarSign, Target, BarChart3, RefreshCw } from 'lucide-react'
 
 interface AnalyticsData {
   reach_data: Array<{ date: string; reach: number; impressions: number }>
@@ -12,6 +12,10 @@ interface AnalyticsData {
   campaign_bars: Array<{ key: string; name: string; color: string }>
   funnel: Array<{ label: string; value: number; color: string }>
   top_posts: Array<{ id: string; title: string; platform: string; date: string; reach: number; engagement: number; engRate: number }>
+  paid?: {
+    total_spend: number; conversions: number; conversion_value: number
+    avg_roas: number; avg_cpm: number; avg_cpc: number
+  }
 }
 
 // Fallback data
@@ -60,6 +64,7 @@ export default function Analytics() {
   const campaignBars = apiData?.campaign_bars || fallbackBars
   const funnelSteps = apiData?.funnel || fallbackFunnel
   const topPosts = apiData?.top_posts || fallbackTopPosts
+  const paid = apiData?.paid
 
   if (loading && !apiData) return <><Header title="ANALITIKA" subtitle="Dubinska analitika" /><PageLoader /></>
 
@@ -68,10 +73,41 @@ export default function Analytics() {
       <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
 
       <div className="page-wrapper space-y-6">
-        
+
+        {/* ROI Cards */}
+        {paid && paid.total_spend > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="card text-center">
+              <DollarSign size={20} className="mx-auto text-dinamo-muted mb-1" />
+              <p className="text-2xl font-bold font-mono">€{paid.total_spend.toLocaleString()}</p>
+              <p className="text-xs text-dinamo-muted">Ukupna potrosnja</p>
+            </div>
+            <div className="card text-center">
+              <BarChart3 size={20} className="mx-auto text-green-600 mb-1" />
+              <p className="text-2xl font-bold font-mono text-green-600">{paid.avg_roas}x</p>
+              <p className="text-xs text-dinamo-muted">ROAS</p>
+            </div>
+            <div className="card text-center">
+              <Target size={20} className="mx-auto text-blue-600 mb-1" />
+              <p className="text-2xl font-bold font-mono">{paid.conversions}</p>
+              <p className="text-xs text-dinamo-muted">Konverzije</p>
+            </div>
+            <div className="card text-center">
+              <DollarSign size={20} className="mx-auto text-purple-600 mb-1" />
+              <p className="text-2xl font-bold font-mono">€{paid.avg_cpc.toFixed(2)}</p>
+              <p className="text-xs text-dinamo-muted">Prosj. CPC</p>
+            </div>
+          </div>
+        )}
 
         {/* Reach Chart */}
         <div className="card">
+          <div className="flex items-center justify-between mb-2">
+            <span />
+            <button onClick={refetch} className="text-xs text-dinamo-muted hover:text-dinamo-primary flex items-center gap-1">
+              <RefreshCw size={12} /> Osvjezi
+            </button>
+          </div>
           <ReachChart data={reachData} title="Doseg i prikazivanja (30 dana)" />
         </div>
 

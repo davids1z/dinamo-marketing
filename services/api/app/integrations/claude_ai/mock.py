@@ -196,6 +196,19 @@ class ClaudeMockClient(ClaudeClientBase):
             "4. Schedule Instagram carousel recap of derby within 24 hours of final whistle"
         )
 
+    async def translate_content(
+        self, text: str, source_lang: str, target_langs: list[str]
+    ) -> dict[str, str]:
+        result = {}
+        if "en" in target_langs:
+            result["en"] = f"[EN] {text[:80]}..."
+        if "de" in target_langs:
+            result["de"] = f"[DE] {text[:80]}..."
+        for lang in target_langs:
+            if lang not in result:
+                result[lang] = f"[{lang.upper()}] {text[:80]}..."
+        return result
+
     async def generate_strategy_recommendation(self, performance_data: dict) -> dict:
         return {
             "summary": (

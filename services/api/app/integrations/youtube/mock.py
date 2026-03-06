@@ -105,6 +105,26 @@ class YouTubeMockClient(YouTubeClientBase):
             "annotation_click_through_rate": 0.0,
         }
 
+    async def upload_video(self, video_path: str, title: str, description: str, tags: list[str] | None = None, privacy: str = "public") -> dict:
+        return {
+            "id": "yt_mock_video_dQw4w9WgXcQ_new01",
+            "title": title,
+            "description": description,
+            "url": "https://www.youtube.com/watch?v=yt_mock_video_new01",
+            "status": "public",
+            "success": True,
+        }
+
+    async def upload_short(self, video_path: str, title: str, description: str) -> dict:
+        return {
+            "id": "yt_mock_short_dQw4w9WgXcQ_new02",
+            "title": f"{title} #Shorts",
+            "description": description,
+            "url": "https://www.youtube.com/shorts/yt_mock_short_new02",
+            "status": "public",
+            "success": True,
+        }
+
     async def get_audience_demographics(self, channel_id: str) -> dict:
         return {
             "channel_id": channel_id,

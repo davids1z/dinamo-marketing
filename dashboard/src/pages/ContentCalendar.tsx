@@ -1,12 +1,14 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { contentApi } from '../api/content'
 import {
   Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Sparkles,
   Eye, Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown,
-  LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap,
+  LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap, GripVertical,
 } from 'lucide-react'
+import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { useAuth } from '../contexts/AuthContext'
 
 const DAYS_OF_WEEK = ['Pon', 'Uto', 'Sri', 'Cet', 'Pet', 'Sub', 'Ned']
 
@@ -34,8 +36,11 @@ interface Post {
   content_pillar: string
   hashtags: string[]
   visual_brief: string
-  status: 'published' | 'scheduled' | 'draft' | 'missed'
+  visual_url?: string
+  status: 'published' | 'scheduled' | 'draft' | 'missed' | 'approved' | 'failed'
   metrics?: PostMetrics
+  platform_post_url?: string
+  publish_error?: string
 }
 
 interface QueueItem {
@@ -268,10 +273,42 @@ function pctChange(current: number, previous: number): { pct: string; up: boolea
   return { pct: `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, up: change >= 0 }
 }
 
+// ── Drag & Drop helpers ────────────────────────────────────────────
+
+function DraggablePostDot({ post, isPast }: { post: Post; isPast: boolean }) {
+  const isDraggable = !isPast && (post.status === 'draft' || post.status === 'scheduled')
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: post.id,
+    data: { post },
+    disabled: !isDraggable,
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...(isDraggable ? { ...listeners, ...attributes } : {})}
+      className={`w-2.5 h-2.5 rounded-full ${platformColors[post.platform] || 'bg-gray-400'} ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-transform hover:scale-125`}
+      title={`${post.platform} - ${post.type}${isDraggable ? ' (povuci za premjestiti)' : ''}`}
+    />
+  )
+}
+
+function DroppableDay({ dayNum, children, isOver }: { dayNum: number; children: React.ReactNode; isOver?: boolean }) {
+  const { setNodeRef, isOver: dropping } = useDroppable({ id: `day-${dayNum}`, data: { dayNum } })
+  const active = isOver || dropping
+
+  return (
+    <div ref={setNodeRef} className={active ? 'ring-2 ring-dinamo-accent ring-inset rounded-lg' : ''}>
+      {children}
+    </div>
+  )
+}
+
 type ViewMode = 'month' | 'week' | 'sixmonth'
 type TabMode = 'calendar' | 'approvals'
 
 export default function ContentCalendar() {
+  const { canApprove } = useAuth()
   const [activeTab, setActiveTab] = useState<TabMode>('calendar')
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentMonth, setCurrentMonth] = useState(2) // March 2026 (0-indexed)
@@ -279,7 +316,73 @@ export default function ContentCalendar() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [generating, setGenerating] = useState(false)
+  const [generatingVisual, setGeneratingVisual] = useState(false)
   const [generatedData, setGeneratedData] = useState<Record<number, Post[]> | null>(null)
+  const [draggedPost, setDraggedPost] = useState<Post | null>(null)
+
+  // DnD sensors & handlers
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const post = event.active.data.current?.post as Post | undefined
+    if (post) setDraggedPost(post)
+  }, [])
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setDraggedPost(null)
+    const { active, over } = event
+    if (!over) return
+
+    const post = active.data.current?.post as Post | undefined
+    const targetDay = over.data.current?.dayNum as number | undefined
+    if (!post || !targetDay) return
+
+    // Find source day
+    const data = generatedData || fallbackCalendar
+    let sourceDay: number | null = null
+    for (const [day, posts] of Object.entries(data)) {
+      if (posts.some((p) => p.id === post.id)) {
+        sourceDay = Number(day)
+        break
+      }
+    }
+    if (sourceDay === null || sourceDay === targetDay) return
+
+    // Move post between days (optimistic update)
+    const updated = { ...data }
+    updated[sourceDay] = (updated[sourceDay] || []).filter((p) => p.id !== post.id)
+    if (updated[sourceDay].length === 0) delete updated[sourceDay]
+    updated[targetDay] = [...(updated[targetDay] || []), post]
+    setGeneratedData(updated)
+
+    // Fire API call (best effort)
+    contentApi.reschedulePost?.(post.id, { day: targetDay, month: currentMonth + 1, year: currentYear }).catch(() => {})
+  }, [generatedData, currentMonth, currentYear])
+
+  // Fetch real metrics for published posts from API
+  useEffect(() => {
+    if (selectedPost?.status === 'published' && !selectedPost.metrics && !selectedPost.id.startsWith('ai-')) {
+      import('../api/analytics').then(({ analyticsApi }) => {
+        analyticsApi.getPostMetrics(selectedPost.id).then(res => {
+          const m = res.data
+          if (m) {
+            setSelectedPost(prev => prev ? { ...prev, metrics: {
+              views: m.impressions || 0,
+              likes: m.likes || 0,
+              comments: m.comments || 0,
+              shares: m.shares || 0,
+              saves: m.saves || 0,
+              engagement_rate: m.engagement_rate || 0,
+              reach: m.reach || 0,
+              impressions: m.impressions || 0,
+              prev_week_avg_views: 0,
+              prev_week_avg_engagement: 0,
+            }} : null)
+          }
+        }).catch(() => {})
+      })
+    }
+  }, [selectedPost?.id])
 
   // Lock body scroll when post detail modal is open
   useEffect(() => {
@@ -382,6 +485,7 @@ export default function ContentCalendar() {
         content_pillar: p.content_pillar || 'lifestyle',
         hashtags: p.hashtags || [],
         visual_brief: p.visual_brief || '',
+        visual_url: p.visual_url || undefined,
         status: 'draft' as const,
       })
     }
@@ -465,6 +569,7 @@ export default function ContentCalendar() {
         )}
 
         {activeTab === 'calendar' && viewMode === 'month' && !generating && (
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex gap-6">
             {/* Calendar Grid */}
             <div className="card min-w-0 flex-1">
@@ -489,7 +594,7 @@ export default function ContentCalendar() {
                   const isPast = isValid && isCurrentMonth && dayNum < todayDay
                   const posts = isValid ? (calendarData[dayNum] || []) : []
 
-                  return (
+                  const cell = (
                     <div key={i} onClick={() => isValid && setSelectedDay(isSelected ? null : dayNum)}
                       className={`min-h-[72px] sm:min-h-[80px] p-2 rounded-lg border transition-all ${
                         !isValid ? 'border-transparent bg-transparent pointer-events-none'
@@ -510,9 +615,7 @@ export default function ContentCalendar() {
                           </div>
                           <div className="flex gap-1 mt-1 flex-wrap">
                             {posts.slice(0, 4).map((post) => (
-                              <div key={post.id}
-                                className={`w-2.5 h-2.5 rounded-full ${platformColors[post.platform] || 'bg-gray-400'} ${isPast ? 'opacity-60' : ''} transition-transform hover:scale-125`}
-                                title={`${post.platform} - ${post.type}`} />
+                              <DraggablePostDot key={post.id} post={post} isPast={!!isPast} />
                             ))}
                             {posts.length > 4 && <span className="text-[10px] text-dinamo-muted">+{posts.length - 4}</span>}
                           </div>
@@ -520,6 +623,10 @@ export default function ContentCalendar() {
                       )}
                     </div>
                   )
+
+                  return isValid ? (
+                    <DroppableDay key={i} dayNum={dayNum}>{cell}</DroppableDay>
+                  ) : cell
                 })}
               </div>
 
@@ -609,6 +716,15 @@ export default function ContentCalendar() {
               </div>
             )}
           </div>
+          <DragOverlay>
+            {draggedPost && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border-2 border-dinamo-accent shadow-lg text-xs">
+                <div className={`w-3 h-3 rounded-full ${platformColors[draggedPost.platform] || 'bg-gray-400'}`} />
+                <span className="font-medium text-gray-900 truncate max-w-[150px]">{draggedPost.title}</span>
+              </div>
+            )}
+          </DragOverlay>
+          </DndContext>
         )}
 
         {activeTab === 'calendar' && viewMode === 'sixmonth' && !generating && (
@@ -684,14 +800,16 @@ export default function ContentCalendar() {
                       <span>{item.platform}</span><span>|</span><span>{item.author}</span><span>|</span><span>{item.submitted}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleApprove(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors">
-                      <Check size={14} />Odobri
-                    </button>
-                    <button onClick={() => handleReject(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 text-xs rounded-lg border border-red-300 transition-colors">
-                      <X size={14} />Odbij
-                    </button>
-                  </div>
+                  {canApprove && (
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => handleApprove(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors">
+                        <Check size={14} />Odobri
+                      </button>
+                      <button onClick={() => handleReject(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 text-xs rounded-lg border border-red-300 transition-colors">
+                        <X size={14} />Odbij
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -710,8 +828,10 @@ export default function ContentCalendar() {
               <div className="flex items-start gap-4 min-w-0">
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   selectedPost.status === 'published' ? 'bg-green-50' :
+                  selectedPost.status === 'approved' ? 'bg-emerald-50' :
                   selectedPost.status === 'scheduled' ? 'bg-blue-50' :
-                  selectedPost.status === 'draft' ? 'bg-yellow-50' : 'bg-red-50'
+                  selectedPost.status === 'draft' ? 'bg-yellow-50' :
+                  selectedPost.status === 'failed' ? 'bg-red-50' : 'bg-red-50'
                 }`}>
                   <PlatformIcon platform={selectedPost.platform} size="md" />
                 </div>
@@ -725,13 +845,17 @@ export default function ContentCalendar() {
                     </span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                       selectedPost.status === 'published' ? 'bg-green-100 text-green-700' :
+                      selectedPost.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
                       selectedPost.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
                       selectedPost.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                      selectedPost.status === 'failed' ? 'bg-red-100 text-red-700' :
                       'bg-red-100 text-red-700'
                     }`}>
                       {selectedPost.status === 'published' ? 'Objavljeno' :
+                       selectedPost.status === 'approved' ? 'Odobreno' :
                        selectedPost.status === 'scheduled' ? 'Zakazano' :
-                       selectedPost.status === 'draft' ? 'Draft' : 'Propušteno'}
+                       selectedPost.status === 'draft' ? 'Draft' :
+                       selectedPost.status === 'failed' ? 'Neuspjelo' : 'Propušteno'}
                     </span>
                   </div>
                 </div>
@@ -820,15 +944,62 @@ export default function ContentCalendar() {
                   </div>
                 )}
 
-                {/* Visual brief */}
-                {selectedPost.visual_brief && (
-                  <div>
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Vizualni smjer</p>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                      <p className="text-sm text-gray-600 leading-relaxed">{selectedPost.visual_brief}</p>
+                {/* Visual preview + generation */}
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Vizual</p>
+                  {selectedPost.visual_url ? (
+                    <div className="space-y-2">
+                      <div className="rounded-xl overflow-hidden border border-gray-100">
+                        <img
+                          src={selectedPost.visual_url.startsWith('/') ? `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}${selectedPost.visual_url}` : selectedPost.visual_url}
+                          alt={selectedPost.title}
+                          className="w-full h-auto object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          try {
+                            setGeneratingVisual(true)
+                            const res = await contentApi.generateVisual(selectedPost.id)
+                            setSelectedPost({ ...selectedPost, visual_url: res.data.visual_url })
+                          } catch { /* ignore */ } finally { setGeneratingVisual(false) }
+                        }}
+                        disabled={generatingVisual}
+                        className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      >
+                        <Sparkles size={12} />
+                        {generatingVisual ? 'Generiranje...' : 'Regeneriraj vizual'}
+                      </button>
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedPost.visual_brief && (
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Vizualni smjer</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{selectedPost.visual_brief}</p>
+                        </div>
+                      )}
+                      <button
+                        onClick={async () => {
+                          try {
+                            setGeneratingVisual(true)
+                            const res = await contentApi.generateVisual(selectedPost.id)
+                            setSelectedPost({ ...selectedPost, visual_url: res.data.visual_url })
+                          } catch { /* ignore */ } finally { setGeneratingVisual(false) }
+                        }}
+                        disabled={generatingVisual}
+                        className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors text-sm flex items-center justify-center gap-2 border border-blue-200"
+                      >
+                        {generatingVisual ? (
+                          <><Loader2 size={14} className="animate-spin" /> Generiranje vizuala...</>
+                        ) : (
+                          <><Sparkles size={14} /> Generiraj vizual</>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 {/* Hashtags */}
                 {selectedPost.hashtags && selectedPost.hashtags.length > 0 && (
@@ -839,6 +1010,61 @@ export default function ContentCalendar() {
                         <span key={tag} className="text-[12px] px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg font-medium">{tag}</span>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Published post link */}
+                {selectedPost.platform_post_url && selectedPost.status === 'published' && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Objavljeno na</p>
+                    <a href={selectedPost.platform_post_url} target="_blank" rel="noopener noreferrer"
+                       className="text-sm text-blue-600 hover:text-blue-800 underline break-all">
+                      {selectedPost.platform_post_url}
+                    </a>
+                  </div>
+                )}
+
+                {/* Publish error */}
+                {selectedPost.publish_error && (selectedPost.status === 'failed' || selectedPost.status === 'approved') && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider mb-1">Greška pri objavljivanju</p>
+                    <p className="text-sm text-red-700">{selectedPost.publish_error}</p>
+                  </div>
+                )}
+
+                {/* Publish Now button */}
+                {(selectedPost.status === 'approved' || selectedPost.status === 'failed') && (
+                  <div className="pt-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await contentApi.publishPost(selectedPost.id)
+                          const data = res.data
+                          if (data.success) {
+                            setSelectedPost({
+                              ...selectedPost,
+                              status: 'published',
+                              platform_post_url: data.platform_post_url,
+                              publish_error: undefined,
+                            })
+                          } else {
+                            setSelectedPost({
+                              ...selectedPost,
+                              publish_error: data.error || 'Objavljivanje nije uspjelo',
+                            })
+                          }
+                        } catch {
+                          setSelectedPost({
+                            ...selectedPost,
+                            publish_error: 'Mrežna greška pri objavljivanju',
+                          })
+                        }
+                      }}
+                      className="w-full py-3 bg-accent hover:bg-accent-hover text-primary font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                    >
+                      <Share2 size={16} />
+                      Objavi sada
+                    </button>
                   </div>
                 )}
               </div>

@@ -35,3 +35,18 @@ class ImageGenerationUsage:
     images_generated: int = 0
     credits_used: float = 0.0
     credits_remaining: float = 0.0
+
+
+# Optimal image sizes per platform/format (width x height)
+PLATFORM_SIZES: dict[str, str] = {
+    "instagram_post": "1024x1024",
+    "instagram_carousel": "1024x1024",
+    "instagram_reel": "1024x1792",
+    "instagram_story": "1024x1792",
+    "facebook_post": "1024x1024",
+    "facebook_video": "1792x1024",
+    "tiktok_video": "1024x1792",
+    "youtube_video": "1792x1024",
+    "youtube_short": "1024x1792",
+    "youtube_thumbnail": "1792x1024",
+}

@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import Header from '../components/layout/Header'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { PageLoader } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { useApiMutation } from '../hooks/useApiMutation'
 import { settingsApi } from '../api/settings'
 import { Plug, Palette, Bell, Shield, ToggleLeft, ToggleRight } from 'lucide-react'
+import SystemHealth from '../components/settings/SystemHealth'
+import QuotaDisplay from '../components/settings/QuotaDisplay'
 
 interface ApiService {
   id: string
@@ -65,6 +68,7 @@ const fallbackData: SettingsData = {
 }
 
 export default function Settings() {
+  const { isAdmin } = useAuth()
   const { data: apiData, loading, error, refetch } = useApi<SettingsData>('/settings/api-status')
   const data = apiData || fallbackData
 
@@ -125,7 +129,14 @@ export default function Settings() {
       <Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" />
 
       <div className="page-wrapper space-y-6">
-        
+
+        {/* System Health + API Quotas (admin only) */}
+        {isAdmin && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SystemHealth />
+            <QuotaDisplay />
+          </div>
+        )}
 
         {/* API Integrations */}
         <div className="card">

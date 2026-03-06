@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,6 +33,11 @@ class ContentPlan(BaseModel):
 
 class ContentPost(BaseModel):
     __tablename__ = "content_posts"
+    __table_args__ = (
+        Index("ix_content_posts_status", "status"),
+        Index("ix_content_posts_platform", "platform"),
+        Index("ix_content_posts_scheduled_at", "scheduled_at"),
+    )
 
     plan_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("content_plans.id"), nullable=True
@@ -58,6 +63,12 @@ class ContentPost(BaseModel):
     visual_url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     is_champions_league: Mapped[bool] = mapped_column(Boolean, default=False)
     is_academy: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Publish tracking
+    platform_post_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    platform_post_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    publish_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    publish_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     plan: Mapped["ContentPlan | None"] = relationship(back_populates="posts")
     template: Mapped["ContentTemplate | None"] = relationship()
