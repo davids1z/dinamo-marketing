@@ -59,7 +59,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-dinamo-accent/50 text-sm text-gray-900 bg-white"
-                placeholder="admin@dinamo.hr"
+                placeholder="email@primjer.hr"
               />
             </div>
             <div>
