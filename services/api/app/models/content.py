@@ -45,6 +45,7 @@ class ContentPost(BaseModel):
     template_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("content_templates.id"), nullable=True
     )
+    title: Mapped[str] = mapped_column(String(300), nullable=False, default="")
     platform: Mapped[str] = mapped_column(String(20), nullable=False)
     content_pillar: Mapped[str] = mapped_column(
         String(50), nullable=False, default=""
