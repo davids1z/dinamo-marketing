@@ -238,10 +238,16 @@ export default function ContentStudio() {
       const node = document.getElementById('studio-canvas-export')
       if (!node) return
 
+      const exportH = aspectRatio === '9:16' ? 1920 : aspectRatio === '1:1' ? 1080 : 608
       const dataUrl = await toPng(node, {
         width: 1080,
-        height: aspectRatio === '9:16' ? 1920 : aspectRatio === '1:1' ? 1080 : 608,
+        height: exportH,
         pixelRatio: 1,
+        style: {
+          transform: 'none',
+          width: `${1080}px`,
+          height: `${exportH}px`,
+        },
       })
 
       // Convert data URL to blob
