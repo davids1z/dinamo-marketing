@@ -21,9 +21,9 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: 'Preglednik',
 }
 const ROLE_COLORS: Record<string, string> = {
-  admin: 'bg-red-100 text-red-700',
-  editor: 'bg-blue-100 text-blue-700',
-  viewer: 'bg-gray-100 text-gray-600',
+  admin: 'bg-red-500/15 text-red-400',
+  editor: 'bg-blue-500/15 text-blue-400',
+  viewer: 'bg-dinamo-dark-lighter text-gray-400',
 }
 
 export default function Admin() {
@@ -106,8 +106,8 @@ export default function Admin() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-red-600" />
+          <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-red-400" />
           </div>
           <div>
             <h1 className="section-title">Administracija</h1>
@@ -121,16 +121,16 @@ export default function Admin() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-red-500/15 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
           {error}
-          <button onClick={() => setError('')} className="float-right text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+          <button onClick={() => setError('')} className="float-right text-red-400 hover:text-red-300"><X className="w-4 h-4" /></button>
         </div>
       )}
 
       {/* Create Modal */}
       {showCreate && (
         <div className="card border-dinamo-accent/30">
-          <h3 className="font-headline text-sm tracking-wider text-gray-900 mb-4">NOVI KORISNIK</h3>
+          <h3 className="font-headline text-sm tracking-wider text-white mb-4">NOVI KORISNIK</h3>
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="email"
@@ -138,7 +138,7 @@ export default function Admin() {
               required
               value={createForm.email}
               onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-dinamo-dark-lighter border-dinamo-dark-border text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
             />
             <input
               type="password"
@@ -147,7 +147,7 @@ export default function Admin() {
               minLength={6}
               value={createForm.password}
               onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-dinamo-dark-lighter border-dinamo-dark-border text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
             />
             <input
               type="text"
@@ -155,12 +155,12 @@ export default function Admin() {
               required
               value={createForm.full_name}
               onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-dinamo-dark-lighter border-dinamo-dark-border text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
             />
             <select
               value={createForm.role}
               onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-dinamo-dark-lighter border-dinamo-dark-border text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/50 focus:border-dinamo-accent outline-none"
             >
               {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
             </select>
@@ -181,7 +181,7 @@ export default function Admin() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-100">
+              <tr className="text-left text-gray-500 border-b border-dinamo-dark-border">
                 <th className="pb-3 font-medium">Korisnik</th>
                 <th className="pb-3 font-medium hidden sm:table-cell">Email</th>
                 <th className="pb-3 font-medium">Uloga</th>
@@ -190,15 +190,15 @@ export default function Admin() {
                 <th className="pb-3 font-medium text-right">Akcije</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-dinamo-dark-border">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50/50">
+                <tr key={u.id} className="hover:bg-white/5">
                   <td className="py-3">
                     {editingId === u.id ? (
                       <input
                         value={editForm.full_name}
                         onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                        className="px-2 py-1 border border-gray-200 rounded text-sm w-full max-w-[180px]"
+                        className="px-2 py-1 bg-dinamo-dark-lighter border border-dinamo-dark-border text-gray-200 rounded text-sm w-full max-w-[180px]"
                       />
                     ) : (
                       <div className="flex items-center gap-2">
@@ -215,7 +215,7 @@ export default function Admin() {
                       <select
                         value={editForm.role}
                         onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                        className="px-2 py-1 border border-gray-200 rounded text-xs"
+                        className="px-2 py-1 bg-dinamo-dark-lighter border border-dinamo-dark-border text-gray-200 rounded text-xs"
                       >
                         {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
                       </select>
@@ -232,7 +232,7 @@ export default function Admin() {
                           type="checkbox"
                           checked={editForm.is_active}
                           onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
-                          className="rounded border-gray-300"
+                          className="rounded border-dinamo-dark-border"
                         />
                         Aktivan
                       </label>
@@ -248,20 +248,20 @@ export default function Admin() {
                   <td className="py-3 text-right">
                     {editingId === u.id ? (
                       <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => handleEdit(u.id)} className="p-1.5 rounded-lg text-green-600 hover:bg-green-50" title="Spremi">
+                        <button onClick={() => handleEdit(u.id)} className="p-1.5 rounded-lg text-green-600 hover:bg-green-500/15" title="Spremi">
                           <Check className="w-4 h-4" />
                         </button>
-                        <button onClick={() => setEditingId(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" title="Odustani">
+                        <button onClick={() => setEditingId(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-white/10" title="Odustani">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => startEdit(u)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Uredi">
+                        <button onClick={() => startEdit(u)} className="p-1.5 rounded-lg text-gray-400 hover:bg-white/10 hover:text-gray-300" title="Uredi">
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         {u.id !== currentUser?.id && u.is_active && (
-                          <button onClick={() => handleDeactivate(u.id)} className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600" title="Deaktiviraj">
+                          <button onClick={() => handleDeactivate(u.id)} className="p-1.5 rounded-lg text-gray-400 hover:bg-red-500/15 hover:text-red-400" title="Deaktiviraj">
                             <UserX className="w-3.5 h-3.5" />
                           </button>
                         )}

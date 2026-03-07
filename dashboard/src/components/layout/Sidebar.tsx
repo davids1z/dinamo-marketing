@@ -162,7 +162,7 @@ export default function Sidebar() {
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:border-dinamo-accent hover:bg-dinamo-accent hover:text-gray-900 text-gray-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-dinamo-dark-lighter border border-dinamo-dark-border shadow-md flex items-center justify-center hover:border-dinamo-accent hover:bg-dinamo-accent hover:text-gray-900 text-gray-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
           style={{ left: collapsed ? 72 - 12 : 256 - 12 }}
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>

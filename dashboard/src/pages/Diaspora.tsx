@@ -92,8 +92,8 @@ const fallbackData: DiasporaData = {
 }
 
 const langColors: Record<string, string> = {
-  HR: 'bg-red-100 text-red-600 border-red-200',
-  EN: 'bg-blue-100 text-blue-600 border-blue-200',
+  HR: 'bg-red-500/15 text-red-400 border-red-500/30',
+  EN: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
   DE: 'bg-yellow-100 text-yellow-600 border-yellow-200',
 }
 
@@ -120,25 +120,25 @@ export default function Diaspora() {
       <Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" />
 
       <div className="page-wrapper space-y-6">
-        
+
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className="card">
             <div className="flex items-center gap-2 text-dinamo-muted mb-1"><Globe size={16} />Dr\u017eava</div>
-            <p className="text-3xl font-bold text-gray-900">{communities.length}</p>
+            <p className="text-3xl font-bold text-white">{communities.length}</p>
           </div>
           <div className="card">
             <div className="flex items-center gap-2 text-dinamo-muted mb-1"><Users size={16} />Ukupna dijaspora</div>
-            <p className="text-3xl font-bold text-gray-900">{(totalPopulation / 1000).toFixed(0)}K</p>
+            <p className="text-3xl font-bold text-white">{(totalPopulation / 1000).toFixed(0)}K</p>
           </div>
           <div className="card">
             <div className="flex items-center gap-2 text-dinamo-muted mb-1"><Users size={16} />Aktivni online</div>
-            <p className="text-3xl font-bold text-gray-900">{(totalActive / 1000).toFixed(1)}K</p>
+            <p className="text-3xl font-bold text-white">{(totalActive / 1000).toFixed(1)}K</p>
           </div>
           <div className="card">
             <div className="flex items-center gap-2 text-dinamo-muted mb-1"><MapPin size={16} />Navija\u010dki klubovi</div>
-            <p className="text-3xl font-bold text-gray-900">{totalClubs}</p>
+            <p className="text-3xl font-bold text-white">{totalClubs}</p>
           </div>
         </div>
 
@@ -152,26 +152,26 @@ export default function Diaspora() {
           <h2 className="section-title mb-4">Detalji zajednice</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {communities.map((community) => (
-              <div key={community.country} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200">
+              <div key={community.country} className="bg-dinamo-dark-lighter rounded-lg p-4 hover:bg-white/10 transition-colors border border-dinamo-dark-border">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-2xl">{community.flag}</span>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">{community.country}</h3>
+                    <h3 className="text-sm font-medium text-white">{community.country}</h3>
                     <p className="text-xs text-dinamo-muted">{community.city}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-dinamo-muted text-xs">Population</p>
-                    <p className="text-gray-700 font-mono">{(community.population / 1000).toFixed(0)}K</p>
+                    <p className="text-gray-300 font-mono">{(community.population / 1000).toFixed(0)}K</p>
                   </div>
                   <div>
                     <p className="text-dinamo-muted text-xs">Active Members</p>
-                    <p className="text-gray-700 font-mono">{(community.activeMembers / 1000).toFixed(1)}K</p>
+                    <p className="text-gray-300 font-mono">{(community.activeMembers / 1000).toFixed(1)}K</p>
                   </div>
                   <div>
                     <p className="text-dinamo-muted text-xs">Fan Clubs</p>
-                    <p className="text-gray-700">{community.fanClubs}</p>
+                    <p className="text-gray-300">{community.fanClubs}</p>
                   </div>
                   <div>
                     <p className="text-dinamo-muted text-xs">Engagement</p>
@@ -191,12 +191,12 @@ export default function Diaspora() {
           </div>
           <div className="space-y-3">
             {contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
+                    <h3 className="text-sm font-medium text-white">{item.title}</h3>
                     {item.languages.map((lang) => (
-                      <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-gray-100 text-gray-600'}`}>
+                      <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-dinamo-dark-lighter text-gray-400'}`}>
                         {lang}
                       </span>
                     ))}
@@ -204,16 +204,16 @@ export default function Diaspora() {
                   <p className="text-xs text-dinamo-muted mt-1">{item.description}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-dinamo-muted">{item.platform}</span>
-                    <span className="text-xs text-gray-200">|</span>
+                    <span className="text-xs text-dinamo-dark-border">|</span>
                     <span className="text-xs text-dinamo-muted flex items-center gap-1"><Calendar size={10} />{item.date}</span>
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-4 ${
-                  item.status === 'Spremno' ? 'bg-green-100 text-green-600' :
-                  item.status === 'Zakazano' ? 'bg-blue-100 text-blue-600' :
+                  item.status === 'Spremno' ? 'bg-green-500/15 text-green-400' :
+                  item.status === 'Zakazano' ? 'bg-blue-500/15 text-blue-400' :
                   item.status === 'U produkciji' ? 'bg-purple-100 text-purple-600' :
                   item.status === 'Pregled scenarija' ? 'bg-yellow-100 text-yellow-600' :
-                  'bg-gray-100 text-gray-600'
+                  'bg-dinamo-dark-lighter text-gray-400'
                 }`}>
                   {item.status}
                 </span>

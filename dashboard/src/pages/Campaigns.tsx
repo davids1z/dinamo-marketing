@@ -74,35 +74,35 @@ export default function Campaigns() {
   const columns = [
     { key: 'name', header: 'Kampanja', render: (row: CampaignRow) => (
       <div className="min-w-0">
-        <span className="text-gray-900 font-medium truncate block">{row.name}</span>
+        <span className="text-white font-medium truncate block">{row.name}</span>
         <p className="text-xs text-dinamo-muted mt-0.5 truncate">{row.market}</p>
       </div>
     )},
-    { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-gray-600 text-sm">{row.platform}</span> },
+    { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-gray-400 text-sm">{row.platform}</span> },
     { key: 'status', header: 'Status', render: (row: CampaignRow) => <StatusBadge status={row.status} /> },
-    { key: 'budget', header: 'Budzet', render: (row: CampaignRow) => <span className="text-gray-600 font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
+    { key: 'budget', header: 'Budzet', render: (row: CampaignRow) => <span className="text-gray-400 font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
     { key: 'spend', header: 'Potrosnja', render: (row: CampaignRow) => (
       <div>
-        <span className="text-gray-700 font-mono">EUR{row.spend.toLocaleString()}</span>
-        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+        <span className="text-gray-300 font-mono">EUR{row.spend.toLocaleString()}</span>
+        <div className="w-full bg-dinamo-dark-border rounded-full h-1 mt-1">
           <div className="bg-dinamo-accent h-1 rounded-full transition-all" style={{ width: `${(row.spend / row.budget) * 100}%` }} />
         </div>
       </div>
     ), align: 'right' as const },
     { key: 'ctr', header: 'CTR', render: (row: CampaignRow) => (
-      <span className={`font-mono ${row.ctr > 3 ? 'text-green-600' : row.ctr > 2 ? 'text-yellow-600' : 'text-gray-600'}`}>{row.ctr}%</span>
+      <span className={`font-mono ${row.ctr > 3 ? 'text-green-600' : row.ctr > 2 ? 'text-yellow-600' : 'text-gray-400'}`}>{row.ctr}%</span>
     ), align: 'right' as const },
     { key: 'roas', header: 'ROAS', render: (row: CampaignRow) => (
-      <span className={`font-bold font-mono ${row.roas > 3 ? 'text-green-600' : row.roas > 2 ? 'text-yellow-600' : 'text-red-600'}`}>{row.roas}x</span>
+      <span className={`font-bold font-mono ${row.roas > 3 ? 'text-green-600' : row.roas > 2 ? 'text-yellow-600' : 'text-red-400'}`}>{row.roas}x</span>
     ), align: 'right' as const },
     { key: 'actions', header: '', render: (row: CampaignRow) => (
       <div className="flex items-center gap-1">
         {(row.status === 'aktivna' || row.status === 'active') ? (
-          <button onClick={() => handlePause(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-yellow-50 rounded text-yellow-600" title="Pauziraj">
+          <button onClick={() => handlePause(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-yellow-500/15 rounded text-yellow-600" title="Pauziraj">
             <Pause size={14} />
           </button>
         ) : (
-          <button onClick={() => handleResume(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-green-50 rounded text-green-600" title="Nastavi">
+          <button onClick={() => handleResume(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-green-500/15 rounded text-green-600" title="Nastavi">
             <Play size={14} />
           </button>
         )}
@@ -124,7 +124,6 @@ export default function Campaigns() {
           <MetricCard label="Prosj. ROAS" value={Number(avgRoas.toFixed(1))} format="number" icon={BarChart3} />
         </div>
 
-        
 
         {/* Campaigns Table */}
         <div className="card overflow-hidden">
@@ -154,7 +153,7 @@ export default function Campaigns() {
                 <div
                   key={variant.name}
                   className={`relative rounded-lg border p-5 space-y-3 transition-all hover:-translate-y-0.5 ${
-                    isWinner ? 'border-green-300 bg-green-50 shadow-md' : 'border-gray-200 bg-gray-50'
+                    isWinner ? 'border-green-500/40 bg-green-500/10 shadow-md' : 'border-dinamo-dark-border bg-dinamo-dark-lighter'
                   }`}
                 >
                   {isWinner && (
@@ -162,15 +161,15 @@ export default function Campaigns() {
                   )}
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${variant.color}`} />
-                    <h3 className="text-gray-900 font-medium">{variant.name}</h3>
+                    <h3 className="text-white font-medium">{variant.name}</h3>
                   </div>
                   <p className="text-xs text-dinamo-muted">{variant.description}</p>
-                  <div className="space-y-2 pt-2 border-t border-gray-200">
-                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Prikazivanja</span><span className="text-gray-700 font-mono">{variant.impressions.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Klikovi</span><span className="text-gray-700 font-mono">{variant.clicks.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-gray-700'}`}>{variant.ctr}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Konverzije</span><span className="text-gray-700 font-mono">{variant.conversions}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Potrosnja</span><span className="text-gray-700 font-mono">EUR{variant.spend}</span></div>
+                  <div className="space-y-2 pt-2 border-t border-dinamo-dark-border">
+                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Prikazivanja</span><span className="text-gray-300 font-mono">{variant.impressions.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Klikovi</span><span className="text-gray-300 font-mono">{variant.clicks.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-gray-300'}`}>{variant.ctr}%</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Konverzije</span><span className="text-gray-300 font-mono">{variant.conversions}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-dinamo-muted">Potrosnja</span><span className="text-gray-300 font-mono">EUR{variant.spend}</span></div>
                   </div>
                 </div>
               )

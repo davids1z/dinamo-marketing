@@ -70,7 +70,7 @@ export default function ChannelAudit() {
       <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
 
       <div className="page-wrapper space-y-6">
-        
+
 
         {/* Platform Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -79,13 +79,13 @@ export default function ChannelAudit() {
               <div className="flex items-center justify-between">
                 <PlatformIcon platform={p.platform} size={28} showLabel />
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  p.followers > p.prevFollowers ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                  p.followers > p.prevFollowers ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
                 }`}>
                   {p.followers > p.prevFollowers ? '+' : ''}{(((p.followers - p.prevFollowers) / p.prevFollowers) * 100).toFixed(1)}%
                 </span>
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-white">
                   {p.platform === 'web'
                     ? `${(p.followers / 1000).toFixed(0)}K visits`
                     : p.followers >= 1000000
@@ -94,10 +94,10 @@ export default function ChannelAudit() {
                   }
                 </p>
                 <p className="text-xs text-dinamo-muted mt-1">
-                  Stopa ang.: <span className="text-gray-600">{p.engagement}%</span>
+                  Stopa ang.: <span className="text-gray-400">{p.engagement}%</span>
                 </p>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div className="w-full bg-dinamo-dark-border rounded-full h-1.5">
                 <div
                   className="bg-blue-500 h-1.5 rounded-full"
                   style={{ width: `${Math.min(p.engagement * 15, 100)}%` }}
@@ -118,8 +118,8 @@ export default function ChannelAudit() {
           <div className="space-y-3">
             {formatBreakdown.map((f) => (
               <div key={f.type} className="flex items-center gap-4">
-                <span className="text-sm text-gray-600 w-40 shrink-0 truncate">{f.type}</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-3">
+                <span className="text-sm text-gray-400 w-40 shrink-0 truncate">{f.type}</span>
+                <div className="flex-1 bg-dinamo-dark-border rounded-full h-3">
                   <div
                     className="bg-gradient-to-r from-blue-600 to-blue-400 h-3 rounded-full transition-all"
                     style={{ width: `${f.share}%` }}
@@ -127,7 +127,7 @@ export default function ChannelAudit() {
                 </div>
                 <span className="text-sm text-dinamo-muted w-12 text-right hidden sm:flex justify-end">{f.share}%</span>
                 <span className="text-sm text-dinamo-muted w-20 text-right hidden sm:flex justify-end">{f.posts} objava</span>
-                <span className="text-sm text-emerald-600 w-16 text-right hidden sm:flex justify-end">{f.avgEngagement}% ang</span>
+                <span className="text-sm text-emerald-400 w-16 text-right hidden sm:flex justify-end">{f.avgEngagement}% ang</span>
               </div>
             ))}
           </div>

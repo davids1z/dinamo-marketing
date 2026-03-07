@@ -23,12 +23,12 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
   const isPositive = trend !== null && trend >= 0
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300 group">
+    <div className="bg-dinamo-dark-light border border-dinamo-dark-border rounded-2xl p-5 shadow-card hover:shadow-card-hover hover:border-dinamo-accent/20 hover:-translate-y-0.5 transition-all duration-300 group">
       <div className="flex items-start justify-between mb-3">
-        <p className="text-xs uppercase tracking-wider text-dinamo-muted font-medium">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-dinamo-muted-light font-medium">{label}</p>
         {Icon && (
           <div className="w-9 h-9 rounded-xl bg-dinamo-accent/10 flex items-center justify-center group-hover:bg-dinamo-accent/20 transition-colors">
-            <Icon size={17} className="text-dinamo-accent-dark" />
+            <Icon size={17} className="text-dinamo-accent" />
           </div>
         )}
       </div>
@@ -37,12 +37,12 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
         <div className="flex items-center gap-2 mt-3">
           <div className={clsx(
             'flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold',
-            isPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+            isPositive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
           )}>
             {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
             {isPositive ? '+' : ''}{trend.toFixed(1)}%
           </div>
-          <span className="text-[11px] text-gray-400">u odnosu na prošli period</span>
+          <span className="text-[11px] text-gray-500">u odnosu na prošli period</span>
         </div>
       )}
     </div>

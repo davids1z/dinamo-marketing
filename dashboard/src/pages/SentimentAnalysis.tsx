@@ -83,7 +83,7 @@ export default function SentimentAnalysis() {
       <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
 
       <div className="page-wrapper space-y-6">
-        
+
 
         {/* Donut + Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -93,24 +93,24 @@ export default function SentimentAnalysis() {
           <div className="lg:col-span-2 card space-y-4">
             <h3 className="section-title">Sa\u017Eetak sentimenta</h3>
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-emerald-500/15 border border-green-500/30 rounded-lg p-4">
                 <p className="text-3xl font-bold text-green-600">{data.positive}%</p>
                 <p className="text-sm text-dinamo-muted mt-1">Pozitivno</p>
                 <p className="text-xs text-green-600 flex items-center gap-1 mt-2">
                   <TrendingUp size={12} /> {data.positiveChange} u odnosu na pro\u0161li tjedan
                 </p>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <p className="text-3xl font-bold text-gray-600">{data.neutral}%</p>
+              <div className="bg-dinamo-dark-lighter border border-dinamo-dark-border rounded-lg p-4">
+                <p className="text-3xl font-bold text-gray-400">{data.neutral}%</p>
                 <p className="text-sm text-dinamo-muted mt-1">Neutralno</p>
                 <p className="text-xs text-dinamo-muted flex items-center gap-1 mt-2">
                   <TrendingDown size={12} /> {data.neutralChange} u odnosu na pro\u0161li tjedan
                 </p>
               </div>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-3xl font-bold text-red-600">{data.negative}%</p>
+              <div className="bg-red-500/15 border border-red-500/30 rounded-lg p-4">
+                <p className="text-3xl font-bold text-red-400">{data.negative}%</p>
                 <p className="text-sm text-dinamo-muted mt-1">Negativno</p>
-                <p className="text-xs text-red-600 flex items-center gap-1 mt-2">
+                <p className="text-xs text-red-400 flex items-center gap-1 mt-2">
                   <TrendingUp size={12} /> {data.negativeChange} u odnosu na pro\u0161li tjedan
                 </p>
               </div>
@@ -131,25 +131,25 @@ export default function SentimentAnalysis() {
           {/* Top Topics */}
           <div className="card">
             <div className="flex items-center gap-2 mb-4">
-              <Hash size={20} className="text-blue-600" />
+              <Hash size={20} className="text-blue-400" />
               <h2 className="section-title">Naj\u010De\u0161\u0107e teme</h2>
             </div>
             <div className="space-y-3">
               {data.topics.map((topic) => (
-                <div key={topic.topic} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={topic.topic} className="flex items-center justify-between p-3 bg-dinamo-dark-lighter rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{topic.icon}</span>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{topic.topic}</p>
+                      <p className="text-sm font-medium text-white">{topic.topic}</p>
                       <p className="text-xs text-dinamo-muted">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      topic.sentiment === 'positive' ? 'bg-green-100 text-green-600' :
-                      topic.sentiment === 'negative' ? 'bg-red-100 text-red-600' :
+                      topic.sentiment === 'positive' ? 'bg-green-500/15 text-green-400' :
+                      topic.sentiment === 'negative' ? 'bg-red-500/15 text-red-400' :
                       topic.sentiment === 'mixed' ? 'bg-yellow-100 text-yellow-600' :
-                      'bg-gray-100 text-gray-600'
+                      'bg-dinamo-dark-lighter text-gray-400'
                     }`}>
                       {topic.sentiment}
                     </span>
@@ -174,13 +174,13 @@ export default function SentimentAnalysis() {
                   key={alert.id}
                   className={`p-4 rounded-lg border ${
                     alert.severity === 'warning'
-                      ? 'bg-yellow-50 border-yellow-200'
-                      : 'bg-blue-50 border-blue-200'
+                      ? 'bg-amber-500/15 border-amber-500/30'
+                      : 'bg-blue-500/15 border-blue-500/30'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <h3 className={`text-sm font-medium ${
-                      alert.severity === 'warning' ? 'text-yellow-600' : 'text-blue-600'
+                      alert.severity === 'warning' ? 'text-amber-400' : 'text-blue-400'
                     }`}>
                       {alert.title}
                     </h3>

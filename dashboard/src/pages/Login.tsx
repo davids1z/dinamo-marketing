@@ -42,23 +42,23 @@ export default function Login() {
         </div>
 
         {/* Form card */}
-        <div className="bg-white rounded-3xl p-8 shadow-2xl shadow-black/20 border border-white/20">
+        <div className="bg-dinamo-dark-light rounded-3xl p-8 shadow-2xl shadow-black/20 border border-dinamo-dark-border">
           <div className="flex items-center gap-2.5 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-dinamo-dark-lighter flex items-center justify-center">
               <Lock className="w-4 h-4 text-dinamo-muted" />
             </div>
-            <h2 className="font-headline text-lg text-gray-900">Prijava</h2>
+            <h2 className="font-headline text-lg text-white">Prijava</h2>
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 font-medium">
+            <div className="mb-5 p-3.5 bg-red-900/20 border border-red-800/30 rounded-xl text-sm text-red-400 font-medium">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1.5">E-mail adresa</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">E-mail adresa</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -66,13 +66,13 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 text-sm text-gray-900 bg-slate-50/50 transition-all placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-3 border border-dinamo-dark-border rounded-xl focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 text-sm text-white bg-dinamo-dark-lighter transition-all placeholder-gray-400"
                   placeholder="email@primjer.hr"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1.5">Lozinka</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">Lozinka</label>
               <div className="relative">
                 <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -80,7 +80,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 text-sm text-gray-900 bg-slate-50/50 transition-all placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-3 border border-dinamo-dark-border rounded-xl focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 text-sm text-white bg-dinamo-dark-lighter transition-all placeholder-gray-400"
                 />
               </div>
             </div>

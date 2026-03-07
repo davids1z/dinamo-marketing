@@ -74,11 +74,11 @@ const fallbackOverview: OverviewData = {
 }
 
 const activityIcons: Record<string, { icon: LucideIcon; color: string; bg: string; border: string }> = {
-  follow: { icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-l-emerald-400' },
-  comment: { icon: MessageCircle, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-l-blue-400' },
-  campaign: { icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-l-violet-400' },
-  alert: { icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-l-amber-400' },
-  report: { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-l-emerald-400' },
+  follow: { icon: UserPlus, color: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-l-emerald-400' },
+  comment: { icon: MessageCircle, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-l-blue-400' },
+  campaign: { icon: TrendingUp, color: 'text-violet-400', bg: 'bg-violet-500/15', border: 'border-l-violet-400' },
+  alert: { icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-l-amber-400' },
+  report: { icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-l-emerald-400' },
 }
 
 function mapApiToOverview(api: ApiOverview): Partial<OverviewData> {
@@ -178,13 +178,13 @@ export default function Dashboard() {
               const iconInfo = activityIcons[item.type] || activityIcons.report
               const Icon = iconInfo.icon
               return (
-                <div key={item.id} className={`flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 hover:bg-slate-100/80 transition-all border-l-[3px] ${iconInfo.border}`}>
+                <div key={item.id} className={`flex items-start gap-3 p-3.5 rounded-xl bg-dinamo-dark-lighter/50 hover:bg-dinamo-dark-lighter transition-all border-l-[3px] ${iconInfo.border}`}>
                   <div className={`w-8 h-8 rounded-lg ${iconInfo.bg} flex items-center justify-center flex-shrink-0`}>
                     <Icon size={15} className={iconInfo.color} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-700 leading-snug">{item.text}</p>
-                    <p className="text-[11px] text-gray-400 mt-1">{item.time}</p>
+                    <p className="text-sm text-gray-300 leading-snug">{item.text}</p>
+                    <p className="text-[11px] text-gray-500 mt-1">{item.time}</p>
                   </div>
                 </div>
               )

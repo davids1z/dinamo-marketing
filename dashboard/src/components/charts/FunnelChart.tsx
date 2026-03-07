@@ -16,7 +16,7 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
 
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
       <div className="space-y-3">
         {steps.map((step, idx) => {
           const widthPct = Math.min((step.value / maxValue) * 100, 100)
@@ -27,15 +27,15 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
           return (
             <div key={step.label}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-gray-600">{step.label}</span>
+                <span className="text-sm text-gray-400">{step.label}</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-stats text-gray-900">{formatNumber(step.value)}</span>
+                  <span className="font-stats text-white">{formatNumber(step.value)}</span>
                   {idx > 0 && (
                     <span className="text-xs text-gray-400">({conversionRate}%)</span>
                   )}
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-6 overflow-hidden">
+              <div className="w-full bg-dinamo-dark-lighter rounded-full h-6 overflow-hidden">
                 <div
                   className="h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                   style={{ width: `${widthPct}%`, backgroundColor: step.color }}

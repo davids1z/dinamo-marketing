@@ -88,7 +88,7 @@ export default function Analytics() {
               <p className="text-xs text-dinamo-muted">ROAS</p>
             </div>
             <div className="card text-center">
-              <Target size={20} className="mx-auto text-blue-600 mb-1" />
+              <Target size={20} className="mx-auto text-blue-400 mb-1" />
               <p className="text-2xl font-bold font-mono">{paid.conversions}</p>
               <p className="text-xs text-dinamo-muted">Konverzije</p>
             </div>
@@ -130,12 +130,12 @@ export default function Analytics() {
 
           <div className="space-y-3">
             {topPosts.map((post, index) => (
-              <div key={post.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-sm font-bold text-gray-600 flex-shrink-0">
+              <div key={post.id} className="flex items-center gap-4 p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-dinamo-dark-border text-sm font-bold text-gray-400 flex-shrink-0">
                   {index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 truncate">{post.title}</h3>
+                  <h3 className="text-sm font-medium text-white truncate">{post.title}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-dinamo-muted">{post.platform}</span>
                     <span className="text-xs text-dinamo-muted">|</span>
@@ -158,7 +158,7 @@ export default function Analytics() {
                     <p className="text-xs text-dinamo-muted">Angazman</p>
                   </div>
                   <div className="text-center">
-                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-600'}`}>
+                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-400'}`}>
                       {post.engRate}%
                     </span>
                     <p className="text-xs text-dinamo-muted">Stopa ang.</p>

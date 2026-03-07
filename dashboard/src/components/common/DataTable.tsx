@@ -33,7 +33,7 @@ export default function DataTable<T extends Record<string, unknown>>({
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr className="border-b border-dinamo-dark-border">
             {columns.map((col) => (
               <th
                 key={col.key}
@@ -55,8 +55,8 @@ export default function DataTable<T extends Record<string, unknown>>({
               key={idx}
               onClick={() => onRowClick?.(item)}
               className={clsx(
-                'border-b border-gray-100 transition-colors',
-                onRowClick && 'cursor-pointer hover:bg-gray-50'
+                'border-b border-dinamo-dark-border/50 transition-colors',
+                onRowClick && 'cursor-pointer hover:bg-white/5'
               )}
             >
               {columns.map((col) => (

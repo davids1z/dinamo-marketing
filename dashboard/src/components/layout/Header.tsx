@@ -10,9 +10,9 @@ interface HeaderProps {
 }
 
 const severityConfig: Record<string, { icon: typeof TrendingUp; iconColor: string; iconBg: string; accentColor: string }> = {
-  info: { icon: TrendingUp, iconColor: 'text-blue-600', iconBg: 'bg-blue-50', accentColor: 'border-l-blue-500' },
-  warning: { icon: AlertTriangle, iconColor: 'text-amber-600', iconBg: 'bg-amber-50', accentColor: 'border-l-amber-500' },
-  critical: { icon: Zap, iconColor: 'text-red-600', iconBg: 'bg-red-50', accentColor: 'border-l-red-500' },
+  info: { icon: TrendingUp, iconColor: 'text-blue-400', iconBg: 'bg-blue-500/15', accentColor: 'border-l-blue-500' },
+  warning: { icon: AlertTriangle, iconColor: 'text-amber-400', iconBg: 'bg-amber-500/15', accentColor: 'border-l-amber-500' },
+  critical: { icon: Zap, iconColor: 'text-red-400', iconBg: 'bg-red-500/15', accentColor: 'border-l-red-500' },
 }
 
 function timeAgo(dateStr: string): string {
@@ -55,28 +55,28 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
   }, [showNotifs])
 
   return (
-    <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-xl sticky top-0 z-30 shadow-glass">
+    <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-dinamo-dark-light/80 backdrop-blur-xl sticky top-0 z-30 border-b border-dinamo-dark-border">
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors"
+          className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
         >
-          <Menu className="w-5 h-5 text-gray-500" />
+          <Menu className="w-5 h-5 text-gray-400" />
         </button>
         <div className="min-w-0">
-          <h2 className="font-headline text-lg sm:text-xl tracking-wider text-gray-900 font-bold truncate">{title}</h2>
-          {subtitle && <p className="text-xs text-dinamo-muted truncate -mt-0.5">{subtitle}</p>}
+          <h2 className="font-headline text-lg sm:text-xl tracking-wider text-white font-bold truncate">{title}</h2>
+          {subtitle && <p className="text-xs text-dinamo-muted-light truncate -mt-0.5">{subtitle}</p>}
         </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
         {actions}
         <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
             placeholder="Pretraži..."
-            className="bg-gray-50/80 border border-gray-200/80 rounded-xl pl-9 pr-4 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 w-52 transition-all"
+            className="bg-dinamo-dark-lighter/80 border border-dinamo-dark-border rounded-xl pl-9 pr-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 w-52 transition-all"
           />
         </div>
 
@@ -84,11 +84,11 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setShowNotifs(!showNotifs); setExpandedId(null) }}
-            className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+            className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
           >
-            <Bell className="w-5 h-5 text-gray-500" />
+            <Bell className="w-5 h-5 text-gray-400" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 ring-2 ring-white">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 ring-2 ring-dinamo-dark-light">
                 {unreadCount}
               </span>
             )}
@@ -99,18 +99,18 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
             {/* Backdrop overlay to block background interaction */}
             <div className="fixed inset-0 z-40" onClick={() => { setShowNotifs(false); setExpandedId(null) }} />
             <div
-              className="absolute top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in"
+              className="absolute top-full mt-2 bg-dinamo-dark-light rounded-2xl shadow-xl border border-dinamo-dark-border overflow-hidden z-50 animate-fade-in"
               style={{ width: '380px', maxWidth: 'calc(100vw - 24px)', right: '-8px' }}
             >
               {/* Header */}
-              <div className="px-5 py-4 bg-slate-50/80 border-b border-gray-100 flex items-center justify-between">
+              <div className="px-5 py-4 bg-dinamo-dark-lighter/80 border-b border-dinamo-dark-border flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center">
-                    <Bell className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-xl bg-dinamo-accent flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-gray-900" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900">Obavijesti</h3>
-                    <p className="text-[11px] text-gray-500">{notifications.length} ukupno · {unreadCount} nepročitane</p>
+                    <h3 className="text-sm font-bold text-white">Obavijesti</h3>
+                    <p className="text-[11px] text-gray-400">{notifications.length} ukupno · {unreadCount} nepročitane</p>
                   </div>
                 </div>
                 {unreadCount > 0 && (
@@ -121,11 +121,11 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
               </div>
 
               {/* Notification list */}
-              <div className="max-h-[440px] overflow-y-auto divide-y divide-gray-50">
+              <div className="max-h-[440px] overflow-y-auto divide-y divide-dinamo-dark-border/50">
                 {notifications.length === 0 ? (
                   <div className="px-5 py-12 text-center">
-                    <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-400">Nema obavijesti</p>
+                    <Bell className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Nema obavijesti</p>
                   </div>
                 ) : (
                   notifications.map((n: Notification) => {
@@ -133,9 +133,9 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                     const cfg = severityConfig[n.severity] || severityConfig.info
                     const Icon = cfg.icon
                     return (
-                      <div key={n.id} className={`border-l-[3px] ${cfg.accentColor} transition-colors ${!n.is_read ? 'bg-blue-50/30' : 'bg-white'}`}>
+                      <div key={n.id} className={`border-l-[3px] ${cfg.accentColor} transition-colors ${!n.is_read ? 'bg-dinamo-blue/5' : 'bg-transparent'}`}>
                         <div
-                          className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50/80 transition-colors"
+                          className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-white/5 transition-colors"
                           onClick={() => setExpandedId(isExpanded ? null : n.id)}
                         >
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.iconBg}`}>
@@ -143,7 +143,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="text-[13px] font-semibold text-gray-900 leading-tight truncate">{n.title}</p>
+                              <p className="text-[13px] font-semibold text-white leading-tight truncate">{n.title}</p>
                               {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
                             </div>
                             <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">{n.body}</p>

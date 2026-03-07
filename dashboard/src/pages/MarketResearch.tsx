@@ -39,29 +39,29 @@ const columns = [
   { key: 'country', header: 'Drzava', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <span className="text-xs text-dinamo-muted font-mono w-6">{row.code}</span>
-      <span className="text-gray-900 font-medium truncate">{row.country}</span>
+      <span className="text-white font-medium truncate">{row.country}</span>
     </div>
   )},
   { key: 'region', header: 'Regija', render: (row: MarketRow) => <span className="text-dinamo-muted">{row.region}</span> },
-  { key: 'population', header: 'Populacija', render: (row: MarketRow) => <span className="text-gray-600">{row.population}</span> },
+  { key: 'population', header: 'Populacija', render: (row: MarketRow) => <span className="text-gray-400">{row.population}</span> },
   { key: 'footballInterest', header: 'Interes za nogomet', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <div className="w-16 bg-gray-200 rounded-full h-2">
+      <div className="w-16 bg-dinamo-dark-border rounded-full h-2">
         <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${row.footballInterest}%` }} />
       </div>
-      <span className="text-gray-600 text-sm">{row.footballInterest}</span>
+      <span className="text-gray-400 text-sm">{row.footballInterest}</span>
     </div>
   )},
   { key: 'diaspora', header: 'Dijaspora', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
-      <div className="w-16 bg-gray-200 rounded-full h-2">
+      <div className="w-16 bg-dinamo-dark-border rounded-full h-2">
         <div className="bg-purple-500 h-2 rounded-full transition-all" style={{ width: `${row.diaspora}%` }} />
       </div>
-      <span className="text-gray-600 text-sm">{row.diaspora}</span>
+      <span className="text-gray-400 text-sm">{row.diaspora}</span>
     </div>
   )},
   { key: 'totalScore', header: 'Ukupni rezultat', render: (row: MarketRow) => (
-    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-600' : row.rank <= 10 ? 'text-gray-900' : 'text-dinamo-muted'}`}>
+    <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-600' : row.rank <= 10 ? 'text-white' : 'text-dinamo-muted'}`}>
       {row.totalScore}
     </span>
   )},
@@ -108,7 +108,6 @@ export default function MarketResearch() {
           </div>
         </div>
 
-        
 
         {/* Top Markets Chart */}
         <div className="card">

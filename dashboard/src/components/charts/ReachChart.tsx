@@ -9,7 +9,7 @@ interface ReachChartProps {
 export function ReachChart({ data, title }: ReachChartProps) {
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={data}>
           <defs>

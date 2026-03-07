@@ -101,7 +101,7 @@ const fallbackData: SocialListeningData = {
 
 const sentimentIcon = (s: string) => {
   if (s === 'positive') return <ThumbsUp size={14} className="text-green-600" />;
-  if (s === 'negative') return <ThumbsDown size={14} className="text-red-600" />;
+  if (s === 'negative') return <ThumbsDown size={14} className="text-red-400" />;
   return <Minus size={14} className="text-dinamo-muted" />;
 };
 
@@ -116,7 +116,7 @@ export default function SocialListening() {
       <Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" />
 
       <div className="page-wrapper space-y-6">
-        
+
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -130,26 +130,26 @@ export default function SocialListening() {
           {/* Recent Mentions */}
           <div className="lg:col-span-2 card">
             <div className="flex items-center gap-2 mb-4">
-              <Globe size={20} className="text-blue-600" />
+              <Globe size={20} className="text-blue-400" />
               <h2 className="section-title">Nedavna spominjanja</h2>
             </div>
             <div className="space-y-3">
               {data.recentMentions.map((mention) => (
-                <div key={mention.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={mention.id} className="p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <PlatformIcon platform={mention.platform} size="sm" />
-                      <span className="text-sm font-medium text-blue-600">{mention.author}</span>
+                      <span className="text-sm font-medium text-blue-400">{mention.author}</span>
                       {sentimentIcon(mention.sentiment)}
                     </div>
                     <span className="text-xs text-dinamo-muted">{mention.time}</span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2 leading-relaxed">{mention.text}</p>
+                  <p className="text-sm text-gray-400 mt-2 leading-relaxed">{mention.text}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      mention.sentiment === 'positive' ? 'bg-green-100 text-green-600' :
-                      mention.sentiment === 'negative' ? 'bg-red-100 text-red-600' :
-                      'bg-gray-100 text-gray-600'
+                      mention.sentiment === 'positive' ? 'bg-green-500/15 text-green-400' :
+                      mention.sentiment === 'negative' ? 'bg-red-500/15 text-red-400' :
+                      'bg-dinamo-dark-lighter text-gray-400'
                     }`}>
                       {mention.sentiment}
                     </span>
@@ -168,24 +168,24 @@ export default function SocialListening() {
             </div>
             <div className="space-y-3">
               {data.trendingTopics.map((topic, index) => (
-                <div key={topic.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={topic.id} className="flex items-center justify-between p-3 bg-dinamo-dark-lighter rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-dinamo-muted font-mono w-4">{index + 1}</span>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{topic.topic}</p>
+                      <p className="text-sm font-medium text-white">{topic.topic}</p>
                       <p className="text-xs text-dinamo-muted">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <span className={`text-xs font-mono ${
-                      topic.velocity === 'u porastu' ? 'text-red-600' :
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
                       topic.velocity === 'raste' ? 'text-green-600' :
                       'text-dinamo-muted'
                     }`}>
                       {topic.change}
                     </span>
                     <p className={`text-xs mt-0.5 ${
-                      topic.velocity === 'u porastu' ? 'text-red-600' :
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
                       topic.velocity === 'raste' ? 'text-green-600' :
                       'text-dinamo-muted'
                     }`}>

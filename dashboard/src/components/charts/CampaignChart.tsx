@@ -10,7 +10,7 @@ interface CampaignChartProps {
 export function CampaignChart({ data, bars, title }: CampaignChartProps) {
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
