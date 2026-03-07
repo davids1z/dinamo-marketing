@@ -25,7 +25,7 @@ export function ComparisonBar({ data, title, valueLabel = 'Vrijednost' }: Compar
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             }}
           />
-          <Bar dataKey="value" name={valueLabel} fill={DINAMO_BRAND.colors.blue} radius={[0, 4, 4, 0]} />
+          <Bar dataKey="value" name={valueLabel} fill={DINAMO_BRAND.colors.blue} />
         </BarChart>
       </ResponsiveContainer>
     </div>

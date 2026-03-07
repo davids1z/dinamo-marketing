@@ -43,11 +43,11 @@ const fallbackData: SentimentOverview = {
     };
   }),
   topics: [
-    { topic: 'Players', mentions: 1240, sentiment: 'positive', change: '+12%', icon: '⚽' },
-    { topic: 'Tactics', mentions: 890, sentiment: 'neutral', change: '+3%', icon: '📋' },
-    { topic: 'Management', mentions: 650, sentiment: 'mixed', change: '-5%', icon: '🏢' },
-    { topic: 'Results', mentions: 1580, sentiment: 'positive', change: '+18%', icon: '🏆' },
-    { topic: 'Referee Decisions', mentions: 420, sentiment: 'negative', change: '+45%', icon: '🟨' },
+    { topic: 'Igrači', mentions: 1240, sentiment: 'positive', change: '+12%', icon: '⚽' },
+    { topic: 'Taktika', mentions: 890, sentiment: 'neutral', change: '+3%', icon: '📋' },
+    { topic: 'Menadžment', mentions: 650, sentiment: 'mixed', change: '-5%', icon: '🏢' },
+    { topic: 'Rezultati', mentions: 1580, sentiment: 'positive', change: '+18%', icon: '🏆' },
+    { topic: 'Odluke sudaca', mentions: 420, sentiment: 'negative', change: '+45%', icon: '🟨' },
   ],
   alerts: [
     {
@@ -95,7 +95,7 @@ export default function SentimentAnalysis() {
         {/* Donut + Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="card">
-            <SentimentDonut positive={data.positive} neutral={data.neutral} negative={data.negative} title="Overall Sentiment" />
+            <SentimentDonut positive={data.positive} neutral={data.neutral} negative={data.negative} title="Ukupni sentiment" />
           </div>
           <div className="lg:col-span-2 card space-y-4">
             <h3 className="section-title">Sažetak sentimenta</h3>
@@ -158,10 +158,10 @@ export default function SentimentAnalysis() {
                       topic.sentiment === 'mixed' ? 'bg-yellow-100 text-yellow-600' :
                       'bg-gray-50 text-gray-500'
                     }`}>
-                      {topic.sentiment}
+                      {topic.sentiment === 'positive' ? 'pozitivno' : topic.sentiment === 'negative' ? 'negativno' : topic.sentiment === 'mixed' ? 'mješovito' : 'neutralno'}
                     </span>
                     <p className="text-xs mt-1 text-gray-500">
-                      {topic.change} volume
+                      {topic.change} obujam
                     </p>
                   </div>
                 </div>

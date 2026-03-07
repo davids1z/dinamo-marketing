@@ -140,6 +140,29 @@ export default function Reports() {
   const { data: weeklyRaw, loading: weeklyLoading } = useApi<Record<string, unknown>[]>('/reports/weekly')
   const { data: monthlyRaw, loading: monthlyLoading } = useApi<Record<string, unknown>[]>('/reports/monthly')
 
+  // Format ISO date string to readable Croatian format
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return ''
+    try {
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return dateStr
+      return d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short', year: 'numeric' })
+    } catch { return dateStr }
+  }
+
+  // Format date range for weekly periods
+  const formatPeriod = (start: string, end: string): string => {
+    if (!start || !end) return `${start || ''} - ${end || ''}`
+    try {
+      const s = new Date(start)
+      const e = new Date(end)
+      if (isNaN(s.getTime()) || isNaN(e.getTime())) return `${start} - ${end}`
+      const sStr = s.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' })
+      const eStr = e.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short', year: 'numeric' })
+      return `${sStr} - ${eStr}`
+    } catch { return `${start} - ${end}` }
+  }
+
   // Map API reports to frontend Report format
   const mapApiReports = (raw: Record<string, unknown>[] | null, type: 'weekly' | 'monthly'): Report[] => {
     if (!raw || raw.length === 0) return []
@@ -149,9 +172,9 @@ export default function Reports() {
         id: typeof r.id === 'string' ? parseInt(r.id.slice(0, 8), 16) : Date.now(),
         title: type === 'weekly' ? 'Tjedni izvještaj o performansama' : 'Mjesečni marketinški izvještaj',
         period: type === 'weekly'
-          ? `${r.week_start || ''} - ${r.week_end || ''}`
+          ? formatPeriod(String(r.week_start || ''), String(r.week_end || ''))
           : `${r.month || ''}/${r.year || ''}`,
-        date: String(r.generated_at || r.created_at || ''),
+        date: formatDate(String(r.generated_at || r.created_at || '')),
         status: 'completed' as const,
         pages: type === 'weekly' ? 12 : 28,
         size: type === 'weekly' ? '2.4 MB' : '5.6 MB',
@@ -168,10 +191,10 @@ export default function Reports() {
   const mappedMonthly = mapApiReports(monthlyRaw, 'monthly')
 
   const weeklyData: ReportsData = mappedWeekly.length > 0
-    ? { reports: mappedWeekly, totalReports: mappedWeekly.length, lastGenerated: mappedWeekly[0]?.date || '', lastGeneratedTitle: 'Tjedni izvještaj', nextScheduled: 'Ponedjeljak 08:00', nextScheduledNote: 'Tjedno automatsko generiranje' }
+    ? { reports: mappedWeekly, totalReports: mappedWeekly.length, lastGenerated: mappedWeekly[0]?.date || '', lastGeneratedTitle: 'Tjedni izvještaj o performansama', nextScheduled: 'Ponedjeljak 08:00', nextScheduledNote: 'Tjedno automatsko generiranje' }
     : fallbackWeekly
   const monthlyData: ReportsData = mappedMonthly.length > 0
-    ? { reports: mappedMonthly, totalReports: mappedMonthly.length, lastGenerated: mappedMonthly[0]?.date || '', lastGeneratedTitle: 'Mjesečni izvještaj', nextScheduled: '1. u mjesecu', nextScheduledNote: 'Mjesečno automatsko generiranje' }
+    ? { reports: mappedMonthly, totalReports: mappedMonthly.length, lastGenerated: mappedMonthly[0]?.date || '', lastGeneratedTitle: 'Mjesečni marketinški izvještaj', nextScheduled: '1. u mjesecu', nextScheduledNote: 'Mjesečno automatsko generiranje' }
     : fallbackMonthly
 
   const loading = activeTab === 'weekly' ? weeklyLoading : monthlyLoading
@@ -201,7 +224,7 @@ export default function Reports() {
 
   const currentData = activeTab === 'weekly' ? weeklyData : monthlyData
   const allReports = [...(localReports[activeTab] || []), ...(currentData.reports || [])]
-  const totalReports = (weeklyData.reports?.length || fallbackWeekly.reports.length) + (monthlyData.reports?.length || fallbackMonthly.reports.length) + localReports.weekly.length + localReports.monthly.length
+  const totalReports = (weeklyData.reports?.length ?? 0) + (monthlyData.reports?.length ?? 0) + localReports.weekly.length + localReports.monthly.length
 
   // Latest completed report for summary
   const latestCompleted = allReports.find(r => r.status === 'completed')
