@@ -1,15 +1,26 @@
 import { useState } from 'react'
-import { X, Send, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import {
+  X, Send, CheckCircle, AlertTriangle, Loader2, ExternalLink,
+  Image, Copy, Check, Sparkles,
+} from 'lucide-react'
 import { studioApi } from '../../api/studio'
 import type { PublishResult } from '../../types/studio'
 
+/* ------------------------------------------------------------------ */
+/* Platform options                                                    */
+/* ------------------------------------------------------------------ */
+
 const PLATFORM_OPTIONS = [
-  { value: 'telegram', label: 'Telegram (test)', icon: '✈️', description: 'Test kanal' },
-  { value: 'instagram', label: 'Instagram', icon: '📸', description: 'Feed / Reel / Story' },
-  { value: 'facebook', label: 'Facebook', icon: '📘', description: 'Stranica' },
-  { value: 'tiktok', label: 'TikTok', icon: '🎵', description: 'Video' },
-  { value: 'youtube', label: 'YouTube', icon: '▶️', description: 'Video / Short' },
+  { value: 'telegram', label: 'Telegram', icon: '✈️', desc: 'Test kanal', badge: 'Test' },
+  { value: 'instagram', label: 'Instagram', icon: '📸', desc: 'Feed / Reel / Story', badge: null },
+  { value: 'facebook', label: 'Facebook', icon: '📘', desc: 'Stranica', badge: null },
+  { value: 'tiktok', label: 'TikTok', icon: '🎵', desc: 'Video', badge: null },
+  { value: 'youtube', label: 'YouTube', icon: '▶️', desc: 'Video / Short', badge: null },
 ]
+
+/* ------------------------------------------------------------------ */
+/* Props                                                               */
+/* ------------------------------------------------------------------ */
 
 interface PublishModalProps {
   postId: string
@@ -20,6 +31,10 @@ interface PublishModalProps {
   onClose: () => void
   onPublished: (result: PublishResult) => void
 }
+
+/* ------------------------------------------------------------------ */
+/* Component                                                           */
+/* ------------------------------------------------------------------ */
 
 export default function PublishModal({
   postId,
@@ -36,13 +51,21 @@ export default function PublishModal({
   const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<PublishResult | null>(null)
   const [error, setError] = useState('')
+  const [captionCopied, setCaptionCopied] = useState(false)
+
+  const charCount = editCaption.length
+  const platformLimit =
+    selectedPlatform === 'instagram' ? 2200
+      : selectedPlatform === 'tiktok' ? 4000
+        : selectedPlatform === 'youtube' ? 5000
+          : 4096 // default
 
   const handlePublish = async () => {
     setPublishing(true)
     setError('')
 
     try {
-      // Update captions first
+      // Save captions
       await studioApi.updateProject(postId, {
         generated_caption: editCaption,
         generated_hashtags: editHashtags.split(/\s+/).filter(Boolean),
@@ -58,31 +81,68 @@ export default function PublishModal({
     }
   }
 
+  const copyCaption = () => {
+    const fullText = `${editCaption}\n\n${editHashtags}`
+    navigator.clipboard.writeText(fullText)
+    setCaptionCopied(true)
+    setTimeout(() => setCaptionCopied(false), 2000)
+  }
+
+  const selectedPlatformData = PLATFORM_OPTIONS.find(p => p.value === selectedPlatform)
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-fade-in overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-bold text-gray-900">
-            {result ? 'Objavljeno' : 'Objavi sadržaj'}
-          </h2>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-studio-surface-0 border border-studio-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 ai-success-card overflow-hidden max-h-[90vh] flex flex-col">
+
+        {/* ── Header ─────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-studio-border-subtle">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-dinamo-accent/15 flex items-center justify-center">
+              {result?.success ? (
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Send className="w-4 h-4 text-dinamo-accent" />
+              )}
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-studio-text-primary">
+                {result ? (result.success ? 'Objavljeno!' : 'Greška') : 'Objavi sadržaj'}
+              </h2>
+              <p className="text-[10px] text-studio-text-tertiary">
+                {result ? result.platform : 'Pregledaj i objavi na platformu'}
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-studio-surface-2 transition-colors"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-4 h-4 text-studio-text-tertiary" />
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
+        {/* ── Body ────────────────────────────────────────── */}
+        <div className="p-5 space-y-4 overflow-y-auto flex-1 studio-scrollbar">
+
           {result ? (
-            /* Success/Error state */
-            <div className="text-center py-6">
+            /* ── Result state ────────────────── */
+            <div className="text-center py-8">
               {result.success ? (
-                <>
-                  <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-                  <p className="text-lg font-bold text-gray-900">Uspješno objavljeno!</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                <div className="ai-success-card">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-emerald-400" />
+                  </div>
+                  <p className="text-lg font-bold text-studio-text-primary">
+                    Uspješno objavljeno!
+                  </p>
+                  <p className="text-sm text-studio-text-secondary mt-1">
                     Sadržaj je objavljen na {result.platform}
                   </p>
                   {result.platform_post_url && (
@@ -90,137 +150,205 @@ export default function PublishModal({
                       href={result.platform_post_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 mt-4 text-sm text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-1.5 mt-5 px-4 py-2 bg-dinamo-accent/10 text-dinamo-accent rounded-lg text-sm font-medium hover:bg-dinamo-accent/20 transition-colors"
                     >
-                      Pogledaj objavu →
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Pogledaj objavu
                     </a>
                   )}
-                </>
+                </div>
               ) : (
-                <>
-                  <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-                  <p className="text-lg font-bold text-gray-900">Objavljivanje nije uspjelo</p>
-                  <p className="text-sm text-red-500 mt-1">{result.error}</p>
-                </>
+                <div className="ai-panel-slide-in">
+                  <div className="w-16 h-16 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="w-8 h-8 text-red-400" />
+                  </div>
+                  <p className="text-lg font-bold text-studio-text-primary">
+                    Objavljivanje nije uspjelo
+                  </p>
+                  <p className="text-sm text-red-400 mt-1">{result.error}</p>
+                </div>
               )}
             </div>
           ) : (
-            /* Edit state */
+            /* ── Edit state ───────────────────── */
             <>
-              {/* Platform selector */}
+              {/* Platform grid */}
               <div>
-                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-[1.5px] mb-2">
                   Odaberi platformu
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {PLATFORM_OPTIONS.map((p) => (
-                    <button
-                      key={p.value}
-                      onClick={() => setSelectedPlatform(p.value)}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-2 transition-all text-left ${
-                        selectedPlatform === p.value
-                          ? 'border-dinamo-accent bg-dinamo-accent/10'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
-                      }`}
-                    >
-                      <span className="text-lg">{p.icon}</span>
-                      <div>
-                        <div className={`text-xs font-bold ${
-                          selectedPlatform === p.value ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
-                          {p.label}
+                  {PLATFORM_OPTIONS.map((p) => {
+                    const isSelected = selectedPlatform === p.value
+                    return (
+                      <button
+                        key={p.value}
+                        onClick={() => setSelectedPlatform(p.value)}
+                        className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-2 transition-all text-left group ${
+                          isSelected
+                            ? 'border-dinamo-accent bg-dinamo-accent/8'
+                            : 'border-studio-border hover:border-studio-border-hover bg-studio-surface-1'
+                        }`}
+                      >
+                        <span className="text-lg">{p.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-xs font-bold ${
+                            isSelected ? 'text-studio-text-primary' : 'text-studio-text-secondary'
+                          }`}>
+                            {p.label}
+                          </div>
+                          <div className="text-[9px] text-studio-text-disabled truncate">{p.desc}</div>
                         </div>
-                        <div className="text-[10px] text-gray-400">{p.description}</div>
-                      </div>
-                    </button>
-                  ))}
+                        {p.badge && (
+                          <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[8px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 uppercase tracking-wider">
+                            {p.badge}
+                          </span>
+                        )}
+                        {isSelected && (
+                          <div className="absolute -top-px -right-px w-5 h-5 bg-dinamo-accent rounded-bl-lg rounded-tr-[10px] flex items-center justify-center">
+                            <Check className="w-3 h-3 text-black" />
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
                 {selectedPlatform === 'telegram' && (
-                  <p className="text-[10px] text-emerald-600 mt-1.5 px-1">
-                    Telegram je konfiguriran za testno objavljivanje
+                  <p className="text-[10px] text-emerald-400 mt-1.5 px-1 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    Telegram test kanal — sigurno za testiranje
                   </p>
                 )}
-                {selectedPlatform !== 'telegram' && (
-                  <p className="text-[10px] text-amber-500 mt-1.5 px-1">
-                    {platform === selectedPlatform
-                      ? 'Potrebni su API ključevi za ovu platformu'
-                      : `Originalna platforma posta: ${platform}`}
+                {selectedPlatform !== 'telegram' && platform && platform !== selectedPlatform && (
+                  <p className="text-[10px] text-amber-400 mt-1.5 px-1 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Originalna platforma posta: {platform}
                   </p>
                 )}
               </div>
 
-              {/* Preview */}
-              {outputUrl && (
-                <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden">
-                  <img
-                    src={outputUrl}
-                    alt="Preview"
-                    className="w-full h-full object-contain"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              {/* Divider */}
+              <div className="border-t border-studio-border-subtle" />
+
+              {/* Preview + Caption side by side (or stacked) */}
+              <div className="space-y-3">
+                {/* Preview thumbnail */}
+                {outputUrl && (
+                  <div className="relative w-full aspect-video bg-studio-surface-1 rounded-xl overflow-hidden border border-studio-border-subtle">
+                    <img
+                      src={outputUrl}
+                      alt="Preview"
+                      className="w-full h-full object-contain"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-black/60 rounded-full text-[9px] text-white/70">
+                      <Image className="w-2.5 h-2.5" /> Pregled
+                    </div>
+                  </div>
+                )}
+
+                {/* Caption editor */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-[1.5px]">
+                      Opis objave
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[9px] font-mono ${
+                        charCount > platformLimit ? 'text-red-400' : 'text-studio-text-disabled'
+                      }`}>
+                        {charCount}/{platformLimit}
+                      </span>
+                      <button
+                        onClick={copyCaption}
+                        className="p-1 rounded hover:bg-studio-surface-2 transition-colors"
+                        title="Kopiraj"
+                      >
+                        {captionCopied ? (
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3 h-3 text-studio-text-disabled" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    value={editCaption}
+                    onChange={(e) => setEditCaption(e.target.value)}
+                    rows={3}
+                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 resize-none transition-colors placeholder:text-studio-text-disabled"
+                    placeholder="Opis objave..."
                   />
                 </div>
-              )}
 
-              {/* Caption */}
-              <div>
-                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-1">
-                  Opis objave
-                </label>
-                <textarea
-                  value={editCaption}
-                  onChange={(e) => setEditCaption(e.target.value)}
-                  rows={3}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 resize-none"
-                  placeholder="Opis objave..."
-                />
+                {/* Hashtags */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-[1.5px] mb-1.5">
+                    Hashtagovi
+                  </label>
+                  <input
+                    type="text"
+                    value={editHashtags}
+                    onChange={(e) => setEditHashtags(e.target.value)}
+                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors placeholder:text-studio-text-disabled"
+                    placeholder="#Dinamo #Modri ..."
+                  />
+                  {editHashtags.trim() && (
+                    <p className="text-[9px] text-studio-text-disabled mt-1 px-1">
+                      {editHashtags.split(/\s+/).filter(Boolean).length} hashtagova
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Hashtags */}
-              <div>
-                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-1">
-                  Hashtagovi
-                </label>
-                <input
-                  type="text"
-                  value={editHashtags}
-                  onChange={(e) => setEditHashtags(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10"
-                  placeholder="#Dinamo #Modri ..."
-                />
-              </div>
-
+              {/* Error */}
               {error && (
-                <div className="flex items-center gap-2 p-2.5 bg-red-50 text-red-600 rounded-lg text-xs">
+                <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs">
                   <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-                  {error}
+                  <span>{error}</span>
                 </div>
               )}
             </>
           )}
         </div>
 
-        {/* Footer */}
+        {/* ── Footer ──────────────────────────────────────── */}
         {!result && (
-          <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between px-5 py-4 border-t border-studio-border-subtle bg-studio-surface-1/50">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-xs text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-lg transition-colors"
             >
               Odustani
             </button>
             <button
               onClick={handlePublish}
-              disabled={publishing}
-              className="flex items-center gap-2 px-5 py-2 bg-dinamo-accent text-gray-900 rounded-xl text-sm font-semibold hover:bg-dinamo-accent-hover transition-colors disabled:opacity-50"
+              disabled={publishing || charCount > platformLimit}
+              className="flex items-center gap-2 px-5 py-2.5 bg-dinamo-accent text-black rounded-xl text-xs font-bold hover:bg-dinamo-accent-hover transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(184,255,0,0.15)]"
             >
               {publishing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Objavljivanje...
+                </>
               ) : (
-                <Send className="w-4 h-4" />
+                <>
+                  <Send className="w-4 h-4" />
+                  Objavi na {selectedPlatformData?.label || selectedPlatform}
+                </>
               )}
-              {publishing ? 'Objavljivanje...' : `Objavi na ${
-                PLATFORM_OPTIONS.find(p => p.value === selectedPlatform)?.label || selectedPlatform
-              }`}
+            </button>
+          </div>
+        )}
+
+        {/* Close button for result state */}
+        {result && (
+          <div className="flex items-center justify-center px-5 py-4 border-t border-studio-border-subtle">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 text-xs font-medium text-studio-text-secondary hover:text-studio-text-primary bg-studio-surface-2 hover:bg-studio-surface-3 rounded-lg transition-colors"
+            >
+              Zatvori
             </button>
           </div>
         )}

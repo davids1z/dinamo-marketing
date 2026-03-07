@@ -127,6 +127,152 @@
   opacity: 0;
 }
 
+/* --- New: Flip X --- */
+@keyframes studio-flip-x {
+  from { opacity: 0; transform: perspective(600px) rotateX(90deg); }
+  60% { opacity: 1; transform: perspective(600px) rotateX(-10deg); }
+  80% { transform: perspective(600px) rotateX(5deg); }
+  to { transform: perspective(600px) rotateX(0); }
+}
+
+.anim-flip_x {
+  animation: studio-flip-x 0.8s ease-out forwards;
+  opacity: 0;
+  backface-visibility: visible;
+}
+
+/* --- New: Flip Y --- */
+@keyframes studio-flip-y {
+  from { opacity: 0; transform: perspective(600px) rotateY(90deg); }
+  60% { opacity: 1; transform: perspective(600px) rotateY(-10deg); }
+  80% { transform: perspective(600px) rotateY(5deg); }
+  to { transform: perspective(600px) rotateY(0); }
+}
+
+.anim-flip_y {
+  animation: studio-flip-y 0.8s ease-out forwards;
+  opacity: 0;
+  backface-visibility: visible;
+}
+
+/* --- New: Rotate In --- */
+@keyframes studio-rotate-in {
+  from { opacity: 0; transform: rotate(-180deg) scale(0.5); }
+  60% { opacity: 1; transform: rotate(15deg) scale(1.02); }
+  to { transform: rotate(0) scale(1); }
+}
+
+.anim-rotate_in {
+  animation: studio-rotate-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+/* --- New: Elastic --- */
+@keyframes studio-elastic {
+  0% { opacity: 0; transform: scale(0.3); }
+  30% { opacity: 1; }
+  50% { transform: scale(1.15); }
+  65% { transform: scale(0.95); }
+  80% { transform: scale(1.04); }
+  90% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+
+.anim-elastic {
+  animation: studio-elastic 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+  opacity: 0;
+}
+
+/* --- New: Swing --- */
+@keyframes studio-swing {
+  0% { opacity: 0; transform: rotate(15deg); transform-origin: top center; }
+  20% { opacity: 1; transform: rotate(-10deg); }
+  40% { transform: rotate(5deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(2deg); }
+  100% { transform: rotate(0); }
+}
+
+.anim-swing {
+  animation: studio-swing 1s ease-out forwards;
+  opacity: 0;
+  transform-origin: top center;
+}
+
+/* --- New: Glitch --- */
+@keyframes studio-glitch {
+  0% { opacity: 0; transform: translate(0); filter: none; }
+  10% { opacity: 1; transform: translate(-5px, 3px); filter: hue-rotate(90deg); }
+  20% { transform: translate(5px, -3px); filter: hue-rotate(180deg); }
+  30% { transform: translate(-3px, -2px); filter: hue-rotate(270deg); clip-path: inset(30% 0 40% 0); }
+  40% { transform: translate(3px, 5px); filter: none; clip-path: inset(60% 0 10% 0); }
+  50% { transform: translate(-2px, -1px); clip-path: inset(10% 0 70% 0); }
+  60% { transform: translate(1px, 2px); filter: hue-rotate(45deg); clip-path: none; }
+  70% { transform: translate(-1px, -1px); filter: none; }
+  80% { transform: translate(1px, 0); }
+  100% { transform: translate(0); filter: none; clip-path: none; }
+}
+
+.anim-glitch {
+  animation: studio-glitch 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* --- New: Shake In --- */
+@keyframes studio-shake-in {
+  0% { opacity: 0; transform: translateX(-30px); }
+  15% { opacity: 1; transform: translateX(15px); }
+  30% { transform: translateX(-10px); }
+  45% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  75% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.anim-shake_in {
+  animation: studio-shake-in 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* --- New: Drop In --- */
+@keyframes studio-drop-in {
+  0% { opacity: 0; transform: translateY(-120px); }
+  50% { opacity: 1; transform: translateY(12px); }
+  65% { transform: translateY(-6px); }
+  80% { transform: translateY(4px); }
+  90% { transform: translateY(-1px); }
+  100% { transform: translateY(0); }
+}
+
+.anim-drop_in {
+  animation: studio-drop-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+/* --- New: Zoom Rotate --- */
+@keyframes studio-zoom-rotate {
+  from { opacity: 0; transform: scale(0) rotate(-180deg); }
+  60% { opacity: 1; transform: scale(1.1) rotate(10deg); }
+  to { transform: scale(1) rotate(0); }
+}
+
+.anim-zoom_rotate {
+  animation: studio-zoom-rotate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+/* --- New: Letter Spread --- */
+@keyframes studio-letter-spread {
+  from { opacity: 0; letter-spacing: -0.5em; filter: blur(8px); }
+  60% { opacity: 1; filter: blur(0); }
+  to { letter-spacing: normal; }
+}
+
+.anim-letter_spread {
+  animation: studio-letter-spread 0.8s ease-out forwards;
+  opacity: 0;
+}
+
 .anim-none {
   opacity: 1;
 }
@@ -178,6 +324,58 @@
   animation: scene-zoom-out 0.4s ease-out;
 }
 
+/* New: Slide Right */
+@keyframes scene-slide-right {
+  from { opacity: 0; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.transition-slide_right {
+  animation: scene-slide-right 0.4s ease-out;
+}
+
+/* New: Slide Down */
+@keyframes scene-slide-down {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.transition-slide_down {
+  animation: scene-slide-down 0.4s ease-out;
+}
+
+/* New: Dissolve (slower crossfade with scale) */
+@keyframes scene-dissolve {
+  from { opacity: 0; transform: scale(1.04); filter: blur(4px); }
+  50% { filter: blur(2px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.transition-dissolve {
+  animation: scene-dissolve 0.6s ease-in-out;
+}
+
+/* New: Blur Through */
+@keyframes scene-blur-through {
+  0% { opacity: 0; filter: blur(20px); transform: scale(0.95); }
+  50% { opacity: 0.8; filter: blur(8px); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+.transition-blur_through {
+  animation: scene-blur-through 0.5s ease-out;
+}
+
+/* New: Scale Fade */
+@keyframes scene-scale-fade {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.transition-scale_fade {
+  animation: scene-scale-fade 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .transition-none {
   /* No transition */
 }
@@ -207,53 +405,391 @@
   transform: translate(-50%, -50%);
 }
 
-/* === Timeline === */
+/* === Scene Timeline (dark video-editor panel) === */
 
-.scene-timeline {
+/* Root container — fixed height, full width, dark surface */
+.scene-timeline-root {
+  height: 120px;
   display: flex;
-  gap: 4px;
-  padding: 8px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  flex-direction: column;
+  background: #151515;              /* studio-surface-0 */
+  border-top: 1px solid #1F1F1F;    /* studio-border-subtle */
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.scene-timeline::-webkit-scrollbar {
+/* ---- Controls bar (top row) ---- */
+.scene-timeline-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  min-height: 30px;
+  border-bottom: 1px solid #1A1A1A; /* studio-surface-1 */
+  gap: 8px;
+}
+
+/* Icon buttons inside the controls bar */
+.tl-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: #A0A0A0;                   /* studio-text-secondary */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tl-icon-btn:hover {
+  background: #242424;              /* studio-surface-3 */
+  color: #E8E8E8;                   /* studio-text-primary */
+}
+
+.tl-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tl-icon-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+/* ---- Thumbnail strip ---- */
+.scene-timeline-strip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2A2A2A #151515;
+}
+
+.scene-timeline-strip::-webkit-scrollbar {
   height: 4px;
 }
 
-.scene-timeline::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+.scene-timeline-strip::-webkit-scrollbar-track {
+  background: #151515;
+}
+
+.scene-timeline-strip::-webkit-scrollbar-thumb {
+  background: #2A2A2A;              /* studio-surface-4 */
   border-radius: 2px;
 }
 
-.scene-thumb {
+.scene-timeline-strip::-webkit-scrollbar-thumb:hover {
+  background: #383838;              /* studio-surface-6 */
+}
+
+/* Individual scene thumbnail */
+.scene-timeline-thumb {
   flex-shrink: 0;
-  width: 80px;
-  height: 45px;
-  border-radius: 6px;
+  width: 88px;
+  height: 50px;
+  border-radius: 8px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   border: 2px solid transparent;
-  transition: border-color 0.2s, transform 0.2s;
+  background: #0A1A28;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
-.scene-thumb:hover {
-  transform: scale(1.05);
+.scene-timeline-thumb:hover {
+  border-color: #404040;            /* studio-border-hover */
+  transform: translateY(-1px);
 }
 
-.scene-thumb.active {
-  border-color: #B8FF00;
-  box-shadow: 0 0 12px rgba(184, 255, 0, 0.3);
+.scene-timeline-thumb.active {
+  border-color: #B8FF00;            /* dinamo-accent */
+  box-shadow: 0 0 14px rgba(184, 255, 0, 0.2), 0 0 4px rgba(184, 255, 0, 0.15);
 }
 
-.scene-thumb .duration-badge {
+/* Scene number badge — top left */
+.scene-timeline-number {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  top: 3px;
+  left: 3px;
   background: rgba(0, 0, 0, 0.7);
-  color: white;
+  color: #fff;
   font-size: 9px;
-  padding: 1px 4px;
-  border-radius: 3px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Duration badge — bottom right */
+.scene-timeline-duration {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Add-scene button (end of strip) */
+.scene-timeline-add {
+  flex-shrink: 0;
+  width: 88px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #2A2A2A;       /* studio-surface-4 */
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.scene-timeline-add:hover {
+  border-color: #B8FF00;
+  background: rgba(184, 255, 0, 0.04);
+}
+
+.scene-timeline-add:hover svg {
+  color: #B8FF00 !important;
+}
+
+/* ---- Progress bar (bottom row) ---- */
+.scene-timeline-progress {
+  display: flex;
+  height: 4px;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.scene-timeline-progress-seg {
+  height: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.scene-timeline-progress-seg.current {
+  background-color: #B8FF00;        /* dinamo-accent */
+}
+
+.scene-timeline-progress-seg.past {
+  background-color: rgba(184, 255, 0, 0.4);
+}
+
+.scene-timeline-progress-seg.future {
+  background-color: #2A2A2A;        /* studio-surface-4 */
+}
+
+.scene-timeline-progress-seg:hover {
+  opacity: 0.8;
+}
+
+/* Pulsing animation on the current segment during playback */
+.scene-timeline-progress-seg.playing {
+  animation: tl-progress-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tl-progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* === Studio Scrollbar (thin, dark) === */
+
+.studio-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #2A2A2A transparent;
+}
+
+.studio-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.studio-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.studio-scrollbar::-webkit-scrollbar-thumb {
+  background: #2A2A2A;
+  border-radius: 2px;
+}
+
+.studio-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #383838;
+}
+
+/* === AI Panel Animations === */
+
+/* Slide-in for AI panel sections */
+@keyframes ai-panel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-panel-slide-in {
+  animation: ai-panel-slide-in 0.3s ease-out;
+}
+
+/* AI Generate button gradient background */
+.ai-generate-btn {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.ai-generate-btn-bg {
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #EC4899 100%);
+  transition: opacity 0.3s;
+}
+
+.ai-generate-btn:hover:not(:disabled) .ai-generate-btn-bg {
+  opacity: 0.85;
+}
+
+.ai-generate-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Shimmer sweep on idle generate button */
+@keyframes ai-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ai-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.08) 60%,
+    transparent 100%
+  );
+  animation: ai-shimmer 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Pulsing dot for generation progress */
+@keyframes ai-gen-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0);
+  }
+}
+
+.ai-gen-dot {
+  animation: ai-gen-dot-pulse 1.5s ease-in-out infinite;
+}
+
+/* Generation progress panel glow */
+.ai-gen-progress {
+  animation: ai-panel-slide-in 0.4s ease-out;
+  box-shadow: inset 0 1px 0 rgba(168, 85, 247, 0.1);
+}
+
+/* Success card entry */
+@keyframes ai-success-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ai-success-card {
+  animation: ai-success-enter 0.5s ease-out;
+}
+
+/* Staggered children animation for preset grid */
+.ai-panel-root .grid > button:nth-child(1) { animation-delay: 0ms; }
+.ai-panel-root .grid > button:nth-child(2) { animation-delay: 30ms; }
+.ai-panel-root .grid > button:nth-child(3) { animation-delay: 60ms; }
+.ai-panel-root .grid > button:nth-child(4) { animation-delay: 90ms; }
+.ai-panel-root .grid > button:nth-child(5) { animation-delay: 120ms; }
+.ai-panel-root .grid > button:nth-child(6) { animation-delay: 150ms; }
+
+/* === Dark Form Elements (override browser defaults) === */
+
+/* Force dark color-scheme for the entire studio context */
+.studio-dark-forms {
+  color-scheme: dark;
+}
+
+.studio-dark-forms input,
+.studio-dark-forms select,
+.studio-dark-forms textarea,
+.studio-dark-forms option {
+  color-scheme: dark;
+  background-color: #1A1A1A;
+  color: #E8E8E8;
+  border-color: #2A2A2A;
+}
+
+.studio-dark-forms input::placeholder,
+.studio-dark-forms textarea::placeholder {
+  color: #4A4A4A;
+}
+
+.studio-dark-forms input:focus,
+.studio-dark-forms select:focus,
+.studio-dark-forms textarea:focus {
+  border-color: #B8FF00;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(184, 255, 0, 0.2);
+}
+
+.studio-dark-forms select option {
+  background-color: #1F1F1F;
+  color: #E8E8E8;
+}
+
+/* Number input spinner dark */
+.studio-dark-forms input[type="number"]::-webkit-inner-spin-button,
+.studio-dark-forms input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Range slider dark */
+.studio-dark-forms input[type="range"] {
+  background-color: transparent;
+}
+
+/* Color input */
+.studio-dark-forms input[type="color"] {
+  background-color: transparent;
+  border: none;
+  padding: 0;
 }

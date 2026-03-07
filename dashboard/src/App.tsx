@@ -35,6 +35,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
+        <Route path="/studio/:postId" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><ContentStudio /></Suspense></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
           <Route path="market-research" element={<Suspense fallback={<PageLoader />}><MarketResearch /></Suspense>} />
@@ -51,7 +52,6 @@ export default function App() {
           <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
           <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
           <Route path="admin" element={<Suspense fallback={<PageLoader />}><Admin /></Suspense>} />
-          <Route path="studio/:postId" element={<Suspense fallback={<PageLoader />}><ContentStudio /></Suspense>} />
         </Route>
       </Routes>
     </AuthProvider>

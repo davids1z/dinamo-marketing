@@ -59,6 +59,17 @@ export type AnimationType =
   | 'bounce'
   | 'pulse'
   | 'blur_in'
+  // New professional animations
+  | 'flip_x'
+  | 'flip_y'
+  | 'rotate_in'
+  | 'elastic'
+  | 'swing'
+  | 'glitch'
+  | 'shake_in'
+  | 'drop_in'
+  | 'zoom_rotate'
+  | 'letter_spread'
 
 export type TransitionType =
   | 'none'
@@ -67,6 +78,12 @@ export type TransitionType =
   | 'slide_up'
   | 'zoom_in'
   | 'zoom_out'
+  // New professional transitions
+  | 'slide_right'
+  | 'slide_down'
+  | 'dissolve'
+  | 'blur_through'
+  | 'scale_fade'
 
 export interface SceneData {
   scenes: Scene[]
@@ -129,28 +146,65 @@ export const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: num
   '16:9': { width: 1920, height: 1080 },
 }
 
-export const ANIMATION_OPTIONS: { value: AnimationType; label: string }[] = [
-  { value: 'none', label: 'Bez animacije' },
-  { value: 'fade_in', label: 'Pojavljivanje' },
-  { value: 'slide_up', label: 'Klizanje gore' },
-  { value: 'slide_down', label: 'Klizanje dolje' },
-  { value: 'slide_left', label: 'Klizanje lijevo' },
-  { value: 'slide_right', label: 'Klizanje desno' },
-  { value: 'scale_up', label: 'Povećanje' },
-  { value: 'scale_down', label: 'Smanjivanje' },
-  { value: 'typewriter', label: 'Pisaći stroj' },
-  { value: 'bounce', label: 'Odskakanje' },
-  { value: 'pulse', label: 'Pulsiranje' },
-  { value: 'blur_in', label: 'Izoštravanje' },
+export type AnimationCategory = 'basic' | 'slide' | 'scale' | 'special' | 'dynamic'
+
+export interface AnimationOption {
+  value: AnimationType
+  label: string
+  category: AnimationCategory
+  icon: string // emoji for visual preview
+}
+
+export const ANIMATION_OPTIONS: AnimationOption[] = [
+  // Basic
+  { value: 'none', label: 'Bez animacije', category: 'basic', icon: '⏸' },
+  { value: 'fade_in', label: 'Pojavljivanje', category: 'basic', icon: '🌅' },
+  { value: 'blur_in', label: 'Izoštravanje', category: 'basic', icon: '🔍' },
+  // Slide
+  { value: 'slide_up', label: 'Klizanje gore', category: 'slide', icon: '⬆' },
+  { value: 'slide_down', label: 'Klizanje dolje', category: 'slide', icon: '⬇' },
+  { value: 'slide_left', label: 'Klizanje lijevo', category: 'slide', icon: '⬅' },
+  { value: 'slide_right', label: 'Klizanje desno', category: 'slide', icon: '➡' },
+  { value: 'drop_in', label: 'Pad odozgo', category: 'slide', icon: '💧' },
+  // Scale
+  { value: 'scale_up', label: 'Povećanje', category: 'scale', icon: '🔎' },
+  { value: 'scale_down', label: 'Smanjivanje', category: 'scale', icon: '🔬' },
+  { value: 'zoom_rotate', label: 'Zoom rotacija', category: 'scale', icon: '🌀' },
+  // Dynamic
+  { value: 'bounce', label: 'Odskakanje', category: 'dynamic', icon: '🏀' },
+  { value: 'pulse', label: 'Pulsiranje', category: 'dynamic', icon: '💓' },
+  { value: 'elastic', label: 'Elastično', category: 'dynamic', icon: '🪀' },
+  { value: 'swing', label: 'Njihanje', category: 'dynamic', icon: '🎪' },
+  { value: 'shake_in', label: 'Tresenje', category: 'dynamic', icon: '📳' },
+  // Special
+  { value: 'typewriter', label: 'Pisaći stroj', category: 'special', icon: '⌨' },
+  { value: 'flip_x', label: 'Okret X', category: 'special', icon: '🔄' },
+  { value: 'flip_y', label: 'Okret Y', category: 'special', icon: '🔃' },
+  { value: 'rotate_in', label: 'Rotacija ulaz', category: 'special', icon: '♻' },
+  { value: 'glitch', label: 'Glitch', category: 'special', icon: '⚡' },
+  { value: 'letter_spread', label: 'Raširenje', category: 'special', icon: '📐' },
+]
+
+export const ANIMATION_CATEGORIES: { value: AnimationCategory; label: string }[] = [
+  { value: 'basic', label: 'Osnovno' },
+  { value: 'slide', label: 'Klizanje' },
+  { value: 'scale', label: 'Skaliranje' },
+  { value: 'dynamic', label: 'Dinamično' },
+  { value: 'special', label: 'Specijalno' },
 ]
 
 export const TRANSITION_OPTIONS: { value: TransitionType; label: string }[] = [
   { value: 'none', label: 'Bez tranzicije' },
   { value: 'fade', label: 'Fade' },
   { value: 'slide_left', label: 'Klizanje lijevo' },
+  { value: 'slide_right', label: 'Klizanje desno' },
   { value: 'slide_up', label: 'Klizanje gore' },
+  { value: 'slide_down', label: 'Klizanje dolje' },
   { value: 'zoom_in', label: 'Zoom in' },
   { value: 'zoom_out', label: 'Zoom out' },
+  { value: 'dissolve', label: 'Dissolve' },
+  { value: 'blur_through', label: 'Blur prolaz' },
+  { value: 'scale_fade', label: 'Scale fade' },
 ]
 
 export const FONT_OPTIONS = [

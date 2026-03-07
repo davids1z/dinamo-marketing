@@ -2,15 +2,49 @@
 <html lang="hr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/dinamo-icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Dinamo Marketing Platforma</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tektur:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="AI-powered marketing platforma za GNK Dinamo Zagreb. Studio za kreiranje sadržaja, upravljanje kampanjama i analitika." />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/dinamo-icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+
+    <!-- PWA Theme -->
+    <meta name="theme-color" content="#03162a" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Apple PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dinamo Marketing" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+    <!-- Microsoft Tile -->
+    <meta name="msapplication-TileColor" content="#03162a" />
+    <meta name="msapplication-TileImage" content="/icons/icon-192x192.png" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dinamo Marketing Platforma" />
+    <meta property="og:description" content="AI-powered marketing platforma za GNK Dinamo Zagreb" />
+    <meta property="og:image" content="/icons/icon-512x512.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tektur:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-dinamo-dark text-white font-body" style="font-family: 'Inter', sans-serif">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <noscript>
+      <div style="text-align:center;padding:3rem;font-family:Inter,sans-serif;color:#ccc;background:#03162a;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+        <div>
+          <h1 style="color:#b8ff00;">Dinamo Marketing Platforma</h1>
+          <p>JavaScript je potreban za rad ove aplikacije.</p>
+        </div>
+      </div>
+    </noscript>
   </body>
 </html>

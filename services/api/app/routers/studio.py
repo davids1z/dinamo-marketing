@@ -124,14 +124,41 @@ async def get_project(
     post_id: UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    """Get or create a studio project for a post."""
+    """Get or create a studio project for a post.
+
+    Also returns post metadata (title, platform, visual_brief, etc.)
+    so the frontend has everything it needs in a single call.
+    """
+    from app.models.content import ContentPost
+    from sqlalchemy import select as sa_select
+
     service = get_studio_service()
     try:
         project = await service.get_or_create_project(db, post_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-    return _serialize_project(project)
+    # Also load post metadata
+    post_query = sa_select(ContentPost).where(ContentPost.id == post_id)
+    post_result = await db.execute(post_query)
+    post = post_result.scalar_one_or_none()
+
+    result = _serialize_project(project)
+
+    # Attach post metadata for the frontend
+    if post:
+        result["post_meta"] = {
+            "title": post.title or "",
+            "platform": post.platform or "",
+            "content_pillar": post.content_pillar or "",
+            "visual_brief": post.visual_brief or "",
+            "caption_hr": post.caption_hr or "",
+            "hashtags": post.hashtags if isinstance(post.hashtags, list) else [],
+            "status": post.status or "draft",
+            "scheduled_at": post.scheduled_at.isoformat() if post.scheduled_at else None,
+        }
+
+    return result
 
 
 @router.patch("/projects/{post_id}")

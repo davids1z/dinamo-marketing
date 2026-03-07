@@ -113,7 +113,12 @@ class StudioService:
     async def get_or_create_project(
         self, db: AsyncSession, post_id: uuid.UUID
     ) -> StudioProject:
-        """Get existing StudioProject or create a new draft."""
+        """Get existing StudioProject or create a new draft.
+
+        When creating a NEW project, auto-populates the brief, caption,
+        and hashtags from the linked ContentPost so the studio opens
+        ready for AI generation.
+        """
         query = select(StudioProject).where(StudioProject.post_id == post_id)
         result = await db.execute(query)
         project = result.scalar_one_or_none()
@@ -128,13 +133,19 @@ class StudioService:
         if not post:
             raise ValueError(f"Post {post_id} not found")
 
+        # --- Auto-populate brief from ContentPost data ---
+        brief = self._build_brief_from_post(post)
+        initial_caption = post.caption_hr or ""
+        initial_hashtags = post.hashtags if isinstance(post.hashtags, list) else None
+        initial_description = post.visual_brief or ""
+
         project = StudioProject(
             post_id=post_id,
-            brief="",
+            brief=brief,
             scene_data=None,
-            generated_caption="",
-            generated_hashtags=None,
-            generated_description="",
+            generated_caption=initial_caption,
+            generated_hashtags=initial_hashtags,
+            generated_description=initial_description,
             output_url="",
             output_type="",
             status="draft",
@@ -142,6 +153,8 @@ class StudioService:
         db.add(project)
         await db.commit()
         await db.refresh(project)
+
+        logger.info("Created studio project for post %s with auto-brief (%d chars)", post_id, len(brief))
         return project
 
     async def update_project(
@@ -532,6 +545,75 @@ class StudioService:
         if ext == ".jpe":
             ext = ".jpg"
         return ext
+
+    @staticmethod
+    def _build_brief_from_post(post: ContentPost) -> str:
+        """Build a comprehensive AI brief from ContentPost metadata.
+
+        Pulls title, visual_brief, description, platform, content_pillar,
+        and scheduled time to create a rich context for AI scene generation.
+        """
+        parts: list[str] = []
+
+        # Title is always included
+        if post.title:
+            parts.append(post.title)
+
+        # Visual brief is the primary creative direction
+        if post.visual_brief:
+            parts.append(f"Vizualni smjer: {post.visual_brief}")
+
+        # Caption gives tone/message context
+        if post.caption_hr:
+            parts.append(f"Ton poruke: {post.caption_hr}")
+
+        # Platform and type context
+        platform = (post.platform or "instagram").capitalize()
+        content_type = ""
+        title_lower = (post.title or "").lower()
+        if "reel" in title_lower:
+            content_type = "Reel"
+        elif "story" in title_lower or "stories" in title_lower:
+            content_type = "Story"
+        elif "short" in title_lower:
+            content_type = "Short"
+        elif "carousel" in title_lower:
+            content_type = "Carousel"
+
+        platform_str = f"Platforma: {platform}"
+        if content_type:
+            platform_str += f" ({content_type})"
+        parts.append(platform_str)
+
+        # Content pillar context
+        pillar_map = {
+            "match_day": "Matchday / Dan utakmice",
+            "match_highlights": "Highlights utakmice",
+            "behind_scenes": "Iza kulisa",
+            "academy": "Akademija / Mladi",
+            "transfer": "Transfer / Vijesti",
+            "history": "Povijest / Throwback",
+            "fan_engagement": "Navijači / Engagement",
+            "sponsors": "Sponzori / Partneri",
+        }
+        if post.content_pillar:
+            pillar_label = pillar_map.get(post.content_pillar, post.content_pillar)
+            parts.append(f"Kategorija: {pillar_label}")
+
+        # Scheduled time context (e.g., "Subota 17:30")
+        if post.scheduled_at:
+            try:
+                day_names = {
+                    0: "Ponedjeljak", 1: "Utorak", 2: "Srijeda",
+                    3: "Četvrtak", 4: "Petak", 5: "Subota", 6: "Nedjelja",
+                }
+                day_name = day_names.get(post.scheduled_at.weekday(), "")
+                time_str = post.scheduled_at.strftime("%H:%M")
+                parts.append(f"Zakazano: {day_name} {time_str}")
+            except Exception:
+                pass
+
+        return "\n".join(parts)
 
     @staticmethod
     def _detect_content_type(post: ContentPost) -> str:

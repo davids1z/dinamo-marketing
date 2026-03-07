@@ -127,8 +127,9 @@ PRAVILA ZA SCENE
 2. Pozicije (x, y) su u postocima (0-100) za responsive rendering
 3. Koristi bold gradijente klupskih boja za pozadine
 4. Text mora biti na HRVATSKOM jeziku
-5. Animacije: fade_in, slide_up, slide_down, slide_left, slide_right, scale_up, scale_down, typewriter, bounce, pulse, blur_in
-6. Tranzicije između scena: fade, slide_left, slide_up, zoom_in, zoom_out, none
+5. Animacije: fade_in, slide_up, slide_down, slide_left, slide_right, scale_up, scale_down, typewriter, bounce, pulse, blur_in, flip_x, flip_y, rotate_in, elastic, swing, glitch, shake_in, drop_in, zoom_rotate, letter_spread
+6. Tranzicije između scena: fade, slide_left, slide_up, zoom_in, zoom_out, slide_right, slide_down, dissolve, blur_through, scale_fade, none
+7. Koristi dinamične animacije (elastic, swing, drop_in, shake_in, glitch) za efektnije videe — ne samo fade_in!
 7. Maksimalno 3 text layera po sceni
 8. Uvijek dodaj Dinamo logo overlay na barem jednu scenu
 9. Koristi emotivan, navijački ton — kao da pišeš za BBB i sve Dinamove navijače
@@ -142,6 +143,7 @@ TIPOVI POZADINA:
 - image: { "type": "image", "src": "uploaded_image_url", "overlay_opacity": 0.6, "overlay_color": "#0A1A28" }
 
 DOSTUPNE ANIMACIJE ZA TEXT:
+Osnovno:
 - fade_in: jednostavno pojavljivanje
 - slide_up: klizi odozdo prema gore
 - slide_down: klizi odozgo prema dolje
@@ -153,6 +155,18 @@ DOSTUPNE ANIMACIJE ZA TEXT:
 - bounce: odskakuje
 - pulse: pulsira
 - blur_in: od mutnog do oštrog
+Dinamično (preporuka za efektne videe):
+- elastic: elastični spring bounce efekt — odličan za naslove
+- swing: ljuljanje kao klatno — odličan za dramatične ulaze
+- drop_in: pada odozgo s odskakivanjem — odličan za rezultate
+- shake_in: tresenje s pojavljivanjem — odličan za matchday
+Specijalno:
+- flip_x: 3D okretanje oko horizontalne osi
+- flip_y: 3D okretanje oko vertikalne osi
+- rotate_in: rotacija s pojavljivanjem
+- glitch: digitalni glitch efekt — odličan za transfer najave
+- zoom_rotate: zoom i rotacija kombinacija
+- letter_spread: razmak slova se širi — odličan za ime igrača
 
 OUTPUT FORMAT (samo JSON, bez teksta):
 {
