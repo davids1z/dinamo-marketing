@@ -240,30 +240,24 @@ export default function ContentStudio() {
 
       const exportH = aspectRatio === '9:16' ? 1920 : aspectRatio === '1:1' ? 1080 : 608
 
-      // Remove broken images before export to avoid load failures
-      const brokenImgs = node.querySelectorAll('img')
-      const hidden: HTMLImageElement[] = []
-      brokenImgs.forEach((img) => {
-        if (!img.complete || img.naturalWidth === 0) {
-          img.style.display = 'none'
-          hidden.push(img)
-        }
-      })
-
       const dataUrl = await toPng(node, {
         width: 1080,
         height: exportH,
         pixelRatio: 1,
         skipFonts: true,
+        // Filter out broken/missing images to prevent load errors
+        filter: (domNode: Node) => {
+          if (domNode instanceof HTMLImageElement) {
+            return domNode.complete && domNode.naturalWidth > 0
+          }
+          return true
+        },
         style: {
           transform: 'none',
           width: `${1080}px`,
           height: `${exportH}px`,
         },
       })
-
-      // Restore hidden images
-      hidden.forEach((img) => { img.style.display = '' })
 
       // Convert data URL to blob
       const resp = await fetch(dataUrl)
