@@ -144,14 +144,14 @@ const fallbackOverview: OverviewData = {
     },
     {
       id: 5, type: 'report',
-      text: 'Mjesecni izvjestaj generiran i poslan dionicima',
+      text: 'Mjesečni izvještaj generiran i poslan dioničarima',
       time: 'prije 12 sati',
       timestamp: new Date(Date.now() - 12 * 3600000).toISOString(),
       link: '/reports',
     },
     {
       id: 6, type: 'campaign',
-      text: 'Nova Instagram Stories kampanja pokrenuta za U19 momcad',
+      text: 'Nova Instagram Stories kampanja pokrenuta za U19 momčad',
       time: 'prije 1 dan',
       timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
       link: '/campaigns',
@@ -184,8 +184,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     iconColor: 'text-emerald-600',
     iconBg: 'bg-emerald-50',
     title: 'TikTok publika raste',
-    description: 'TikTok pratitelji porasli 23% ovaj mjesec. Povecajte objave s 3 na 5 tjedno kako biste iskoristili algoritamski momentum.',
-    action: 'Planiraj TikTok sadrzaj',
+    description: 'TikTok pratitelji porasli 23% ovaj mjesec. Povećajte objave s 3 na 5 tjedno kako biste iskoristili algoritamski momentum.',
+    action: 'Planiraj TikTok sadržaj',
     actionLink: '/content',
     priority: 'medium',
   },
@@ -261,7 +261,7 @@ function formatRelativeTime(timestamp: string | undefined): string {
   if (diff < 60) return 'upravo sada'
   if (diff < 3600) return `prije ${Math.floor(diff / 60)} min`
   if (diff < 86400) return `prije ${Math.floor(diff / 3600)}h`
-  if (diff < 172800) return 'jucer'
+  if (diff < 172800) return 'jučer'
   return `prije ${Math.floor(diff / 86400)} dana`
 }
 
@@ -455,7 +455,7 @@ function QuickActions() {
   const actions = [
     { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-dinamo-blue text-white hover:bg-dinamo-blue/90' },
     { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-white text-gray-700 border border-gray-200 hover:border-dinamo-blue/30 hover:bg-gray-50' },
-    { label: 'Generiraj izvjestaj', icon: FileText, to: '/reports', color: 'bg-white text-gray-700 border border-gray-200 hover:border-dinamo-blue/30 hover:bg-gray-50' },
+    { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-white text-gray-700 border border-gray-200 hover:border-dinamo-blue/30 hover:bg-gray-50' },
   ]
 
   return (
@@ -565,7 +565,7 @@ export default function Dashboard() {
     return (
       <>
         <Header title="NADZORNA PLOČA" subtitle="Pregled" />
-        <ErrorState message={`Greska pri ucitavanju podataka: ${error}`} onRetry={refetch} />
+        <ErrorState message={`Greška pri učitavanju podataka: ${error}`} onRetry={refetch} />
       </>
     )
   }
@@ -593,9 +593,9 @@ export default function Dashboard() {
         {/* Metric Cards with animated counters */}
         <div className="metric-grid">
           <AnimatedMetricCard label="Ukupno pratitelja" value={d.total_followers} previousValue={d.prev_followers} format="number" icon={Users} />
-          <AnimatedMetricCard label="Mjesecni doseg" value={d.monthly_reach} previousValue={d.prev_reach} format="number" icon={Eye} />
-          <AnimatedMetricCard label="Stopa angazmana" value={d.engagement_rate} previousValue={d.prev_engagement_rate} format="percent" icon={TrendingUp} />
-          <AnimatedMetricCard label="Potrosnja na oglase" value={d.ad_spend} previousValue={d.prev_ad_spend} format="currency" icon={CreditCard} />
+          <AnimatedMetricCard label="Mjesečni doseg" value={d.monthly_reach} previousValue={d.prev_reach} format="number" icon={Eye} />
+          <AnimatedMetricCard label="Stopa angažmana" value={d.engagement_rate} previousValue={d.prev_engagement_rate} format="percent" icon={TrendingUp} />
+          <AnimatedMetricCard label="Potrošnja na oglase" value={d.ad_spend} previousValue={d.prev_ad_spend} format="currency" icon={CreditCard} />
           <AnimatedMetricCard label="ROAS" value={d.roas} previousValue={d.prev_roas} format="number" icon={BarChart3} />
           <AnimatedMetricCard label="Ocjena sentimenta" value={d.sentiment_score} previousValue={d.prev_sentiment_score} format="percent" icon={Heart} />
         </div>
@@ -634,7 +634,7 @@ export default function Dashboard() {
               ) : (
                 <div className="flex items-center gap-1.5 text-xs text-dinamo-muted">
                   <Zap className="w-3 h-3 text-dinamo-accent" />
-                  Azuriranje u realnom vremenu
+                  Ažuriranje u realnom vremenu
                 </div>
               )}
             </div>
@@ -676,7 +676,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h2 className="section-title">Preporuke</h2>
-              <p className="text-xs text-gray-400 -mt-0.5">AI uvidi i prijedlozi za poboljsanje</p>
+              <p className="text-xs text-gray-400 -mt-0.5">AI uvidi i prijedlozi za poboljšanje</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

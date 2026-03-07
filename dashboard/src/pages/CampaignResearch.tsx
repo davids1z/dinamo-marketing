@@ -8,12 +8,12 @@ import Header from '../components/layout/Header'
 import { campaignResearchApi, type CampaignResearchItem } from '../api/campaignResearch'
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Loader2; color: string; bg: string }> = {
-  uploaded: { label: 'Ucitano', icon: Clock, color: 'text-gray-500', bg: 'bg-gray-50' },
+  uploaded: { label: 'Učitano', icon: Clock, color: 'text-gray-500', bg: 'bg-gray-50' },
   analyzing: { label: 'Analiziranje dokumenta...', icon: Loader2, color: 'text-blue-600', bg: 'bg-blue-50' },
-  researching: { label: 'Istrazivanje interneta...', icon: Search, color: 'text-purple-600', bg: 'bg-purple-50' },
+  researching: { label: 'Istraživanje interneta...', icon: Search, color: 'text-purple-600', bg: 'bg-purple-50' },
   generating: { label: 'Generiranje plana...', icon: Sparkles, color: 'text-amber-600', bg: 'bg-amber-50' },
   complete: { label: 'Gotovo', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
-  failed: { label: 'Greska', icon: XCircle, color: 'text-red-600', bg: 'bg-red-50' },
+  failed: { label: 'Greška', icon: XCircle, color: 'text-red-600', bg: 'bg-red-50' },
 }
 
 const CAMPAIGN_TYPES: Record<string, string> = {
@@ -179,7 +179,7 @@ export default function CampaignResearch() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-red-700">Greska u istrazivanju</p>
+              <p className="text-sm font-semibold text-red-700">Greška u istraživanju</p>
               <p className="text-xs text-red-600 mt-1">{selected.error_message}</p>
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function CampaignResearch() {
               )}
               {selected.extracted_brief.summary && (
                 <div className="bg-gray-50 rounded-xl p-3 md:col-span-2">
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Sazetak</p>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Sažetak</p>
                   <p className="text-sm text-gray-700">{selected.extracted_brief.summary}</p>
                 </div>
               )}
@@ -245,7 +245,7 @@ export default function CampaignResearch() {
           <div className="bg-white border border-gray-200 rounded-2xl p-6">
             <h3 className="font-headline text-sm tracking-wider text-gray-900 font-bold mb-4 flex items-center gap-2">
               <Globe className="w-4 h-4 text-purple-600" />
-              REZULTATI ISTRAZIVANJA
+              REZULTATI ISTRAŽIVANJA
               <span className="text-xs font-normal text-gray-500 ml-auto">
                 {selected.research_data.total_sources} izvora
               </span>
@@ -320,7 +320,7 @@ export default function CampaignResearch() {
             {selected.generated_plan.budget_allocation && (
               <div className="mb-5">
                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-                  <DollarSign className="w-3.5 h-3.5" /> Raspodjela budzeta
+                  <DollarSign className="w-3.5 h-3.5" /> Raspodjela budžeta
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {Object.entries(selected.generated_plan.budget_allocation).map(([key, val]) => (
@@ -337,7 +337,7 @@ export default function CampaignResearch() {
             {selected.generated_plan.content_calendar?.length > 0 && (
               <div className="mb-5">
                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> Kalendar sadrzaja
+                  <Calendar className="w-3.5 h-3.5" /> Kalendar sadržaja
                 </h4>
                 <div className="space-y-3">
                   {selected.generated_plan.content_calendar.map((week: any) => (
@@ -403,8 +403,8 @@ export default function CampaignResearch() {
   return (
     <>
       <Header
-        title="Istrazivanje kampanja"
-        subtitle="Upload brief &rarr; AI istrazivanje &rarr; Marketing plan"
+        title="Istraživanje kampanja"
+        subtitle="Upload brief &rarr; AI istraživanje &rarr; Marketing plan"
       />
       <div className="page-wrapper">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -443,12 +443,12 @@ export default function CampaignResearch() {
             {/* Text Input */}
             <div className="bg-white border border-gray-200 rounded-2xl p-4">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Ili opisi kampanju tekstom
+                Ili opiši kampanju tekstom
               </p>
               <textarea
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Opisi kampanju koju zelis istraziti..."
+                placeholder="Opiši kampanju koju želiš istražiti..."
                 className="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none"
               />
               <button
@@ -457,14 +457,14 @@ export default function CampaignResearch() {
                 className="mt-2 w-full py-2.5 bg-dinamo-blue hover:bg-dinamo-blue-hover text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
-                Istrazi kampanju
+                Istraži kampanju
               </button>
             </div>
 
             {/* Past Researches */}
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                Prethodna istrazivanja
+                Prethodna istraživanja
               </p>
               {loading ? (
                 <div className="space-y-2">
@@ -475,7 +475,7 @@ export default function CampaignResearch() {
               ) : campaigns.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Nema prethodnih istrazivanja</p>
+                  <p className="text-sm">Nema prethodnih istraživanja</p>
                 </div>
               ) : (
                 <div className="space-y-1.5">
@@ -532,9 +532,9 @@ export default function CampaignResearch() {
                 <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
                   <Search className="w-8 h-8 text-blue-400" />
                 </div>
-                <h3 className="font-headline text-lg text-gray-900 font-bold">Istrazi kampanju</h3>
+                <h3 className="font-headline text-lg text-gray-900 font-bold">Istraži kampanju</h3>
                 <p className="text-sm text-gray-500 mt-2 max-w-sm">
-                  Upload PDF ili opisi kampanju tekstom. AI ce analizirati brief, istraziti internet i generirati marketing plan.
+                  Upload PDF ili opiši kampanju tekstom. AI će analizirati brief, istražiti internet i generirati marketing plan.
                 </p>
               </div>
             )}

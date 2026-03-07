@@ -66,7 +66,7 @@ const fallbackCampaigns: CampaignRow[] = [
 const fallbackABTest = {
   campaign: 'Lansiranje dresa 2026',
   variants: [
-    { name: 'Varijanta A', description: 'Fokus na igracu', impressions: 85000, clicks: 4590, ctr: 5.4, conversions: 312, spend: 920, color: 'bg-blue-500' },
+    { name: 'Varijanta A', description: 'Fokus na igraču', impressions: 85000, clicks: 4590, ctr: 5.4, conversions: 312, spend: 920, color: 'bg-blue-500' },
     { name: 'Varijanta B', description: 'Montaza slavlja navijaca', impressions: 82000, clicks: 3936, ctr: 4.8, conversions: 245, spend: 930, color: 'bg-purple-500' },
     { name: 'Varijanta C', description: 'Detalji dresa izbliza', impressions: 79000, clicks: 4029, ctr: 5.1, conversions: 289, spend: 930, color: 'bg-emerald-500' },
   ],
@@ -108,7 +108,7 @@ function platformLabel(p: NewCampaignForm['platforms']): string {
 function objectiveLabel(o: string): string {
   switch (o) {
     case 'awareness': return 'Svijest'
-    case 'engagement': return 'Angazman'
+    case 'engagement': return 'Angažman'
     case 'conversions': return 'Konverzije'
     default: return o
   }
@@ -201,7 +201,7 @@ export default function Campaigns() {
       refetch()
       addToast('Kampanja je pauzirana', 'success')
     } catch {
-      addToast('Greska pri pauziranju kampanje. Pokusajte ponovo.', 'error')
+      addToast('Greška pri pauziranju kampanje. Pokušajte ponovo.', 'error')
     } finally {
       setActionLoading(null)
     }
@@ -217,7 +217,7 @@ export default function Campaigns() {
       refetch()
       addToast('Kampanja je nastavljena', 'success')
     } catch {
-      addToast('Greska pri nastavljanju kampanje. Pokusajte ponovo.', 'error')
+      addToast('Greška pri nastavljanju kampanje. Pokušajte ponovo.', 'error')
     } finally {
       setActionLoading(null)
     }
@@ -271,7 +271,7 @@ export default function Campaigns() {
       })
       closeWizard()
       refetch()
-      addToast(`Kampanja "${wizardForm.name}" je uspjesno kreirana!`, 'success')
+      addToast(`Kampanja "${wizardForm.name}" je uspješno kreirana!`, 'success')
     } catch {
       // Fallback to local if API fails
       const newCampaign: CampaignRow = {
@@ -327,8 +327,8 @@ export default function Campaigns() {
     )},
     { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-gray-500 text-sm">{row.platform}</span> },
     { key: 'status', header: 'Status', render: (row: CampaignRow) => <StatusBadge status={row.status} /> },
-    { key: 'budget', header: 'Budzet', render: (row: CampaignRow) => <span className="text-gray-500 font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
-    { key: 'spend', header: 'Potrosnja', render: (row: CampaignRow) => (
+    { key: 'budget', header: 'Budžet', render: (row: CampaignRow) => <span className="text-gray-500 font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
+    { key: 'spend', header: 'Potrošnja', render: (row: CampaignRow) => (
       <div>
         <span className="text-gray-700 font-mono">EUR{row.spend.toLocaleString()}</span>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
@@ -395,7 +395,7 @@ export default function Campaigns() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <MetricCard label="Aktivne kampanje" value={activeCampaignsCount} format="number" icon={Zap} />
-          <MetricCard label="Ukupna potrosnja" value={totalSpend} format="currency" icon={CreditCard} />
+          <MetricCard label="Ukupna potrošnja" value={totalSpend} format="currency" icon={CreditCard} />
           <MetricCard label="Prosj. ROAS" value={Number(avgRoas.toFixed(1))} format="number" icon={BarChart3} />
         </div>
 
@@ -440,7 +440,7 @@ export default function Campaigns() {
               columns={columns}
               data={filteredCampaigns}
               onRowClick={(row) => setDetailCampaign(row)}
-              emptyMessage="Nema pronadjenih kampanja"
+              emptyMessage="Nema pronađenih kampanja"
             />
           </div>
         </div>
@@ -516,7 +516,7 @@ export default function Campaigns() {
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Klikovi</span><span className="text-gray-700 font-mono">{variant.clicks.toLocaleString()}</span></div>
                     <div className="flex justify-between text-sm"><span className="text-gray-500">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-gray-700'}`}>{variant.ctr}%</span></div>
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Konverzije</span><span className="text-gray-700 font-mono">{variant.conversions}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Potrosnja</span><span className="text-gray-700 font-mono">EUR{variant.spend}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-gray-500">Potrošnja</span><span className="text-gray-700 font-mono">EUR{variant.spend}</span></div>
                   </div>
                 </div>
               )
@@ -619,7 +619,7 @@ export default function Campaigns() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Trziste</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Tržište</label>
                     <input
                       type="text"
                       value={wizardForm.market}
@@ -635,7 +635,7 @@ export default function Campaigns() {
               {wizardStep === 2 && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Budzet (EUR)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Budžet (EUR)</label>
                     <input
                       type="number"
                       min={0}
@@ -650,7 +650,7 @@ export default function Campaigns() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         <Calendar size={12} className="inline mr-1" />
-                        Datum pocetka
+                        Datum početka
                       </label>
                       <input
                         type="date"
@@ -662,7 +662,7 @@ export default function Campaigns() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         <Calendar size={12} className="inline mr-1" />
-                        Datum zavrsetka
+                        Datum završetka
                       </label>
                       <input
                         type="date"
@@ -678,7 +678,7 @@ export default function Campaigns() {
                     <div className="grid grid-cols-3 gap-3">
                       {([
                         { value: 'awareness' as const, label: 'Svijest', icon: Eye },
-                        { value: 'engagement' as const, label: 'Angazman', icon: MousePointerClick },
+                        { value: 'engagement' as const, label: 'Angažman', icon: MousePointerClick },
                         { value: 'conversions' as const, label: 'Konverzije', icon: TrendingUp },
                       ]).map(({ value, label, icon: Icon }) => (
                         <button
@@ -715,20 +715,20 @@ export default function Campaigns() {
                       <span className="text-gray-900 font-medium">{platformLabel(wizardForm.platforms)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Trziste</span>
+                      <span className="text-gray-500">Tržište</span>
                       <span className="text-gray-900 font-medium">{wizardForm.market}</span>
                     </div>
                     <div className="border-t border-gray-200 my-1" />
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Budzet</span>
+                      <span className="text-gray-500">Budžet</span>
                       <span className="text-gray-900 font-medium font-mono">EUR{wizardForm.budget.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Pocetak</span>
+                      <span className="text-gray-500">Početak</span>
                       <span className="text-gray-900 font-medium">{wizardForm.startDate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Zavrsetak</span>
+                      <span className="text-gray-500">Završetak</span>
                       <span className="text-gray-900 font-medium">{wizardForm.endDate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -811,11 +811,11 @@ export default function Campaigns() {
             <div className="px-6 py-5 space-y-5">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">Budzet</p>
+                  <p className="text-xs text-gray-500 mb-1">Budžet</p>
                   <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">Potroseno</p>
+                  <p className="text-xs text-gray-500 mb-1">Potrošeno</p>
                   <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.spend.toLocaleString()}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4">
@@ -831,7 +831,7 @@ export default function Campaigns() {
               {/* Budget progress */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Napredak budzeta</span>
+                  <span className="text-sm font-medium text-gray-700">Napredak budžeta</span>
                   <span className="text-sm font-mono text-gray-500">
                     {Math.round((detailCampaign.spend / detailCampaign.budget) * 100)}%
                   </span>
@@ -856,7 +856,7 @@ export default function Campaigns() {
 
               {/* Daily spend chart */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Dnevna potrosnja (zadnjih 7 dana)</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
                 <div className="flex items-end gap-2 h-32">
                   {mockDailySpend.map((d) => (
                     <div key={d.day} className="flex-1 flex flex-col items-center gap-1">

@@ -61,13 +61,13 @@ const fallbackData: AcademyData = {
     { id: 1, title: 'U19 finale highlights reel', type: 'Video', platform: 'Instagram + TikTok', status: 'U produkciji', due: 'Mar 7' },
     { id: 2, title: 'Perisic: Od U17 do prvog tima', type: 'Dokumentarac', platform: 'YouTube', status: 'Pregled scenarija', due: 'Mar 12' },
     { id: 3, title: 'Promocija upisa na kamp akademije', type: 'Karusel', platform: 'Instagram + Facebook', status: 'Spremno', due: 'Mar 6' },
-    { id: 4, title: 'Omladinski kup iza kulisa', type: 'Serija prica', platform: 'Instagram', status: 'Snimanje', due: 'Mar 9' },
-    { id: 5, title: 'Mjesecni bilten akademije', type: 'Email + Web', platform: 'Web stranica', status: 'Nacrt', due: 'Mar 15' },
+    { id: 4, title: 'Omladinski kup iza kulisa', type: 'Serija priča', platform: 'Instagram', status: 'Snimanje', due: 'Mar 9' },
+    { id: 5, title: 'Mjesečni bilten akademije', type: 'Email + Web', platform: 'Web stranica', status: 'Nacrt', due: 'Mar 15' },
   ],
 };
 
 const columns = [
-  { key: 'name', header: 'Igrac', render: (row: PlayerRow) => (
+  { key: 'name', header: 'Igrač', render: (row: PlayerRow) => (
     <div className="flex items-center gap-2">
       <span className="text-gray-900 font-medium">{row.name}</span>
       {row.featured && <Star size={14} className="text-yellow-600" />}
@@ -91,9 +91,9 @@ const columns = [
   { key: 'socialMentions', header: 'Spominjanja', render: (row: PlayerRow) => (
     <span className="text-gray-500 font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
   )},
-  { key: 'featured', header: 'Sadrzaj', render: (row: PlayerRow) => (
+  { key: 'featured', header: 'Sadržaj', render: (row: PlayerRow) => (
     <span className={`text-xs ${row.featured ? 'text-green-600' : 'text-gray-500'}`}>
-      {row.featured ? 'Istaknuto' : 'U cekanju'}
+      {row.featured ? 'Istaknuto' : 'U čekanju'}
     </span>
   )},
 ];
@@ -104,7 +104,7 @@ export default function Academy() {
 
   if (loading && !apiData) return (
     <>
-      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadrzajni pipeline" />
+      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadržajni pipeline" />
       <div className="page-wrapper space-y-6">
         <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
         <TableSkeleton rows={6} />
@@ -114,14 +114,14 @@ export default function Academy() {
 
   return (
     <div className="animate-fade-in">
-      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadrzajni pipeline" />
+      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadržajni pipeline" />
 
       <div className="page-wrapper space-y-6">
 
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Promovirani igraci" value={data.metrics.promotedPlayers} previousValue={data.metrics.prevPromotedPlayers} format="number" icon={GraduationCap} />
+          <MetricCard label="Promovirani igrači" value={data.metrics.promotedPlayers} previousValue={data.metrics.prevPromotedPlayers} format="number" icon={GraduationCap} />
           <MetricCard label="Prihodi od transfera" value={data.metrics.transferRevenue} previousValue={data.metrics.prevTransferRevenue} format="currency" icon={DollarSign} />
           <MetricCard label="Aktivni kampovi" value={data.metrics.activeCamps} format="number" icon={Users} />
         </div>
@@ -129,14 +129,14 @@ export default function Academy() {
         {/* Players Table */}
         <div className="card">
           <h2 className="section-title mb-4">Popis talenata akademije</h2>
-          <DataTable columns={columns} data={data.players} emptyMessage="Nema pronadjenih igraca" />
+          <DataTable columns={columns} data={data.players} emptyMessage="Nema pronađenih igrača" />
         </div>
 
         {/* Content Pipeline */}
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <Video size={20} className="text-purple-600" />
-            <h2 className="section-title">Sadrzajni pipeline</h2>
+            <h2 className="section-title">Sadržajni pipeline</h2>
           </div>
           <div className="space-y-3">
             {data.contentPipeline.map((item) => (

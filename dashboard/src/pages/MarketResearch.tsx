@@ -35,7 +35,7 @@ const fallbackData: MarketRow[] = [
 
 const columns = [
   { key: 'rank', header: '#', render: (row: MarketRow) => <span className="text-gray-500 font-mono">{row.rank}</span> },
-  { key: 'country', header: 'Drzava', render: (row: MarketRow) => (
+  { key: 'country', header: 'Država', render: (row: MarketRow) => (
     <div className="flex items-center gap-2">
       <span className="text-xs text-gray-500 font-mono w-6">{row.code}</span>
       <span className="text-gray-900 font-medium truncate">{row.country}</span>
@@ -98,7 +98,7 @@ export default function MarketResearch() {
       <div className="page-wrapper space-y-6">
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-gray-500 text-sm">Bodovanje {marketData.length} ciljnih trzista po 4 dimenzije</p>
+          <p className="text-gray-500 text-sm">Bodovanje {marketData.length} ciljnih tržišta po 4 dimenzije</p>
           <div className="flex gap-3">
             <button className="btn-ghost flex items-center gap-2 text-sm">
               <Download size={16} />
@@ -118,14 +118,14 @@ export default function MarketResearch() {
 
         {/* Top Markets Chart */}
         <div className="card">
-          <ComparisonBar data={topMarkets} title="Top 5 trzista po ukupnom rezultatu" valueLabel="Score" />
+          <ComparisonBar data={topMarkets} title="Top 5 tržišta po ukupnom rezultatu" valueLabel="Score" />
         </div>
 
         {/* Full Market Table */}
         <div className="card overflow-hidden">
-          <h2 className="section-title mb-4">Matrica trzisnih prilika</h2>
+          <h2 className="section-title mb-4">Matrica tržišnih prilika</h2>
           <div className="overflow-x-auto -mx-5 px-5">
-            <DataTable columns={columns} data={marketData} emptyMessage="Nema dostupnih trzisnih podataka" />
+            <DataTable columns={columns} data={marketData} emptyMessage="Nema dostupnih tržišnih podataka" />
           </div>
         </div>
       </div>

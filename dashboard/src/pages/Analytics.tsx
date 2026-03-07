@@ -53,7 +53,7 @@ const fallbackTopPosts = [
   { id: '2', title: 'Predstavljanje novog dresa 2026/27', platform: 'TikTok', date: '01.03.2026', reach: 756000, engagement: 52800, engRate: 7.0 },
   { id: '3', title: 'Petkovic hat-trick highlights', platform: 'Instagram Reel', date: '02.03.2026', reach: 645000, engagement: 38900, engRate: 6.0 },
   { id: '4', title: 'Pobjeda U19 akademije u finalu', platform: 'YouTube Short', date: '25.02.2026', reach: 412000, engagement: 21500, engRate: 5.2 },
-  { id: '5', title: 'Navijacka koreografija — Maksimir', platform: 'Instagram Carousel', date: '22.02.2026', reach: 389000, engagement: 28400, engRate: 7.3 },
+  { id: '5', title: 'Navijačka koreografija — Maksimir', platform: 'Instagram Carousel', date: '22.02.2026', reach: 389000, engagement: 28400, engRate: 7.3 },
 ]
 
 export default function Analytics() {
@@ -89,7 +89,7 @@ export default function Analytics() {
             <div className="card text-center">
               <DollarSign size={20} className="mx-auto text-gray-500 mb-1" />
               <p className="text-2xl font-bold font-mono">€{paid.total_spend.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Ukupna potrosnja</p>
+              <p className="text-xs text-gray-500">Ukupna potrošnja</p>
             </div>
             <div className="card text-center">
               <BarChart3 size={20} className="mx-auto text-green-600 mb-1" />
@@ -114,7 +114,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between mb-2">
             <span />
             <button onClick={refetch} className="text-xs text-gray-500 hover:text-dinamo-primary flex items-center gap-1">
-              <RefreshCw size={12} /> Osvjezi
+              <RefreshCw size={12} /> Osvježi
             </button>
           </div>
           <ReachChart data={reachData} title="Doseg i prikazivanja (30 dana)" />
@@ -164,7 +164,7 @@ export default function Analytics() {
                       <Heart size={14} />
                       <span className="font-mono">{(post.engagement / 1000).toFixed(1)}K</span>
                     </div>
-                    <p className="text-xs text-gray-500">Angazman</p>
+                    <p className="text-xs text-gray-500">Angažman</p>
                   </div>
                   <div className="text-center">
                     <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-500'}`}>
