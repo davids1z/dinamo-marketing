@@ -146,7 +146,7 @@ export default function CampaignResearch() {
   const renderDetail = () => {
     if (!selected) return null
 
-    const statusCfg = STATUS_CONFIG[selected.status] || STATUS_CONFIG.uploaded
+    const statusCfg = (STATUS_CONFIG[selected.status] ?? STATUS_CONFIG.uploaded)!
     const StatusIcon = statusCfg.icon
     const isProcessing = ['analyzing', 'researching', 'generating'].includes(selected.status)
 
@@ -480,7 +480,7 @@ export default function CampaignResearch() {
               ) : (
                 <div className="space-y-1.5">
                   {campaigns.map((c) => {
-                    const cfg = STATUS_CONFIG[c.status] || STATUS_CONFIG.uploaded
+                    const cfg = (STATUS_CONFIG[c.status] ?? STATUS_CONFIG.uploaded)!
                     const Icon = cfg.icon
                     const isActive = selectedId === c.id
                     return (

@@ -130,7 +130,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                 ) : (
                   notifications.map((n: Notification) => {
                     const isExpanded = expandedId === n.id
-                    const cfg = severityConfig[n.severity] || severityConfig.info
+                    const cfg = (severityConfig[n.severity] ?? severityConfig.info)!
                     const Icon = cfg.icon
                     return (
                       <div key={n.id} className={`border-l-[3px] ${cfg.accentColor} transition-colors ${!n.is_read ? 'bg-blue-50/50' : 'bg-transparent'}`}>

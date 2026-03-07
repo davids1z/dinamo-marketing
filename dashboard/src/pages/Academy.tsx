@@ -1,7 +1,6 @@
-import React from 'react';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner';
+import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner';
 import MetricCard from '../components/common/MetricCard';
 import DataTable from '../components/common/DataTable';
 import { GraduationCap, DollarSign, Users, Star, Video, Calendar } from 'lucide-react';
@@ -100,10 +99,18 @@ const columns = [
 ];
 
 export default function Academy() {
-  const { data: apiData, loading, error, refetch } = useApi<AcademyData>('/academy/players');
+  const { data: apiData, loading } = useApi<AcademyData>('/academy/players');
   const data = apiData || fallbackData;
 
-  if (loading && !apiData) return <><Header title="AKADEMIJA" subtitle="Razvoj mladih i sadrzajni pipeline" /><PageLoader /></>;
+  if (loading && !apiData) return (
+    <>
+      <Header title="AKADEMIJA" subtitle="Razvoj mladih i sadrzajni pipeline" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
+        <TableSkeleton rows={6} />
+      </div>
+    </>
+  );
 
   return (
     <div className="animate-fade-in">

@@ -1,7 +1,7 @@
 import Header from '../components/layout/Header'
 import DataTable from '../components/common/DataTable'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, ChartSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
@@ -99,10 +99,19 @@ const columns = [
 ]
 
 export default function Competitors() {
-  const { data: apiData, loading, error, refetch } = useApi<CompetitorData>('/competitors')
+  const { data: apiData, loading } = useApi<CompetitorData>('/competitors')
   const data = apiData || fallbackData
 
-  if (loading && !apiData) return <><Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
+        <ChartSkeleton />
+        <TableSkeleton rows={8} />
+      </div>
+    </>
+  )
 
   const competitorList = data.competitors || fallbackData.competitors
   const summary = data.summary || fallbackData.summary

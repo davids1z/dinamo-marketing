@@ -13,7 +13,6 @@ import TemplateSelector from '../components/studio/TemplateSelector'
 import PublishModal from '../components/studio/PublishModal'
 import AiPanel from '../components/studio/AiPanel'
 import { studioApi } from '../api/studio'
-import { contentApi } from '../api/content'
 import type { Scene, MediaAsset, StudioProject, AspectRatio } from '../types/studio'
 import type { StudioTemplate } from '../components/studio/templates'
 

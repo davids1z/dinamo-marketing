@@ -118,6 +118,7 @@ export interface StudioProject {
   status: 'draft' | 'generating' | 'generated' | 'rendering' | 'rendered' | 'published'
   created_at: string
   updated_at: string
+  post_meta?: { title?: string; platform?: string } | null
 }
 
 export interface GenerationTask {

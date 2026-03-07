@@ -35,11 +35,11 @@ export function PageLoader() {
   )
 }
 
-export function CardSkeleton({ count = 4 }: { count?: number }) {
+export function CardSkeleton({ count = 4, cols }: { count?: number; cols?: string }) {
   return (
-    <div className="metric-grid">
+    <div className={cols || "metric-grid"}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="card animate-pulse">
+        <div key={i} className="card animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
           <div className="flex items-start justify-between">
             <div className="space-y-2 flex-1">
               <div className="h-3 w-20 bg-gray-200 rounded" />
@@ -50,6 +50,55 @@ export function CardSkeleton({ count = 4 }: { count?: number }) {
           <div className="h-3 w-32 bg-gray-200 rounded mt-3" />
         </div>
       ))}
+    </div>
+  )
+}
+
+export function ChartSkeleton({ height = 300 }: { height?: number }) {
+  return (
+    <div className="card animate-pulse">
+      <div className="h-4 w-48 bg-gray-200 rounded mb-4" />
+      <div className="flex items-end gap-1" style={{ height }}>
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex-1 bg-gray-200 rounded-t"
+            style={{ height: `${30 + Math.random() * 60}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function TableSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="card animate-pulse">
+      <div className="h-4 w-40 bg-gray-200 rounded mb-4" />
+      <div className="space-y-3">
+        <div className="flex gap-4 pb-2 border-b border-gray-100">
+          {[120, 80, 60, 80, 60].map((w, i) => (
+            <div key={i} className="h-3 bg-gray-200 rounded" style={{ width: w }} />
+          ))}
+        </div>
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="flex gap-4 py-2">
+            {[120, 80, 60, 80, 60].map((w, j) => (
+              <div key={j} className="h-3 bg-gray-100 rounded" style={{ width: w + Math.random() * 20 }} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function PageSkeleton() {
+  return (
+    <div className="page-wrapper space-y-6">
+      <CardSkeleton count={4} />
+      <ChartSkeleton />
+      <TableSkeleton />
     </div>
   )
 }

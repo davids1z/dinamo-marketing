@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
@@ -6,8 +6,8 @@ import { contentApi } from '../api/content'
 import {
   Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Sparkles,
   Eye, Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown,
-  LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap, GripVertical,
-  Film,
+  LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap,
+  Film, Filter, Send, Instagram, Facebook, Youtube, Music2,
 } from 'lucide-react'
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useAuth } from '../contexts/AuthContext'
@@ -52,6 +52,42 @@ interface QueueItem {
   author: string
   submitted: string
   pillar: string
+}
+
+type PlatformFilter = 'all' | 'instagram' | 'facebook' | 'tiktok' | 'youtube'
+type StatusFilter = 'all' | 'draft' | 'scheduled' | 'published'
+type TypeFilter = 'all' | 'reel' | 'story' | 'post' | 'video'
+
+const PLATFORM_FILTER_OPTIONS: { value: PlatformFilter; label: string; icon?: React.ElementType }[] = [
+  { value: 'all', label: 'Sve' },
+  { value: 'instagram', label: 'Instagram', icon: Instagram },
+  { value: 'facebook', label: 'Facebook', icon: Facebook },
+  { value: 'tiktok', label: 'TikTok', icon: Music2 },
+  { value: 'youtube', label: 'YouTube', icon: Youtube },
+]
+
+const STATUS_FILTER_OPTIONS: { value: StatusFilter; label: string; color: string }[] = [
+  { value: 'all', label: 'Sve', color: 'bg-gray-100 text-gray-700' },
+  { value: 'draft', label: 'Draft', color: 'bg-yellow-50 text-yellow-700' },
+  { value: 'scheduled', label: 'Zakazano', color: 'bg-blue-50 text-blue-700' },
+  { value: 'published', label: 'Objavljeno', color: 'bg-green-50 text-green-700' },
+]
+
+const TYPE_FILTER_OPTIONS: { value: TypeFilter; label: string }[] = [
+  { value: 'all', label: 'Sve' },
+  { value: 'reel', label: 'Reel' },
+  { value: 'story', label: 'Story' },
+  { value: 'post', label: 'Post' },
+  { value: 'video', label: 'Video' },
+]
+
+const statusDotColors: Record<string, string> = {
+  published: 'bg-green-500',
+  scheduled: 'bg-blue-500',
+  draft: 'bg-yellow-500',
+  approved: 'bg-emerald-500',
+  missed: 'bg-red-500',
+  failed: 'bg-red-500',
 }
 
 // Rich fallback data for March 2026
@@ -294,9 +330,13 @@ function DraggablePostDot({ post, isPast }: { post: Post; isPast: boolean }) {
     <div
       ref={setNodeRef}
       {...(isDraggable ? { ...listeners, ...attributes } : {})}
-      className={`w-2.5 h-2.5 rounded-full ${platformColors[post.platform] || 'bg-gray-400'} ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-transform hover:scale-125`}
-      title={`${post.platform} - ${post.type}${isDraggable ? ' (povuci za premjestiti)' : ''}`}
-    />
+      className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${platformColors[post.platform]?.replace('bg-', 'bg-') || 'bg-gray-100'} bg-opacity-10 ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-all hover:bg-opacity-20 group`}
+      title={`${post.platform} - ${post.type} - ${post.title}${isDraggable ? ' (povuci za premjestiti)' : ''}`}
+    >
+      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDotColors[post.status] || 'bg-gray-400'}`} />
+      <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
+      <span className="text-[9px] text-gray-600 truncate max-w-[60px] hidden sm:inline">{post.title.split(' ')[0]}</span>
+    </div>
   )
 }
 
@@ -327,6 +367,13 @@ export default function ContentCalendar() {
   const [generatingVisual, setGeneratingVisual] = useState(false)
   const [generatedData, setGeneratedData] = useState<Record<number, Post[]> | null>(null)
   const [draggedPost, setDraggedPost] = useState<Post | null>(null)
+  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [generatingWeek, setGeneratingWeek] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  const [focusedDay, setFocusedDay] = useState<number | null>(null)
+  const calendarRef = useRef<HTMLDivElement>(null)
 
   // DnD sensors & handlers
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
@@ -358,8 +405,8 @@ export default function ContentCalendar() {
 
     // Move post between days (optimistic update)
     const updated = { ...data }
-    updated[sourceDay] = (updated[sourceDay] || []).filter((p) => p.id !== post.id)
-    if (updated[sourceDay].length === 0) delete updated[sourceDay]
+    updated[sourceDay] = (updated[sourceDay] ?? []).filter((p) => p.id !== post.id)
+    if (updated[sourceDay]!.length === 0) delete updated[sourceDay]
     updated[targetDay] = [...(updated[targetDay] || []), post]
     setGeneratedData(updated)
 
@@ -404,7 +451,27 @@ export default function ContentCalendar() {
 
   const queue = fallbackQueue
 
-  const calendarData = generatedData || fallbackCalendar
+  const rawCalendarData = generatedData || fallbackCalendar
+
+  // Filter posts based on active filters
+  const calendarData = useMemo(() => {
+    if (platformFilter === 'all' && statusFilter === 'all' && typeFilter === 'all') {
+      return rawCalendarData
+    }
+    const filtered: Record<number, Post[]> = {}
+    for (const [day, posts] of Object.entries(rawCalendarData)) {
+      const dayPosts = posts.filter((p) => {
+        if (platformFilter !== 'all' && p.platform !== platformFilter) return false
+        if (statusFilter !== 'all' && p.status !== statusFilter) return false
+        if (typeFilter !== 'all' && p.type !== typeFilter) return false
+        return true
+      })
+      if (dayPosts.length > 0) {
+        filtered[Number(day)] = dayPosts
+      }
+    }
+    return filtered
+  }, [rawCalendarData, platformFilter, statusFilter, typeFilter])
 
   const monthNames = ['Sijecanj', 'Veljaca', 'Ozujak', 'Travanj', 'Svibanj', 'Lipanj', 'Srpanj', 'Kolovoz', 'Rujan', 'Listopad', 'Studeni', 'Prosinac']
   const dayNames = ['Nedjelja', 'Ponedjeljak', 'Utorak', 'Srijeda', 'Cetvrtak', 'Petak', 'Subota']
@@ -508,6 +575,154 @@ export default function ContentCalendar() {
     try { await contentApi.rejectPost(id, 'Odbijeno') } catch { /* fallback */ }
   }
 
+  // Generate week handler
+  const handleGenerateWeek = async () => {
+    setGeneratingWeek(true)
+    try {
+      const weekStart = todayDay > 0 ? todayDay : 1
+      const weekEnd = Math.min(weekStart + 6, daysInMonth)
+      const startRes = await contentApi.generateAIPlan({ month: currentMonth + 1, year: currentYear })
+      const taskId = startRes.data?.task_id
+      if (!taskId) {
+        const posts = startRes.data?.posts
+        if (Array.isArray(posts) && posts.length > 0) {
+          const weekPosts = posts.filter((p: { day?: number }) => {
+            const d = p.day || 1
+            return d >= weekStart && d <= weekEnd
+          })
+          if (weekPosts.length > 0) {
+            const grouped = _groupPosts(weekPosts)
+            const merged = { ...(generatedData || fallbackCalendar) }
+            for (const [day, dayPosts] of Object.entries(grouped)) {
+              merged[Number(day)] = dayPosts
+            }
+            setGeneratedData(merged)
+          }
+        }
+        setGeneratingWeek(false)
+        return
+      }
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 3000))
+        try {
+          const pollRes = await contentApi.getAIPlanResult(taskId)
+          const status = pollRes.data?.status
+          if (status === 'done') {
+            const posts = pollRes.data?.posts
+            if (Array.isArray(posts) && posts.length > 0) {
+              const weekPosts = posts.filter((p: { day?: number }) => {
+                const d = p.day || 1
+                return d >= weekStart && d <= weekEnd
+              })
+              if (weekPosts.length > 0) {
+                const grouped = _groupPosts(weekPosts)
+                const merged = { ...(generatedData || fallbackCalendar) }
+                for (const [day, dayPosts] of Object.entries(grouped)) {
+                  merged[Number(day)] = dayPosts
+                }
+                setGeneratedData(merged)
+              }
+            }
+            return
+          } else if (status === 'error') return
+        } catch { /* keep polling */ }
+      }
+    } catch { /* keep existing */ } finally {
+      setGeneratingWeek(false)
+    }
+  }
+
+  // Publish handler for modal
+  const handlePublishFromModal = async () => {
+    if (!selectedPost) return
+    setPublishing(true)
+    try {
+      const res = await contentApi.publishPost(selectedPost.id)
+      const data = res.data
+      if (data.success) {
+        setSelectedPost({
+          ...selectedPost,
+          status: 'published',
+          platform_post_url: data.platform_post_url,
+          publish_error: undefined,
+        })
+      } else {
+        setSelectedPost({
+          ...selectedPost,
+          publish_error: data.error || 'Objavljivanje nije uspjelo',
+        })
+      }
+    } catch {
+      setSelectedPost({
+        ...selectedPost,
+        publish_error: 'Mrezna greska pri objavljivanju',
+      })
+    } finally {
+      setPublishing(false)
+    }
+  }
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (activeTab !== 'calendar' || viewMode !== 'month' || selectedPost) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      switch (e.key) {
+        case 'ArrowRight': {
+          e.preventDefault()
+          setFocusedDay(prev => {
+            const next = (prev || 0) + 1
+            return next > daysInMonth ? 1 : next
+          })
+          break
+        }
+        case 'ArrowLeft': {
+          e.preventDefault()
+          setFocusedDay(prev => {
+            const next = (prev || 2) - 1
+            return next < 1 ? daysInMonth : next
+          })
+          break
+        }
+        case 'ArrowDown': {
+          e.preventDefault()
+          setFocusedDay(prev => {
+            const next = (prev || 0) + 7
+            return next > daysInMonth ? ((next - 1) % daysInMonth) + 1 : next
+          })
+          break
+        }
+        case 'ArrowUp': {
+          e.preventDefault()
+          setFocusedDay(prev => {
+            const next = (prev || 8) - 7
+            return next < 1 ? daysInMonth + next : next
+          })
+          break
+        }
+        case 'Enter': {
+          e.preventDefault()
+          if (focusedDay) {
+            setSelectedDay(focusedDay)
+            const posts = calendarData[focusedDay]
+            if (posts && posts.length === 1 && posts[0]) {
+              setSelectedPost(posts[0])
+            }
+          }
+          break
+        }
+        case 'Escape': {
+          e.preventDefault()
+          if (selectedDay) setSelectedDay(null)
+          else setFocusedDay(null)
+          break
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeTab, viewMode, selectedPost, focusedDay, daysInMonth, calendarData, selectedDay])
+
   const selectedDayPosts = selectedDay ? (calendarData[selectedDay] || []) : []
 
   const totalPosts = Object.values(calendarData).reduce((sum, posts) => sum + posts.length, 0)
@@ -519,14 +734,24 @@ export default function ContentCalendar() {
         title="KALENDAR SADRŽAJA"
         subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
         actions={
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="btn-primary flex items-center gap-2 text-sm"
-          >
-            {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-            {generating ? 'Generiranje...' : 'AI Generiraj plan'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleGenerateWeek}
+              disabled={generatingWeek || generating}
+              className="flex items-center gap-2 text-sm px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors disabled:opacity-50"
+            >
+              {generatingWeek ? <Loader2 size={16} className="animate-spin" /> : <CalendarDays size={16} />}
+              {generatingWeek ? 'Generiranje...' : 'Generiraj tjedan'}
+            </button>
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="btn-primary flex items-center gap-2 text-sm"
+            >
+              {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+              {generating ? 'Generiranje...' : 'AI Generiraj plan'}
+            </button>
+          </div>
         }
       />
 
@@ -565,25 +790,165 @@ export default function ContentCalendar() {
           )}
         </div>
 
-        {/* Generating overlay */}
-        {generating && (
-          <div className="card flex items-center justify-center py-12">
-            <div className="text-center space-y-3">
-              <Loader2 size={40} className="animate-spin text-dinamo-blue mx-auto" />
-              <p className="text-lg font-medium text-gray-900">Gemini AI generira plan...</p>
-              <p className="text-sm text-gray-500">Analizira Dinamov sadržaj i kreira kvalitetne ideje za {monthNames[currentMonth]}</p>
+        {/* Filter controls */}
+        {activeTab === 'calendar' && (
+          <div className="card !py-3 !px-4">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3">
+              <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+                <Filter size={14} />
+                <span className="font-medium">Filteri:</span>
+              </div>
+
+              {/* Platform filter */}
+              <div className="flex items-center gap-1">
+                {PLATFORM_FILTER_OPTIONS.map(({ value, label, icon: Icon }) => (
+                  <button key={value} onClick={() => setPlatformFilter(value)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      platformFilter === value
+                        ? 'bg-dinamo-blue text-white shadow-sm'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    }`}>
+                    {Icon && <Icon size={12} />}
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="hidden lg:block w-px h-5 bg-gray-200" />
+
+              {/* Status filter */}
+              <div className="flex items-center gap-1">
+                {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+                  <button key={value} onClick={() => setStatusFilter(value)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      statusFilter === value
+                        ? 'bg-dinamo-blue text-white shadow-sm'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    }`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="hidden lg:block w-px h-5 bg-gray-200" />
+
+              {/* Type filter */}
+              <div className="flex items-center gap-1">
+                {TYPE_FILTER_OPTIONS.map(({ value, label }) => (
+                  <button key={value} onClick={() => setTypeFilter(value)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      typeFilter === value
+                        ? 'bg-dinamo-blue text-white shadow-sm'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    }`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Clear filters */}
+              {(platformFilter !== 'all' || statusFilter !== 'all' || typeFilter !== 'all') && (
+                <button
+                  onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setTypeFilter('all') }}
+                  className="ml-auto text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                >
+                  <X size={12} />
+                  Ocisti filtere
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {activeTab === 'calendar' && viewMode === 'month' && !generating && (
+        {/* Generating overlay */}
+        {(generating || generatingWeek) && (
+          <div className="card flex items-center justify-center py-12">
+            <div className="text-center space-y-3">
+              <Loader2 size={40} className="animate-spin text-dinamo-blue mx-auto" />
+              <p className="text-lg font-medium text-gray-900">
+                {generatingWeek ? 'Generiranje tjednog plana...' : 'Gemini AI generira plan...'}
+              </p>
+              <p className="text-sm text-gray-500">
+                {generatingWeek
+                  ? 'Kreira sadrzaj za ovaj tjedan'
+                  : `Analizira Dinamov sadržaj i kreira kvalitetne ideje za ${monthNames[currentMonth]}`}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'calendar' && viewMode === 'month' && !generating && !generatingWeek && (
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex gap-6">
+            {/* Mini Calendar Sidebar */}
+            <div className="hidden xl:block" style={{ width: '220px', minWidth: '220px' }}>
+              <div className="card !p-3 sticky top-4">
+                <div className="flex items-center justify-between mb-2">
+                  <button onClick={prevMonth} className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"><ChevronLeft size={14} /></button>
+                  <span className="text-xs font-bold text-gray-700">{monthNames[currentMonth]} {currentYear}</span>
+                  <button onClick={nextMonth} className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"><ChevronRight size={14} /></button>
+                </div>
+                <div className="grid grid-cols-7 gap-0.5 mb-1">
+                  {DAYS_OF_WEEK.map((d) => (
+                    <div key={d} className="text-center text-[9px] text-gray-400 font-medium py-0.5">{d.charAt(0)}</div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-0.5">
+                  {Array.from({ length: totalCells }, (_, i) => {
+                    const dn = i - firstDayOffset + 1
+                    const valid = dn >= 1 && dn <= daysInMonth
+                    const hasPosts = valid && (calendarData[dn]?.length || 0) > 0
+                    const isTd = dn === todayDay
+                    const isSel = dn === selectedDay
+                    const isFoc = dn === focusedDay
+                    return (
+                      <button key={i} disabled={!valid}
+                        onClick={() => valid && setSelectedDay(isSel ? null : dn)}
+                        className={`w-full aspect-square flex items-center justify-center text-[10px] rounded transition-colors relative ${
+                          !valid ? 'text-transparent cursor-default'
+                          : isSel ? 'bg-dinamo-blue text-white font-bold'
+                          : isFoc ? 'bg-dinamo-blue/10 text-dinamo-blue font-bold ring-1 ring-dinamo-blue/40'
+                          : isTd ? 'bg-blue-100 text-blue-800 font-bold'
+                          : 'text-gray-600 hover:bg-gray-100'
+                        }`}>
+                        {valid ? dn : ''}
+                        {hasPosts && !isSel && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-dinamo-blue" />}
+                      </button>
+                    )
+                  })}
+                </div>
+                {/* Quick month jumps */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 font-medium mb-1.5 uppercase tracking-wider">Brzi pristup</p>
+                  <div className="grid grid-cols-3 gap-1">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <button key={i}
+                        onClick={() => { setCurrentMonth(i); setSelectedDay(null); setGeneratedData(null) }}
+                        className={`text-[10px] py-1 rounded transition-colors ${
+                          currentMonth === i ? 'bg-dinamo-blue text-white font-bold' : 'text-gray-500 hover:bg-gray-100'
+                        }`}>
+                        {monthNames[i]!.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Keyboard hint */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Precice</p>
+                  <div className="space-y-0.5 text-[10px] text-gray-400">
+                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">&#8592;&#8593;&#8594;&#8595;</kbd> Navigacija</p>
+                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">Enter</kbd> Otvori dan</p>
+                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">Esc</kbd> Zatvori</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Calendar Grid */}
-            <div className="card min-w-0 flex-1">
+            <div ref={calendarRef} className="card min-w-0 flex-1">
               <div className="flex items-center justify-between mb-6">
                 <button onClick={prevMonth} className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
-                <h2 className="text-xl font-bold text-gray-900">{monthNames[currentMonth].toUpperCase()} {currentYear}</h2>
+                <h2 className="text-xl font-bold text-gray-900">{monthNames[currentMonth]!.toUpperCase()} {currentYear}</h2>
                 <button onClick={nextMonth} className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronRight size={20} /></button>
               </div>
 
@@ -599,33 +964,35 @@ export default function ContentCalendar() {
                   const isValid = dayNum >= 1 && dayNum <= daysInMonth
                   const isToday = dayNum === todayDay
                   const isSelected = dayNum === selectedDay
+                  const isFocused = dayNum === focusedDay
                   const isPast = isValid && isCurrentMonth && dayNum < todayDay
                   const posts = isValid ? (calendarData[dayNum] || []) : []
 
                   const cell = (
-                    <div key={i} onClick={() => isValid && setSelectedDay(isSelected ? null : dayNum)}
-                      className={`min-h-[72px] sm:min-h-[80px] p-2 rounded-lg border transition-all ${
+                    <div key={i} onClick={() => { if (isValid) { setSelectedDay(isSelected ? null : dayNum); setFocusedDay(dayNum) } }}
+                      className={`min-h-[72px] sm:min-h-[90px] p-2 rounded-lg border transition-all ${
                         !isValid ? 'border-transparent bg-transparent pointer-events-none'
                         : isSelected ? 'border-dinamo-blue bg-dinamo-blue/5 ring-1 ring-dinamo-blue/20 cursor-pointer'
+                        : isFocused ? 'border-dinamo-blue/50 bg-dinamo-blue/[0.02] cursor-pointer ring-1 ring-dinamo-blue/10'
                         : isToday ? 'border-blue-400 bg-blue-50 cursor-pointer'
                         : isPast ? 'border-gray-200 bg-gray-50/50 cursor-pointer'
-                        : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-500 cursor-pointer'
+                        : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
                       }`}>
                       {isValid && (
                         <>
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs font-medium ${isToday ? 'text-blue-700 font-bold' : isSelected ? 'text-dinamo-blue-dark' : isPast ? 'text-gray-500' : 'text-gray-500'}`}>
+                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-dinamo-blue-dark font-bold' : isPast ? 'text-gray-400' : 'text-gray-600'}`}>
                               {dayNum}
                             </span>
                             {posts.length > 0 && (
-                              <span className={`text-[10px] font-mono ${posts.length >= 3 ? 'text-green-700 font-bold' : 'text-gray-500'}`}>{posts.length}</span>
+                              <span className={`text-[10px] font-mono ${posts.length >= 3 ? 'text-green-700 font-bold' : 'text-gray-400'}`}>{posts.length}</span>
                             )}
                           </div>
-                          <div className="flex gap-1 mt-1 flex-wrap">
-                            {posts.slice(0, 4).map((post) => (
+                          <div className="flex flex-col gap-0.5 mt-1">
+                            {posts.slice(0, 3).map((post) => (
                               <DraggablePostDot key={post.id} post={post} isPast={!!isPast} />
                             ))}
-                            {posts.length > 4 && <span className="text-[10px] text-gray-500">+{posts.length - 4}</span>}
+                            {posts.length > 3 && <span className="text-[9px] text-gray-400 pl-0.5">+{posts.length - 3} vise</span>}
                           </div>
                         </>
                       )}
@@ -639,11 +1006,19 @@ export default function ContentCalendar() {
               </div>
 
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200 flex-wrap">
-                <span className="text-xs text-gray-500">Platforme:</span>
+                <span className="text-xs text-gray-500 font-medium">Platforme:</span>
                 {Object.entries(platformColors).slice(0, 4).map(([platform, color]) => (
-                  <div key={platform} className="flex items-center gap-1">
+                  <div key={platform} className="flex items-center gap-1.5">
                     <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
                     <span className="text-xs text-gray-500 capitalize">{platform}</span>
+                  </div>
+                ))}
+                <span className="text-xs text-gray-300 mx-1">|</span>
+                <span className="text-xs text-gray-500 font-medium">Status:</span>
+                {[['published', 'Objavljeno', 'bg-green-500'], ['scheduled', 'Zakazano', 'bg-blue-500'], ['draft', 'Draft', 'bg-yellow-500']].map(([status, label, color]) => (
+                  <div key={status} className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${color}`} />
+                    <span className="text-xs text-gray-500">{label}</span>
                   </div>
                 ))}
               </div>
@@ -735,7 +1110,7 @@ export default function ContentCalendar() {
           </DndContext>
         )}
 
-        {activeTab === 'calendar' && viewMode === 'sixmonth' && !generating && (
+        {activeTab === 'calendar' && viewMode === 'sixmonth' && !generating && !generatingWeek && (
           <div className="card">
             <h2 className="section-title mb-6">6-Mjesecni pregled plana</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -760,7 +1135,7 @@ export default function ContentCalendar() {
           </div>
         )}
 
-        {activeTab === 'calendar' && viewMode === 'week' && !generating && (
+        {activeTab === 'calendar' && viewMode === 'week' && !generating && !generatingWeek && (
           <div className="card">
             <h2 className="section-title mb-4">Tjedni pregled</h2>
             <div className="space-y-3">
@@ -777,13 +1152,15 @@ export default function ContentCalendar() {
                     <div className="flex-1 flex gap-2 flex-wrap">
                       {posts.map((post) => (
                         <div key={post.id} onClick={() => setSelectedPost(post)}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200 hover:border-gray-500 cursor-pointer transition-colors">
+                          className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors">
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDotColors[post.status] || 'bg-gray-400'}`} />
                           <PlatformIcon platform={post.platform} size="sm" />
-                          <span className="text-xs text-gray-700">{post.title || post.type}</span>
+                          <span className="text-xs text-gray-700 font-medium">{post.title || post.type}</span>
+                          <span className="text-[10px] text-gray-400 capitalize">{post.type}</span>
                           {isPast && post.metrics && <span className="text-[10px] text-green-700 font-bold">{post.metrics.engagement_rate}%</span>}
                         </div>
                       ))}
-                      {posts.length === 0 && <span className="text-xs text-gray-500 italic">Nema objava</span>}
+                      {posts.length === 0 && <span className="text-xs text-gray-400 italic">Nema objava</span>}
                     </div>
                   </div>
                 )
@@ -1040,8 +1417,24 @@ export default function ContentCalendar() {
                   </div>
                 )}
 
-                {/* Open Studio button */}
-                <div className="pt-2">
+                {/* Action buttons */}
+                <div className="pt-2 space-y-2">
+                  {/* Publish button - for scheduled, draft, approved, failed posts */}
+                  {selectedPost.status !== 'published' && (
+                    <button
+                      onClick={handlePublishFromModal}
+                      disabled={publishing}
+                      className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      {publishing ? (
+                        <><Loader2 size={16} className="animate-spin" /> Objavljivanje...</>
+                      ) : (
+                        <><Send size={16} /> Objavi sada</>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Open Studio button */}
                   <button
                     onClick={() => navigate(`/studio/${selectedPost.id}`, { state: { post: selectedPost } })}
                     className="w-full py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
@@ -1050,42 +1443,6 @@ export default function ContentCalendar() {
                     Otvori Content Studio
                   </button>
                 </div>
-
-                {/* Publish Now button */}
-                {(selectedPost.status === 'approved' || selectedPost.status === 'failed') && (
-                  <div className="pt-2">
-                    <button
-                      onClick={async () => {
-                        try {
-                          const res = await contentApi.publishPost(selectedPost.id)
-                          const data = res.data
-                          if (data.success) {
-                            setSelectedPost({
-                              ...selectedPost,
-                              status: 'published',
-                              platform_post_url: data.platform_post_url,
-                              publish_error: undefined,
-                            })
-                          } else {
-                            setSelectedPost({
-                              ...selectedPost,
-                              publish_error: data.error || 'Objavljivanje nije uspjelo',
-                            })
-                          }
-                        } catch {
-                          setSelectedPost({
-                            ...selectedPost,
-                            publish_error: 'Mrežna greška pri objavljivanju',
-                          })
-                        }
-                      }}
-                      className="w-full py-3 bg-accent hover:bg-accent-hover text-primary font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-                    >
-                      <Share2 size={16} />
-                      Objavi sada
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>

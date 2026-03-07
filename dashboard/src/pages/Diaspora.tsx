@@ -1,5 +1,5 @@
 import Header from '../components/layout/Header'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { Globe, Users, MapPin, Languages, Calendar } from 'lucide-react'
@@ -98,10 +98,18 @@ const langColors: Record<string, string> = {
 }
 
 export default function Diaspora() {
-  const { data: apiData, loading, error, refetch } = useApi<DiasporaData>('/diaspora/populations')
+  const { data: apiData, loading } = useApi<DiasporaData>('/diaspora/populations')
   const data = apiData || fallbackData
 
-  if (loading && !apiData) return <><Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={4} cols="grid grid-cols-1 sm:grid-cols-4 gap-4" />
+        <ChartSkeleton />
+      </div>
+    </>
+  )
 
   const communities = data.communities || fallbackData.communities
   const contentPipeline = data.contentPipeline || fallbackData.contentPipeline

@@ -1,5 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { DINAMO_BRAND, CHART_COLORS } from '../../utils/constants'
+import { CHART_COLORS } from '../../utils/constants'
 
 interface CampaignChartProps {
   data: Array<Record<string, unknown>>

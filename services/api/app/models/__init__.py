@@ -24,6 +24,7 @@ from app.models.notification import Notification
 from app.models.user import User
 from app.models.media import MediaAsset, StudioProject
 from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
+from app.models.platform_setting import PlatformSetting
 
 __all__ = [
     "Base",
@@ -76,4 +77,5 @@ __all__ = [
     "StudioProject",
     "CampaignResearch",
     "CampaignResearchStatus",
+    "PlatformSetting",
 ]

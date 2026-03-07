@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import Header from '../components/layout/Header'
 import DataTable from '../components/common/DataTable'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { useApiMutation } from '../hooks/useApiMutation'
-import { Search, Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 
 interface MarketRow {
   id?: string
@@ -68,7 +67,7 @@ const columns = [
 ]
 
 export default function MarketResearch() {
-  const { data: apiData, loading, error, refetch } = useApi<MarketRow[]>('/market-research/countries')
+  const { data: apiData, loading, refetch } = useApi<MarketRow[]>('/market-research/countries')
   const scanMutation = useApiMutation('/market-research/scan', 'post')
 
   const marketData = apiData || fallbackData
@@ -79,7 +78,15 @@ export default function MarketResearch() {
     refetch()
   }
 
-  if (loading && !apiData) return <><Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
+        <TableSkeleton rows={8} />
+      </div>
+    </>
+  )
 
   return (
     <div className="animate-fade-in">

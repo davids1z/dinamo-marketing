@@ -1,9 +1,8 @@
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { EngagementChart } from '../components/charts/EngagementChart'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import { Users, Globe } from 'lucide-react'
 
 interface PlatformStat {
   platform: string
@@ -41,7 +40,7 @@ const fallbackData: ChannelData = {
     const date = new Date(2026, 1, 4 + i)
     const isMatchDay = [0, 3, 7, 10, 14, 17, 21, 24, 28].includes(i)
     return {
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       engagement: Math.round(3000 + Math.random() * 4000 + (isMatchDay ? 5000 : 0)),
       reach: Math.round(80000 + Math.random() * 120000 + (isMatchDay ? 150000 : 0)),
     }
@@ -56,10 +55,18 @@ const fallbackData: ChannelData = {
 }
 
 export default function ChannelAudit() {
-  const { data: apiData, loading, error, refetch } = useApi<ChannelData>('/channels')
+  const { data: apiData, loading } = useApi<ChannelData>('/channels')
   const data = apiData || fallbackData
 
-  if (loading && !apiData) return <><Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={5} cols="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" />
+        <ChartSkeleton />
+      </div>
+    </>
+  )
 
   const platformStats = data.platformStats || fallbackData.platformStats
   const engagementData30 = data.engagementData30 || fallbackData.engagementData30
@@ -73,11 +80,11 @@ export default function ChannelAudit() {
 
 
         {/* Platform Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 stagger-children">
           {platformStats.map((p) => (
             <div key={p.platform} className="card space-y-4">
               <div className="flex items-center justify-between">
-                <PlatformIcon platform={p.platform} size={28} showLabel />
+                <PlatformIcon platform={p.platform} size="md" showLabel />
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
                   p.followers > p.prevFollowers ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
                 }`}>

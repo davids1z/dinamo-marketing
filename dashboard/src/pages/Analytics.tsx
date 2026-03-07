@@ -2,7 +2,7 @@ import Header from '../components/layout/Header'
 import { ReachChart } from '../components/charts/ReachChart'
 import { CampaignChart } from '../components/charts/CampaignChart'
 import { FunnelChart } from '../components/charts/FunnelChart'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { Eye, Heart, Trophy, DollarSign, Target, BarChart3, RefreshCw } from 'lucide-react'
 
@@ -57,7 +57,7 @@ const fallbackTopPosts = [
 ]
 
 export default function Analytics() {
-  const { data: apiData, loading, error, refetch } = useApi<AnalyticsData>('/analytics/overview')
+  const { data: apiData, loading, refetch } = useApi<AnalyticsData>('/analytics/overview')
 
   const reachData = apiData?.reach_data || fallbackReach
   const campaignData = apiData?.campaign_data || fallbackCampaigns
@@ -66,7 +66,16 @@ export default function Analytics() {
   const topPosts = apiData?.top_posts || fallbackTopPosts
   const paid = apiData?.paid
 
-  if (loading && !apiData) return <><Header title="ANALITIKA" subtitle="Dubinska analitika" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="ANALITIKA" subtitle="Dubinska analitika" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={4} />
+        <ChartSkeleton height={250} />
+        <div className="content-grid"><ChartSkeleton height={200} /><ChartSkeleton height={200} /></div>
+      </div>
+    </>
+  )
 
   return (
     <div className="animate-fade-in">

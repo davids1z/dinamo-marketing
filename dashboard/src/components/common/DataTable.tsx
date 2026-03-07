@@ -15,7 +15,9 @@ interface DataTableProps<T> {
   emptyMessage?: string
 }
 
-export default function DataTable<T extends Record<string, unknown>>({
+export type { Column }
+
+export default function DataTable<T extends object>({
   columns,
   data,
   onRowClick,
@@ -68,7 +70,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                     col.align === 'center' ? 'text-center' : 'text-left'
                   )}
                 >
-                  {col.render ? col.render(item) : String(item[col.key] ?? '')}
+                  {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? '')}
                 </td>
               ))}
             </tr>

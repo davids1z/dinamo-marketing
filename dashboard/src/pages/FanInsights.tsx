@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react'
 import Header from '../components/layout/Header'
 import { FunnelChart } from '../components/charts/FunnelChart'
-import { Users, UserPlus, Heart, Star, Award, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import { CardSkeleton, ChartSkeleton, ErrorState } from '../components/common/LoadingSpinner'
+import { fansApi } from '../api/fans'
+import { Users, UserPlus, Heart, Star, Award, TrendingUp, TrendingDown, DollarSign, RefreshCw } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface FanSegment {
@@ -33,13 +36,6 @@ interface ChurnPrediction {
   description: string
 }
 
-interface FanData {
-  fanSegments: FanSegment[]
-  funnelSteps: FunnelStep[]
-  clvData: ClvRow[]
-  churnPredictions: ChurnPrediction[]
-}
-
 const iconMap: Record<string, LucideIcon> = {
   UserPlus,
   Users,
@@ -48,47 +44,127 @@ const iconMap: Record<string, LucideIcon> = {
   Award,
 }
 
-// Fallback mock data for when API is not available
-const fallbackData: FanData = {
-  fanSegments: [
-    { stage: 'Novi', count: 45000, iconName: 'UserPlus', color: 'from-sky-600 to-sky-400', growth: 12.4, description: 'Pridruženi u zadnjih 30 dana' },
-    { stage: 'Povremeni', count: 120000, iconName: 'Users', color: 'from-blue-600 to-blue-400', growth: 5.2, description: 'Prate, ali nizak angažman' },
-    { stage: 'Aktivni', count: 280000, iconName: 'Heart', color: 'from-indigo-600 to-indigo-400', growth: 8.1, description: 'Redovita interakcija' },
-    { stage: 'Superfan', count: 85000, iconName: 'Star', color: 'from-purple-600 to-purple-400', growth: 15.3, description: 'Visoki angažman + kupnje' },
-    { stage: 'Ambasador', count: 12000, iconName: 'Award', color: 'from-yellow-600 to-yellow-400', growth: 22.7, description: 'UGC kreatori i zagovornici' },
-  ],
-  funnelSteps: [
-    { label: 'Ukupni doseg', value: 542000, color: '#0ea5e9' },
-    { label: 'Aktivni pratitelji', value: 280000, color: '#3b82f6' },
-    { label: 'Angazirani navijaci', value: 120000, color: '#6366f1' },
-    { label: 'Superfanovi', value: 85000, color: '#a855f7' },
-    { label: 'Ambasadori', value: 12000, color: '#eab308' },
-  ],
-  clvData: [
-    { segment: 'Novi', clv: '\u20AC2.10', retention: '35%', churnRisk: 'Visoki' },
-    { segment: 'Povremeni', clv: '\u20AC8.50', retention: '52%', churnRisk: 'Srednji' },
-    { segment: 'Aktivni', clv: '\u20AC24.00', retention: '78%', churnRisk: 'Niski' },
-    { segment: 'Superfan', clv: '\u20AC86.00', retention: '92%', churnRisk: 'Vrlo nizak' },
-    { segment: 'Ambasador', clv: '\u20AC210.00', retention: '97%', churnRisk: 'Minimalan' },
-  ],
-  churnPredictions: [
-    { metric: 'Navijači pod rizikom (30 dana)', value: '8,420', trend: 'down', change: '-12%', description: 'Navijači koji će vjerojatno prestati pratiti u sljedećih 30 dana' },
-    { metric: 'Ciljevi za reaktivaciju', value: '3,150', trend: 'up', change: '+8%', description: 'Neaktivni navijači s potencijalom reaktivacije' },
-    { metric: 'Kandidati za nadogradnju', value: '15,800', trend: 'up', change: '+22%', description: 'Povremeni navijači koji pokazuju signale Superfana' },
-  ],
-}
-
 export default function FanInsights() {
-  const fanSegments = fallbackData.fanSegments
-  const funnelSteps = fallbackData.funnelSteps
-  const clvData = fallbackData.clvData
-  const churnPredictions = fallbackData.churnPredictions
+  const [fanSegments, setFanSegments] = useState<FanSegment[]>([])
+  const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([])
+  const [clvData, setClvData] = useState<ClvRow[]>([])
+  const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchData = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const [segmentsRes, clvRes, churnRes] = await Promise.all([
+        fansApi.getSegments(),
+        fansApi.getCLV(),
+        fansApi.getChurnPredictions(),
+      ])
+
+      // Map segments response (snake_case from backend -> camelCase for frontend)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const segData = segmentsRes.data as any
+      if (segData.fan_segments) {
+        setFanSegments(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          segData.fan_segments.map((s: any) => ({
+            stage: String(s.stage ?? ''),
+            count: Number(s.count ?? 0),
+            iconName: String(s.icon_name ?? 'Users'),
+            color: String(s.color ?? ''),
+            growth: Number(s.growth ?? 0),
+            description: String(s.description ?? ''),
+          }))
+        )
+      }
+      if (segData.funnel_steps) {
+        setFunnelSteps(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          segData.funnel_steps.map((f: any) => ({
+            label: String(f.label ?? ''),
+            value: Number(f.value ?? 0),
+            color: String(f.color ?? '#3b82f6'),
+          }))
+        )
+      }
+
+      // Map CLV response
+      if (Array.isArray(clvRes.data)) {
+        setClvData(
+          clvRes.data.map((r: Record<string, unknown>) => ({
+            segment: String(r.segment ?? ''),
+            clv: String(r.clv ?? ''),
+            retention: String(r.retention ?? ''),
+            churnRisk: String(r.churn_risk ?? ''),
+          }))
+        )
+      }
+
+      // Map churn response
+      if (Array.isArray(churnRes.data)) {
+        setChurnPredictions(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          churnRes.data.map((c: any) => ({
+            metric: String(c.metric ?? ''),
+            value: String(c.value ?? '0'),
+            trend: String(c.trend ?? 'up'),
+            change: String(c.change ?? ''),
+            description: String(c.description ?? ''),
+          }))
+        )
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Greska pri ucitavanju podataka')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <>
+        <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
+        <div className="page-wrapper space-y-6">
+          <CardSkeleton count={4} />
+          <ChartSkeleton />
+        </div>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
+        <div className="page-wrapper">
+          <ErrorState message={error} onRetry={fetchData} />
+        </div>
+      </>
+    )
+  }
 
   return (
     <div className="animate-fade-in">
       <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
 
       <div className="page-wrapper space-y-6">
+        {/* Refresh Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={fetchData}
+            className="btn-secondary text-sm flex items-center gap-1.5"
+          >
+            <RefreshCw size={14} />
+            Osvježi
+          </button>
+        </div>
+
         {/* Fan Segment Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {fanSegments.map((seg) => {
@@ -117,70 +193,76 @@ export default function FanInsights() {
         </div>
 
         {/* Funnel */}
-        <div className="card">
-          <FunnelChart steps={funnelSteps} title="Lijevak životnog ciklusa navijača" />
-        </div>
+        {funnelSteps.length > 0 && (
+          <div className="card">
+            <FunnelChart steps={funnelSteps} title="Lijevak životnog ciklusa navijača" />
+          </div>
+        )}
 
         {/* CLV Table */}
-        <div className="card">
-          <h2 className="section-title mb-4 flex items-center gap-2">
-            <DollarSign size={20} className="text-emerald-700" />
-            Doživotna vrijednost navijača po segmentu
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Segment</th>
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Prosj. CLV</th>
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Zadržavanje</th>
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Rizik odljeva</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clvData.map((row) => (
-                  <tr key={row.segment} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-900 font-medium">{row.segment}</td>
-                    <td className="py-3 px-4 text-emerald-700 font-mono">{row.clv}</td>
-                    <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">{row.retention}</td>
-                    <td className="py-3 px-4">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        row.churnRisk === 'Visoki' ? 'bg-red-50 text-red-700' :
-                        row.churnRisk === 'Srednji' ? 'bg-yellow-100 text-yellow-600' :
-                        row.churnRisk === 'Niski' ? 'bg-green-50 text-green-700' :
-                        'bg-emerald-50 text-emerald-700'
-                      }`}>
-                        {row.churnRisk}
-                      </span>
-                    </td>
+        {clvData.length > 0 && (
+          <div className="card">
+            <h2 className="section-title mb-4 flex items-center gap-2">
+              <DollarSign size={20} className="text-emerald-700" />
+              Doživotna vrijednost navijača po segmentu
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-gray-500 font-medium">Segment</th>
+                    <th className="text-left py-3 px-4 text-gray-500 font-medium">Prosj. CLV</th>
+                    <th className="text-left py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Zadržavanje</th>
+                    <th className="text-left py-3 px-4 text-gray-500 font-medium">Rizik odljeva</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {clvData.map((row) => (
+                    <tr key={row.segment} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="py-3 px-4 text-gray-900 font-medium">{row.segment}</td>
+                      <td className="py-3 px-4 text-emerald-700 font-mono">{row.clv}</td>
+                      <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">{row.retention}</td>
+                      <td className="py-3 px-4">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          row.churnRisk === 'Visoki' ? 'bg-red-50 text-red-700' :
+                          row.churnRisk === 'Srednji' ? 'bg-yellow-100 text-yellow-600' :
+                          row.churnRisk === 'Niski' ? 'bg-green-50 text-green-700' :
+                          'bg-emerald-50 text-emerald-700'
+                        }`}>
+                          {row.churnRisk}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Churn Predictions */}
-        <div className="card">
-          <h2 className="section-title mb-4">Prediktivna analitika</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {churnPredictions.map((item) => (
-              <div key={item.metric} className="bg-gray-50 rounded-lg p-4 space-y-2">
-                <p className="text-sm text-gray-500">{item.metric}</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-gray-900">{item.value}</span>
-                  <span className={`text-xs flex items-center gap-0.5 ${
-                    item.trend === 'up' ? 'text-green-600' : 'text-yellow-600'
-                  }`}>
-                    {item.trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    {item.change}
-                  </span>
+        {churnPredictions.length > 0 && (
+          <div className="card">
+            <h2 className="section-title mb-4">Prediktivna analitika</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {churnPredictions.map((item) => (
+                <div key={item.metric} className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm text-gray-500">{item.metric}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-gray-900">{item.value}</span>
+                    <span className={`text-xs flex items-center gap-0.5 ${
+                      item.trend === 'up' ? 'text-green-600' : 'text-yellow-600'
+                    }`}>
+                      {item.trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                      {item.change}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">{item.description}</p>
                 </div>
-                <p className="text-xs text-gray-500">{item.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

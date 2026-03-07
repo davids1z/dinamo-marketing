@@ -137,3 +137,31 @@
 .animate-value-change {
   animation: pulse-value 0.6s ease-in-out;
 }
+
+/* Staggered children animations */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* Empty state styling */
+.empty-state {
+  @apply flex flex-col items-center justify-center py-12 text-center;
+}
+.empty-state-icon {
+  @apply w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4;
+}
+.empty-state-title {
+  @apply text-sm font-medium text-gray-900 mb-1;
+}
+.empty-state-desc {
+  @apply text-xs text-gray-500 max-w-xs;
+}

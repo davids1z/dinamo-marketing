@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import Header from '../components/layout/Header'
-import { PageLoader } from '../components/common/LoadingSpinner'
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import { useApiMutation } from '../hooks/useApiMutation'
+import { useToast } from '../hooks/useToast'
 import { settingsApi } from '../api/settings'
-import { Plug, Palette, Bell, Shield, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plug, Palette, Bell, Shield, ToggleLeft, ToggleRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import SystemHealth from '../components/settings/SystemHealth'
 import QuotaDisplay from '../components/settings/QuotaDisplay'
 
@@ -37,19 +37,19 @@ const fallbackData: SettingsData = {
     { id: 'tiktok', name: 'TikTok API', description: 'TikTok analitika i objavljivanje', enabled: true, mode: 'mock', icon: '\ud83c\udfb5' },
     { id: 'youtube', name: 'YouTube Data API', description: 'YouTube kanal i video podaci', enabled: true, mode: 'mock', icon: '\u25b6\ufe0f' },
     { id: 'ga4', name: 'Google Analytics 4', description: 'Promet web stranice i konverzije', enabled: true, mode: 'mock', icon: '\ud83d\udcca' },
-    { id: 'sports', name: 'Sports Data API', description: 'Rezultati utakmica i statistika igra\u010da', enabled: true, mode: 'mock', icon: '\u26bd' },
+    { id: 'sports_data', name: 'Sports Data API', description: 'Rezultati utakmica i statistika igra\u010da', enabled: true, mode: 'mock', icon: '\u26bd' },
     { id: 'claude', name: 'Claude AI', description: 'Generiranje sadr\u017eaja i analiza', enabled: true, mode: 'mock', icon: '\ud83e\udd16' },
     { id: 'buffer', name: 'Buffer / Objavljivanje', description: 'Zakazivanje objava na dru\u0161tvenim mre\u017eama', enabled: true, mode: 'mock', icon: '\ud83d\udcc5' },
-    { id: 'imagegen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadr\u017eaj', enabled: true, mode: 'mock', icon: '\ud83c\udfa8' },
+    { id: 'image_gen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadr\u017eaj', enabled: true, mode: 'mock', icon: '\ud83c\udfa8' },
     { id: 'trends', name: 'Google Trends', description: 'Podaci o trendovima pretra\u017eivanja i uvidi', enabled: true, mode: 'mock', icon: '\ud83d\udcc8' },
   ],
   brandColors: [
-    { name: 'Dinamo plava', hex: '#0051A5', usage: 'Primarna boja brenda' },
-    { name: 'Dinamo tamna', hex: '#002D5A', usage: 'Tamne pozadine' },
-    { name: 'Bijela', hex: '#FFFFFF', usage: 'Tekst i naglasci' },
-    { name: 'Zlatna', hex: '#C9A03F', usage: 'Premium naglasci' },
-    { name: 'Siva 900', hex: '#111827', usage: 'Pozadina nadzorne plo\u010de' },
-    { name: 'Siva 800', hex: '#1F2937', usage: 'Pozadina kartica' },
+    { name: 'Dinamo plava', hex: '#0057A8', usage: 'Primarna boja brenda' },
+    { name: 'Sidebar tamna', hex: '#0A1A28', usage: 'Navigacija sidebar' },
+    { name: 'Bijela', hex: '#FFFFFF', usage: 'Pozadina kartica' },
+    { name: 'Accent zelena', hex: '#B8FF00', usage: 'Naglasci i CTA' },
+    { name: 'Siva pozadina', hex: '#F9FAFB', usage: 'Pozadina stranice' },
+    { name: 'Tekst tamni', hex: '#111827', usage: 'Naslovi i tekst' },
   ],
   notifications: [
     { id: 'sentiment_alert', label: 'Upozorenja sentimenta', description: 'Obavijesti kad negativni sentiment prije\u0111e prag', enabled: true },
@@ -69,30 +69,42 @@ const fallbackData: SettingsData = {
 
 export default function Settings() {
   const { isAdmin } = useAuth()
-  const { data: apiData, loading, error, refetch } = useApi<SettingsData>('/settings/api-status')
+  const { data: apiData, loading, refetch } = useApi<SettingsData>('/settings/api-status')
   const data = apiData || fallbackData
+  const { toasts, addToast, removeToast } = useToast()
 
   const [localApis, setLocalApis] = useState<ApiService[] | null>(null)
   const [localNotifications, setLocalNotifications] = useState<typeof fallbackData.notifications | null>(null)
-
-  const { mutate: toggleApiMutation } = useApiMutation('/settings/api-toggle', 'put')
+  const [togglingApis, setTogglingApis] = useState<Set<string>>(new Set())
+  const [togglingNotifs, setTogglingNotifs] = useState<Set<string>>(new Set())
 
   const apis = localApis || data.apis || fallbackData.apis
   const brandColors = data.brandColors || fallbackData.brandColors
   const notifications = localNotifications || data.notifications || fallbackData.notifications
   const system = data.system || fallbackData.system
 
-  if (loading && !apiData) return <><Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" /><PageLoader /></>
+  if (loading && !apiData) return (
+    <>
+      <Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" />
+      <div className="page-wrapper space-y-6">
+        <div className="content-grid"><ChartSkeleton height={150} /><ChartSkeleton height={150} /></div>
+        <CardSkeleton count={9} cols="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" />
+      </div>
+    </>
+  )
 
   const mockCount = apis.filter(a => a.mode === 'mock').length
   const allMock = mockCount === apis.length
 
-  const toggleApi = async (id: string) => {
+  const toggleApi = useCallback(async (id: string) => {
     const current = apis.find(a => a.id === id)
     if (!current) return
 
     const newMode = current.mode === 'mock' ? 'live' : 'mock'
     const useMock = newMode === 'mock'
+
+    // Mark as toggling
+    setTogglingApis(prev => new Set(prev).add(id))
 
     // Optimistic update
     const updated = apis.map(api =>
@@ -101,28 +113,69 @@ export default function Settings() {
     setLocalApis(updated)
 
     try {
-      await settingsApi.toggleApi(id, useMock)
-    } catch {
+      const response = await settingsApi.toggleApi(id, useMock)
+      const msg = response.data.message || `${current.name} prebačen na ${newMode}`
+      addToast(msg, 'success')
+      // Refetch to get server-confirmed state
+      refetch()
+    } catch (err) {
       // Revert on failure
       setLocalApis(apis.map(api =>
         api.id === id ? { ...api, mode: current.mode } : api
       ))
+      const errorMsg = err instanceof Error ? err.message : 'Nepoznata greška'
+      addToast(`Greška pri prebacivanju ${current.name}: ${errorMsg}`, 'error')
+    } finally {
+      setTogglingApis(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
     }
-  }
+  }, [apis, addToast, refetch])
 
-  const toggleEnabled = (id: string) => {
+  const toggleEnabled = useCallback((id: string) => {
     const updated = apis.map(api =>
       api.id === id ? { ...api, enabled: !api.enabled } : api
     )
     setLocalApis(updated)
-  }
+  }, [apis])
 
-  const toggleNotification = (id: string) => {
+  const toggleNotification = useCallback(async (id: string) => {
+    const current = notifications.find(n => n.id === id)
+    if (!current) return
+
+    const newEnabled = !current.enabled
+
+    // Mark as toggling
+    setTogglingNotifs(prev => new Set(prev).add(id))
+
+    // Optimistic update
     const updated = notifications.map(n =>
-      n.id === id ? { ...n, enabled: !n.enabled } : n
+      n.id === id ? { ...n, enabled: newEnabled } : n
     )
     setLocalNotifications(updated)
-  }
+
+    try {
+      const response = await settingsApi.toggleNotification(id, newEnabled)
+      const msg = response.data.message || `${current.label} ${newEnabled ? 'uključeno' : 'isključeno'}`
+      addToast(msg, 'success')
+      refetch()
+    } catch (err) {
+      // Revert on failure
+      setLocalNotifications(notifications.map(n =>
+        n.id === id ? { ...n, enabled: current.enabled } : n
+      ))
+      const errorMsg = err instanceof Error ? err.message : 'Nepoznata greška'
+      addToast(`Greška pri promjeni obavijesti: ${errorMsg}`, 'error')
+    } finally {
+      setTogglingNotifs(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+    }
+  }, [notifications, addToast, refetch])
 
   return (
     <div className="animate-fade-in">
@@ -144,7 +197,7 @@ export default function Settings() {
             <Plug size={20} className="text-blue-600" />
             <h2 className="section-title">API integracije</h2>
             <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 ml-2">
-              {allMock ? 'Sve mock na\u010din' : `${mockCount}/${apis.length} mock`}
+              {allMock ? 'Sve mock način' : `${mockCount}/${apis.length} mock`}
             </span>
           </div>
 
@@ -178,17 +231,25 @@ export default function Settings() {
                 <div className="flex items-center gap-2 mt-3">
                   <button
                     onClick={() => toggleApi(api.id)}
-                    className={`text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
+                    disabled={togglingApis.has(api.id)}
+                    className={`text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait ${
                       api.mode === 'mock'
                         ? 'bg-green-50 text-green-700 hover:bg-green-100'
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
-                    {api.mode === 'mock' ? 'Mock' : 'Live'}
+                    {togglingApis.has(api.id) ? (
+                      <span className="flex items-center gap-1">
+                        <Loader2 size={12} className="animate-spin" />
+                        Spremanje...
+                      </span>
+                    ) : (
+                      api.mode === 'mock' ? 'Mock' : 'Live'
+                    )}
                   </button>
                   <span className="text-xs text-gray-500">|</span>
                   <span className="text-xs text-gray-500">
-                    {api.mode === 'mock' ? 'API klju\u010d nije potreban' : 'Povezano s API-jem'}
+                    {api.mode === 'mock' ? 'API ključ nije potreban' : 'Povezano s API-jem'}
                   </span>
                 </div>
               </div>
@@ -250,8 +311,14 @@ export default function Settings() {
                   <h3 className="text-sm font-medium text-gray-900">{notif.label}</h3>
                   <p className="text-xs text-gray-500 mt-0.5">{notif.description}</p>
                 </div>
-                <button onClick={() => toggleNotification(notif.id)}>
-                  {notif.enabled ? (
+                <button
+                  onClick={() => toggleNotification(notif.id)}
+                  disabled={togglingNotifs.has(notif.id)}
+                  className="disabled:opacity-50 disabled:cursor-wait"
+                >
+                  {togglingNotifs.has(notif.id) ? (
+                    <Loader2 size={28} className="animate-spin text-gray-400" />
+                  ) : notif.enabled ? (
                     <ToggleRight size={28} className="text-blue-600" />
                   ) : (
                     <ToggleLeft size={28} className="text-gray-500" />
@@ -288,6 +355,35 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-[100] space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl backdrop-blur-sm text-sm font-medium transform transition-all duration-300 ${
+                toast.type === 'success'
+                  ? 'bg-emerald-600 text-white'
+                  : toast.type === 'error'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-blue-600 text-white'
+              }`}
+            >
+              {toast.type === 'success' && <CheckCircle size={16} />}
+              {toast.type === 'error' && <AlertCircle size={16} />}
+              {toast.type === 'info' && <Loader2 size={16} className="animate-spin" />}
+              <span>{toast.message}</span>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
+              >
+                x
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

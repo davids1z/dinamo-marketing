@@ -1,7 +1,6 @@
-import React from 'react';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner';
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner';
 import { SentimentDonut } from '../components/charts/SentimentDonut';
 import { EngagementChart } from '../components/charts/EngagementChart';
 import { AlertTriangle, TrendingUp, TrendingDown, Hash } from 'lucide-react';
@@ -73,10 +72,18 @@ const fallbackData: SentimentOverview = {
 };
 
 export default function SentimentAnalysis() {
-  const { data: apiData, loading, error, refetch } = useApi<SentimentOverview>('/sentiment/overview');
+  const { data: apiData, loading } = useApi<SentimentOverview>('/sentiment/overview');
   const data = apiData || fallbackData;
 
-  if (loading && !apiData) return <><Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" /><PageLoader /></>;
+  if (loading && !apiData) return (
+    <>
+      <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={3} cols="grid grid-cols-1 lg:grid-cols-3 gap-6" />
+        <ChartSkeleton />
+      </div>
+    </>
+  );
 
   return (
     <div className="animate-fade-in">

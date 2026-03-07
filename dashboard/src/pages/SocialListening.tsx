@@ -1,7 +1,6 @@
-import React from 'react';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner';
+import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner';
 import MetricCard from '../components/common/MetricCard';
 import PlatformIcon from '../components/common/PlatformIcon';
 import { MessageSquare, Volume2, TrendingUp, Hash, Globe, ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
@@ -106,10 +105,18 @@ const sentimentIcon = (s: string) => {
 };
 
 export default function SocialListening() {
-  const { data: apiData, loading, error, refetch } = useApi<SocialListeningData>('/social-listening/trending');
+  const { data: apiData, loading } = useApi<SocialListeningData>('/social-listening/trending');
   const data = apiData || fallbackData;
 
-  if (loading && !apiData) return <><Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" /><PageLoader /></>;
+  if (loading && !apiData) return (
+    <>
+      <Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
+        <div className="content-grid"><ChartSkeleton /><ChartSkeleton /></div>
+      </div>
+    </>
+  );
 
   return (
     <div className="animate-fade-in">

@@ -1,12 +1,21 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
 import DataTable from '../components/common/DataTable'
 import StatusBadge from '../components/common/StatusBadge'
-import { PageLoader, ErrorState } from '../components/common/LoadingSpinner'
+import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { campaignsApi } from '../api/campaigns'
-import { Zap, CreditCard, BarChart3, Target, Plus, Pause, Play, RefreshCw } from 'lucide-react'
+import {
+  Zap, CreditCard, BarChart3, Target, Plus, Pause, Play,
+  X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
+  TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
+  Filter,
+} from 'lucide-react'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface CampaignRow {
   id: string
@@ -20,16 +29,31 @@ interface CampaignRow {
   roas: number
 }
 
-interface ABVariant {
-  name: string
-  description: string
-  impressions: number
-  clicks: number
-  ctr: number
-  conversions: number
-  spend: number
-  color: string
+interface Toast {
+  id: string
+  message: string
+  type: 'success' | 'error' | 'info'
 }
+
+type StatusFilter = 'sve' | 'aktivna' | 'pauzirana'
+
+type WizardStep = 1 | 2 | 3
+
+interface NewCampaignForm {
+  name: string
+  platforms: { meta: boolean; tiktok: boolean; youtube: boolean }
+  market: string
+  budget: number
+  startDate: string
+  endDate: string
+  objective: 'awareness' | 'engagement' | 'conversions'
+}
+
+type ABMetricKey = 'ctr' | 'conversions' | 'impressions' | 'clicks'
+
+// ---------------------------------------------------------------------------
+// Fallback data
+// ---------------------------------------------------------------------------
 
 const fallbackCampaigns: CampaignRow[] = [
   { id: '1', name: 'UCL svijest o utakmici', platform: 'Meta (IG + FB)', market: 'HR, BA, AT, DE', status: 'aktivna', budget: 4500, spend: 3820, ctr: 3.2, roas: 4.1 },
@@ -48,28 +72,212 @@ const fallbackABTest = {
   ],
 }
 
-export default function Campaigns() {
-  const { data: apiData, loading, error, refetch } = useApi<CampaignRow[]>('/campaigns')
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
+// Mock daily spend data for campaign detail modal
+const mockDailySpend = [
+  { day: 'Pon', spend: 145 },
+  { day: 'Uto', spend: 210 },
+  { day: 'Sri', spend: 180 },
+  { day: 'Cet', spend: 260 },
+  { day: 'Pet', spend: 320 },
+  { day: 'Sub', spend: 190 },
+  { day: 'Ned', spend: 130 },
+]
 
-  const campaigns = apiData || fallbackCampaigns
-  const totalSpend = campaigns.reduce((sum, c) => sum + c.spend, 0)
-  const avgRoas = campaigns.reduce((sum, c) => sum + c.roas, 0) / campaigns.length
-  const activeCampaigns = campaigns.filter(c => c.status === 'aktivna' || c.status === 'active').length
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const emptyForm: NewCampaignForm = {
+  name: '',
+  platforms: { meta: false, tiktok: false, youtube: false },
+  market: '',
+  budget: 0,
+  startDate: '',
+  endDate: '',
+  objective: 'awareness',
+}
+
+function platformLabel(p: NewCampaignForm['platforms']): string {
+  const parts: string[] = []
+  if (p.meta) parts.push('Meta (IG + FB)')
+  if (p.tiktok) parts.push('TikTok')
+  if (p.youtube) parts.push('YouTube')
+  return parts.join(' + ') || '-'
+}
+
+function objectiveLabel(o: string): string {
+  switch (o) {
+    case 'awareness': return 'Svijest'
+    case 'engagement': return 'Angazman'
+    case 'conversions': return 'Konverzije'
+    default: return o
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+export default function Campaigns() {
+  const { data: apiData, loading, refetch } = useApi<CampaignRow[]>('/campaigns')
+
+  // Local campaigns state (for adding new ones)
+  const [localCampaigns, setLocalCampaigns] = useState<CampaignRow[]>([])
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [toasts, setToasts] = useState<Toast[]>([])
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('sve')
+
+  // Wizard modal
+  const [showWizard, setShowWizard] = useState(false)
+  const [wizardStep, setWizardStep] = useState<WizardStep>(1)
+  const [wizardForm, setWizardForm] = useState<NewCampaignForm>(emptyForm)
+
+  // Detail modal
+  const [detailCampaign, setDetailCampaign] = useState<CampaignRow | null>(null)
+
+  // A/B test metric selector
+  const [abMetric, setAbMetric] = useState<ABMetricKey>('ctr')
+
+  // -------------------------------------------------------------------------
+  // Toast helpers
+  // -------------------------------------------------------------------------
+
+  const addToast = useCallback((message: string, type: Toast['type'] = 'info') => {
+    const id = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 4000)
+  }, [])
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }, [])
+
+  // -------------------------------------------------------------------------
+  // Campaign data
+  // -------------------------------------------------------------------------
+
+  const allCampaigns = [...(apiData || fallbackCampaigns), ...localCampaigns]
+  const filteredCampaigns = statusFilter === 'sve'
+    ? allCampaigns
+    : allCampaigns.filter(c => {
+        if (statusFilter === 'aktivna') return c.status === 'aktivna' || c.status === 'active'
+        return c.status === 'pauzirana' || c.status === 'paused'
+      })
+
+  const totalSpend = allCampaigns.reduce((sum, c) => sum + c.spend, 0)
+  const avgRoas = allCampaigns.length > 0
+    ? allCampaigns.reduce((sum, c) => sum + c.roas, 0) / allCampaigns.length
+    : 0
+  const activeCampaignsCount = allCampaigns.filter(c => c.status === 'aktivna' || c.status === 'active').length
+
+  // -------------------------------------------------------------------------
+  // Pause / Resume with error handling
+  // -------------------------------------------------------------------------
 
   const handlePause = async (id: string) => {
     setActionLoading(id)
-    await campaignsApi.pause(id)
-    refetch()
-    setActionLoading(null)
+    try {
+      await campaignsApi.pause(id)
+      // Update local campaigns if the paused campaign is local
+      setLocalCampaigns(prev =>
+        prev.map(c => c.id === id ? { ...c, status: 'pauzirana' } : c)
+      )
+      refetch()
+      addToast('Kampanja je pauzirana', 'success')
+    } catch {
+      addToast('Greska pri pauziranju kampanje. Pokusajte ponovo.', 'error')
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const handleResume = async (id: string) => {
     setActionLoading(id)
-    await campaignsApi.resume(id)
-    refetch()
-    setActionLoading(null)
+    try {
+      await campaignsApi.resume(id)
+      setLocalCampaigns(prev =>
+        prev.map(c => c.id === id ? { ...c, status: 'aktivna' } : c)
+      )
+      refetch()
+      addToast('Kampanja je nastavljena', 'success')
+    } catch {
+      addToast('Greska pri nastavljanju kampanje. Pokusajte ponovo.', 'error')
+    } finally {
+      setActionLoading(null)
+    }
   }
+
+  // -------------------------------------------------------------------------
+  // Wizard handlers
+  // -------------------------------------------------------------------------
+
+  const openWizard = () => {
+    setWizardForm(emptyForm)
+    setWizardStep(1)
+    setShowWizard(true)
+  }
+
+  const closeWizard = () => {
+    setShowWizard(false)
+  }
+
+  const wizardCanNext = (): boolean => {
+    if (wizardStep === 1) {
+      return wizardForm.name.trim().length > 0
+        && (wizardForm.platforms.meta || wizardForm.platforms.tiktok || wizardForm.platforms.youtube)
+        && wizardForm.market.trim().length > 0
+    }
+    if (wizardStep === 2) {
+      return wizardForm.budget > 0
+        && wizardForm.startDate.length > 0
+        && wizardForm.endDate.length > 0
+    }
+    return true
+  }
+
+  const submitWizard = () => {
+    const newCampaign: CampaignRow = {
+      id: `local_${Date.now()}`,
+      name: wizardForm.name,
+      platform: platformLabel(wizardForm.platforms),
+      market: wizardForm.market,
+      status: 'aktivna',
+      budget: wizardForm.budget,
+      spend: 0,
+      ctr: 0,
+      roas: 0,
+    }
+    setLocalCampaigns(prev => [...prev, newCampaign])
+    closeWizard()
+    addToast(`Kampanja "${wizardForm.name}" je uspjesno kreirana!`, 'success')
+  }
+
+  // -------------------------------------------------------------------------
+  // A/B test helpers
+  // -------------------------------------------------------------------------
+
+  const abMetricLabel: Record<ABMetricKey, string> = {
+    ctr: 'CTR',
+    conversions: 'Konverzije',
+    impressions: 'Prikazivanja',
+    clicks: 'Klikovi',
+  }
+
+  const getABWinner = (metric: ABMetricKey) => {
+    const best = fallbackABTest.variants.reduce((a, b) => a[metric] > b[metric] ? a : b)
+    return best.name
+  }
+
+  const winnerName = getABWinner(abMetric)
+
+  // Max value for the selected metric (for bar chart)
+  const abMaxValue = Math.max(...fallbackABTest.variants.map(v => v[abMetric]))
+
+  // -------------------------------------------------------------------------
+  // Table columns
+  // -------------------------------------------------------------------------
 
   const columns = [
     { key: 'name', header: 'Kampanja', render: (row: CampaignRow) => (
@@ -85,7 +293,7 @@ export default function Campaigns() {
       <div>
         <span className="text-gray-700 font-mono">EUR{row.spend.toLocaleString()}</span>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-          <div className="bg-dinamo-blue h-1 rounded-full transition-all" style={{ width: `${(row.spend / row.budget) * 100}%` }} />
+          <div className="bg-dinamo-blue h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
         </div>
       </div>
     ), align: 'right' as const },
@@ -98,11 +306,21 @@ export default function Campaigns() {
     { key: 'actions', header: '', render: (row: CampaignRow) => (
       <div className="flex items-center gap-1">
         {(row.status === 'aktivna' || row.status === 'active') ? (
-          <button onClick={() => handlePause(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-yellow-50 rounded text-yellow-600" title="Pauziraj">
+          <button
+            onClick={(e) => { e.stopPropagation(); handlePause(row.id) }}
+            disabled={actionLoading === row.id}
+            className="p-1.5 hover:bg-yellow-50 rounded text-yellow-600 disabled:opacity-50"
+            title="Pauziraj"
+          >
             <Pause size={14} />
           </button>
         ) : (
-          <button onClick={() => handleResume(row.id)} disabled={actionLoading === row.id} className="p-1.5 hover:bg-green-50 rounded text-green-600" title="Nastavi">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleResume(row.id) }}
+            disabled={actionLoading === row.id}
+            className="p-1.5 hover:bg-green-50 rounded text-green-600 disabled:opacity-50"
+            title="Nastavi"
+          >
             <Play size={14} />
           </button>
         )}
@@ -110,7 +328,25 @@ export default function Campaigns() {
     ), align: 'right' as const },
   ]
 
-  if (loading && !apiData) return <><Header title="KAMPANJE" subtitle="Upravljanje kampanjama" /><PageLoader /></>
+  // -------------------------------------------------------------------------
+  // Detail modal daily spend chart helpers
+  // -------------------------------------------------------------------------
+
+  const maxDailySpend = Math.max(...mockDailySpend.map(d => d.spend))
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+
+  if (loading && !apiData) return (
+    <>
+      <Header title="KAMPANJE" subtitle="Upravljanje kampanjama" />
+      <div className="page-wrapper space-y-6">
+        <CardSkeleton count={4} />
+        <TableSkeleton rows={6} />
+      </div>
+    </>
+  )
 
   return (
     <div className="animate-fade-in">
@@ -119,51 +355,123 @@ export default function Campaigns() {
       <div className="page-wrapper space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Aktivne kampanje" value={activeCampaigns} format="number" icon={Zap} />
+          <MetricCard label="Aktivne kampanje" value={activeCampaignsCount} format="number" icon={Zap} />
           <MetricCard label="Ukupna potrosnja" value={totalSpend} format="currency" icon={CreditCard} />
           <MetricCard label="Prosj. ROAS" value={Number(avgRoas.toFixed(1))} format="number" icon={BarChart3} />
         </div>
-
 
         {/* Campaigns Table */}
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h2 className="section-title">Sve kampanje</h2>
-            <button className="btn-primary flex items-center gap-2 text-sm">
+            <button onClick={openWizard} className="btn-primary flex items-center gap-2 text-sm">
               <Plus size={16} />
               Nova kampanja
             </button>
           </div>
+
+          {/* Filter buttons */}
+          <div className="flex items-center gap-2 mb-4">
+            <Filter size={14} className="text-gray-400" />
+            {(['sve', 'aktivna', 'pauzirana'] as StatusFilter[]).map((f) => {
+              const label = f === 'sve' ? 'Sve' : f === 'aktivna' ? 'Aktivne' : 'Pauzirane'
+              const count = f === 'sve'
+                ? allCampaigns.length
+                : f === 'aktivna'
+                  ? allCampaigns.filter(c => c.status === 'aktivna' || c.status === 'active').length
+                  : allCampaigns.filter(c => c.status === 'pauzirana' || c.status === 'paused').length
+              return (
+                <button
+                  key={f}
+                  onClick={() => setStatusFilter(f)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                    statusFilter === f
+                      ? 'bg-dinamo-blue text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              )
+            })}
+          </div>
+
           <div className="overflow-x-auto -mx-5 px-5">
-            <DataTable columns={columns} data={campaigns} emptyMessage="Nema pronadjenih kampanja" />
+            <DataTable
+              columns={columns}
+              data={filteredCampaigns}
+              onRowClick={(row) => setDetailCampaign(row)}
+              emptyMessage="Nema pronadjenih kampanja"
+            />
           </div>
         </div>
 
         {/* A/B Test Results */}
         <div className="card">
-          <div className="flex items-center gap-2 mb-6">
-            <Target size={20} className="text-purple-600" />
-            <h2 className="section-title">A/B test rezultati: {fallbackABTest.campaign}</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Target size={20} className="text-purple-600" />
+              <h2 className="section-title">A/B test rezultati: {fallbackABTest.campaign}</h2>
+            </div>
+            {/* Metric selector */}
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              {(Object.keys(abMetricLabel) as ABMetricKey[]).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setAbMetric(key)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    abMetric === key
+                      ? 'bg-white text-purple-700 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {abMetricLabel[key]}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {fallbackABTest.variants.map((variant) => {
-              const isWinner = variant.name === 'Varijanta A'
+              const isWinner = variant.name === winnerName
+              const barWidth = abMaxValue > 0 ? (variant[abMetric] / abMaxValue) * 100 : 0
               return (
                 <div
                   key={variant.name}
                   className={`relative rounded-lg border p-5 space-y-3 transition-all hover:-translate-y-0.5 ${
-                    isWinner ? 'border-green-300 bg-green-50 shadow-md' : 'border-gray-200 bg-gray-50'
+                    isWinner
+                      ? 'border-green-300 bg-green-50 shadow-md ring-1 ring-green-200'
+                      : 'border-gray-200 bg-gray-50'
                   }`}
                 >
                   {isWinner && (
-                    <span className="absolute -top-2.5 left-4 text-xs px-2 py-0.5 bg-green-600 text-white rounded-full">Pobjednik</span>
+                    <span className="absolute -top-2.5 left-4 text-xs px-2 py-0.5 bg-green-600 text-white rounded-full flex items-center gap-1">
+                      <Trophy size={10} />
+                      Pobjednik
+                    </span>
                   )}
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${variant.color}`} />
                     <h3 className="text-gray-900 font-medium">{variant.name}</h3>
                   </div>
                   <p className="text-xs text-gray-500">{variant.description}</p>
+
+                  {/* Highlighted metric with bar */}
+                  <div className="bg-white rounded-md p-3 border border-gray-100">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-gray-500">{abMetricLabel[abMetric]}</span>
+                      <span className={`text-sm font-bold font-mono ${isWinner ? 'text-green-600' : 'text-gray-700'}`}>
+                        {abMetric === 'ctr' ? `${variant[abMetric]}%` : variant[abMetric].toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${isWinner ? 'bg-green-500' : 'bg-gray-300'}`}
+                        style={{ width: `${barWidth}%` }}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2 pt-2 border-t border-gray-200">
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Prikazivanja</span><span className="text-gray-700 font-mono">{variant.impressions.toLocaleString()}</span></div>
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Klikovi</span><span className="text-gray-700 font-mono">{variant.clicks.toLocaleString()}</span></div>
@@ -177,6 +485,409 @@ export default function Campaigns() {
           </div>
         </div>
       </div>
+
+      {/* ================================================================ */}
+      {/* NEW CAMPAIGN WIZARD MODAL                                        */}
+      {/* ================================================================ */}
+      {showWizard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeWizard} />
+
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Nova kampanja</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Korak {wizardStep} od 3</p>
+              </div>
+              <button onClick={closeWizard} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                <X size={18} className="text-gray-400" />
+              </button>
+            </div>
+
+            {/* Step indicators */}
+            <div className="flex items-center gap-2 px-6 pt-4">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center gap-2 flex-1">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    s < wizardStep ? 'bg-green-100 text-green-600'
+                    : s === wizardStep ? 'bg-dinamo-blue text-white'
+                    : 'bg-gray-100 text-gray-400'
+                  }`}>
+                    {s < wizardStep ? <Check size={14} /> : s}
+                  </div>
+                  {s < 3 && (
+                    <div className={`flex-1 h-0.5 rounded ${s < wizardStep ? 'bg-green-300' : 'bg-gray-200'}`} />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 space-y-5">
+              {/* Step 1: Basic info */}
+              {wizardStep === 1 && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Naziv kampanje</label>
+                    <input
+                      type="text"
+                      value={wizardForm.name}
+                      onChange={e => setWizardForm(f => ({ ...f, name: e.target.value }))}
+                      placeholder="npr. Proljetna promocija"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Platforme</label>
+                    <div className="flex flex-wrap gap-3">
+                      {([
+                        { key: 'meta' as const, label: 'Meta (IG + FB)' },
+                        { key: 'tiktok' as const, label: 'TikTok' },
+                        { key: 'youtube' as const, label: 'YouTube' },
+                      ]).map(({ key, label }) => (
+                        <label
+                          key={key}
+                          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-all ${
+                            wizardForm.platforms[key]
+                              ? 'border-dinamo-blue bg-dinamo-blue/5 text-dinamo-blue'
+                              : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={wizardForm.platforms[key]}
+                            onChange={e => setWizardForm(f => ({
+                              ...f,
+                              platforms: { ...f.platforms, [key]: e.target.checked },
+                            }))}
+                            className="sr-only"
+                          />
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                            wizardForm.platforms[key]
+                              ? 'bg-dinamo-blue border-dinamo-blue'
+                              : 'border-gray-300 bg-white'
+                          }`}>
+                            {wizardForm.platforms[key] && <Check size={10} className="text-white" />}
+                          </div>
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Trziste</label>
+                    <input
+                      type="text"
+                      value={wizardForm.market}
+                      onChange={e => setWizardForm(f => ({ ...f, market: e.target.value }))}
+                      placeholder="npr. HR, BA, DE"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Step 2: Budget & dates */}
+              {wizardStep === 2 && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Budzet (EUR)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={wizardForm.budget || ''}
+                      onChange={e => setWizardForm(f => ({ ...f, budget: Number(e.target.value) }))}
+                      placeholder="npr. 3000"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all font-mono"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        <Calendar size={12} className="inline mr-1" />
+                        Datum pocetka
+                      </label>
+                      <input
+                        type="date"
+                        value={wizardForm.startDate}
+                        onChange={e => setWizardForm(f => ({ ...f, startDate: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        <Calendar size={12} className="inline mr-1" />
+                        Datum zavrsetka
+                      </label>
+                      <input
+                        type="date"
+                        value={wizardForm.endDate}
+                        onChange={e => setWizardForm(f => ({ ...f, endDate: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Cilj kampanje</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {([
+                        { value: 'awareness' as const, label: 'Svijest', icon: Eye },
+                        { value: 'engagement' as const, label: 'Angazman', icon: MousePointerClick },
+                        { value: 'conversions' as const, label: 'Konverzije', icon: TrendingUp },
+                      ]).map(({ value, label, icon: Icon }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setWizardForm(f => ({ ...f, objective: value }))}
+                          className={`flex flex-col items-center gap-2 p-4 rounded-xl border text-sm font-medium transition-all ${
+                            wizardForm.objective === value
+                              ? 'border-dinamo-blue bg-dinamo-blue/5 text-dinamo-blue'
+                              : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
+                          }`}
+                        >
+                          <Icon size={20} />
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 3: Review */}
+              {wizardStep === 3 && (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-500 mb-4">Pregledajte podatke prije kreiranja kampanje.</p>
+
+                  <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Naziv</span>
+                      <span className="text-gray-900 font-medium">{wizardForm.name}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Platforme</span>
+                      <span className="text-gray-900 font-medium">{platformLabel(wizardForm.platforms)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Trziste</span>
+                      <span className="text-gray-900 font-medium">{wizardForm.market}</span>
+                    </div>
+                    <div className="border-t border-gray-200 my-1" />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Budzet</span>
+                      <span className="text-gray-900 font-medium font-mono">EUR{wizardForm.budget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Pocetak</span>
+                      <span className="text-gray-900 font-medium">{wizardForm.startDate}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Zavrsetak</span>
+                      <span className="text-gray-900 font-medium">{wizardForm.endDate}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Cilj</span>
+                      <span className="text-gray-900 font-medium">{objectiveLabel(wizardForm.objective)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              {wizardStep > 1 ? (
+                <button
+                  onClick={() => setWizardStep((wizardStep - 1) as WizardStep)}
+                  className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                  Natrag
+                </button>
+              ) : (
+                <button
+                  onClick={closeWizard}
+                  className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                >
+                  Odustani
+                </button>
+              )}
+
+              {wizardStep < 3 ? (
+                <button
+                  onClick={() => setWizardStep((wizardStep + 1) as WizardStep)}
+                  disabled={!wizardCanNext()}
+                  className="btn-primary flex items-center gap-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Dalje
+                  <ChevronRight size={16} />
+                </button>
+              ) : (
+                <button
+                  onClick={submitWizard}
+                  className="btn-primary flex items-center gap-1.5 text-sm"
+                >
+                  <Check size={16} />
+                  Kreiraj kampanju
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* CAMPAIGN DETAIL MODAL                                            */}
+      {/* ================================================================ */}
+      {detailCampaign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDetailCampaign(null)} />
+
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">{detailCampaign.name}</h3>
+                <p className="text-xs text-gray-500 mt-0.5">{detailCampaign.platform} &middot; {detailCampaign.market}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusBadge status={detailCampaign.status} />
+                <button onClick={() => setDetailCampaign(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                  <X size={18} className="text-gray-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Metrics grid */}
+            <div className="px-6 py-5 space-y-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">Budzet</p>
+                  <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">Potroseno</p>
+                  <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.spend.toLocaleString()}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">CTR</p>
+                  <p className={`text-lg font-bold font-mono ${detailCampaign.ctr > 3 ? 'text-green-600' : detailCampaign.ctr > 2 ? 'text-yellow-600' : 'text-gray-700'}`}>{detailCampaign.ctr}%</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">ROAS</p>
+                  <p className={`text-lg font-bold font-mono ${detailCampaign.roas > 3 ? 'text-green-600' : detailCampaign.roas > 2 ? 'text-yellow-600' : 'text-red-700'}`}>{detailCampaign.roas}x</p>
+                </div>
+              </div>
+
+              {/* Budget progress */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Napredak budzeta</span>
+                  <span className="text-sm font-mono text-gray-500">
+                    {Math.round((detailCampaign.spend / detailCampaign.budget) * 100)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div
+                    className={`h-3 rounded-full transition-all ${
+                      (detailCampaign.spend / detailCampaign.budget) > 0.9
+                        ? 'bg-red-500'
+                        : (detailCampaign.spend / detailCampaign.budget) > 0.7
+                          ? 'bg-yellow-500'
+                          : 'bg-dinamo-blue'
+                    }`}
+                    style={{ width: `${Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100)}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>EUR0</span>
+                  <span>EUR{detailCampaign.budget.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Daily spend chart */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Dnevna potrosnja (zadnjih 7 dana)</h4>
+                <div className="flex items-end gap-2 h-32">
+                  {mockDailySpend.map((d) => (
+                    <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-mono text-gray-500">EUR{d.spend}</span>
+                      <div
+                        className="w-full bg-dinamo-blue/80 rounded-t-md transition-all hover:bg-dinamo-blue"
+                        style={{ height: `${(d.spend / maxDailySpend) * 80}px` }}
+                      />
+                      <span className="text-[10px] text-gray-400">{d.day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              {(detailCampaign.status === 'aktivna' || detailCampaign.status === 'active') ? (
+                <button
+                  onClick={() => { handlePause(detailCampaign.id); setDetailCampaign(null) }}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-xl transition-all"
+                >
+                  <Pause size={14} />
+                  Pauziraj
+                </button>
+              ) : (
+                <button
+                  onClick={() => { handleResume(detailCampaign.id); setDetailCampaign(null) }}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl transition-all"
+                >
+                  <Play size={14} />
+                  Nastavi
+                </button>
+              )}
+              <button
+                onClick={() => setDetailCampaign(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-xl transition-all hover:bg-gray-50"
+              >
+                Zatvori
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* TOAST NOTIFICATIONS                                              */}
+      {/* ================================================================ */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-[100] space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl backdrop-blur-sm text-sm font-medium animate-fade-in ${
+                toast.type === 'success'
+                  ? 'bg-emerald-600 text-white'
+                  : toast.type === 'error'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-blue-600 text-white'
+              }`}
+            >
+              {toast.type === 'success' && <CheckCircle size={16} />}
+              {toast.type === 'error' && <AlertCircle size={16} />}
+              <span>{toast.message}</span>
+              <button onClick={() => removeToast(toast.id)} className="ml-2 opacity-70 hover:opacity-100 transition-opacity">
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
