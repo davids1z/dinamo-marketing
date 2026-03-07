@@ -246,14 +246,16 @@ BRIEF OD ADMINA:
 {media_section}
 
 ZAHTJEVI:
-- Generiraj 3-6 scena ovisno o tipu sadržaja
-- Za reels/video: 3-5 scena po 2-4 sekunde
+- Generiraj 3-5 scena ovisno o tipu sadržaja
+- Za reels/video: 3-4 scene po 2-4 sekunde
 - Za plakat/post: 1-2 scene
 - Animacije moraju biti dinamične i profesionalne
 - Caption i hashtagovi moraju biti na hrvatskom
 - Opis mora biti SEO-friendly
+- VAŽNO: JSON mora biti kompaktan — koristi kratke ključeve, bez praznih redova
+- Maksimalno 2-3 text layera po sceni, 0-1 overlay po sceni
 
-SAMO JSON output, bez dodatnog teksta."""
+SAMO JSON output, bez dodatnog teksta. Ne dodavaj markdown code blokove."""
 
 
 async def generate_studio_scenes(
@@ -290,7 +292,7 @@ async def generate_studio_scenes(
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.7,
-        "max_tokens": 8000,
+        "max_tokens": 16384,
     }
 
     async with httpx.AsyncClient(timeout=180.0) as client:
@@ -340,6 +342,16 @@ def _parse_studio_response(content: str) -> dict:
             return _validate_scene_data(result)
         except json.JSONDecodeError:
             pass
+
+    # Try to repair truncated JSON (common when response hits token limit)
+    repaired = _repair_truncated_json(content)
+    if repaired:
+        try:
+            result = json.loads(repaired)
+            logger.warning("Parsed studio AI response after JSON repair (truncated response)")
+            return _validate_scene_data(result)
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error("JSON repair also failed: %s", e)
 
     logger.error("Failed to parse studio AI response")
     logger.error("First 500 chars: %s", content[:500])
@@ -407,3 +419,72 @@ def _fix_json(s: str) -> str:
     s = re.sub(r',\s*([}\]])', r'\1', s)
     s = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', s)
     return s
+
+
+def _repair_truncated_json(content: str) -> str | None:
+    """Attempt to repair truncated JSON from a cut-off LLM response.
+
+    Strategy: find the last complete scene object in the scenes array,
+    close all open brackets/braces, and add default caption/hashtags.
+    """
+    import re
+
+    content = content.strip()
+    if content.startswith("```"):
+        first_nl = content.find("\n")
+        if first_nl != -1:
+            content = content[first_nl + 1:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+    content = _fix_json(content)
+
+    # Must start with { to be JSON
+    start = content.find("{")
+    if start == -1:
+        return None
+
+    content = content[start:]
+
+    # Find the scenes array
+    scenes_match = re.search(r'"scenes"\s*:\s*\[', content)
+    if not scenes_match:
+        return None
+
+    # Try to find complete scene objects by looking for closing braces
+    # that end a scene (followed by comma or bracket)
+    scenes_start = scenes_match.end()
+
+    # Find all positions where a scene object closes: },  or } ]
+    complete_scenes = []
+    depth = 0
+    scene_start = None
+    i = scenes_start
+
+    while i < len(content):
+        ch = content[i]
+        if ch == '{':
+            if depth == 0:
+                scene_start = i
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0 and scene_start is not None:
+                scene_str = content[scene_start:i + 1]
+                try:
+                    json.loads(scene_str)
+                    complete_scenes.append(scene_str)
+                except json.JSONDecodeError:
+                    pass
+                scene_start = None
+        i += 1
+
+    if not complete_scenes:
+        return None
+
+    # Build repaired JSON with complete scenes only
+    scenes_json = ",\n".join(complete_scenes)
+    repaired = f'{{"scenes": [{scenes_json}], "caption": "", "hashtags": ["#Dinamo", "#GNKDinamo", "#Modri"], "description": "", "total_duration": 0, "aspect_ratio": "9:16"}}'
+
+    logger.info("Repaired truncated JSON: kept %d complete scenes out of possibly more", len(complete_scenes))
+    return repaired
