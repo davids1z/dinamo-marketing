@@ -340,20 +340,22 @@ export default function ContentStudio() {
           dispatch({ type: 'SET_SCENES', scenes: proj.scene_data })
         }
 
-        // Use post metadata from the project endpoint or Router state
+        // Use post metadata — prefer Router state (richer mock data) over
+        // backend stub; fall back to backend post_meta for real DB posts.
         const meta = proj.post_meta
-        if (meta) {
-          dispatch({
-            type: 'SET_POST_META',
-            title: meta.title || '',
-            platform: meta.platform || '',
-          })
-        } else if (routerPost) {
-          // Use mock post data passed from ContentCalendar via Router state
+        if (routerPost) {
+          // Router state has full mock post data from ContentCalendar
           dispatch({
             type: 'SET_POST_META',
             title: String(routerPost.title || ''),
             platform: String(routerPost.platform || ''),
+          })
+        } else if (meta && meta.title && meta.title !== 'Studio Project') {
+          // Real ContentPost from the DB (not a stub)
+          dispatch({
+            type: 'SET_POST_META',
+            title: meta.title || '',
+            platform: meta.platform || '',
           })
         }
 

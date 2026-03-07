@@ -138,9 +138,19 @@ class StudioService:
             initial_hashtags = post.hashtags if isinstance(post.hashtags, list) else None
             initial_description = post.visual_brief or ""
         else:
-            # Mock/frontend-only post — create with empty defaults
-            # Frontend will supply brief via session state or manual entry
-            logger.info("ContentPost %s not found in DB — creating studio project with defaults", post_id)
+            # Mock/frontend-only post — create a stub ContentPost to satisfy FK,
+            # then create the studio project with empty defaults.
+            # Frontend will supply brief via Router state or manual entry.
+            logger.info("ContentPost %s not found in DB — creating stub ContentPost + studio project", post_id)
+            stub_post = ContentPost(
+                id=post_id,
+                title="Studio Project",
+                platform="instagram",
+                content_pillar="",
+                status="draft",
+            )
+            db.add(stub_post)
+            await db.flush()  # Flush so FK is available for StudioProject insert
             brief = ""
             initial_caption = ""
             initial_hashtags = None
@@ -167,7 +177,11 @@ class StudioService:
     async def update_project(
         self, db: AsyncSession, post_id: uuid.UUID, updates: dict
     ) -> StudioProject:
-        """Update project fields."""
+        """Update project fields.
+
+        Also updates the linked ContentPost's title/platform/caption etc.
+        when those fields come in from the frontend (especially for stub posts).
+        """
         query = select(StudioProject).where(StudioProject.post_id == post_id)
         result = await db.execute(query)
         project = result.scalar_one_or_none()
@@ -181,6 +195,17 @@ class StudioService:
         for key, value in updates.items():
             if key in allowed_fields:
                 setattr(project, key, value)
+
+        # Also update the linked ContentPost with caption/hashtags if provided
+        post_query = select(ContentPost).where(ContentPost.id == post_id)
+        post_result = await db.execute(post_query)
+        post = post_result.scalar_one_or_none()
+        if post and post.title == "Studio Project":
+            # This is a stub post — enrich it with real data from the frontend
+            if updates.get("generated_caption"):
+                post.caption_hr = updates["generated_caption"]
+            if updates.get("generated_description"):
+                post.visual_brief = updates["generated_description"]
 
         await db.commit()
         await db.refresh(project)
