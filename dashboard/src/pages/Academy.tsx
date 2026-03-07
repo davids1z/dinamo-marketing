@@ -70,30 +70,30 @@ const fallbackData: AcademyData = {
 const columns = [
   { key: 'name', header: 'Igrac', render: (row: PlayerRow) => (
     <div className="flex items-center gap-2">
-      <span className="text-white font-medium">{row.name}</span>
+      <span className="text-gray-900 font-medium">{row.name}</span>
       {row.featured && <Star size={14} className="text-yellow-600" />}
     </div>
   )},
   { key: 'position', header: 'Poz', render: (row: PlayerRow) => (
-    <span className="text-xs px-2 py-0.5 rounded bg-dinamo-dark-lighter text-gray-400 font-mono">{row.position}</span>
+    <span className="text-xs px-2 py-0.5 rounded bg-gray-50 text-gray-500 font-mono">{row.position}</span>
   )},
   { key: 'ageGroup', header: 'Dobna skupina', render: (row: PlayerRow) => (
     <span className={`text-xs px-2 py-0.5 rounded-full ${
-      row.ageGroup === 'U17' ? 'bg-green-500/15 text-green-400' :
-      row.ageGroup === 'U19' ? 'bg-blue-500/15 text-blue-400' :
+      row.ageGroup === 'U17' ? 'bg-green-50 text-green-700' :
+      row.ageGroup === 'U19' ? 'bg-blue-50 text-blue-700' :
       'bg-purple-100 text-purple-600'
     }`}>
       {row.ageGroup}
     </span>
   )},
-  { key: 'appearances', header: 'Nast', render: (row: PlayerRow) => <span className="text-gray-400 font-mono">{row.appearances}</span> },
-  { key: 'goals', header: 'G', render: (row: PlayerRow) => <span className="text-gray-400 font-mono">{row.goals}</span> },
-  { key: 'assists', header: 'A', render: (row: PlayerRow) => <span className="text-gray-400 font-mono">{row.assists}</span> },
+  { key: 'appearances', header: 'Nast', render: (row: PlayerRow) => <span className="text-gray-500 font-mono">{row.appearances}</span> },
+  { key: 'goals', header: 'G', render: (row: PlayerRow) => <span className="text-gray-500 font-mono">{row.goals}</span> },
+  { key: 'assists', header: 'A', render: (row: PlayerRow) => <span className="text-gray-500 font-mono">{row.assists}</span> },
   { key: 'socialMentions', header: 'Spominjanja', render: (row: PlayerRow) => (
-    <span className="text-dinamo-muted font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
+    <span className="text-gray-500 font-mono">{(row.socialMentions / 1000).toFixed(1)}K</span>
   )},
   { key: 'featured', header: 'Sadrzaj', render: (row: PlayerRow) => (
-    <span className={`text-xs ${row.featured ? 'text-green-600' : 'text-dinamo-muted'}`}>
+    <span className={`text-xs ${row.featured ? 'text-green-600' : 'text-gray-500'}`}>
       {row.featured ? 'Istaknuto' : 'U cekanju'}
     </span>
   )},
@@ -133,25 +133,25 @@ export default function Academy() {
           </div>
           <div className="space-y-3">
             {data.contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-white">{item.title}</h3>
+                  <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-dinamo-muted">{item.type}</span>
-                    <span className="text-xs text-dinamo-muted">|</span>
-                    <span className="text-xs text-dinamo-muted">{item.platform}</span>
+                    <span className="text-xs text-gray-500">{item.type}</span>
+                    <span className="text-xs text-gray-500">|</span>
+                    <span className="text-xs text-gray-500">{item.platform}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    item.status === 'Spremno' ? 'bg-green-500/15 text-green-400' :
-                    item.status === 'U produkciji' || item.status === 'Snimanje' ? 'bg-blue-500/15 text-blue-400' :
+                    item.status === 'Spremno' ? 'bg-green-50 text-green-700' :
+                    item.status === 'U produkciji' || item.status === 'Snimanje' ? 'bg-blue-50 text-blue-700' :
                     item.status === 'Pregled scenarija' ? 'bg-yellow-100 text-yellow-600' :
-                    'bg-dinamo-dark-lighter text-gray-400'
+                    'bg-gray-50 text-gray-500'
                   }`}>
                     {item.status}
                   </span>
-                  <div className="flex items-center gap-1 text-xs text-dinamo-muted">
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
                     <Calendar size={12} />
                     {item.due}
                   </div>

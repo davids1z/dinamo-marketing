@@ -13,18 +13,18 @@ export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
           <button
             key={t.id}
             onClick={() => onSelect(t)}
-            className="text-left p-3 rounded-xl border border-dinamo-dark-border hover:border-dinamo-accent/30 hover:bg-dinamo-accent/5 transition-all group"
+            className="text-left p-3 rounded-xl border border-gray-200 hover:border-dinamo-blue/30 hover:bg-blue-50/50 transition-all group"
           >
             <div className="text-2xl mb-1.5">{t.icon}</div>
-            <p className="text-[11px] font-semibold text-gray-300 group-hover:text-dinamo-accent leading-tight">
+            <p className="text-[11px] font-semibold text-gray-700 group-hover:text-dinamo-blue leading-tight">
               {t.name}
             </p>
             <p className="text-[9px] text-gray-400 mt-0.5 leading-snug">{t.description}</p>
             <div className="flex items-center gap-1 mt-1.5">
-              <span className="text-[8px] bg-dinamo-dark-lighter text-gray-400 px-1.5 py-0.5 rounded-full">
+              <span className="text-[8px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
                 {t.scenes.length} {t.scenes.length === 1 ? 'scena' : 'scena'}
               </span>
-              <span className="text-[8px] bg-dinamo-dark-lighter text-gray-400 px-1.5 py-0.5 rounded-full">
+              <span className="text-[8px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
                 {t.aspectRatio}
               </span>
             </div>

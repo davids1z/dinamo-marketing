@@ -78,24 +78,24 @@ export default function Analytics() {
         {paid && paid.total_spend > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="card text-center">
-              <DollarSign size={20} className="mx-auto text-dinamo-muted mb-1" />
+              <DollarSign size={20} className="mx-auto text-gray-500 mb-1" />
               <p className="text-2xl font-bold font-mono">€{paid.total_spend.toLocaleString()}</p>
-              <p className="text-xs text-dinamo-muted">Ukupna potrosnja</p>
+              <p className="text-xs text-gray-500">Ukupna potrosnja</p>
             </div>
             <div className="card text-center">
               <BarChart3 size={20} className="mx-auto text-green-600 mb-1" />
               <p className="text-2xl font-bold font-mono text-green-600">{paid.avg_roas}x</p>
-              <p className="text-xs text-dinamo-muted">ROAS</p>
+              <p className="text-xs text-gray-500">ROAS</p>
             </div>
             <div className="card text-center">
-              <Target size={20} className="mx-auto text-blue-400 mb-1" />
+              <Target size={20} className="mx-auto text-blue-700 mb-1" />
               <p className="text-2xl font-bold font-mono">{paid.conversions}</p>
-              <p className="text-xs text-dinamo-muted">Konverzije</p>
+              <p className="text-xs text-gray-500">Konverzije</p>
             </div>
             <div className="card text-center">
               <DollarSign size={20} className="mx-auto text-purple-600 mb-1" />
               <p className="text-2xl font-bold font-mono">€{paid.avg_cpc.toFixed(2)}</p>
-              <p className="text-xs text-dinamo-muted">Prosj. CPC</p>
+              <p className="text-xs text-gray-500">Prosj. CPC</p>
             </div>
           </div>
         )}
@@ -104,7 +104,7 @@ export default function Analytics() {
         <div className="card">
           <div className="flex items-center justify-between mb-2">
             <span />
-            <button onClick={refetch} className="text-xs text-dinamo-muted hover:text-dinamo-primary flex items-center gap-1">
+            <button onClick={refetch} className="text-xs text-gray-500 hover:text-dinamo-primary flex items-center gap-1">
               <RefreshCw size={12} /> Osvjezi
             </button>
           </div>
@@ -130,38 +130,38 @@ export default function Analytics() {
 
           <div className="space-y-3">
             {topPosts.map((post, index) => (
-              <div key={post.id} className="flex items-center gap-4 p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-dinamo-dark-border text-sm font-bold text-gray-400 flex-shrink-0">
+              <div key={post.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-sm font-bold text-gray-500 flex-shrink-0">
                   {index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-white truncate">{post.title}</h3>
+                  <h3 className="text-sm font-medium text-gray-900 truncate">{post.title}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-dinamo-muted">{post.platform}</span>
-                    <span className="text-xs text-dinamo-muted">|</span>
-                    <span className="text-xs text-dinamo-muted">{post.date}</span>
+                    <span className="text-xs text-gray-500">{post.platform}</span>
+                    <span className="text-xs text-gray-500">|</span>
+                    <span className="text-xs text-gray-500">{post.date}</span>
                   </div>
                 </div>
                 <div className="hidden sm:flex items-center gap-6 text-sm flex-shrink-0">
                   <div className="text-center">
-                    <div className="flex items-center gap-1 text-dinamo-muted">
+                    <div className="flex items-center gap-1 text-gray-500">
                       <Eye size={14} />
                       <span className="font-mono">{(post.reach / 1000).toFixed(0)}K</span>
                     </div>
-                    <p className="text-xs text-dinamo-muted">Doseg</p>
+                    <p className="text-xs text-gray-500">Doseg</p>
                   </div>
                   <div className="text-center">
-                    <div className="flex items-center gap-1 text-dinamo-muted">
+                    <div className="flex items-center gap-1 text-gray-500">
                       <Heart size={14} />
                       <span className="font-mono">{(post.engagement / 1000).toFixed(1)}K</span>
                     </div>
-                    <p className="text-xs text-dinamo-muted">Angazman</p>
+                    <p className="text-xs text-gray-500">Angazman</p>
                   </div>
                   <div className="text-center">
-                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-400'}`}>
+                    <span className={`font-mono font-bold ${post.engRate > 5 ? 'text-green-600' : 'text-gray-500'}`}>
                       {post.engRate}%
                     </span>
-                    <p className="text-xs text-dinamo-muted">Stopa ang.</p>
+                    <p className="text-xs text-gray-500">Stopa ang.</p>
                   </div>
                 </div>
               </div>

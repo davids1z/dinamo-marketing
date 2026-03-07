@@ -59,37 +59,37 @@ const fallbackData: CompetitorData = {
 const columns = [
   { key: 'club', header: 'Klub', render: (row: CompetitorRow) => (
     <div className="min-w-0">
-      <span className="text-white font-medium truncate">{row.club}</span>
-      <span className="text-xs text-dinamo-muted ml-2 hidden sm:inline">{row.country}</span>
+      <span className="text-gray-900 font-medium truncate">{row.club}</span>
+      <span className="text-xs text-gray-500 ml-2 hidden sm:inline">{row.country}</span>
     </div>
   )},
   { key: 'tier', header: 'Skupina', render: (row: CompetitorRow) => (
     <span className={`text-xs px-2 py-0.5 rounded-full ${
       row.tier === 'aspirational' ? 'bg-purple-100 text-purple-600' :
       row.tier === 'stretch' ? 'bg-yellow-100 text-yellow-600' :
-      'bg-blue-500/15 text-blue-400'
+      'bg-blue-50 text-blue-700'
     }`}>
       {row.tier}
     </span>
   )},
   { key: 'igFollowers', header: 'IG pratitelji', render: (row: CompetitorRow) => (
-    <span className="text-gray-300 font-mono">{formatFollowers(row.igFollowers)}</span>
+    <span className="text-gray-700 font-mono">{formatFollowers(row.igFollowers)}</span>
   )},
   { key: 'igEngagement', header: 'IG angažman', render: (row: CompetitorRow) => (
     <div className="flex items-center gap-2">
-      <span className={`text-sm ${row.igEngagement > 2.5 ? 'text-green-600' : row.igEngagement > 1.5 ? 'text-yellow-600' : 'text-red-400'}`}>
+      <span className={`text-sm ${row.igEngagement > 2.5 ? 'text-green-600' : row.igEngagement > 1.5 ? 'text-yellow-600' : 'text-red-700'}`}>
         {row.igEngagement}%
       </span>
     </div>
   )},
   { key: 'tiktokFollowers', header: 'TikTok', render: (row: CompetitorRow) => (
-    <span className="text-gray-300 font-mono">{formatFollowers(row.tiktokFollowers)}</span>
+    <span className="text-gray-700 font-mono">{formatFollowers(row.tiktokFollowers)}</span>
   )},
   { key: 'gapVsDinamo', header: 'Jaz prema Dinamu', render: (row: CompetitorRow) => {
     const icon = row.gapVsDinamo > 0 ? <TrendingUp size={14} /> : row.gapVsDinamo < 0 ? <TrendingDown size={14} /> : <Minus size={14} />
     return (
       <div className={`flex items-center gap-1 text-sm font-mono ${
-        row.gapVsDinamo > 0 ? 'text-red-400' : 'text-green-600'
+        row.gapVsDinamo > 0 ? 'text-red-700' : 'text-green-600'
       }`}>
         {icon}
         {row.gapVsDinamo > 0 ? '+' : ''}{formatFollowers(Math.abs(row.gapVsDinamo))}
@@ -122,18 +122,18 @@ export default function Competitors() {
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="card">
-            <p className="text-sm text-dinamo-muted">Direktni konkurenti</p>
-            <p className="text-3xl font-bold text-white mt-1">{summary.directCount}</p>
+            <p className="text-sm text-gray-500">Direktni konkurenti</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.directCount}</p>
             <p className="text-xs text-green-600 mt-1">Dinamo vodi u {summary.dinamoLeadsIn} od {summary.directCount}</p>
           </div>
           <div className="card">
-            <p className="text-sm text-dinamo-muted">Dinamo IG pratitelji</p>
-            <p className="text-3xl font-bold text-white mt-1">{summary.dinamoIgFormatted}</p>
-            <p className="text-xs text-blue-400 mt-1">Rangirani {summary.dinamoRank}</p>
+            <p className="text-sm text-gray-500">Dinamo IG pratitelji</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.dinamoIgFormatted}</p>
+            <p className="text-xs text-blue-700 mt-1">Rangirani {summary.dinamoRank}</p>
           </div>
           <div className="card">
-            <p className="text-sm text-dinamo-muted">Prosj. angažman (direktni)</p>
-            <p className="text-3xl font-bold text-white mt-1">{summary.avgEngagementDirect}%</p>
+            <p className="text-sm text-gray-500">Prosj. angažman (direktni)</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.avgEngagementDirect}%</p>
             <p className="text-xs text-yellow-600 mt-1">Dinamo: {summary.dinamoEngagement}% (iznad prosjeka)</p>
           </div>
         </div>

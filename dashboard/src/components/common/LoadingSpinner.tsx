@@ -42,12 +42,12 @@ export function CardSkeleton({ count = 4 }: { count?: number }) {
         <div key={i} className="card animate-pulse">
           <div className="flex items-start justify-between">
             <div className="space-y-2 flex-1">
-              <div className="h-3 w-20 bg-dinamo-dark-lighter rounded" />
-              <div className="h-8 w-28 bg-dinamo-dark-lighter rounded" />
+              <div className="h-3 w-20 bg-gray-200 rounded" />
+              <div className="h-8 w-28 bg-gray-200 rounded" />
             </div>
-            <div className="h-8 w-8 bg-dinamo-dark-lighter rounded" />
+            <div className="h-8 w-8 bg-gray-200 rounded" />
           </div>
-          <div className="h-3 w-32 bg-dinamo-dark-lighter rounded mt-3" />
+          <div className="h-3 w-32 bg-gray-200 rounded mt-3" />
         </div>
       ))}
     </div>
@@ -60,7 +60,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <div className="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center mb-4">
         <span className="text-red-400 text-xl">!</span>
       </div>
-      <p className="text-gray-400 mb-4">{message}</p>
+      <p className="text-gray-500 mb-4">{message}</p>
       {onRetry && (
         <button onClick={onRetry} className="btn-secondary text-sm">
           Pokusaj ponovo

@@ -105,12 +105,12 @@ export default function FanInsights() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm text-dinamo-muted">{seg.stage}</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-sm text-gray-500">{seg.stage}</p>
+                  <p className="text-2xl font-bold text-gray-900">
                     {seg.count >= 1000 ? `${(seg.count / 1000).toFixed(0)}K` : seg.count}
                   </p>
                 </div>
-                <p className="text-xs text-dinamo-muted truncate">{seg.description}</p>
+                <p className="text-xs text-gray-500 truncate">{seg.description}</p>
               </div>
             )
           })}
@@ -124,31 +124,31 @@ export default function FanInsights() {
         {/* CLV Table */}
         <div className="card">
           <h2 className="section-title mb-4 flex items-center gap-2">
-            <DollarSign size={20} className="text-emerald-400" />
+            <DollarSign size={20} className="text-emerald-700" />
             Doživotna vrijednost navijača po segmentu
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-dinamo-dark-border">
-                  <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Segment</th>
-                  <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Prosj. CLV</th>
-                  <th className="text-left py-3 px-4 text-dinamo-muted font-medium hidden sm:table-cell">Zadržavanje</th>
-                  <th className="text-left py-3 px-4 text-dinamo-muted font-medium">Rizik odljeva</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Segment</th>
+                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Prosj. CLV</th>
+                  <th className="text-left py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Zadržavanje</th>
+                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Rizik odljeva</th>
                 </tr>
               </thead>
               <tbody>
                 {clvData.map((row) => (
-                  <tr key={row.segment} className="border-b border-dinamo-dark-border hover:bg-white/5">
-                    <td className="py-3 px-4 text-white font-medium">{row.segment}</td>
-                    <td className="py-3 px-4 text-emerald-400 font-mono">{row.clv}</td>
-                    <td className="py-3 px-4 text-gray-400 hidden sm:table-cell">{row.retention}</td>
+                  <tr key={row.segment} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-3 px-4 text-gray-900 font-medium">{row.segment}</td>
+                    <td className="py-3 px-4 text-emerald-700 font-mono">{row.clv}</td>
+                    <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">{row.retention}</td>
                     <td className="py-3 px-4">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        row.churnRisk === 'Visoki' ? 'bg-red-500/15 text-red-400' :
+                        row.churnRisk === 'Visoki' ? 'bg-red-50 text-red-700' :
                         row.churnRisk === 'Srednji' ? 'bg-yellow-100 text-yellow-600' :
-                        row.churnRisk === 'Niski' ? 'bg-green-500/15 text-green-400' :
-                        'bg-emerald-500/15 text-emerald-400'
+                        row.churnRisk === 'Niski' ? 'bg-green-50 text-green-700' :
+                        'bg-emerald-50 text-emerald-700'
                       }`}>
                         {row.churnRisk}
                       </span>
@@ -165,10 +165,10 @@ export default function FanInsights() {
           <h2 className="section-title mb-4">Prediktivna analitika</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {churnPredictions.map((item) => (
-              <div key={item.metric} className="bg-dinamo-dark-lighter rounded-lg p-4 space-y-2">
-                <p className="text-sm text-dinamo-muted">{item.metric}</p>
+              <div key={item.metric} className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <p className="text-sm text-gray-500">{item.metric}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-white">{item.value}</span>
+                  <span className="text-2xl font-bold text-gray-900">{item.value}</span>
                   <span className={`text-xs flex items-center gap-0.5 ${
                     item.trend === 'up' ? 'text-green-600' : 'text-yellow-600'
                   }`}>
@@ -176,7 +176,7 @@ export default function FanInsights() {
                     {item.change}
                   </span>
                 </div>
-                <p className="text-xs text-dinamo-muted">{item.description}</p>
+                <p className="text-xs text-gray-500">{item.description}</p>
               </div>
             ))}
           </div>

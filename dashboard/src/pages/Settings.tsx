@@ -143,7 +143,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 mb-6">
             <Plug size={20} className="text-blue-600" />
             <h2 className="section-title">API integracije</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 ml-2">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 ml-2">
               {allMock ? 'Sve mock na\u010din' : `${mockCount}/${apis.length} mock`}
             </span>
           </div>
@@ -153,15 +153,15 @@ export default function Settings() {
               <div
                 key={api.id}
                 className={`rounded-lg border p-4 transition-colors ${
-                  api.enabled ? 'bg-dinamo-dark-lighter border-dinamo-dark-border' : 'bg-dinamo-dark-lighter border-dinamo-dark-border opacity-50'
+                  api.enabled ? 'bg-gray-50 border-gray-200' : 'bg-gray-50 border-gray-200 opacity-50'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{api.icon}</span>
                     <div>
-                      <h3 className="text-sm font-medium text-white">{api.name}</h3>
-                      <p className="text-xs text-dinamo-muted mt-0.5">{api.description}</p>
+                      <h3 className="text-sm font-medium text-gray-900">{api.name}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">{api.description}</p>
                     </div>
                   </div>
                   <button
@@ -171,7 +171,7 @@ export default function Settings() {
                     {api.enabled ? (
                       <ToggleRight size={28} className="text-blue-600" />
                     ) : (
-                      <ToggleLeft size={28} className="text-dinamo-muted" />
+                      <ToggleLeft size={28} className="text-gray-500" />
                     )}
                   </button>
                 </div>
@@ -180,14 +180,14 @@ export default function Settings() {
                     onClick={() => toggleApi(api.id)}
                     className={`text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
                       api.mode === 'mock'
-                        ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
-                        : 'bg-blue-500/15 text-blue-400 hover:bg-blue-500/25'
+                        ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
                     {api.mode === 'mock' ? 'Mock' : 'Live'}
                   </button>
-                  <span className="text-xs text-dinamo-muted">|</span>
-                  <span className="text-xs text-dinamo-muted">
+                  <span className="text-xs text-gray-500">|</span>
+                  <span className="text-xs text-gray-500">
                     {api.mode === 'mock' ? 'API klju\u010d nije potreban' : 'Povezano s API-jem'}
                   </span>
                 </div>
@@ -207,27 +207,27 @@ export default function Settings() {
             {brandColors.map((color) => (
               <div key={color.name} className="space-y-2">
                 <div
-                  className="w-full h-16 rounded-lg border border-dinamo-dark-border"
+                  className="w-full h-16 rounded-lg border border-gray-200"
                   style={{ backgroundColor: color.hex }}
                 />
                 <div>
-                  <p className="text-sm text-white font-medium">{color.name}</p>
-                  <p className="text-xs text-dinamo-muted font-mono">{color.hex}</p>
-                  <p className="text-xs text-dinamo-muted mt-0.5">{color.usage}</p>
+                  <p className="text-sm text-gray-900 font-medium">{color.name}</p>
+                  <p className="text-xs text-gray-500 font-mono">{color.hex}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{color.usage}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-dinamo-dark-lighter rounded-lg border border-dinamo-dark-border">
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-[#0051A5] flex items-center justify-center">
                 <span className="text-white font-bold text-lg">D</span>
               </div>
               <div>
-                <p className="text-white font-semibold">GNK Dinamo Zagreb</p>
-                <p className="text-xs text-dinamo-muted">Osnovan 1945. | Stadion Maksimir, Zagreb</p>
-                <p className="text-xs text-dinamo-muted mt-0.5">Primarni font: Montserrat | Display font: Montserrat Bold</p>
+                <p className="text-gray-900 font-semibold">GNK Dinamo Zagreb</p>
+                <p className="text-xs text-gray-500">Osnovan 1945. | Stadion Maksimir, Zagreb</p>
+                <p className="text-xs text-gray-500 mt-0.5">Primarni font: Montserrat | Display font: Montserrat Bold</p>
               </div>
             </div>
           </div>
@@ -244,17 +244,17 @@ export default function Settings() {
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className="flex items-center justify-between p-4 bg-dinamo-dark-lighter rounded-lg"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
               >
                 <div>
-                  <h3 className="text-sm font-medium text-white">{notif.label}</h3>
-                  <p className="text-xs text-dinamo-muted mt-0.5">{notif.description}</p>
+                  <h3 className="text-sm font-medium text-gray-900">{notif.label}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{notif.description}</p>
                 </div>
                 <button onClick={() => toggleNotification(notif.id)}>
                   {notif.enabled ? (
                     <ToggleRight size={28} className="text-blue-600" />
                   ) : (
-                    <ToggleLeft size={28} className="text-dinamo-muted" />
+                    <ToggleLeft size={28} className="text-gray-500" />
                   )}
                 </button>
               </div>
@@ -265,25 +265,25 @@ export default function Settings() {
         {/* System Info */}
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={20} className="text-dinamo-muted" />
+            <Shield size={20} className="text-gray-500" />
             <h2 className="section-title">Informacije o sustavu</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-dinamo-muted">Verzija</p>
-              <p className="text-gray-300 font-mono">{system.version}</p>
+              <p className="text-gray-500">Verzija</p>
+              <p className="text-gray-700 font-mono">{system.version}</p>
             </div>
             <div>
-              <p className="text-dinamo-muted">Okru\u017eenje</p>
+              <p className="text-gray-500">Okru\u017eenje</p>
               <p className="text-yellow-600 font-mono">{system.environment}</p>
             </div>
             <div>
-              <p className="text-dinamo-muted">Na\u010din podataka</p>
+              <p className="text-gray-500">Na\u010din podataka</p>
               <p className="text-green-600 font-mono">{system.dataMode}</p>
             </div>
             <div>
-              <p className="text-dinamo-muted">Zadnje a\u017eurirano</p>
-              <p className="text-gray-300 font-mono">{system.lastUpdated}</p>
+              <p className="text-gray-500">Zadnje a\u017eurirano</p>
+              <p className="text-gray-700 font-mono">{system.lastUpdated}</p>
             </div>
           </div>
         </div>

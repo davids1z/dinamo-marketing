@@ -9,7 +9,7 @@ interface ReachChartProps {
 export function ReachChart({ data, title }: ReachChartProps) {
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-white">{title}</h3>}
+      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={data}>
           <defs>
@@ -22,15 +22,16 @@ export function ReachChart({ data, title }: ReachChartProps) {
               <stop offset="95%" stopColor={DINAMO_BRAND.colors.blue} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-          <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-          <YAxis stroke="#94a3b8" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+          <XAxis dataKey="date" stroke="#6B7280" fontSize={12} />
+          <YAxis stroke="#6B7280" fontSize={12} />
           <Tooltip
             contentStyle={{
-              backgroundColor: DINAMO_BRAND.colors.darkCard,
-              border: '1px solid rgba(255,255,255,0.1)',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E5E7EB',
               borderRadius: '8px',
-              color: '#fff',
+              color: '#111827',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             }}
           />
           <Area type="monotone" dataKey="impressions" stroke={DINAMO_BRAND.colors.blue} fill="url(#impressionGradient)" name="Impressions" />

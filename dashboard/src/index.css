@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-dinamo-dark text-gray-100 antialiased;
+    @apply bg-gray-50 text-gray-900 antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -25,47 +25,47 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full;
+    @apply bg-gray-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/20;
+    @apply bg-gray-400;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-dinamo-dark-light border border-dinamo-dark-border rounded-2xl p-5 shadow-card overflow-hidden;
+    @apply bg-white border border-gray-200 rounded-2xl p-5 shadow-card overflow-hidden;
   }
   .card-hover {
-    @apply card transition-all duration-300 hover:border-dinamo-accent/30 hover:shadow-card-hover hover:-translate-y-0.5;
+    @apply card transition-all duration-300 hover:border-dinamo-blue/30 hover:shadow-card-hover hover:-translate-y-0.5;
   }
   .btn-primary {
-    @apply bg-dinamo-accent hover:bg-dinamo-accent-hover text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md;
+    @apply bg-dinamo-blue hover:bg-dinamo-blue-hover text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md;
   }
   .btn-secondary {
-    @apply bg-dinamo-accent/10 hover:bg-dinamo-accent/20 text-dinamo-accent border border-dinamo-accent/30 font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95;
+    @apply bg-dinamo-blue/10 hover:bg-dinamo-blue/20 text-dinamo-blue border border-dinamo-blue/30 font-semibold py-2 px-4 rounded-xl transition-all duration-200 active:scale-95;
   }
   .btn-ghost {
-    @apply text-gray-400 hover:text-white hover:bg-white/10 font-medium py-2 px-4 rounded-xl transition-all duration-200;
+    @apply text-gray-500 hover:text-gray-900 hover:bg-gray-100 font-medium py-2 px-4 rounded-xl transition-all duration-200;
   }
   .stat-number {
     font-family: 'Tektur', sans-serif;
-    @apply text-2xl sm:text-3xl font-bold tracking-tight text-white;
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-gray-900;
   }
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
   .badge-success {
-    @apply badge bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/20;
+    @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200;
   }
   .badge-warning {
-    @apply badge bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/20;
+    @apply badge bg-amber-50 text-amber-700 ring-1 ring-amber-200;
   }
   .badge-danger {
-    @apply badge bg-red-500/15 text-red-400 ring-1 ring-red-500/20;
+    @apply badge bg-red-50 text-red-700 ring-1 ring-red-200;
   }
   .badge-info {
-    @apply badge bg-dinamo-blue/15 text-blue-400 ring-1 ring-dinamo-blue/20;
+    @apply badge bg-blue-50 text-blue-700 ring-1 ring-blue-200;
   }
 
   /* Page wrapper with consistent padding */
@@ -75,12 +75,12 @@
 
   /* Section title pattern */
   .section-title {
-    @apply font-headline text-base tracking-wider text-white font-bold;
+    @apply font-headline text-base tracking-wider text-gray-900 font-bold;
   }
 
   /* Skeleton loading */
   .skeleton {
-    @apply bg-dinamo-dark-lighter rounded-xl animate-pulse;
+    @apply bg-gray-200 rounded-xl animate-pulse;
   }
   .skeleton-text {
     @apply skeleton h-4 w-full;
@@ -123,7 +123,7 @@
 
 @keyframes pulse-value {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; color: #B8FF00; }
+  50% { opacity: 0.6; color: #0057A8; }
 }
 
 .animate-fade-in {

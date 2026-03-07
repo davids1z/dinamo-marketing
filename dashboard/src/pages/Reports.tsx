@@ -61,8 +61,8 @@ const fallbackMonthly: ReportsData = {
 
 const StatusIcon = ({ status }: { status: string }) => {
   if (status === 'completed') return <CheckCircle size={16} className="text-green-600" />
-  if (status === 'generating') return <Loader2 size={16} className="text-blue-400 animate-spin" />
-  return <AlertCircle size={16} className="text-red-400" />
+  if (status === 'generating') return <Loader2 size={16} className="text-blue-700 animate-spin" />
+  return <AlertCircle size={16} className="text-red-700" />
 }
 
 export default function Reports() {
@@ -115,13 +115,13 @@ export default function Reports() {
 
         {/* Actions & Tabs */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 border-b border-dinamo-dark-border pb-1">
+          <div className="flex items-center gap-4 border-b border-gray-200 pb-1">
             <button
               onClick={() => setActiveTab('weekly')}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'weekly'
-                  ? 'border-blue-500 text-blue-400'
-                  : 'border-transparent text-dinamo-muted hover:text-gray-300'
+                  ? 'border-blue-500 text-blue-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               Tjedni izvje\u0161taji
@@ -130,8 +130,8 @@ export default function Reports() {
               onClick={() => setActiveTab('monthly')}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'monthly'
-                  ? 'border-blue-500 text-blue-400'
-                  : 'border-transparent text-dinamo-muted hover:text-gray-300'
+                  ? 'border-blue-500 text-blue-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               Mjese\u010dni izvje\u0161taji
@@ -150,18 +150,18 @@ export default function Reports() {
         {/* Report Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="card">
-            <div className="flex items-center gap-2 text-dinamo-muted mb-1"><FileText size={16} />Ukupno izvje\u0161taja</div>
-            <p className="text-3xl font-bold text-white">{totalReports}</p>
+            <div className="flex items-center gap-2 text-gray-500 mb-1"><FileText size={16} />Ukupno izvje\u0161taja</div>
+            <p className="text-3xl font-bold text-gray-900">{totalReports}</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-dinamo-muted mb-1"><Calendar size={16} />Zadnje generirano</div>
-            <p className="text-lg font-bold text-white">{currentData.lastGenerated}</p>
-            <p className="text-xs text-dinamo-muted mt-1">{currentData.lastGeneratedTitle}</p>
+            <div className="flex items-center gap-2 text-gray-500 mb-1"><Calendar size={16} />Zadnje generirano</div>
+            <p className="text-lg font-bold text-gray-900">{currentData.lastGenerated}</p>
+            <p className="text-xs text-gray-500 mt-1">{currentData.lastGeneratedTitle}</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-dinamo-muted mb-1"><Clock size={16} />Sljede\u0107i zakazan</div>
-            <p className="text-lg font-bold text-white">{currentData.nextScheduled}</p>
-            <p className="text-xs text-dinamo-muted mt-1">{currentData.nextScheduledNote}</p>
+            <div className="flex items-center gap-2 text-gray-500 mb-1"><Clock size={16} />Sljede\u0107i zakazan</div>
+            <p className="text-lg font-bold text-gray-900">{currentData.nextScheduled}</p>
+            <p className="text-xs text-gray-500 mt-1">{currentData.nextScheduledNote}</p>
           </div>
         </div>
 
@@ -174,27 +174,27 @@ export default function Reports() {
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="flex items-center justify-between p-4 bg-dinamo-dark-lighter rounded-lg hover:bg-white/10 transition-colors"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <StatusIcon status={report.status} />
                   <div>
-                    <h3 className="text-sm font-medium text-white">{report.title}</h3>
+                    <h3 className="text-sm font-medium text-gray-900">{report.title}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-dinamo-muted">{report.period}</span>
-                      <span className="text-xs text-dinamo-muted">|</span>
-                      <span className="text-xs text-dinamo-muted">Generated: {report.date}</span>
+                      <span className="text-xs text-gray-500">{report.period}</span>
+                      <span className="text-xs text-gray-500">|</span>
+                      <span className="text-xs text-gray-500">Generated: {report.date}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   {report.status === 'completed' && (
                     <>
-                      <span className="text-xs text-dinamo-muted">{report.pages} stranica</span>
-                      <span className="text-xs text-dinamo-muted">{report.size}</span>
+                      <span className="text-xs text-gray-500">{report.pages} stranica</span>
+                      <span className="text-xs text-gray-500">{report.size}</span>
                       <button
                         onClick={() => handleDownload(report.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-dinamo-dark-border hover:bg-white/10 text-gray-300 text-xs rounded-lg transition-colors"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-100 text-gray-700 text-xs rounded-lg transition-colors"
                       >
                         <Download size={14} />
                         Preuzmi
@@ -202,13 +202,13 @@ export default function Reports() {
                     </>
                   )}
                   {report.status === 'generating' && (
-                    <span className="text-xs text-blue-400 flex items-center gap-1">
+                    <span className="text-xs text-blue-700 flex items-center gap-1">
                       <Loader2 size={12} className="animate-spin" />
                       Generira se...
                     </span>
                   )}
                   {report.status === 'failed' && (
-                    <button className="text-xs text-red-400 hover:text-red-300">
+                    <button className="text-xs text-red-700 hover:text-red-600">
                       Ponovi
                     </button>
                   )}

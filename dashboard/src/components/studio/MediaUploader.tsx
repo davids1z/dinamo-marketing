@@ -79,7 +79,7 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
         className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
           isDragging
             ? 'border-dinamo-accent bg-dinamo-accent/5'
-            : 'border-dinamo-dark-border hover:border-gray-500 hover:bg-white/5'
+            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
         }`}
       >
         <input
@@ -107,7 +107,7 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-2 bg-red-500/15 text-red-400 rounded-lg text-xs">
+        <div className="flex items-center gap-2 p-2 bg-red-50 text-red-700 rounded-lg text-xs">
           <FileWarning className="w-3.5 h-3.5 flex-shrink-0" />
           {error}
         </div>
@@ -119,10 +119,10 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
           {assets.map((asset) => (
             <div
               key={asset.id}
-              className="flex items-center gap-2.5 p-2 bg-dinamo-dark-lighter rounded-lg group hover:bg-white/10 transition-colors"
+              className="flex items-center gap-2.5 p-2 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors"
             >
               {/* Thumbnail */}
-              <div className="w-10 h-10 rounded-lg bg-dinamo-dark-border flex-shrink-0 overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden flex items-center justify-center">
                 {asset.asset_type === 'image' ? (
                   <img src={asset.url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -132,14 +132,14 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-medium text-gray-300 truncate">{asset.original_filename}</p>
+                <p className="text-[11px] font-medium text-gray-700 truncate">{asset.original_filename}</p>
                 <p className="text-[10px] text-gray-400">{formatSize(asset.file_size)}</p>
               </div>
 
               {/* Delete */}
               <button
                 onClick={(e) => { e.stopPropagation(); handleDelete(asset.id) }}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-500/15 text-gray-400 hover:text-red-400 transition-all"
+                className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
