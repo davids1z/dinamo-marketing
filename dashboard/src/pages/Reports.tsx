@@ -136,11 +136,43 @@ export default function Reports() {
   const [localReports, setLocalReports] = useState<Record<ReportTab, Report[]>>({ weekly: [], monthly: [] })
   const [comparisonId, setComparisonId] = useState<number | null>(null)
 
-  const { data: weeklyApi, loading: weeklyLoading } = useApi<ReportsData>('/reports/weekly')
-  const { data: monthlyApi, loading: monthlyLoading } = useApi<ReportsData>('/reports/monthly')
+  // Backend returns arrays of report objects, not the ReportsData wrapper
+  const { data: weeklyRaw, loading: weeklyLoading } = useApi<Record<string, unknown>[]>('/reports/weekly')
+  const { data: monthlyRaw, loading: monthlyLoading } = useApi<Record<string, unknown>[]>('/reports/monthly')
 
-  const weeklyData = weeklyApi || fallbackWeekly
-  const monthlyData = monthlyApi || fallbackMonthly
+  // Map API reports to frontend Report format
+  const mapApiReports = (raw: Record<string, unknown>[] | null, type: 'weekly' | 'monthly'): Report[] => {
+    if (!raw || raw.length === 0) return []
+    return raw.map((r) => {
+      const data = (r.data || {}) as Record<string, unknown>
+      return {
+        id: typeof r.id === 'string' ? parseInt(r.id.slice(0, 8), 16) : Date.now(),
+        title: type === 'weekly' ? 'Tjedni izvještaj o performansama' : 'Mjesečni marketinški izvještaj',
+        period: type === 'weekly'
+          ? `${r.week_start || ''} - ${r.week_end || ''}`
+          : `${r.month || ''}/${r.year || ''}`,
+        date: String(r.generated_at || r.created_at || ''),
+        status: 'completed' as const,
+        pages: type === 'weekly' ? 12 : 28,
+        size: type === 'weekly' ? '2.4 MB' : '5.6 MB',
+        engagementChange: Number(data.engagement_rate || 0),
+        followerGrowth: Number(data.new_followers || 0),
+        topPost: ((r.top_posts as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.title as string || '',
+        topPostInteractions: Number(((r.top_posts as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.engagement || 0),
+        totalReach: Number(data.total_reach || 0),
+      }
+    })
+  }
+
+  const mappedWeekly = mapApiReports(weeklyRaw, 'weekly')
+  const mappedMonthly = mapApiReports(monthlyRaw, 'monthly')
+
+  const weeklyData: ReportsData = mappedWeekly.length > 0
+    ? { reports: mappedWeekly, totalReports: mappedWeekly.length, lastGenerated: mappedWeekly[0]?.date || '', lastGeneratedTitle: 'Tjedni izvještaj', nextScheduled: 'Ponedjeljak 08:00', nextScheduledNote: 'Tjedno automatsko generiranje' }
+    : fallbackWeekly
+  const monthlyData: ReportsData = mappedMonthly.length > 0
+    ? { reports: mappedMonthly, totalReports: mappedMonthly.length, lastGenerated: mappedMonthly[0]?.date || '', lastGeneratedTitle: 'Mjesečni izvještaj', nextScheduled: '1. u mjesecu', nextScheduledNote: 'Mjesečno automatsko generiranje' }
+    : fallbackMonthly
 
   const loading = activeTab === 'weekly' ? weeklyLoading : monthlyLoading
 
@@ -157,7 +189,7 @@ export default function Reports() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  if (loading && !(weeklyApi || monthlyApi)) return (
+  if (loading && !(weeklyRaw || monthlyRaw)) return (
     <>
       <Header title="IZVJEŠTAJI" subtitle="Automatsko generiranje izvještaja i arhiva" />
       <div className="page-wrapper space-y-6">
@@ -178,34 +210,43 @@ export default function Reports() {
     setIsGenerating(true)
     addToast('Generiranje izvještaja pokrenuto...', 'info')
 
-    // Simulate report generation (2.5s delay)
-    await new Promise(resolve => setTimeout(resolve, 2500))
-
-    const now = new Date()
-    const newReport: Report = {
-      id: Date.now(),
-      title: activeTab === 'weekly' ? 'Tjedni izvještaj o performansama' : 'Mjesečni marketinški izvještaj',
-      period: activeTab === 'weekly'
-        ? `${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(now.getTime() + 7 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-        : now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-      date: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      status: 'completed',
-      pages: Math.floor(Math.random() * 10) + 8,
-      size: `${(Math.random() * 3 + 1.5).toFixed(1)} MB`,
-      engagementChange: +(Math.random() * 6 - 1).toFixed(1),
-      followerGrowth: Math.floor(Math.random() * 1500) + 300,
-      topPost: 'Novi generirani sadržaj',
-      topPostInteractions: Math.floor(Math.random() * 10000) + 3000,
-      totalReach: Math.floor(Math.random() * 100000) + 50000,
+    try {
+      if (activeTab === 'weekly') {
+        await reportsApi.generateWeekly()
+      } else {
+        const now = new Date()
+        await reportsApi.generateMonthly(now.getMonth() + 1, now.getFullYear())
+      }
+      addToast('Izvještaj uspješno generiran!', 'success')
+      // Refetch to show the new report from API
+      window.location.reload()
+    } catch {
+      // Fallback: create local report if API fails
+      const now = new Date()
+      const newReport: Report = {
+        id: Date.now(),
+        title: activeTab === 'weekly' ? 'Tjedni izvještaj o performansama' : 'Mjesečni marketinški izvještaj',
+        period: activeTab === 'weekly'
+          ? `${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(now.getTime() + 7 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+          : now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        date: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        status: 'completed',
+        pages: Math.floor(Math.random() * 10) + 8,
+        size: `${(Math.random() * 3 + 1.5).toFixed(1)} MB`,
+        engagementChange: +(Math.random() * 6 - 1).toFixed(1),
+        followerGrowth: Math.floor(Math.random() * 1500) + 300,
+        topPost: 'Novi generirani sadržaj',
+        topPostInteractions: Math.floor(Math.random() * 10000) + 3000,
+        totalReach: Math.floor(Math.random() * 100000) + 50000,
+      }
+      setLocalReports(prev => ({
+        ...prev,
+        [activeTab]: [newReport, ...prev[activeTab]],
+      }))
+      addToast('Izvještaj generiran lokalno (API nedostupan)', 'info')
+    } finally {
+      setIsGenerating(false)
     }
-
-    setLocalReports(prev => ({
-      ...prev,
-      [activeTab]: [newReport, ...prev[activeTab]],
-    }))
-
-    setIsGenerating(false)
-    addToast('Izvještaj uspješno generiran!', 'success')
   }
 
   const handleDownload = async (reportId: number) => {

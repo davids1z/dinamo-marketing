@@ -32,34 +32,34 @@ interface DiasporaData {
 // Fallback mock data for when API is not available
 const fallbackData: DiasporaData = {
   communities: [
-    { country: 'Germany', city: 'Multiple cities', population: 500000, activeMembers: 12400, fanClubs: 8, engagement: 4.2, flag: '\ud83c\udde9\ud83c\uddea' },
-    { country: 'Austria', city: 'Vienna, Salzburg', population: 150000, activeMembers: 8200, fanClubs: 5, engagement: 5.1, flag: '\ud83c\udde6\ud83c\uddf9' },
-    { country: 'United States', city: 'Chicago, NYC, LA', population: 130000, activeMembers: 4800, fanClubs: 4, engagement: 3.8, flag: '\ud83c\uddfa\ud83c\uddf8' },
-    { country: 'Canada', city: 'Toronto, Vancouver', population: 80000, activeMembers: 2900, fanClubs: 3, engagement: 3.5, flag: '\ud83c\udde8\ud83c\udde6' },
-    { country: 'Switzerland', city: 'Zurich, Basel', population: 60000, activeMembers: 3100, fanClubs: 3, engagement: 4.5, flag: '\ud83c\udde8\ud83c\udded' },
-    { country: 'Australia', city: 'Sydney, Melbourne', population: 50000, activeMembers: 2200, fanClubs: 2, engagement: 3.2, flag: '\ud83c\udde6\ud83c\uddfa' },
-    { country: 'Sweden', city: 'Stockholm, Malmo', population: 45000, activeMembers: 1800, fanClubs: 2, engagement: 3.9, flag: '\ud83c\uddf8\ud83c\uddea' },
-    { country: 'Ireland', city: 'Dublin', population: 25000, activeMembers: 1100, fanClubs: 1, engagement: 4.0, flag: '\ud83c\uddee\ud83c\uddea' },
-    { country: 'Norway', city: 'Oslo, Bergen', population: 20000, activeMembers: 950, fanClubs: 1, engagement: 3.6, flag: '\ud83c\uddf3\ud83c\uddf4' },
+    { country: 'Germany', city: 'Multiple cities', population: 500000, activeMembers: 12400, fanClubs: 8, engagement: 4.2, flag: '🇩🇪' },
+    { country: 'Austria', city: 'Vienna, Salzburg', population: 150000, activeMembers: 8200, fanClubs: 5, engagement: 5.1, flag: '🇦🇹' },
+    { country: 'United States', city: 'Chicago, NYC, LA', population: 130000, activeMembers: 4800, fanClubs: 4, engagement: 3.8, flag: '🇺🇸' },
+    { country: 'Canada', city: 'Toronto, Vancouver', population: 80000, activeMembers: 2900, fanClubs: 3, engagement: 3.5, flag: '🇨🇦' },
+    { country: 'Switzerland', city: 'Zurich, Basel', population: 60000, activeMembers: 3100, fanClubs: 3, engagement: 4.5, flag: '🇨🇭' },
+    { country: 'Australia', city: 'Sydney, Melbourne', population: 50000, activeMembers: 2200, fanClubs: 2, engagement: 3.2, flag: '🇦🇺' },
+    { country: 'Sweden', city: 'Stockholm, Malmo', population: 45000, activeMembers: 1800, fanClubs: 2, engagement: 3.9, flag: '🇸🇪' },
+    { country: 'Ireland', city: 'Dublin', population: 25000, activeMembers: 1100, fanClubs: 1, engagement: 4.0, flag: '🇮🇪' },
+    { country: 'Norway', city: 'Oslo, Bergen', population: 20000, activeMembers: 950, fanClubs: 1, engagement: 3.6, flag: '🇳🇴' },
   ],
   contentPipeline: [
     {
       id: 1,
-      title: 'Utakmica u\u017eivo thread \u2014 UCL',
+      title: 'Utakmica uživo thread — UCL',
       languages: ['HR', 'EN', 'DE'],
       platform: 'Sve platforme',
       date: 'Mar 7, 2026',
       status: 'Zakazano',
-      description: 'Vi\u0161ejezi\u010dna a\u017euriranja utakmica u realnom vremenu za navija\u010de dijaspore u svim vremenskim zonama',
+      description: 'Višejezična ažuriranja utakmica u realnom vremenu za navijače dijaspore u svim vremenskim zonama',
     },
     {
       id: 2,
-      title: 'Fan hub Be\u010d \u2014 pregled eventa',
+      title: 'Fan hub Beč — pregled eventa',
       languages: ['HR', 'DE'],
       platform: 'Instagram + Facebook',
       date: 'Mar 8, 2026',
       status: 'U produkciji',
-      description: 'Video pregled watch partyja dijaspore s 200+ navija\u010da u Be\u010du',
+      description: 'Video pregled watch partyja dijaspore s 200+ navijača u Beču',
     },
     {
       id: 3,
@@ -68,25 +68,25 @@ const fallbackData: DiasporaData = {
       platform: 'Email',
       date: 'Mar 10, 2026',
       status: 'Nacrt',
-      description: 'Mjese\u010dni bilten s novostima kluba, highlightsima utakmica i pregledom zajednice',
+      description: 'Mjesečni bilten s novostima kluba, highlightsima utakmica i pregledom zajednice',
     },
     {
       id: 4,
-      title: 'Kako gledati: Vodi\u010d za streaming',
+      title: 'Kako gledati: Vodič za streaming',
       languages: ['EN', 'DE'],
       platform: 'Website + Social',
       date: 'Mar 6, 2026',
       status: 'Spremno',
-      description: 'A\u017eurirani vodi\u010d za navija\u010de dijaspore o gledanju Dinamovih utakmica po dr\u017eavama',
+      description: 'Ažurirani vodič za navijače dijaspore o gledanju Dinamovih utakmica po državama',
     },
     {
       id: 5,
-      title: 'Video poruka igra\u010da \u2014 njema\u010dki navija\u010di',
+      title: 'Video poruka igrača — njemački navijači',
       languages: ['DE', 'HR'],
       platform: 'TikTok + Instagram',
       date: 'Mar 12, 2026',
       status: 'Pregled scenarija',
-      description: 'Personalizirani video pozdrav igra\u010da zajednici njema\u010dke dijaspore',
+      description: 'Personalizirani video pozdrav igrača zajednici njemačke dijaspore',
     },
   ],
 }
@@ -103,7 +103,7 @@ export default function Diaspora() {
 
   if (loading && !apiData) return (
     <>
-      <Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" />
+      <Header title="DIJASPORA" subtitle="Angažeman i pristup zajednicama dijaspore" />
       <div className="page-wrapper space-y-6">
         <CardSkeleton count={4} cols="grid grid-cols-1 sm:grid-cols-4 gap-4" />
         <ChartSkeleton />
@@ -125,7 +125,7 @@ export default function Diaspora() {
 
   return (
     <div className="animate-fade-in">
-      <Header title="DIJASPORA" subtitle="Anga\u017eman i pristup zajednicama dijaspore" />
+      <Header title="DIJASPORA" subtitle="Angažeman i pristup zajednicama dijaspore" />
 
       <div className="page-wrapper space-y-6">
 
@@ -133,7 +133,7 @@ export default function Diaspora() {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><Globe size={16} />Dr\u017eava</div>
+            <div className="flex items-center gap-2 text-gray-500 mb-1"><Globe size={16} />Država</div>
             <p className="text-3xl font-bold text-gray-900">{communities.length}</p>
           </div>
           <div className="card">
@@ -145,14 +145,14 @@ export default function Diaspora() {
             <p className="text-3xl font-bold text-gray-900">{(totalActive / 1000).toFixed(1)}K</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><MapPin size={16} />Navija\u010dki klubovi</div>
+            <div className="flex items-center gap-2 text-gray-500 mb-1"><MapPin size={16} />Navijački klubovi</div>
             <p className="text-3xl font-bold text-gray-900">{totalClubs}</p>
           </div>
         </div>
 
         {/* Community Comparison */}
         <div className="card">
-          <ComparisonBar data={communityComparison} title="Populacija dijaspore po dr\u017eavama" valueLabel="Population" />
+          <ComparisonBar data={communityComparison} title="Populacija dijaspore po državama" valueLabel="Population" />
         </div>
 
         {/* Community List */}
@@ -195,7 +195,7 @@ export default function Diaspora() {
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <Languages size={20} className="text-purple-600" />
-            <h2 className="section-title">Vi\u0161ejezi\u010dni sadr\u017eajni pipeline</h2>
+            <h2 className="section-title">Višejezični sadržajni pipeline</h2>
           </div>
           <div className="space-y-3">
             {contentPipeline.map((item) => (

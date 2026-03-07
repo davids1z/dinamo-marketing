@@ -68,7 +68,7 @@ class MetaMockClient(MetaClientBase):
         return [
             {
                 "id": "17895695012345678",
-                "caption": "Game day vibes! Who's ready for tonight? \u26bd\ufe0f #Dinamo #MatchDay",
+                "caption": "Game day vibes! Who's ready for tonight? ⚽️ #Dinamo #MatchDay",
                 "media_type": "IMAGE",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/img_001.jpg",
                 "timestamp": "2026-03-04T14:30:00+0000",
@@ -78,7 +78,7 @@ class MetaMockClient(MetaClientBase):
             },
             {
                 "id": "17895695012345679",
-                "caption": "Behind the scenes at today's training session \ud83d\udcaa #TeamSpirit",
+                "caption": "Behind the scenes at today's training session 💪 #TeamSpirit",
                 "media_type": "CAROUSEL_ALBUM",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/img_002.jpg",
                 "timestamp": "2026-03-03T11:00:00+0000",
@@ -88,7 +88,7 @@ class MetaMockClient(MetaClientBase):
             },
             {
                 "id": "17895695012345680",
-                "caption": "New merch drop \ud83d\udd25 Link in bio! #DinamoStyle",
+                "caption": "New merch drop 🔥 Link in bio! #DinamoStyle",
                 "media_type": "VIDEO",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/vid_003.mp4",
                 "timestamp": "2026-03-02T16:45:00+0000",
@@ -98,7 +98,7 @@ class MetaMockClient(MetaClientBase):
             },
             {
                 "id": "17895695012345681",
-                "caption": "Throwback to that incredible goal last week \ud83c\udfaf #GoalOfTheWeek",
+                "caption": "Throwback to that incredible goal last week 🎯 #GoalOfTheWeek",
                 "media_type": "VIDEO",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/vid_004.mp4",
                 "timestamp": "2026-03-01T09:15:00+0000",
@@ -108,7 +108,7 @@ class MetaMockClient(MetaClientBase):
             },
             {
                 "id": "17895695012345682",
-                "caption": "Fan of the match \u2764\ufe0f Thank you for your support!",
+                "caption": "Fan of the match ❤️ Thank you for your support!",
                 "media_type": "IMAGE",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/img_005.jpg",
                 "timestamp": "2026-02-28T20:00:00+0000",

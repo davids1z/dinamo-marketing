@@ -10,7 +10,7 @@ import {
   Zap, CreditCard, BarChart3, Target, Plus, Pause, Play,
   X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
-  Filter,
+  Filter, Loader2,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -158,7 +158,21 @@ export default function Campaigns() {
   // Campaign data
   // -------------------------------------------------------------------------
 
-  const allCampaigns = [...(apiData || fallbackCampaigns), ...localCampaigns]
+  // Map API campaigns (which have different field names) to CampaignRow
+  const mappedApi: CampaignRow[] = (apiData && apiData.length > 0)
+    ? (apiData as unknown as Record<string, unknown>[]).map(c => ({
+        id: String(c.id || ''),
+        name: String(c.name || ''),
+        platform: String(c.platform || 'meta'),
+        market: '',
+        status: String(c.status || 'draft') === 'active' ? 'aktivna' : String(c.status || 'draft') === 'paused' ? 'pauzirana' : String(c.status || 'draft'),
+        budget: Number(c.max_budget || c.daily_budget || 0),
+        spend: Number(c.total_spend || 0),
+        ctr: 0,
+        roas: 0,
+      }))
+    : fallbackCampaigns
+  const allCampaigns = [...mappedApi, ...localCampaigns]
   const filteredCampaigns = statusFilter === 'sve'
     ? allCampaigns
     : allCampaigns.filter(c => {
@@ -237,21 +251,46 @@ export default function Campaigns() {
     return true
   }
 
-  const submitWizard = () => {
-    const newCampaign: CampaignRow = {
-      id: `local_${Date.now()}`,
-      name: wizardForm.name,
-      platform: platformLabel(wizardForm.platforms),
-      market: wizardForm.market,
-      status: 'aktivna',
-      budget: wizardForm.budget,
-      spend: 0,
-      ctr: 0,
-      roas: 0,
+  const [submitting, setSubmitting] = useState(false)
+
+  const submitWizard = async () => {
+    setSubmitting(true)
+    try {
+      // Determine platform string for backend
+      const platform = wizardForm.platforms.meta ? 'meta' : wizardForm.platforms.tiktok ? 'tiktok' : 'meta'
+
+      await campaignsApi.create({
+        name: wizardForm.name,
+        platform,
+        objective: wizardForm.objective,
+        daily_budget: Math.round(wizardForm.budget / 30),
+        max_budget: wizardForm.budget,
+        start_date: wizardForm.startDate,
+        end_date: wizardForm.endDate,
+        status: 'active',
+      })
+      closeWizard()
+      refetch()
+      addToast(`Kampanja "${wizardForm.name}" je uspjesno kreirana!`, 'success')
+    } catch {
+      // Fallback to local if API fails
+      const newCampaign: CampaignRow = {
+        id: `local_${Date.now()}`,
+        name: wizardForm.name,
+        platform: platformLabel(wizardForm.platforms),
+        market: wizardForm.market,
+        status: 'aktivna',
+        budget: wizardForm.budget,
+        spend: 0,
+        ctr: 0,
+        roas: 0,
+      }
+      setLocalCampaigns(prev => [...prev, newCampaign])
+      closeWizard()
+      addToast(`Kampanja kreirana lokalno (API nedostupan)`, 'info')
+    } finally {
+      setSubmitting(false)
     }
-    setLocalCampaigns(prev => [...prev, newCampaign])
-    closeWizard()
-    addToast(`Kampanja "${wizardForm.name}" je uspjesno kreirana!`, 'success')
   }
 
   // -------------------------------------------------------------------------
@@ -732,10 +771,11 @@ export default function Campaigns() {
               ) : (
                 <button
                   onClick={submitWizard}
-                  className="btn-primary flex items-center gap-1.5 text-sm"
+                  disabled={submitting}
+                  className="btn-primary flex items-center gap-1.5 text-sm disabled:opacity-50"
                 >
-                  <Check size={16} />
-                  Kreiraj kampanju
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                  {submitting ? 'Kreiranje...' : 'Kreiraj kampanju'}
                 </button>
               )}
             </div>

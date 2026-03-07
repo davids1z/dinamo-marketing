@@ -110,7 +110,7 @@ export default function SocialListening() {
 
   if (loading && !apiData) return (
     <>
-      <Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" />
+      <Header title="SOCIAL LISTENING" subtitle="Praćenje brenda i spominjanja" />
       <div className="page-wrapper space-y-6">
         <CardSkeleton count={3} cols="grid grid-cols-1 sm:grid-cols-3 gap-4" />
         <div className="content-grid"><ChartSkeleton /><ChartSkeleton /></div>
@@ -120,7 +120,7 @@ export default function SocialListening() {
 
   return (
     <div className="animate-fade-in">
-      <Header title="SOCIAL LISTENING" subtitle="Pra\u0107enje brenda i spominjanja" />
+      <Header title="SOCIAL LISTENING" subtitle="Praćenje brenda i spominjanja" />
 
       <div className="page-wrapper space-y-6">
 

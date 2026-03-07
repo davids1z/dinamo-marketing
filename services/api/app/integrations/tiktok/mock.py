@@ -31,7 +31,7 @@ class TikTokMockClient(TikTokClientBase):
         videos = [
             {
                 "id": "7321098765432100001",
-                "title": "INCREDIBLE goal from last night! \u26bd\ud83d\udd25",
+                "title": "INCREDIBLE goal from last night! ⚽🔥",
                 "description": "What a strike! Our top scorer does it again #Dinamo #Goal #Football",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-001.jpg",
                 "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100001",
@@ -45,7 +45,7 @@ class TikTokMockClient(TikTokClientBase):
             {
                 "id": "7321098765432100002",
                 "title": "POV: You're in the tunnel before the derby",
-                "description": "The atmosphere is ELECTRIC \u26a1 #DerbyDay #Dinamo #Matchday",
+                "description": "The atmosphere is ELECTRIC ⚡ #DerbyDay #Dinamo #Matchday",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-002.jpg",
                 "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100002",
                 "create_time": 1709485200,
@@ -57,7 +57,7 @@ class TikTokMockClient(TikTokClientBase):
             },
             {
                 "id": "7321098765432100003",
-                "title": "Players try to pronounce Croatian words \ud83d\ude02",
+                "title": "Players try to pronounce Croatian words 😂",
                 "description": "This is TOO FUNNY! Wait for the last one #Funny #Football #Croatian",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-003.jpg",
                 "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100003",
@@ -70,7 +70,7 @@ class TikTokMockClient(TikTokClientBase):
             },
             {
                 "id": "7321098765432100004",
-                "title": "Training day with the squad \ud83d\udcaa",
+                "title": "Training day with the squad 💪",
                 "description": "Hard work pays off #Training #Dinamo #BehindTheScenes",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-004.jpg",
                 "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100004",

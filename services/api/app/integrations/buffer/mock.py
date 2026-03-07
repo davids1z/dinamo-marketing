@@ -102,7 +102,7 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_001",
                 "profile_id": profile_id,
-                "text": "3 goals, 1 unforgettable night. Relive every moment from the derby victory \u26bd\ud83d\udd25\n\n#Dinamo #DerbyDay #HNL",
+                "text": "3 goals, 1 unforgettable night. Relive every moment from the derby victory ⚽🔥\n\n#Dinamo #DerbyDay #HNL",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-05T17:00:00Z",
                 "sent_at": None,
@@ -120,7 +120,7 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_002",
                 "profile_id": profile_id,
-                "text": "5 days until we write the next chapter in Europe \ud83c\udf1f\n\nDinamo vs AS Roma | Europa League Quarter-Final\n\n#Dinamo #EuropaLeague #UEL",
+                "text": "5 days until we write the next chapter in Europe 🌟\n\nDinamo vs AS Roma | Europa League Quarter-Final\n\n#Dinamo #EuropaLeague #UEL",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-07T09:00:00Z",
                 "sent_at": None,
@@ -138,7 +138,7 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_003",
                 "profile_id": profile_id,
-                "text": "Locked in \ud83d\udd12 Training is INTENSE ahead of Thursday's European clash \ud83d\udcaa\n\n#Dinamo #Training #EuropaLeague #Roma",
+                "text": "Locked in 🔒 Training is INTENSE ahead of Thursday's European clash 💪\n\n#Dinamo #Training #EuropaLeague #Roma",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-09T16:00:00Z",
                 "sent_at": None,
@@ -150,7 +150,7 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_004",
                 "profile_id": profile_id,
-                "text": "MATCHDAY \ud83d\udd35\u26aa\n\nDINAMO vs AS ROMA\nEuropa League Quarter-Final\n21:00 CET | Stadion Maksimir\n\nWho's coming? \ud83d\ude4b\u200d\u2642\ufe0f\n\n#Dinamo #Roma #UEL #Matchday #Zagreb",
+                "text": "MATCHDAY 🔵⚪\n\nDINAMO vs AS ROMA\nEuropa League Quarter-Final\n21:00 CET | Stadion Maksimir\n\nWho's coming? 🙋‍♂️\n\n#Dinamo #Roma #UEL #Matchday #Zagreb",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-12T08:00:00Z",
                 "sent_at": None,

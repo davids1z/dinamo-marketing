@@ -28,24 +28,24 @@ router = APIRouter()
 # ---------- Canonical API info ----------
 
 API_CATALOG = [
-    {"id": "meta", "name": "Meta Graph API", "description": "Instagram i Facebook podaci", "icon": "\ud83d\udcd8"},
-    {"id": "tiktok", "name": "TikTok API", "description": "TikTok analitika i objavljivanje", "icon": "\ud83c\udfb5"},
-    {"id": "youtube", "name": "YouTube Data API", "description": "YouTube kanal i video podaci", "icon": "\u25b6\ufe0f"},
-    {"id": "ga4", "name": "Google Analytics 4", "description": "Promet web stranice i konverzije", "icon": "\ud83d\udcca"},
-    {"id": "sports_data", "name": "Sports Data API", "description": "Rezultati utakmica i statistika igra\u010da", "icon": "\u26bd"},
-    {"id": "claude", "name": "Claude AI", "description": "Generiranje sadr\u017eaja i analiza", "icon": "\ud83e\udd16"},
-    {"id": "buffer", "name": "Buffer / Objavljivanje", "description": "Zakazivanje objava na dru\u0161tvenim mre\u017eama", "icon": "\ud83d\udcc5"},
-    {"id": "image_gen", "name": "Generiranje slika", "description": "AI kreiranje slika za sadr\u017eaj", "icon": "\ud83c\udfa8"},
-    {"id": "trends", "name": "Google Trends", "description": "Podaci o trendovima pretra\u017eivanja i uvidi", "icon": "\ud83d\udcc8"},
+    {"id": "meta", "name": "Meta Graph API", "description": "Instagram i Facebook podaci", "icon": "📘"},
+    {"id": "tiktok", "name": "TikTok API", "description": "TikTok analitika i objavljivanje", "icon": "🎵"},
+    {"id": "youtube", "name": "YouTube Data API", "description": "YouTube kanal i video podaci", "icon": "▶️"},
+    {"id": "ga4", "name": "Google Analytics 4", "description": "Promet web stranice i konverzije", "icon": "📊"},
+    {"id": "sports_data", "name": "Sports Data API", "description": "Rezultati utakmica i statistika igrača", "icon": "⚽"},
+    {"id": "claude", "name": "Claude AI", "description": "Generiranje sadržaja i analiza", "icon": "🤖"},
+    {"id": "buffer", "name": "Buffer / Objavljivanje", "description": "Zakazivanje objava na društvenim mrežama", "icon": "📅"},
+    {"id": "image_gen", "name": "Generiranje slika", "description": "AI kreiranje slika za sadržaj", "icon": "🎨"},
+    {"id": "trends", "name": "Google Trends", "description": "Podaci o trendovima pretraživanja i uvidi", "icon": "📈"},
 ]
 
 NOTIFICATION_CATALOG = [
-    {"id": "sentiment_alert", "label": "Upozorenja sentimenta", "description": "Obavijesti kad negativni sentiment prije\u0111e prag", "default_enabled": True},
-    {"id": "campaign_budget", "label": "Upozorenja bud\u017eeta kampanje", "description": "Upozori kad potro\u0161nja kampanje dosegne 80% bud\u017eeta", "default_enabled": True},
-    {"id": "weekly_report", "label": "Tjedni izvje\u0161taj spreman", "description": "Obavijest kad je tjedni izvje\u0161taj generiran", "default_enabled": True},
-    {"id": "mention_spike", "label": "Detekcija porasta spominjanja", "description": "Upozorenje na neuobi\u010dajen obujam spominjanja", "default_enabled": False},
-    {"id": "competitor_alert", "label": "Aktivnost konkurencije", "description": "Obavijesti o zna\u010dajnim promjenama konkurencije", "default_enabled": False},
-    {"id": "content_approval", "label": "Potrebno odobrenje sadr\u017eaja", "description": "Upozori kad sadr\u017eaj treba odobrenje", "default_enabled": True},
+    {"id": "sentiment_alert", "label": "Upozorenja sentimenta", "description": "Obavijesti kad negativni sentiment prijeđe prag", "default_enabled": True},
+    {"id": "campaign_budget", "label": "Upozorenja budžeta kampanje", "description": "Upozori kad potrošnja kampanje dosegne 80% budžeta", "default_enabled": True},
+    {"id": "weekly_report", "label": "Tjedni izvještaj spreman", "description": "Obavijest kad je tjedni izvještaj generiran", "default_enabled": True},
+    {"id": "mention_spike", "label": "Detekcija porasta spominjanja", "description": "Upozorenje na neuobičajen obujam spominjanja", "default_enabled": False},
+    {"id": "competitor_alert", "label": "Aktivnost konkurencije", "description": "Obavijesti o značajnim promjenama konkurencije", "default_enabled": False},
+    {"id": "content_approval", "label": "Potrebno odobrenje sadržaja", "description": "Upozori kad sadržaj treba odobrenje", "default_enabled": True},
 ]
 
 # Client getter map

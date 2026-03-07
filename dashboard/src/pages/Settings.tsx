@@ -33,15 +33,15 @@ interface SettingsData {
 // Fallback mock data for when API is not available
 const fallbackData: SettingsData = {
   apis: [
-    { id: 'meta', name: 'Meta Graph API', description: 'Instagram i Facebook podaci', enabled: true, mode: 'mock', icon: '\ud83d\udcd8' },
-    { id: 'tiktok', name: 'TikTok API', description: 'TikTok analitika i objavljivanje', enabled: true, mode: 'mock', icon: '\ud83c\udfb5' },
-    { id: 'youtube', name: 'YouTube Data API', description: 'YouTube kanal i video podaci', enabled: true, mode: 'mock', icon: '\u25b6\ufe0f' },
-    { id: 'ga4', name: 'Google Analytics 4', description: 'Promet web stranice i konverzije', enabled: true, mode: 'mock', icon: '\ud83d\udcca' },
-    { id: 'sports_data', name: 'Sports Data API', description: 'Rezultati utakmica i statistika igra\u010da', enabled: true, mode: 'mock', icon: '\u26bd' },
-    { id: 'claude', name: 'Claude AI', description: 'Generiranje sadr\u017eaja i analiza', enabled: true, mode: 'mock', icon: '\ud83e\udd16' },
-    { id: 'buffer', name: 'Buffer / Objavljivanje', description: 'Zakazivanje objava na dru\u0161tvenim mre\u017eama', enabled: true, mode: 'mock', icon: '\ud83d\udcc5' },
-    { id: 'image_gen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadr\u017eaj', enabled: true, mode: 'mock', icon: '\ud83c\udfa8' },
-    { id: 'trends', name: 'Google Trends', description: 'Podaci o trendovima pretra\u017eivanja i uvidi', enabled: true, mode: 'mock', icon: '\ud83d\udcc8' },
+    { id: 'meta', name: 'Meta Graph API', description: 'Instagram i Facebook podaci', enabled: true, mode: 'mock', icon: '📘' },
+    { id: 'tiktok', name: 'TikTok API', description: 'TikTok analitika i objavljivanje', enabled: true, mode: 'mock', icon: '🎵' },
+    { id: 'youtube', name: 'YouTube Data API', description: 'YouTube kanal i video podaci', enabled: true, mode: 'mock', icon: '▶️' },
+    { id: 'ga4', name: 'Google Analytics 4', description: 'Promet web stranice i konverzije', enabled: true, mode: 'mock', icon: '📊' },
+    { id: 'sports_data', name: 'Sports Data API', description: 'Rezultati utakmica i statistika igrača', enabled: true, mode: 'mock', icon: '⚽' },
+    { id: 'claude', name: 'Claude AI', description: 'Generiranje sadržaja i analiza', enabled: true, mode: 'mock', icon: '🤖' },
+    { id: 'buffer', name: 'Buffer / Objavljivanje', description: 'Zakazivanje objava na društvenim mrežama', enabled: true, mode: 'mock', icon: '📅' },
+    { id: 'image_gen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadržaj', enabled: true, mode: 'mock', icon: '🎨' },
+    { id: 'trends', name: 'Google Trends', description: 'Podaci o trendovima pretraživanja i uvidi', enabled: true, mode: 'mock', icon: '📈' },
   ],
   brandColors: [
     { name: 'Dinamo plava', hex: '#0057A8', usage: 'Primarna boja brenda' },
@@ -52,12 +52,12 @@ const fallbackData: SettingsData = {
     { name: 'Tekst tamni', hex: '#111827', usage: 'Naslovi i tekst' },
   ],
   notifications: [
-    { id: 'sentiment_alert', label: 'Upozorenja sentimenta', description: 'Obavijesti kad negativni sentiment prije\u0111e prag', enabled: true },
-    { id: 'campaign_budget', label: 'Upozorenja bud\u017eeta kampanje', description: 'Upozori kad potro\u0161nja kampanje dosegne 80% bud\u017eeta', enabled: true },
-    { id: 'weekly_report', label: 'Tjedni izvje\u0161taj spreman', description: 'Obavijest kad je tjedni izvje\u0161taj generiran', enabled: true },
-    { id: 'mention_spike', label: 'Detekcija porasta spominjanja', description: 'Upozorenje na neuobi\u010dajen obujam spominjanja', enabled: false },
-    { id: 'competitor_alert', label: 'Aktivnost konkurencije', description: 'Obavijesti o zna\u010dajnim promjenama konkurencije', enabled: false },
-    { id: 'content_approval', label: 'Potrebno odobrenje sadr\u017eaja', description: 'Upozori kad sadr\u017eaj treba odobrenje', enabled: true },
+    { id: 'sentiment_alert', label: 'Upozorenja sentimenta', description: 'Obavijesti kad negativni sentiment prijeđe prag', enabled: true },
+    { id: 'campaign_budget', label: 'Upozorenja budžeta kampanje', description: 'Upozori kad potrošnja kampanje dosegne 80% budžeta', enabled: true },
+    { id: 'weekly_report', label: 'Tjedni izvještaj spreman', description: 'Obavijest kad je tjedni izvještaj generiran', enabled: true },
+    { id: 'mention_spike', label: 'Detekcija porasta spominjanja', description: 'Upozorenje na neuobičajen obujam spominjanja', enabled: false },
+    { id: 'competitor_alert', label: 'Aktivnost konkurencije', description: 'Obavijesti o značajnim promjenama konkurencije', enabled: false },
+    { id: 'content_approval', label: 'Potrebno odobrenje sadržaja', description: 'Upozori kad sadržaj treba odobrenje', enabled: true },
   ],
   system: {
     version: '1.0.0-beta',
@@ -82,19 +82,6 @@ export default function Settings() {
   const brandColors = data.brandColors || fallbackData.brandColors
   const notifications = localNotifications || data.notifications || fallbackData.notifications
   const system = data.system || fallbackData.system
-
-  if (loading && !apiData) return (
-    <>
-      <Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" />
-      <div className="page-wrapper space-y-6">
-        <div className="content-grid"><ChartSkeleton height={150} /><ChartSkeleton height={150} /></div>
-        <CardSkeleton count={9} cols="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" />
-      </div>
-    </>
-  )
-
-  const mockCount = apis.filter(a => a.mode === 'mock').length
-  const allMock = mockCount === apis.length
 
   const toggleApi = useCallback(async (id: string) => {
     const current = apis.find(a => a.id === id)
@@ -176,6 +163,19 @@ export default function Settings() {
       })
     }
   }, [notifications, addToast, refetch])
+
+  if (loading && !apiData) return (
+    <>
+      <Header title="POSTAVKE" subtitle="Konfiguracija platforme i integracije" />
+      <div className="page-wrapper space-y-6">
+        <div className="content-grid"><ChartSkeleton height={150} /><ChartSkeleton height={150} /></div>
+        <CardSkeleton count={9} cols="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" />
+      </div>
+    </>
+  )
+
+  const mockCount = apis.filter(a => a.mode === 'mock').length
+  const allMock = mockCount === apis.length
 
   return (
     <div className="animate-fade-in">
@@ -341,15 +341,15 @@ export default function Settings() {
               <p className="text-gray-700 font-mono">{system.version}</p>
             </div>
             <div>
-              <p className="text-gray-500">Okru\u017eenje</p>
+              <p className="text-gray-500">Okruženje</p>
               <p className="text-yellow-600 font-mono">{system.environment}</p>
             </div>
             <div>
-              <p className="text-gray-500">Na\u010din podataka</p>
+              <p className="text-gray-500">Način podataka</p>
               <p className="text-green-600 font-mono">{system.dataMode}</p>
             </div>
             <div>
-              <p className="text-gray-500">Zadnje a\u017eurirano</p>
+              <p className="text-gray-500">Zadnje ažurirano</p>
               <p className="text-gray-700 font-mono">{system.lastUpdated}</p>
             </div>
           </div>

@@ -173,7 +173,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     iconColor: 'text-amber-600',
     iconBg: 'bg-amber-50',
     title: 'Engagement rate pao 5%',
-    description: 'Razmotrite video sadrzaj u petak navecer \u2014 analize pokazuju da video postovi dobivaju 3x vise interakcija u tom terminu.',
+    description: 'Razmotrite video sadržaj u petak navečer — analize pokazuju da video postovi dobivaju 3x više interakcija u tom terminu.',
     action: 'Kreiraj video objavu',
     actionLink: '/content',
     priority: 'high',
@@ -195,7 +195,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     iconColor: 'text-blue-600',
     iconBg: 'bg-blue-50',
     title: 'UCL utakmica za 3 dana',
-    description: 'Pripremite matchday sadrzaj unaprijed \u2014 pretprodajna kampanja, countdown objave i live coverage plan za maksimalni doseg.',
+    description: 'Pripremite matchday sadržaj unaprijed — pretprodajna kampanja, countdown objave i live coverage plan za maksimalni doseg.',
     action: 'Pripremi kampanju',
     actionLink: '/campaigns',
     priority: 'high',
@@ -325,7 +325,7 @@ function MetricCardSkeleton() {
 function DashboardLoadingSkeleton() {
   return (
     <div className="animate-fade-in">
-      <Header title="NADZORNA PLOCA" subtitle="Pregled svih metrika u realnom vremenu" />
+      <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
       <div className="page-wrapper space-y-6 sm:space-y-8">
         {/* Quick actions skeleton */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -547,7 +547,9 @@ export default function Dashboard() {
   const [period, setPeriod] = useState<PeriodKey>('7d')
   const navigate = useNavigate()
 
-  const { data: rawApi, loading, error, refetch } = useApi<ApiOverview>('/analytics/overview')
+  // Period maps to days for the API
+  const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
+  const { data: rawApi, loading, error, refetch } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
   const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live' })
 
   const activeApi = liveData || rawApi
@@ -557,13 +559,12 @@ export default function Dashboard() {
 
   const handlePeriodChange = useCallback((key: PeriodKey) => {
     setPeriod(key)
-    refetch()
-  }, [refetch])
+  }, [])
 
   if (error && !rawApi) {
     return (
       <>
-        <Header title="NADZORNA PLOCA" subtitle="Pregled" />
+        <Header title="NADZORNA PLOČA" subtitle="Pregled" />
         <ErrorState message={`Greska pri ucitavanju podataka: ${error}`} onRetry={refetch} />
       </>
     )
@@ -580,7 +581,7 @@ export default function Dashboard() {
 
   return (
     <div className="animate-fade-in">
-      <Header title="NADZORNA PLOCA" subtitle="Pregled svih metrika u realnom vremenu" />
+      <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
 
       <div className="page-wrapper space-y-6 sm:space-y-8">
         {/* Quick Actions + Period Selector */}
