@@ -126,18 +126,25 @@ class StudioService:
         if project:
             return project
 
-        # Verify post exists
+        # Try to load ContentPost for auto-populating brief
         post_query = select(ContentPost).where(ContentPost.id == post_id)
         post_result = await db.execute(post_query)
         post = post_result.scalar_one_or_none()
-        if not post:
-            raise ValueError(f"Post {post_id} not found")
 
-        # --- Auto-populate brief from ContentPost data ---
-        brief = self._build_brief_from_post(post)
-        initial_caption = post.caption_hr or ""
-        initial_hashtags = post.hashtags if isinstance(post.hashtags, list) else None
-        initial_description = post.visual_brief or ""
+        # --- Auto-populate brief from ContentPost data (if available) ---
+        if post:
+            brief = self._build_brief_from_post(post)
+            initial_caption = post.caption_hr or ""
+            initial_hashtags = post.hashtags if isinstance(post.hashtags, list) else None
+            initial_description = post.visual_brief or ""
+        else:
+            # Mock/frontend-only post — create with empty defaults
+            # Frontend will supply brief via session state or manual entry
+            logger.info("ContentPost %s not found in DB — creating studio project with defaults", post_id)
+            brief = ""
+            initial_caption = ""
+            initial_hashtags = None
+            initial_description = ""
 
         project = StudioProject(
             post_id=post_id,
@@ -192,12 +199,10 @@ class StudioService:
         """Generate AI scenes for a post. Returns the scene data dict."""
         from app.integrations.openrouter_studio import generate_studio_scenes
 
-        # Get post details
+        # Get post details (may not exist for mock/frontend posts)
         post_query = select(ContentPost).where(ContentPost.id == post_id)
         post_result = await db.execute(post_query)
         post = post_result.scalar_one_or_none()
-        if not post:
-            raise ValueError(f"Post {post_id} not found")
 
         # Get uploaded media descriptions
         uploads = await self.list_uploads(db, post_id)
@@ -214,8 +219,8 @@ class StudioService:
         project.status = "generating"
         await db.commit()
 
-        # Determine content type from post
-        content_type = self._detect_content_type(post)
+        # Determine content type from post or brief
+        content_type = self._detect_content_type(post) if post else self._detect_content_type_from_brief(brief)
 
         api_key = settings.OPENROUTER_API_KEY
         if not api_key:
@@ -225,8 +230,8 @@ class StudioService:
             scene_data = await generate_studio_scenes(
                 api_key=api_key,
                 brief=brief,
-                post_title=post.title or "",
-                platform=post.platform or "instagram",
+                post_title=post.title if post else brief.split("\n")[0][:60],
+                platform=post.platform if post else "instagram",
                 content_type=content_type,
                 media_descriptions=media_descriptions if media_descriptions else None,
             )
@@ -639,3 +644,19 @@ class StudioService:
             return "video"
 
         return "post"
+
+    @staticmethod
+    def _detect_content_type_from_brief(brief: str) -> str:
+        """Detect content type from brief text (for mock/frontend posts)."""
+        brief_lower = brief.lower()
+        if "reel" in brief_lower:
+            return "reel"
+        if "short" in brief_lower:
+            return "short"
+        if "story" in brief_lower or "stories" in brief_lower:
+            return "story"
+        if "carousel" in brief_lower:
+            return "carousel"
+        if "video" in brief_lower:
+            return "video"
+        return "reel"  # Default to reel for mock data

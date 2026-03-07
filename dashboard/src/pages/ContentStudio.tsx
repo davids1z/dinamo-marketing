@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft, Sparkles, Play, Pause, SkipForward, SkipBack,
   Send, Loader2, Image, Type, Upload, Layout, ChevronDown,
@@ -295,6 +295,9 @@ const LEFT_TABS: { id: Exclude<LeftTab, null>; icon: typeof Layout; label: strin
 export default function ContentStudio() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
+  // Post data passed via React Router state from ContentCalendar
+  const routerPost = (location.state as { post?: Record<string, string | string[]> } | null)?.post
   const [state, dispatch] = useReducer(studioReducer, initialState)
   const playTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const exportMenuRef = useRef<HTMLDivElement>(null)
@@ -337,7 +340,7 @@ export default function ContentStudio() {
           dispatch({ type: 'SET_SCENES', scenes: proj.scene_data })
         }
 
-        // Use post metadata from the project endpoint
+        // Use post metadata from the project endpoint or Router state
         const meta = proj.post_meta
         if (meta) {
           dispatch({
@@ -345,37 +348,58 @@ export default function ContentStudio() {
             title: meta.title || '',
             platform: meta.platform || '',
           })
-        } else {
-          // Fallback: load from calendar API (backwards compat)
-          try {
-            const calResp = await contentApi.getCalendar(
-              new Date().getMonth() + 1,
-              new Date().getFullYear(),
-            )
-            const posts = calResp.data?.posts || calResp.data || []
-            const post = Array.isArray(posts)
-              ? posts.find((p: Record<string, unknown>) => String(p.id) === postId)
-              : null
-            if (post) {
-              dispatch({
-                type: 'SET_POST_META',
-                title: String(post.title || ''),
-                platform: String(post.platform || ''),
-              })
-            }
-          } catch {
-            // Non-critical
-          }
+        } else if (routerPost) {
+          // Use mock post data passed from ContentCalendar via Router state
+          dispatch({
+            type: 'SET_POST_META',
+            title: String(routerPost.title || ''),
+            platform: String(routerPost.platform || ''),
+          })
         }
 
         // Load uploads
         const uploadsResp = await studioApi.listUploads(postId)
         dispatch({ type: 'SET_ASSETS', assets: uploadsResp.data || [] })
 
+        // --- AUTO-BUILD BRIEF from Router state if backend has empty brief ---
+        let effectiveBrief = (proj.brief || '').trim()
+        if (!effectiveBrief && routerPost) {
+          // Build brief from mock post data
+          const parts: string[] = []
+          if (routerPost.title) parts.push(String(routerPost.title))
+          if (routerPost.visual_brief) parts.push(`Vizualni smjer: ${routerPost.visual_brief}`)
+          if (routerPost.caption_hr) parts.push(`Ton poruke: ${routerPost.caption_hr}`)
+          if (routerPost.platform) parts.push(`Platforma: ${String(routerPost.platform).charAt(0).toUpperCase() + String(routerPost.platform).slice(1)} (${routerPost.type || 'post'})`)
+          if (routerPost.content_pillar) parts.push(`Kategorija: ${routerPost.content_pillar}`)
+          effectiveBrief = parts.join('\n')
+
+          if (effectiveBrief) {
+            dispatch({ type: 'SET_BRIEF', brief: effectiveBrief })
+            // Also set caption and hashtags from mock data
+            if (routerPost.caption_hr) {
+              dispatch({ type: 'SET_CAPTION', caption: String(routerPost.caption_hr) })
+            }
+            if (Array.isArray(routerPost.hashtags) && routerPost.hashtags.length > 0) {
+              dispatch({ type: 'SET_HASHTAGS', hashtags: routerPost.hashtags as string[] })
+            }
+            // Save the brief to the backend project
+            try {
+              await studioApi.updateProject(postId, {
+                brief: effectiveBrief,
+                generated_caption: routerPost.caption_hr || '',
+                generated_hashtags: routerPost.hashtags || [],
+                generated_description: routerPost.visual_brief || '',
+              })
+            } catch {
+              // Non-critical — brief is in local state
+            }
+          }
+        }
+
         // --- AUTO-TRIGGER AI GENERATION ---
         // If we have a brief (auto-populated from post data) but no scenes yet,
         // automatically start AI generation so the user sees content immediately.
-        const hasBrief = (proj.brief || '').trim().length > 0
+        const hasBrief = effectiveBrief.length > 0
         const hasScenes = proj.scene_data && Array.isArray(proj.scene_data) && proj.scene_data.length > 0
         const isNewProject = proj.status === 'draft' && !hasScenes
 
@@ -385,7 +409,7 @@ export default function ContentStudio() {
           dispatch({ type: 'SET_ACTIVE_TAB', tab: 'ai' })
           dispatch({ type: 'SET_GENERATING', generating: true })
           try {
-            const genResp = await studioApi.generateScenes(postId, proj.brief)
+            const genResp = await studioApi.generateScenes(postId, effectiveBrief)
             dispatch({ type: 'SET_GEN_TASK_ID', taskId: genResp.data.task_id })
             addToast('AI automatski generira sadržaj...', 'info')
           } catch {

@@ -55,15 +55,20 @@ interface QueueItem {
 }
 
 // Rich fallback data for March 2026
+// Convert short mock ID (e.g. '7a') to a valid UUID for API compatibility
+function mockUUID(short: string): string {
+  return `00000000-0000-4000-a000-${short.padStart(12, '0')}`
+}
+
 function generateFallbackData(): Record<number, Post[]> {
   const data: Record<number, Post[]> = {}
 
   const published = (id: string, platform: string, type: string, title: string, desc: string, caption: string, time: string, pillar: string, hashtags: string[], visual: string, metrics: PostMetrics): Post => ({
-    id, platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'published', metrics,
+    id: mockUUID(id), platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'published', metrics,
   })
 
   const scheduled = (id: string, platform: string, type: string, title: string, desc: string, caption: string, time: string, pillar: string, hashtags: string[], visual: string): Post => ({
-    id, platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'scheduled',
+    id: mockUUID(id), platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'scheduled',
   })
 
   // Day 1 - Sunday (past)
@@ -1038,7 +1043,7 @@ export default function ContentCalendar() {
                 {/* Open Studio button */}
                 <div className="pt-2">
                   <button
-                    onClick={() => navigate(`/studio/${selectedPost.id}`)}
+                    onClick={() => navigate(`/studio/${selectedPost.id}`, { state: { post: selectedPost } })}
                     className="w-full py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
                   >
                     <Film size={16} />
