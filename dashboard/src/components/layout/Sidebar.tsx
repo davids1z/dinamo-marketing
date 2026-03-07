@@ -13,6 +13,7 @@ import {
   GraduationCap,
   MapPin,
   FileText,
+  FlaskConical,
   Settings,
   Shield,
   X,
@@ -36,6 +37,7 @@ const navigation = [
   { name: 'Akademija', href: '/academy', icon: GraduationCap },
   { name: 'Dijaspora', href: '/diaspora', icon: MapPin },
   { name: 'Izvještaji', href: '/reports', icon: FileText },
+  { name: 'Istraživanje kampanja', href: '/campaign-research', icon: FlaskConical },
   { name: 'Postavke', href: '/settings', icon: Settings },
   { name: 'Administracija', href: '/admin', icon: Shield, adminOnly: true },
 ] as const

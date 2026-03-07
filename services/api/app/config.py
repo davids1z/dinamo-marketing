@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     DM_USE_REAL_BUFFER: bool = False
     DM_USE_REAL_IMAGE_GEN: bool = False
     DM_USE_REAL_TRENDS: bool = False
+    DM_USE_REAL_WEB_RESEARCH: bool = False
 
     # OpenRouter (Gemini 2.5 Pro)
     OPENROUTER_API_KEY: str = ""
@@ -70,6 +71,9 @@ class Settings(BaseSettings):
     # Telegram (test publishing)
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_CHANNEL_ID: str = ""
+
+    # Web Research (Tavily)
+    TAVILY_API_KEY: str = ""
 
     # Image Generation
     OPENAI_API_KEY: str = ""

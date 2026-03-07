@@ -18,6 +18,7 @@ from app.routers import (
     admin,
     analytics,
     auth,
+    campaign_research,
     campaigns,
     champions_league,
     channel_audit,
@@ -116,6 +117,7 @@ app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"], d
 app.include_router(engagement.router, prefix="/api/v1/engagement", tags=["Engagement"], dependencies=_auth)
 app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Settings"], dependencies=_auth)
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["Content Studio"], dependencies=_auth)
+app.include_router(campaign_research.router, prefix="/api/v1/campaign-research", tags=["Campaign Research"], dependencies=_auth)
 
 
 # Static media files (generated images)

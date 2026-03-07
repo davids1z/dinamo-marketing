@@ -23,6 +23,7 @@ from app.models.report import MonthlyReport, WeeklyReport
 from app.models.notification import Notification
 from app.models.user import User
 from app.models.media import MediaAsset, StudioProject
+from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
 
 __all__ = [
     "Base",
@@ -73,4 +74,6 @@ __all__ = [
     "User",
     "MediaAsset",
     "StudioProject",
+    "CampaignResearch",
+    "CampaignResearchStatus",
 ]

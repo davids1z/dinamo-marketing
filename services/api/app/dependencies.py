@@ -178,3 +178,12 @@ def get_content_creator():
 def get_studio_service():
     from app.services.studio_service import StudioService
     return StudioService(settings.MEDIA_ROOT)
+
+
+@lru_cache
+def get_web_research_client():
+    if settings.use_mock("web_research"):
+        from app.integrations.web_research.mock import WebResearchMockClient
+        return WebResearchMockClient()
+    from app.integrations.web_research.client import WebResearchClient
+    return WebResearchClient(api_key=settings.TAVILY_API_KEY)

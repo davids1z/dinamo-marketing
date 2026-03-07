@@ -21,6 +21,7 @@ const Reports = lazy(() => import('./pages/Reports'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Admin = lazy(() => import('./pages/Admin'))
 const ContentStudio = lazy(() => import('./pages/ContentStudio'))
+const CampaignResearch = lazy(() => import('./pages/CampaignResearch'))
 
 function PageLoader() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="academy" element={<Suspense fallback={<PageLoader />}><Academy /></Suspense>} />
           <Route path="diaspora" element={<Suspense fallback={<PageLoader />}><Diaspora /></Suspense>} />
           <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
+          <Route path="campaign-research" element={<Suspense fallback={<PageLoader />}><CampaignResearch /></Suspense>} />
           <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
           <Route path="admin" element={<Suspense fallback={<PageLoader />}><Admin /></Suspense>} />
         </Route>
