@@ -38,15 +38,10 @@ jobs:
           python-version: "3.12"
 
       - name: Python syntax check
-        run: python -c "
-          import py_compile, glob, sys;
-          files = glob.glob('services/api/app/**/*.py', recursive=True);
-          errors = [];
-          [errors.append(str(e)) for f in files for e in [None] if not (py_compile.compile(f, doraise=True) or True) or False];
-          print(f'{len(files)} files OK')
-          " 2>&1 || {
-            echo "Python syntax check failed";
-            exit 1;
+        run: |
+          python -c "import py_compile, glob; files = glob.glob('services/api/app/**/*.py', recursive=True); [py_compile.compile(f, doraise=True) for f in files]; print(f'{len(files)} files OK')" 2>&1 || {
+            echo "Python syntax check failed"
+            exit 1
           }
 
   deploy:
