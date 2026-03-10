@@ -21,6 +21,51 @@ interface MarketRow {
   rank: number
 }
 
+function formatPopulation(pop: number | string): string {
+  if (typeof pop === 'string') return pop
+  if (pop >= 1_000_000_000) return `${(pop / 1_000_000_000).toFixed(1)}B`
+  if (pop >= 1_000_000) return `${(pop / 1_000_000).toFixed(1)}M`
+  if (pop >= 1_000) return `${(pop / 1_000).toFixed(0)}K`
+  return String(pop)
+}
+
+// Map API response to frontend interface
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapApiData(raw: any[]): MarketRow[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null
+  // Check if it's already in the right format (fallback data)
+  if (raw[0].country && raw[0].totalScore !== undefined) return raw as MarketRow[]
+  // Map API fields: name→country, region_type→region, total_score→totalScore, etc.
+  const mapped = raw.map((r, i) => ({
+    id: r.id,
+    country: r.name || r.country || '',
+    code: r.code || '',
+    region: r.region_type || r.region || '',
+    population: typeof r.population === 'number' ? formatPopulation(r.population) : (r.population || ''),
+    marketInterest: r.market_interest ?? r.marketInterest ?? r.internet_penetration ? Math.round((r.internet_penetration ?? 0) * 100) : 0,
+    brandAwareness: r.brand_awareness ?? r.brandAwareness ?? r.football_popularity_index ? Math.round((r.football_popularity_index ?? 0) * 100) : 0,
+    trendsScore: r.trends_score ?? r.trendsScore ?? 0,
+    totalScore: r.total_score ?? r.totalScore ?? 0,
+    rank: r.rank ?? (i + 1),
+  }))
+  // Deduplicate by code (API can return duplicates)
+  const seen = new Set<string>()
+  const deduped = mapped.filter(m => {
+    if (seen.has(m.code)) return false
+    seen.add(m.code)
+    return true
+  })
+  return deduped.sort((a, b) => a.rank - b.rank)
+}
+
+const regionLabels: Record<string, string> = {
+  diaspora: 'Dijaspora',
+  balkans: 'Balkans',
+  dach: 'DACH',
+  nordics: 'Nordics',
+  americas: 'Americas',
+}
+
 // Fallback data
 const fallbackData: MarketRow[] = [
   { country: 'Bosnia & Herzegovina', code: 'BA', region: 'Balkans', population: '3.2M', marketInterest: 92, brandAwareness: 95, trendsScore: 88, totalScore: 275, rank: 1 },
@@ -103,13 +148,15 @@ function CountryEventsPanel({ countryCode, countryName }: { countryCode: string;
 }
 
 export default function MarketResearch() {
-  const { data: apiData, loading, refetch } = useApi<MarketRow[]>('/market-research/countries')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: apiRaw, loading, refetch } = useApi<any[]>('/market-research/countries')
   const scanMutation = useApiMutation('/market-research/scan', 'post')
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null)
   const [selectedCountry, setSelectedCountry] = useState<MarketRow | null>(null)
 
-  const marketData = apiData || fallbackData
-  const topMarkets = marketData.slice(0, 5).map(m => ({ name: m.country, value: m.totalScore }))
+  const mapped = apiRaw ? mapApiData(apiRaw) : null
+  const marketData = (mapped && mapped.length > 0) ? mapped : fallbackData
+  const topMarkets = marketData.slice(0, 5).map(m => ({ name: m.country, value: m.totalScore || 0 }))
 
   const handleScan = async () => {
     await scanMutation.mutate()
@@ -120,7 +167,7 @@ export default function MarketResearch() {
     setExpandedCountry(prev => prev === code ? null : code)
   }
 
-  if (loading && !apiData) return (
+  if (loading && !apiRaw) return (
     <>
       <Header title="ISTRAŽIVANJE TRŽIŠTA" subtitle="Tržišna inteligencija" />
       <div className="page-wrapper space-y-6">
@@ -173,7 +220,7 @@ export default function MarketResearch() {
             </div>
             <div>
               <p className="text-2xl font-bold text-studio-text-primary">
-                {Math.round(marketData.reduce((sum, m) => sum + m.totalScore, 0) / (marketData.length || 1))}
+                {Math.round(marketData.reduce((sum, m) => sum + (m.totalScore || 0), 0) / (marketData.length || 1)) || '—'}
               </p>
               <p className="text-xs text-studio-text-secondary">Prosj. rezultat</p>
             </div>
@@ -251,13 +298,14 @@ export default function MarketResearch() {
                         </div>
                         <div className="py-3 px-2 w-28">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            row.region === 'Balkans' ? 'bg-blue-100 text-blue-400' :
-                            row.region === 'DACH' ? 'bg-green-100 text-green-400' :
-                            row.region === 'Nordics' ? 'bg-indigo-100 text-indigo-700' :
-                            row.region === 'Americas' ? 'bg-orange-100 text-orange-700' :
+                            row.region === 'Balkans' || row.region === 'balkans' ? 'bg-blue-100 text-blue-400' :
+                            row.region === 'DACH' || row.region === 'dach' ? 'bg-green-100 text-green-400' :
+                            row.region === 'Nordics' || row.region === 'nordics' ? 'bg-indigo-100 text-indigo-700' :
+                            row.region === 'Americas' || row.region === 'americas' ? 'bg-orange-100 text-orange-700' :
+                            row.region === 'diaspora' || row.region === 'Dijaspora' ? 'bg-purple-100 text-purple-400' :
                             'bg-studio-surface-2 text-studio-text-primary'
                           }`}>
-                            {row.region}
+                            {regionLabels[row.region] || row.region}
                           </span>
                         </div>
                         <div className="py-3 px-2 w-24">
