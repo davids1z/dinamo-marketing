@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
-import { ErrorState } from '../components/common/LoadingSpinner'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { SentimentDonut } from '../components/charts/SentimentDonut'
 import { useApi } from '../hooks/useApi'
@@ -550,7 +549,7 @@ export default function Dashboard() {
 
   // Period maps to days for the API
   const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
-  const { data: rawApi, loading, error, refetch } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
+  const { data: rawApi, loading } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
   const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live' })
 
   const activeApi = liveData || rawApi
