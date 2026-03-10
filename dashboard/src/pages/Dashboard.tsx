@@ -562,14 +562,7 @@ export default function Dashboard() {
     setPeriod(key)
   }, [])
 
-  if (error && !rawApi) {
-    return (
-      <>
-        <Header title="NADZORNA PLOČA" subtitle="Pregled" />
-        <ErrorState message={`Greška pri učitavanju podataka: ${error}`} onRetry={refetch} />
-      </>
-    )
-  }
+  // On API error, fall through to render with fallback data instead of showing error page
 
   if (loading && !rawApi) {
     return <DashboardLoadingSkeleton />
