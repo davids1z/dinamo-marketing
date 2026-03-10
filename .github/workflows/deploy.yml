@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_HOST: 72.146.176.84
+  DEPLOY_HOST: 94.72.107.11
   DEPLOY_USER: david
+  DEPLOY_PORT: 2222
   DEPLOY_PATH: /opt/dinamo-marketing
 
 jobs:
@@ -56,6 +57,7 @@ jobs:
         with:
           host: ${{ env.DEPLOY_HOST }}
           username: ${{ env.DEPLOY_USER }}
+          port: ${{ env.DEPLOY_PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             set -e
