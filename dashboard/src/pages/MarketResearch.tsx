@@ -60,6 +60,7 @@ function mapApiData(raw: any[]): MarketRow[] | null {
 
 const regionLabels: Record<string, string> = {
   diaspora: 'Dijaspora',
+  regional: 'Regionalno',
   balkans: 'Balkans',
   dach: 'DACH',
   nordics: 'Nordics',
@@ -303,6 +304,7 @@ export default function MarketResearch() {
                             row.region === 'Nordics' || row.region === 'nordics' ? 'bg-indigo-100 text-indigo-700' :
                             row.region === 'Americas' || row.region === 'americas' ? 'bg-orange-100 text-orange-700' :
                             row.region === 'diaspora' || row.region === 'Dijaspora' ? 'bg-purple-100 text-purple-400' :
+                            row.region === 'regional' || row.region === 'Regionalno' ? 'bg-teal-100 text-teal-400' :
                             'bg-studio-surface-2 text-studio-text-primary'
                           }`}>
                             {regionLabels[row.region] || row.region}
