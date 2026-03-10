@@ -1111,26 +1111,119 @@ export default function ContentCalendar() {
         )}
 
         {activeTab === 'calendar' && viewMode === 'sixmonth' && !generating && !generatingWeek && (
-          <div className="card">
-            <h2 className="section-title mb-6">6-Mjesecni pregled plana</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }, (_, i) => {
-                const m = (currentMonth + i) % 12
-                const y = currentYear + Math.floor((currentMonth + i) / 12)
-                return (
-                  <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-dinamo-blue/30 transition-colors cursor-pointer"
-                    onClick={() => { setCurrentMonth(m); setCurrentYear(y); setViewMode('month') }}>
-                    <p className="text-sm font-medium text-gray-900">{monthNames[m]}</p>
-                    <p className="text-xs text-gray-500">{y}</p>
-                    <div className="mt-3 space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-500">Objave</span>
-                        <span className="text-gray-700 font-mono">{i === 0 ? totalPosts : '—'}</span>
+          <div className="space-y-6">
+            {/* Strategy Header */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="section-title">6-Mjesečna strategija</h2>
+                  <p className="text-xs text-gray-500 mt-1">Planiranje sadržaja za {monthNames[currentMonth]} {currentYear} — {monthNames[(currentMonth + 5) % 12]} {currentYear + Math.floor((currentMonth + 5) / 12)}</p>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      setGenerating(true)
+                      const startMonth = currentMonth + 1
+                      const res = await contentApi.generateStrategy({ start_month: startMonth, start_year: currentYear })
+                      const taskId = res.data.task_id
+                      // Poll for result
+                      const poll = setInterval(async () => {
+                        try {
+                          const taskRes = await contentApi.getStrategyTask(taskId)
+                          if (taskRes.data.status === 'done' || taskRes.data.status === 'error') {
+                            clearInterval(poll)
+                            setGenerating(false)
+                            if (taskRes.data.status === 'done') {
+                              window.location.reload()
+                            }
+                          }
+                        } catch { clearInterval(poll); setGenerating(false) }
+                      }, 5000)
+                    } catch { setGenerating(false) }
+                  }}
+                  disabled={generating}
+                  className="btn-primary flex items-center gap-2 text-sm"
+                >
+                  {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  {generating ? 'Generiranje strategije...' : 'Generiraj 6-mjesečnu strategiju'}
+                </button>
+              </div>
+
+              {/* Month Cards Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {Array.from({ length: 6 }, (_, i) => {
+                  const m = (currentMonth + i) % 12
+                  const y = currentYear + Math.floor((currentMonth + i) / 12)
+                  const monthThemes: Record<number, string> = {
+                    0: 'Zimska pauza', 1: 'Proljetni start', 2: 'Liga + Europa',
+                    3: 'Borba za naslov', 4: 'Završnica sezone', 5: 'Kraj sezone',
+                    6: 'Ljetne pripreme', 7: 'Nova sezona', 8: 'UEFA grupna',
+                    9: 'Derbiji', 10: 'Black Friday', 11: 'Božićni sadržaj',
+                  }
+                  const isCurrentMonthCard = i === 0
+                  return (
+                    <div key={i}
+                      className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                        isCurrentMonthCard
+                          ? 'border-dinamo-blue bg-blue-50 shadow-sm'
+                          : 'border-gray-200 bg-gray-50 hover:border-dinamo-blue/30 hover:bg-white'
+                      }`}
+                      onClick={() => { setCurrentMonth(m); setCurrentYear(y); setViewMode('month') }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-bold text-gray-900">{monthNames[m]}</p>
+                        {isCurrentMonthCard && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-dinamo-blue text-white font-medium">Trenutni</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mb-3">{y}</p>
+                      <p className="text-[10px] text-gray-400 mb-3 italic">{monthThemes[m] || ''}</p>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Objave</span>
+                          <span className="text-gray-700 font-mono font-bold">{isCurrentMonthCard ? totalPosts : '—'}</span>
+                        </div>
+                        {isCurrentMonthCard && totalPosts > 0 && (
+                          <>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Dani</span>
+                              <span className="text-gray-700 font-mono">{daysWithContent}/{daysInMonth}</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                              <div
+                                className="bg-dinamo-blue h-1.5 rounded-full transition-all"
+                                style={{ width: `${Math.min((daysWithContent / daysInMonth) * 100, 100)}%` }}
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Platform Distribution */}
+            <div className="card">
+              <h3 className="text-sm font-bold text-gray-900 mb-3">Distribucija po platformi (trenutni mjesec)</h3>
+              <div className="grid grid-cols-4 gap-3">
+                {(['instagram', 'facebook', 'tiktok', 'youtube'] as const).map(platform => {
+                  const count = Object.values(calendarData).flat().filter(p => p.platform === platform).length
+                  const pct = totalPosts > 0 ? Math.round((count / totalPosts) * 100) : 0
+                  return (
+                    <div key={platform} className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-lg font-bold text-gray-900">{count}</p>
+                      <p className="text-xs text-gray-500 capitalize">{platform}</p>
+                      <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+                        <div className={`h-1 rounded-full ${platformColors[platform] || 'bg-gray-400'}`} style={{ width: `${pct}%` }} />
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1">{pct}%</p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         )}

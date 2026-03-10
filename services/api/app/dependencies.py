@@ -108,8 +108,8 @@ def get_sports_data_client():
         return SportsDataMockClient()
     from app.integrations.sports_data.client import SportsDataClient
     return SportsDataClient(
-        sportradar_key=settings.SPORTRADAR_API_KEY,
-        thesportsdb_key=settings.THESPORTSDB_API_KEY,
+        api_key=settings.API_FOOTBALL_API_KEY,
+        provider="api-football",
     )
 
 

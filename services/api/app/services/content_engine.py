@@ -1,5 +1,6 @@
 """Modul 5: AI Content Engine service."""
 
+import calendar
 import logging
 from datetime import datetime, timedelta
 from uuid import UUID
@@ -20,6 +21,26 @@ CONTENT_PILLARS = [
     "tactical",
     "fan_engagement",
     "lifestyle",
+]
+
+MONTH_THEMES = {
+    1: "Zimska pauza, priprema za proljetni dio sezone",
+    2: "Početak proljetnog dijela sezone, UEFA nastavak",
+    3: "Puni ritam lige i Europe, međunarodna pauza",
+    4: "Borba za naslov, UEFA četvrtfinale/polufinale",
+    5: "Završnica sezone, finale kupa, transfer glasine",
+    6: "Kraj sezone, ljetni prijelazni rok, novi dresovi",
+    7: "Ljetne pripreme, turneja, novi igrači",
+    8: "Početak nove sezone, UCL/UEL kvalifikacije",
+    9: "Grupna faza UEFA natjecanja, jesen HNL",
+    10: "Derbi utakmice, Halloween tematski sadržaj",
+    11: "Intenzivan raspored, Black Friday merch kampanje",
+    12: "Zimski derbi, božićni sadržaj, retrospektiva godine",
+}
+
+MONTH_NAMES_HR = [
+    "Siječanj", "Veljača", "Ožujak", "Travanj", "Svibanj", "Lipanj",
+    "Srpanj", "Kolovoz", "Rujan", "Listopad", "Studeni", "Prosinac",
 ]
 
 
@@ -180,6 +201,126 @@ class ContentEngineService:
             }
             for p in posts
         ]
+
+    async def generate_six_month_strategy(
+        self, db: AsyncSession, start_month: int, start_year: int, context: dict
+    ) -> dict:
+        """Generate a rolling 6-month content strategy."""
+        plans = []
+        month = start_month
+        year = start_year
+        prev_plan_summary = None
+
+        for i in range(6):
+            # Build month-specific context
+            month_context = dict(context)
+            month_context["month_theme"] = MONTH_THEMES.get(month, "")
+            month_context["month_name"] = MONTH_NAMES_HR[month - 1]
+            month_context["strategy_month_number"] = i + 1
+            month_context["total_strategy_months"] = 6
+            if prev_plan_summary:
+                month_context["previous_month_summary"] = prev_plan_summary
+
+            # Transfer window context
+            month_context["transfer_window"] = month in (1, 6, 7, 8)
+
+            plan_result = await self.generate_monthly_plan(db, month, year, month_context)
+            plan_result["month_theme"] = MONTH_THEMES.get(month, "")
+            plan_result["month_name"] = MONTH_NAMES_HR[month - 1]
+            plans.append(plan_result)
+
+            # Summary for next month's context continuity
+            prev_plan_summary = f"{MONTH_NAMES_HR[month - 1]} {year}: {plan_result['total_posts']} objava"
+
+            # Advance to next month
+            month += 1
+            if month > 12:
+                month = 1
+                year += 1
+
+            logger.info("Generated month %d/%d of 6-month strategy", i + 1, 6)
+
+        await db.commit()
+
+        return {
+            "strategy": "6-month",
+            "start": f"{start_month}/{start_year}",
+            "plans": plans,
+            "total_plans": len(plans),
+            "total_posts": sum(p["total_posts"] for p in plans),
+        }
+
+    async def get_strategy_overview(self, db: AsyncSession, start_month: int, start_year: int) -> list[dict]:
+        """Get overview of all plans in a 6-month window."""
+        from sqlalchemy import func
+
+        results = []
+        month = start_month
+        year = start_year
+
+        for _ in range(6):
+            plan_result = await db.execute(
+                select(ContentPlan)
+                .where(ContentPlan.month == month, ContentPlan.year == year)
+                .order_by(ContentPlan.created_at.desc())
+                .limit(1)
+            )
+            plan = plan_result.scalar_one_or_none()
+
+            if plan:
+                # Count posts by status
+                post_counts = await db.execute(
+                    select(
+                        ContentPost.status,
+                        func.count(ContentPost.id),
+                    )
+                    .where(ContentPost.plan_id == plan.id)
+                    .group_by(ContentPost.status)
+                )
+                status_counts = dict(post_counts.all())
+
+                # Count posts by platform
+                platform_counts = await db.execute(
+                    select(
+                        ContentPost.platform,
+                        func.count(ContentPost.id),
+                    )
+                    .where(ContentPost.plan_id == plan.id)
+                    .group_by(ContentPost.platform)
+                )
+                platform_breakdown = dict(platform_counts.all())
+
+                results.append({
+                    "month": month,
+                    "year": year,
+                    "month_name": MONTH_NAMES_HR[month - 1],
+                    "month_theme": MONTH_THEMES.get(month, ""),
+                    "plan_id": str(plan.id),
+                    "status": plan.status,
+                    "total_posts": plan.total_posts,
+                    "approved_count": plan.approved_count,
+                    "published_count": plan.published_count,
+                    "status_breakdown": status_counts,
+                    "platform_breakdown": platform_breakdown,
+                    "created_at": plan.created_at.isoformat() if plan.created_at else None,
+                })
+            else:
+                results.append({
+                    "month": month,
+                    "year": year,
+                    "month_name": MONTH_NAMES_HR[month - 1],
+                    "month_theme": MONTH_THEMES.get(month, ""),
+                    "plan_id": None,
+                    "status": "not_generated",
+                    "total_posts": 0,
+                })
+
+            month += 1
+            if month > 12:
+                month = 1
+                year += 1
+
+        return results
 
     async def get_calendar(self, db: AsyncSession, month: int, year: int) -> list[dict]:
         """Get content calendar for a month."""

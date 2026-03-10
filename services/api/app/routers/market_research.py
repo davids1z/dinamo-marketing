@@ -43,3 +43,11 @@ async def get_market_rankings(db: AsyncSession = Depends(get_db)):
     service = _get_service()
     result = await service.get_market_rankings(db)
     return result
+
+
+@router.get("/events/{country_code}")
+async def get_events_by_country(country_code: str):
+    """Get sports events breakdown for a country (leagues + event counts)."""
+    service = _get_service()
+    result = await service.get_events_by_country(country_code)
+    return result

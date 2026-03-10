@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 # In-memory store for async AI generation tasks
 _ai_tasks: dict[str, dict] = {}
+_strategy_tasks: dict[str, dict] = {}
 
 
 def _get_service():
@@ -258,6 +259,63 @@ async def generate_plan_visuals_endpoint(plan_id: UUID):
     from app.tasks.content_visual import generate_plan_visuals
     task = generate_plan_visuals.delay(str(plan_id))
     return {"task_id": task.id, "plan_id": str(plan_id), "status": "started"}
+
+
+async def _run_strategy_generation(task_id: str, start_month: int, start_year: int, context: dict):
+    """Background coroutine for 6-month strategy generation."""
+    try:
+        from app.database import async_session_factory
+        service = _get_service()
+        async with async_session_factory() as db:
+            result = await service.generate_six_month_strategy(db, start_month, start_year, context)
+            _strategy_tasks[task_id] = {
+                "status": "done",
+                "result": result,
+            }
+    except Exception as e:
+        logger.error("6-month strategy generation failed: %s", e)
+        _strategy_tasks[task_id] = {
+            "status": "error",
+            "error": str(e),
+        }
+
+
+@router.post("/strategy/generate")
+async def generate_strategy(
+    start_month: int = Body(...),
+    start_year: int = Body(...),
+    context: dict = Body(default={}),
+):
+    """Start async 6-month content strategy generation. Returns task_id to poll."""
+    task_id = str(uuid_mod.uuid4())
+    _strategy_tasks[task_id] = {"status": "running", "start_month": start_month, "start_year": start_year}
+    asyncio.create_task(_run_strategy_generation(task_id, start_month, start_year, context))
+    return {"task_id": task_id, "status": "running"}
+
+
+@router.get("/strategy/task/{task_id}")
+async def get_strategy_task(task_id: str):
+    """Poll for strategy generation result."""
+    task = _strategy_tasks.get(task_id)
+    if not task:
+        return {"status": "not_found", "error": "Task not found"}
+    if task["status"] in ("done", "error"):
+        result = dict(task)
+        _strategy_tasks.pop(task_id, None)
+        return result
+    return task
+
+
+@router.get("/strategy/overview")
+async def get_strategy_overview(
+    start_month: int = Query(...),
+    start_year: int = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get overview of all plans in a 6-month window."""
+    service = _get_service()
+    result = await service.get_strategy_overview(db, start_month, start_year)
+    return result
 
 
 @router.get("/templates")

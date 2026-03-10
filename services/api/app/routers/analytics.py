@@ -102,6 +102,133 @@ async def get_ad_metrics(ad_id: UUID, db: AsyncSession = Depends(get_db)):
     return metrics
 
 
+@router.get("/ads")
+async def get_all_ads_metrics(
+    platform: str = Query(default=None),
+    campaign_id: str = Query(default=None),
+    sort_by: str = Query(default="spend"),
+    sort_dir: str = Query(default="desc"),
+    limit: int = Query(default=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """All ads with aggregated metrics, sortable and filterable."""
+    from app.models.campaign import Ad, AdSet, Campaign
+    from app.models.analytics import AdMetric
+    from sqlalchemy import func as sqlfunc
+
+    query = (
+        select(
+            Ad.id,
+            Ad.variant_label,
+            Ad.headline,
+            Ad.description,
+            Ad.image_url,
+            Ad.status,
+            Campaign.id.label("campaign_id"),
+            Campaign.name.label("campaign_name"),
+            Campaign.platform,
+            sqlfunc.coalesce(sqlfunc.sum(AdMetric.impressions), 0).label("impressions"),
+            sqlfunc.coalesce(sqlfunc.sum(AdMetric.clicks), 0).label("clicks"),
+            sqlfunc.coalesce(sqlfunc.sum(AdMetric.spend), 0).label("spend"),
+            sqlfunc.coalesce(sqlfunc.sum(AdMetric.conversions), 0).label("conversions"),
+            sqlfunc.coalesce(sqlfunc.sum(AdMetric.conversion_value), 0).label("conversion_value"),
+        )
+        .join(AdSet, Ad.ad_set_id == AdSet.id)
+        .join(Campaign, AdSet.campaign_id == Campaign.id)
+        .outerjoin(AdMetric, AdMetric.ad_id == Ad.id)
+        .group_by(Ad.id, Campaign.id)
+    )
+
+    if platform:
+        query = query.where(Campaign.platform == platform)
+    if campaign_id:
+        from uuid import UUID as UUIDType
+        try:
+            query = query.where(Campaign.id == UUIDType(campaign_id))
+        except ValueError:
+            pass
+
+    # Sort
+    sort_map = {
+        "spend": sqlfunc.coalesce(sqlfunc.sum(AdMetric.spend), 0),
+        "clicks": sqlfunc.coalesce(sqlfunc.sum(AdMetric.clicks), 0),
+        "impressions": sqlfunc.coalesce(sqlfunc.sum(AdMetric.impressions), 0),
+        "conversions": sqlfunc.coalesce(sqlfunc.sum(AdMetric.conversions), 0),
+        "name": Ad.headline,
+    }
+    sort_col = sort_map.get(sort_by, sort_map["spend"])
+    if sort_dir == "asc":
+        query = query.order_by(sort_col.asc())
+    else:
+        query = query.order_by(sort_col.desc())
+
+    query = query.limit(limit)
+    result = await db.execute(query)
+    rows = result.all()
+
+    ads = []
+    for row in rows:
+        impressions = int(row.impressions)
+        clicks = int(row.clicks)
+        spend = float(row.spend)
+        conversions = int(row.conversions)
+        ctr = (clicks / impressions * 100) if impressions > 0 else 0
+        roas = (float(row.conversion_value) / spend) if spend > 0 else 0
+
+        ads.append({
+            "ad_id": str(row.id),
+            "variant_label": row.variant_label,
+            "headline": row.headline,
+            "image_url": row.image_url,
+            "status": row.status,
+            "campaign_id": str(row.campaign_id),
+            "campaign_name": row.campaign_name,
+            "platform": row.platform,
+            "impressions": impressions,
+            "clicks": clicks,
+            "ctr": round(ctr, 2),
+            "spend": round(spend, 2),
+            "conversions": conversions,
+            "roas": round(roas, 2),
+        })
+
+    return {"ads": ads, "total": len(ads)}
+
+
+@router.get("/ads/{ad_id}/history")
+async def get_ad_metrics_history(
+    ad_id: UUID,
+    days: int = Query(default=7),
+    db: AsyncSession = Depends(get_db),
+):
+    """Time-series metrics for a single ad."""
+    from app.models.analytics import AdMetric
+
+    result = await db.execute(
+        select(AdMetric)
+        .where(AdMetric.ad_id == ad_id)
+        .order_by(AdMetric.timestamp.desc())
+        .limit(days)
+    )
+    metrics = result.scalars().all()
+
+    return {
+        "ad_id": str(ad_id),
+        "metrics": [
+            {
+                "date": m.timestamp.strftime("%Y-%m-%d") if m.timestamp else "",
+                "impressions": m.impressions,
+                "clicks": m.clicks,
+                "ctr": m.ctr,
+                "spend": round(m.spend, 2),
+                "conversions": m.conversions,
+                "roas": m.roas,
+            }
+            for m in reversed(metrics)
+        ],
+    }
+
+
 @router.get("/attribution")
 async def get_attribution_report(
     days: int = Query(default=30),

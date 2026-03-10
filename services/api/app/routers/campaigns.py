@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies import get_meta_client, get_tiktok_client, get_claude_client
+from app.dependencies import (
+    get_meta_client, get_tiktok_client, get_claude_client, get_content_creator,
+)
 from app.services.campaign_manager import CampaignManagerService
 
 router = APIRouter()
@@ -15,6 +17,7 @@ def _get_service():
         get_meta_client(),
         get_tiktok_client(),
         get_claude_client(),
+        content_creator=get_content_creator(),
     )
 
 
@@ -46,10 +49,19 @@ async def get_campaign(campaign_id: UUID, db: AsyncSession = Depends(get_db)):
     res = await db.execute(query)
     campaign = res.scalar_one_or_none()
     if not campaign:
-        from fastapi import HTTPException
-
         raise HTTPException(status_code=404, detail="Campaign not found")
     return campaign
+
+
+@router.get("/{campaign_id}/performance")
+async def get_campaign_performance(campaign_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Get detailed performance data with ad-level metrics."""
+    service = _get_service()
+    try:
+        result = await service.get_campaign_performance(db, campaign_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.patch("/{campaign_id}/pause")

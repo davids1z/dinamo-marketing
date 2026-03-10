@@ -1,5 +1,20 @@
 import api from './client';
 
+export interface StrategyMonth {
+  month: number
+  year: number
+  month_name: string
+  month_theme: string
+  plan_id: string | null
+  status: string
+  total_posts: number
+  approved_count?: number
+  published_count?: number
+  status_breakdown?: Record<string, number>
+  platform_breakdown?: Record<string, number>
+  created_at?: string
+}
+
 export const contentApi = {
   generatePlan: (data: { month: number; year: number; context?: Record<string, unknown> }) =>
     api.post('/content/generate-plan', data),
@@ -23,4 +38,11 @@ export const contentApi = {
   getTemplates: () => api.get('/content/templates'),
   reschedulePost: (id: string, data: { day: number; month: number; year: number }) =>
     api.patch(`/content/posts/${id}/reschedule`, data),
+  // 6-Month Strategy
+  generateStrategy: (data: { start_month: number; start_year: number; context?: Record<string, unknown> }) =>
+    api.post('/content/strategy/generate', data),
+  getStrategyTask: (taskId: string) =>
+    api.get(`/content/strategy/task/${taskId}`),
+  getStrategyOverview: (startMonth: number, startYear: number) =>
+    api.get<StrategyMonth[]>('/content/strategy/overview', { params: { start_month: startMonth, start_year: startYear } }),
 };

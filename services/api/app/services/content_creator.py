@@ -35,6 +35,22 @@ PILLAR_STYLES: dict[str, str] = {
     "tactical": "Tactical board, formations, analytical clean design",
 }
 
+# Platform-specific ad creative sizes
+AD_PLATFORM_SIZES: dict[str, str] = {
+    "instagram": "1024x1024",     # 1:1 feed ad
+    "facebook": "1024x1024",      # 1200x628 ideal but DALL-E uses square
+    "tiktok": "1024x1792",        # 9:16 vertical
+    "youtube": "1792x1024",       # 16:9 landscape
+}
+
+# Platform-specific ad creative style guides
+AD_PLATFORM_STYLES: dict[str, str] = {
+    "instagram": "Clean, bold typography feel, eye-catching, Instagram feed optimized, square composition, vibrant Dinamo blue and lime accent",
+    "facebook": "Informative layout, landscape friendly, professional look, clear messaging hierarchy, suitable for news feed",
+    "tiktok": "Trendy vertical format, dynamic and energetic, youth-oriented, fast-paced aesthetic, bold colors and contrast",
+    "youtube": "Cinematic wide format, high production value, dramatic lighting, thumbnail-worthy composition",
+}
+
 
 def _detect_format(post) -> str:
     """Detect content format from post attributes."""
@@ -107,6 +123,70 @@ class ContentCreatorService:
             "model": result.get("model", ""),
             "revised_prompt": result.get("revised_prompt"),
         }
+
+    async def generate_ad_creative(self, campaign, variant: dict, platform: str) -> dict:
+        """Generate a platform-specific ad creative visual.
+
+        Args:
+            campaign: Campaign object or dict with name, objective.
+            variant: Ad variant dict with headline, description, cta.
+            platform: Target platform (instagram, facebook, tiktok, youtube).
+
+        Returns:
+            Dict with visual_url and image_id.
+        """
+        prompt = self._build_ad_prompt(campaign, variant, platform)
+        size = AD_PLATFORM_SIZES.get(platform, "1024x1024")
+
+        campaign_name = campaign.get("name", "") if isinstance(campaign, dict) else getattr(campaign, "name", "")
+        logger.info("Generating ad creative for campaign '%s' [%s] size=%s", campaign_name, platform, size)
+
+        result = await self._image_client.generate_image(
+            prompt=prompt,
+            style="digital-art",
+            size=size,
+        )
+
+        campaign_id = campaign.get("id", "ad") if isinstance(campaign, dict) else str(getattr(campaign, "id", "ad"))
+        variant_label = variant.get("variant_label", "A")
+        rel_path = await self._media_storage.save_image(
+            image_source=result["url"],
+            post_id=f"ad_{campaign_id}_{variant_label}",
+            platform=platform,
+        )
+        visual_url = self._media_storage.get_url(rel_path)
+
+        return {
+            "visual_url": visual_url,
+            "image_id": result.get("image_id", ""),
+            "model": result.get("model", ""),
+            "platform": platform,
+            "variant_label": variant_label,
+        }
+
+    @staticmethod
+    def _build_ad_prompt(campaign, variant: dict, platform: str) -> str:
+        """Build an ad-specific image generation prompt."""
+        campaign_name = campaign.get("name", "") if isinstance(campaign, dict) else getattr(campaign, "name", "")
+        objective = campaign.get("objective", "") if isinstance(campaign, dict) else getattr(campaign, "objective", "")
+        headline = variant.get("headline", "")
+        description = variant.get("description", "")
+
+        platform_style = AD_PLATFORM_STYLES.get(platform, "")
+
+        parts = [
+            BRAND_CONTEXT,
+            f"Advertisement for: {campaign_name}.",
+            f"Campaign objective: {objective}.",
+            f"Headline: {headline}.",
+        ]
+        if description:
+            parts.append(f"Message: {description}.")
+        if platform_style:
+            parts.append(f"Platform style: {platform_style}.")
+        parts.append("Professional sports marketing advertisement, high production value, no readable text in image.")
+
+        return " ".join(parts)
 
     @staticmethod
     def _build_prompt(post) -> str:

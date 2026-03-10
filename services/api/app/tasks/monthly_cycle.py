@@ -167,6 +167,58 @@ def _query_monthly_paid(year: int, month: int) -> dict:
     return MOCK_MONTHLY_PAID
 
 
+def _query_top_ads(year: int, month: int, limit: int = 5) -> list[dict]:
+    """Get top and worst performing ads for the month."""
+    from app.database import SyncSessionLocal
+    from app.models.analytics import AdMetric
+    from app.models.campaign import Ad, AdSet, Campaign
+    from sqlalchemy import select, func
+
+    days = monthrange(year, month)[1]
+    start = datetime(year, month, 1, tzinfo=timezone.utc)
+    end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
+
+    with SyncSessionLocal() as db:
+        rows = db.execute(
+            select(
+                Ad.headline,
+                Ad.variant_label,
+                Campaign.name.label("campaign_name"),
+                Campaign.platform,
+                func.sum(AdMetric.impressions).label("impressions"),
+                func.sum(AdMetric.clicks).label("clicks"),
+                func.sum(AdMetric.spend).label("spend"),
+                func.sum(AdMetric.conversions).label("conversions"),
+                func.avg(AdMetric.roas).label("roas"),
+            )
+            .join(Ad, AdMetric.ad_id == Ad.id)
+            .join(AdSet, Ad.ad_set_id == AdSet.id)
+            .join(Campaign, AdSet.campaign_id == Campaign.id)
+            .where(AdMetric.timestamp >= start, AdMetric.timestamp <= end)
+            .group_by(Ad.id, Campaign.id)
+            .order_by(func.avg(AdMetric.roas).desc())
+            .limit(limit * 2)
+        ).all()
+
+        if not rows:
+            return []
+
+        return [
+            {
+                "headline": r.headline,
+                "variant": r.variant_label,
+                "campaign": r.campaign_name,
+                "platform": r.platform,
+                "impressions": int(r.impressions or 0),
+                "clicks": int(r.clicks or 0),
+                "spend": round(float(r.spend or 0), 2),
+                "conversions": int(r.conversions or 0),
+                "roas": round(float(r.roas or 0), 2),
+            }
+            for r in rows
+        ]
+
+
 def _generate_monthly_report() -> dict:
     """Generate the full monthly performance report."""
     now = datetime.now(timezone.utc)
@@ -177,12 +229,17 @@ def _generate_monthly_report() -> dict:
 
     organic = _query_monthly_organic(report_year, month)
     paid = _query_monthly_paid(report_year, month)
+    top_ads = _query_top_ads(report_year, month)
 
     total_engagement = (organic.get("total_likes", 0) +
                         organic.get("total_comments", 0) +
                         organic.get("total_shares", 0))
     spend = paid.get("total_spend", 0)
     revenue = paid.get("total_revenue", 0)
+
+    # Split into best and worst performers
+    best_ads = top_ads[:5] if top_ads else []
+    worst_ads = list(reversed(top_ads[-3:])) if len(top_ads) > 5 else []
 
     return {
         "report_type": "monthly",
@@ -204,6 +261,11 @@ def _generate_monthly_report() -> dict:
         },
         "organic": organic,
         "paid": paid,
+        "ad_performance": {
+            "best_ads": best_ads,
+            "worst_ads": worst_ads,
+            "total_ads_tracked": len(top_ads),
+        },
         "sentiment": MOCK_MONTHLY_SENTIMENT,
         "market_position": MOCK_MARKET_POSITION,
         "generated_at": now.isoformat(),

@@ -14,6 +14,7 @@ import {
   ExternalLink, Calendar, Clock, ArrowRight, Sparkles, TrendingDown,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -685,6 +686,8 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        <AiInsightsPanel pageKey="dashboard" pageData={{ metrics: { followers: d.total_followers, reach: d.monthly_reach, engagement_rate: d.engagement_rate, ad_spend: d.ad_spend, roas: d.roas, sentiment: d.sentiment_score }, activities: activities.slice(0, 5).map(a => ({ type: a.type, text: a.text })) }} />
       </div>
     </div>
   )

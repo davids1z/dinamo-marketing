@@ -1,6 +1,7 @@
 from app.routers import (
     academy,
     admin,
+    ai_insights,
     analytics,
     auth,
     campaign_research,
@@ -24,6 +25,7 @@ from app.routers import (
 __all__ = [
     "academy",
     "admin",
+    "ai_insights",
     "analytics",
     "auth",
     "campaign_research",

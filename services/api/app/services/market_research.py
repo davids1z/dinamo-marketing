@@ -58,11 +58,52 @@ class MarketResearchService:
         logger.info(f"Scanned {len(results)} countries")
         return results
 
+    async def get_events_by_country(self, country_code: str) -> dict:
+        """Get sports events breakdown for a country."""
+        leagues = await self.sports_client.get_leagues_by_country(country_code)
+        total_events = 0
+        league_details = []
+
+        for league in leagues:
+            league_id = league.get("league_id", "")
+            season = league.get("season", "2025")
+            try:
+                events = await self.sports_client.get_events_by_league(league_id, season)
+                event_count = len(events)
+            except Exception:
+                event_count = 0
+
+            total_events += event_count
+            league_details.append({
+                "league_id": league_id,
+                "name": league.get("name", ""),
+                "tier": league.get("tier", 0),
+                "logo_url": league.get("logo_url", ""),
+                "events_count": event_count,
+                "season": season,
+            })
+
+        return {
+            "country_code": country_code,
+            "total_events": total_events,
+            "total_leagues": len(leagues),
+            "leagues": league_details,
+        }
+
     async def _scan_country(self, db: AsyncSession, country: Country) -> dict:
         """Scan a single country and calculate scores."""
-        # Get sports data
+        # Get sports data — count actual events per league
         leagues = await self.sports_client.get_leagues_by_country(country.code)
-        total_events = sum(l.get("events_per_year", 0) for l in leagues)
+        total_events = 0
+        for league in leagues:
+            league_id = league.get("league_id", "")
+            season = league.get("season", "2025")
+            try:
+                events = await self.sports_client.get_events_by_league(league_id, season)
+                total_events += len(events)
+            except Exception:
+                total_events += league.get("events_per_year", 0)
+
         # Inverse: fewer events = easier to break through
         sports_density = max(0, 100 - min(total_events / 10, 100))
 

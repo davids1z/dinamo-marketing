@@ -4,6 +4,7 @@ import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner
 import MetricCard from '../components/common/MetricCard';
 import DataTable from '../components/common/DataTable';
 import { GraduationCap, DollarSign, Users, Star, Video, Calendar } from 'lucide-react';
+import AiInsightsPanel from '../components/common/AiInsightsPanel';
 
 interface PlayerRow extends Record<string, unknown> {
   id: number;
@@ -167,6 +168,8 @@ export default function Academy() {
             ))}
           </div>
         </div>
+
+        <AiInsightsPanel pageKey="academy" pageData={{ metrics: data.metrics, topPlayers: data.players.slice(0, 5).map(p => ({ name: p.name, position: p.position, goals: p.goals, assists: p.assists, socialMentions: p.socialMentions })), pipeline: data.contentPipeline.map(c => ({ title: c.title, status: c.status })) }} />
       </div>
     </div>
   );

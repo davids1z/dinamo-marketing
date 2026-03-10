@@ -3,6 +3,7 @@ import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { Globe, Users, MapPin, Languages, Calendar } from 'lucide-react'
+import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 interface Community {
   country: string
@@ -229,6 +230,8 @@ export default function Diaspora() {
             ))}
           </div>
         </div>
+
+        <AiInsightsPanel pageKey="diaspora" pageData={{ communities: communities.map(c => ({ country: c.country, population: c.population, activeMembers: c.activeMembers, engagement: c.engagement })), pipeline: contentPipeline.map(c => ({ title: c.title, languages: c.languages, status: c.status })) }} />
       </div>
     </div>
   )

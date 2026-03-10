@@ -1,17 +1,18 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
 import DataTable from '../components/common/DataTable'
 import StatusBadge from '../components/common/StatusBadge'
 import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import { campaignsApi } from '../api/campaigns'
+import { campaignsApi, type AdPerformance, type CampaignPerformance } from '../api/campaigns'
 import {
   Zap, CreditCard, BarChart3, Target, Plus, Pause, Play,
   X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
-  Filter, Loader2,
+  Filter, Loader2, Image, RefreshCw,
 } from 'lucide-react'
+import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -134,6 +135,44 @@ export default function Campaigns() {
 
   // Detail modal
   const [detailCampaign, setDetailCampaign] = useState<CampaignRow | null>(null)
+  const [campaignPerf, setCampaignPerf] = useState<CampaignPerformance | null>(null)
+  const [perfLoading, setPerfLoading] = useState(false)
+  const [refreshingCreative, setRefreshingCreative] = useState(false)
+
+  // Load campaign performance when detail modal opens
+  useEffect(() => {
+    if (!detailCampaign) {
+      setCampaignPerf(null)
+      return
+    }
+    const loadPerf = async () => {
+      setPerfLoading(true)
+      try {
+        const data = await campaignsApi.getPerformance(detailCampaign.id)
+        setCampaignPerf(data as unknown as CampaignPerformance)
+      } catch {
+        setCampaignPerf(null)
+      } finally {
+        setPerfLoading(false)
+      }
+    }
+    loadPerf()
+  }, [detailCampaign?.id])
+
+  const handleRefreshCreative = async (campaignId: string) => {
+    setRefreshingCreative(true)
+    try {
+      await campaignsApi.refreshCreative(campaignId)
+      addToast('Vizuali su uspješno regenerirani', 'success')
+      // Reload performance data
+      const data = await campaignsApi.getPerformance(campaignId)
+      setCampaignPerf(data as unknown as CampaignPerformance)
+    } catch {
+      addToast('Greška pri regeneriranju vizuala', 'error')
+    } finally {
+      setRefreshingCreative(false)
+    }
+  }
 
   // A/B test metric selector
   const [abMetric, setAbMetric] = useState<ABMetricKey>('ctr')
@@ -368,12 +407,6 @@ export default function Campaigns() {
   ]
 
   // -------------------------------------------------------------------------
-  // Detail modal daily spend chart helpers
-  // -------------------------------------------------------------------------
-
-  const maxDailySpend = Math.max(...mockDailySpend.map(d => d.spend))
-
-  // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
 
@@ -523,6 +556,8 @@ export default function Campaigns() {
             })}
           </div>
         </div>
+
+        <AiInsightsPanel pageKey="campaigns" pageData={{ campaigns: allCampaigns.slice(0, 5).map(c => ({ name: c.name, platform: c.platform, status: c.status, budget: c.budget, spend: c.spend, ctr: c.ctr, roas: c.roas })), totalSpend, avgRoas: Number(avgRoas.toFixed(1)), activeCampaigns: activeCampaignsCount }} />
       </div>
 
       {/* ================================================================ */}
@@ -792,7 +827,7 @@ export default function Campaigns() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDetailCampaign(null)} />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <div>
@@ -809,7 +844,7 @@ export default function Campaigns() {
 
             {/* Metrics grid */}
             <div className="px-6 py-5 space-y-5">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-gray-50 rounded-xl p-4">
                   <p className="text-xs text-gray-500 mb-1">Budžet</p>
                   <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
@@ -833,41 +868,131 @@ export default function Campaigns() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">Napredak budžeta</span>
                   <span className="text-sm font-mono text-gray-500">
-                    {Math.round((detailCampaign.spend / detailCampaign.budget) * 100)}%
+                    {detailCampaign.budget > 0 ? Math.round((detailCampaign.spend / detailCampaign.budget) * 100) : 0}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full transition-all ${
-                      (detailCampaign.spend / detailCampaign.budget) > 0.9
+                      detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.9
                         ? 'bg-red-500'
-                        : (detailCampaign.spend / detailCampaign.budget) > 0.7
+                        : detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.7
                           ? 'bg-yellow-500'
                           : 'bg-dinamo-blue'
                     }`}
-                    style={{ width: `${Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100)}%` }}
+                    style={{ width: `${detailCampaign.budget > 0 ? Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100) : 0}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>EUR0</span>
-                  <span>EUR{detailCampaign.budget.toLocaleString()}</span>
+              </div>
+
+              {/* Ad Creatives / Variants Section */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Image size={16} className="text-purple-600" />
+                    <h4 className="text-sm font-medium text-gray-700">Ad varijante i vizuali</h4>
+                  </div>
+                  <button
+                    onClick={() => handleRefreshCreative(detailCampaign.id)}
+                    disabled={refreshingCreative}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw size={12} className={refreshingCreative ? 'animate-spin' : ''} />
+                    {refreshingCreative ? 'Generiranje...' : 'Regeneriraj vizuale'}
+                  </button>
                 </div>
+
+                {perfLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 size={24} className="animate-spin text-gray-400" />
+                  </div>
+                ) : campaignPerf?.ads && campaignPerf.ads.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {campaignPerf.ads.map((ad: AdPerformance) => (
+                      <div key={ad.ad_id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                        {/* Visual preview */}
+                        <div className="aspect-square bg-gray-100 relative">
+                          {ad.image_url ? (
+                            <img
+                              src={ad.image_url}
+                              alt={`Varijanta ${ad.variant_label}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Image size={32} />
+                            </div>
+                          )}
+                          <span className="absolute top-2 left-2 text-xs px-2 py-0.5 bg-black/60 text-white rounded-full font-bold">
+                            {ad.variant_label}
+                          </span>
+                          {ad.status === 'winner' && (
+                            <span className="absolute top-2 right-2 text-xs px-2 py-0.5 bg-green-600 text-white rounded-full flex items-center gap-1">
+                              <Trophy size={10} /> Pobjednik
+                            </span>
+                          )}
+                        </div>
+                        {/* Ad info */}
+                        <div className="p-3 space-y-2">
+                          <p className="text-sm font-medium text-gray-900 line-clamp-1">{ad.headline}</p>
+                          {ad.description && (
+                            <p className="text-xs text-gray-500 line-clamp-2">{ad.description}</p>
+                          )}
+                          <div className="grid grid-cols-2 gap-1 pt-1 border-t border-gray-100">
+                            <div>
+                              <p className="text-[10px] text-gray-400">CTR</p>
+                              <p className="text-xs font-mono font-bold text-gray-700">{ad.ctr}%</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-gray-400">Klikovi</p>
+                              <p className="text-xs font-mono font-bold text-gray-700">{ad.clicks.toLocaleString()}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-gray-400">Konverzije</p>
+                              <p className="text-xs font-mono font-bold text-gray-700">{ad.conversions}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-gray-400">Potrošnja</p>
+                              <p className="text-xs font-mono font-bold text-gray-700">EUR{ad.spend}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-xl p-6 text-center">
+                    <Image size={24} className="text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Nema podataka o varijantama</p>
+                    <p className="text-xs text-gray-400 mt-1">Vizuali će se automatski generirati pri kreiranju kampanje</p>
+                  </div>
+                )}
               </div>
 
               {/* Daily spend chart */}
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
                 <div className="flex items-end gap-2 h-32">
-                  {mockDailySpend.map((d) => (
-                    <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[10px] font-mono text-gray-500">EUR{d.spend}</span>
-                      <div
-                        className="w-full bg-dinamo-blue/80 rounded-t-md transition-all hover:bg-dinamo-blue"
-                        style={{ height: `${(d.spend / maxDailySpend) * 80}px` }}
-                      />
-                      <span className="text-[10px] text-gray-400">{d.day}</span>
-                    </div>
-                  ))}
+                  {(campaignPerf?.ads?.[0]?.daily_metrics?.length
+                    ? campaignPerf.ads[0].daily_metrics.map(m => ({ day: m.date.slice(5), spend: m.spend }))
+                    : mockDailySpend
+                  ).map((d) => {
+                    const items = campaignPerf?.ads?.[0]?.daily_metrics?.length
+                      ? campaignPerf.ads[0].daily_metrics.map(m => m.spend)
+                      : mockDailySpend.map(m => m.spend)
+                    const maxSpend = Math.max(...items, 1)
+                    return (
+                      <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
+                        <span className="text-[10px] font-mono text-gray-500">EUR{d.spend}</span>
+                        <div
+                          className="w-full bg-dinamo-blue/80 rounded-t-md transition-all hover:bg-dinamo-blue"
+                          style={{ height: `${(d.spend / maxSpend) * 80}px` }}
+                        />
+                        <span className="text-[10px] text-gray-400">{d.day}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner
 import { SentimentDonut } from '../components/charts/SentimentDonut';
 import { EngagementChart } from '../components/charts/EngagementChart';
 import { AlertTriangle, TrendingUp, TrendingDown, Hash } from 'lucide-react';
+import AiInsightsPanel from '../components/common/AiInsightsPanel';
 
 interface SentimentOverview {
   positive: number;
@@ -204,6 +205,8 @@ export default function SentimentAnalysis() {
             </div>
           </div>
         </div>
+
+        <AiInsightsPanel pageKey="sentiment" pageData={{ positive: data.positive, neutral: data.neutral, negative: data.negative, topics: data.topics, alerts: data.alerts.map(a => ({ title: a.title, severity: a.severity, platform: a.platform })) }} />
       </div>
     </div>
   );
