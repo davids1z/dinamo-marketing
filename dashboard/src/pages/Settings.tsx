@@ -37,7 +37,7 @@ const fallbackData: SettingsData = {
     { id: 'tiktok', name: 'TikTok API', description: 'TikTok analitika i objavljivanje', enabled: true, mode: 'mock', icon: '🎵' },
     { id: 'youtube', name: 'YouTube Data API', description: 'YouTube kanal i video podaci', enabled: true, mode: 'mock', icon: '▶️' },
     { id: 'ga4', name: 'Google Analytics 4', description: 'Promet web stranice i konverzije', enabled: true, mode: 'mock', icon: '📊' },
-    { id: 'sports_data', name: 'Sports Data API', description: 'Rezultati utakmica i statistika igrača', enabled: true, mode: 'mock', icon: '⚽' },
+    { id: 'market_data', name: 'Market Data API', description: 'Tržišni podaci i analitika industrije', enabled: true, mode: 'mock', icon: '📊' },
     { id: 'claude', name: 'Claude AI', description: 'Generiranje sadržaja i analiza', enabled: true, mode: 'mock', icon: '🤖' },
     { id: 'buffer', name: 'Buffer / Objavljivanje', description: 'Zakazivanje objava na društvenim mrežama', enabled: true, mode: 'mock', icon: '📅' },
     { id: 'image_gen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadržaj', enabled: true, mode: 'mock', icon: '🎨' },
@@ -196,7 +196,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 mb-6">
             <Plug size={20} className="text-blue-600" />
             <h2 className="section-title">API integracije</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 ml-2">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-yellow-700 ml-2">
               {allMock ? 'Sve mock način' : `${mockCount}/${apis.length} mock`}
             </span>
           </div>
@@ -206,15 +206,15 @@ export default function Settings() {
               <div
                 key={api.id}
                 className={`rounded-lg border p-4 transition-colors ${
-                  api.enabled ? 'bg-gray-50 border-gray-200' : 'bg-gray-50 border-gray-200 opacity-50'
+                  api.enabled ? 'bg-studio-surface-0 border-studio-border' : 'bg-studio-surface-0 border-studio-border opacity-50'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{api.icon}</span>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900">{api.name}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">{api.description}</p>
+                      <h3 className="text-sm font-medium text-studio-text-primary">{api.name}</h3>
+                      <p className="text-xs text-studio-text-secondary mt-0.5">{api.description}</p>
                     </div>
                   </div>
                   <button
@@ -224,7 +224,7 @@ export default function Settings() {
                     {api.enabled ? (
                       <ToggleRight size={28} className="text-blue-600" />
                     ) : (
-                      <ToggleLeft size={28} className="text-gray-500" />
+                      <ToggleLeft size={28} className="text-studio-text-secondary" />
                     )}
                   </button>
                 </div>
@@ -234,8 +234,8 @@ export default function Settings() {
                     disabled={togglingApis.has(api.id)}
                     className={`text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait ${
                       api.mode === 'mock'
-                        ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                        ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                        : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
                     }`}
                   >
                     {togglingApis.has(api.id) ? (
@@ -247,8 +247,8 @@ export default function Settings() {
                       api.mode === 'mock' ? 'Mock' : 'Live'
                     )}
                   </button>
-                  <span className="text-xs text-gray-500">|</span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-studio-text-secondary">|</span>
+                  <span className="text-xs text-studio-text-secondary">
                     {api.mode === 'mock' ? 'API ključ nije potreban' : 'Povezano s API-jem'}
                   </span>
                 </div>
@@ -268,27 +268,27 @@ export default function Settings() {
             {brandColors.map((color) => (
               <div key={color.name} className="space-y-2">
                 <div
-                  className="w-full h-16 rounded-lg border border-gray-200"
+                  className="w-full h-16 rounded-lg border border-studio-border"
                   style={{ backgroundColor: color.hex }}
                 />
                 <div>
-                  <p className="text-sm text-gray-900 font-medium">{color.name}</p>
-                  <p className="text-xs text-gray-500 font-mono">{color.hex}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{color.usage}</p>
+                  <p className="text-sm text-studio-text-primary font-medium">{color.name}</p>
+                  <p className="text-xs text-studio-text-secondary font-mono">{color.hex}</p>
+                  <p className="text-xs text-studio-text-secondary mt-0.5">{color.usage}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="mt-6 p-4 bg-studio-surface-0 rounded-lg border border-studio-border">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-[#0051A5] flex items-center justify-center">
                 <span className="text-white font-bold text-lg">D</span>
               </div>
               <div>
-                <p className="text-gray-900 font-semibold">GNK Dinamo Zagreb</p>
-                <p className="text-xs text-gray-500">Osnovan 1945. | Stadion Maksimir, Zagreb</p>
-                <p className="text-xs text-gray-500 mt-0.5">Primarni font: Montserrat | Display font: Montserrat Bold</p>
+                <p className="text-studio-text-primary font-semibold">Studio Marketing</p>
+                <p className="text-xs text-studio-text-secondary">Marketing platforma | Zagreb, Hrvatska</p>
+                <p className="text-xs text-studio-text-secondary mt-0.5">Primarni font: Tektur | Body font: Inter</p>
               </div>
             </div>
           </div>
@@ -305,11 +305,11 @@ export default function Settings() {
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-4 bg-studio-surface-0 rounded-lg"
               >
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">{notif.label}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{notif.description}</p>
+                  <h3 className="text-sm font-medium text-studio-text-primary">{notif.label}</h3>
+                  <p className="text-xs text-studio-text-secondary mt-0.5">{notif.description}</p>
                 </div>
                 <button
                   onClick={() => toggleNotification(notif.id)}
@@ -317,11 +317,11 @@ export default function Settings() {
                   className="disabled:opacity-50 disabled:cursor-wait"
                 >
                   {togglingNotifs.has(notif.id) ? (
-                    <Loader2 size={28} className="animate-spin text-gray-400" />
+                    <Loader2 size={28} className="animate-spin text-studio-text-tertiary" />
                   ) : notif.enabled ? (
                     <ToggleRight size={28} className="text-blue-600" />
                   ) : (
-                    <ToggleLeft size={28} className="text-gray-500" />
+                    <ToggleLeft size={28} className="text-studio-text-secondary" />
                   )}
                 </button>
               </div>
@@ -332,25 +332,25 @@ export default function Settings() {
         {/* System Info */}
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={20} className="text-gray-500" />
+            <Shield size={20} className="text-studio-text-secondary" />
             <h2 className="section-title">Informacije o sustavu</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-gray-500">Verzija</p>
-              <p className="text-gray-700 font-mono">{system.version}</p>
+              <p className="text-studio-text-secondary">Verzija</p>
+              <p className="text-studio-text-primary font-mono">{system.version}</p>
             </div>
             <div>
-              <p className="text-gray-500">Okruženje</p>
+              <p className="text-studio-text-secondary">Okruženje</p>
               <p className="text-yellow-600 font-mono">{system.environment}</p>
             </div>
             <div>
-              <p className="text-gray-500">Način podataka</p>
+              <p className="text-studio-text-secondary">Način podataka</p>
               <p className="text-green-600 font-mono">{system.dataMode}</p>
             </div>
             <div>
-              <p className="text-gray-500">Zadnje ažurirano</p>
-              <p className="text-gray-700 font-mono">{system.lastUpdated}</p>
+              <p className="text-studio-text-secondary">Zadnje ažurirano</p>
+              <p className="text-studio-text-primary font-mono">{system.lastUpdated}</p>
             </div>
           </div>
         </div>

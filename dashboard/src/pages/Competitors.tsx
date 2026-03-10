@@ -21,13 +21,13 @@ import { SHIFTONEZERO_BRAND } from '../utils/constants'
 // ---------------------------------------------------------------------------
 
 interface CompetitorRow {
-  club: string
+  company: string
   country: string
   igFollowers: number
   igEngagement: number
   tiktokFollowers: number
   tiktokEngagement: number
-  gapVsDinamo: number
+  gapVsUs: number
   tier: string
   followerGrowth: number   // month-over-month %
   engagementGrowth: number // month-over-month %
@@ -36,20 +36,20 @@ interface CompetitorRow {
 
 interface CompetitorData {
   competitors: CompetitorRow[]
-  dinamoIg: number
-  dinamoTiktok: number
-  dinamoEngagement: number
-  dinamoTiktokEngagement: number
-  dinamoFollowerGrowth: number
-  dinamoEngagementGrowth: number
-  dinamoContentPerWeek: number
+  ourIg: number
+  ourTiktok: number
+  ourEngagement: number
+  ourTiktokEngagement: number
+  ourFollowerGrowth: number
+  ourEngagementGrowth: number
+  ourContentPerWeek: number
   summary: {
     directCount: number
-    dinamoLeadsIn: number
-    dinamoIgFormatted: string
-    dinamoRank: string
+    weLeadIn: number
+    ourIgFormatted: string
+    ourRank: string
     avgEngagementDirect: number
-    dinamoEngagement: number
+    ourEngagement: number
   }
 }
 
@@ -76,7 +76,7 @@ const tierLabel = (tier: string) => {
 
 const threatLevel = (row: CompetitorRow): 'high' | 'medium' | 'low' => {
   const growthFast = row.followerGrowth > 4
-  const gapSmall = Math.abs(row.gapVsDinamo) < 300000
+  const gapSmall = Math.abs(row.gapVsUs) < 300000
   if (growthFast && gapSmall) return 'high'
   if (growthFast || gapSmall) return 'medium'
   return 'low'
@@ -85,10 +85,10 @@ const threatLevel = (row: CompetitorRow): 'high' | 'medium' | 'low' => {
 const threatBadge = (level: 'high' | 'medium' | 'low') => {
   const cls =
     level === 'high'
-      ? 'bg-red-100 text-red-700'
+      ? 'bg-red-100 text-red-400'
       : level === 'medium'
-      ? 'bg-yellow-100 text-yellow-700'
-      : 'bg-green-100 text-green-700'
+      ? 'bg-yellow-100 text-yellow-400'
+      : 'bg-green-100 text-green-400'
   const label = level === 'high' ? 'Visoka' : level === 'medium' ? 'Srednja' : 'Niska'
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>
@@ -102,11 +102,11 @@ const threatBadge = (level: 'high' | 'medium' | 'low') => {
 // ---------------------------------------------------------------------------
 
 const tooltipStyle = {
-  backgroundColor: '#FFFFFF',
-  border: '1px solid #E5E7EB',
+  backgroundColor: '#1A1A1A',
+  border: '1px solid #2A2A2A',
   borderRadius: '8px',
-  color: '#111827',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+  color: '#E5E5E5',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
   padding: '10px 14px',
 }
 
@@ -116,29 +116,29 @@ const tooltipStyle = {
 
 const fallbackData: CompetitorData = {
   competitors: [
-    { club: 'Galatasaray SK', country: 'Turska', igFollowers: 15600000, igEngagement: 1.2, tiktokFollowers: 4200000, tiktokEngagement: 1.0, gapVsDinamo: 15033000, tier: 'aspirational', followerGrowth: 2.1, engagementGrowth: -0.3, contentPerWeek: 28 },
-    { club: 'Ajax Amsterdam', country: 'Nizozemska', igFollowers: 9000000, igEngagement: 1.8, tiktokFollowers: 2100000, tiktokEngagement: 1.5, gapVsDinamo: 8433000, tier: 'aspirational', followerGrowth: 1.8, engagementGrowth: 0.2, contentPerWeek: 24 },
-    { club: 'Besiktas JK', country: 'Turska', igFollowers: 5600000, igEngagement: 1.4, tiktokFollowers: 1800000, tiktokEngagement: 1.1, gapVsDinamo: 5033000, tier: 'aspirational', followerGrowth: 1.5, engagementGrowth: -0.1, contentPerWeek: 22 },
-    { club: 'Sporting CP', country: 'Portugal', igFollowers: 2800000, igEngagement: 2.1, tiktokFollowers: 950000, tiktokEngagement: 2.3, gapVsDinamo: 2233000, tier: 'stretch', followerGrowth: 3.2, engagementGrowth: 0.5, contentPerWeek: 18 },
-    { club: 'Red Bull Salzburg', country: 'Austrija', igFollowers: 542000, igEngagement: 2.4, tiktokFollowers: 320000, tiktokEngagement: 3.1, gapVsDinamo: -25000, tier: 'direct', followerGrowth: 4.8, engagementGrowth: 0.8, contentPerWeek: 16 },
-    { club: 'Slavia Praha', country: 'Ceska', igFollowers: 413000, igEngagement: 2.6, tiktokFollowers: 185000, tiktokEngagement: 2.9, gapVsDinamo: -154000, tier: 'direct', followerGrowth: 3.5, engagementGrowth: 0.4, contentPerWeek: 14 },
-    { club: 'Hajduk Split', country: 'Hrvatska', igFollowers: 302000, igEngagement: 3.1, tiktokFollowers: 145000, tiktokEngagement: 3.5, gapVsDinamo: -265000, tier: 'direct', followerGrowth: 5.2, engagementGrowth: 1.1, contentPerWeek: 12 },
-    { club: 'Ferencvaros TC', country: 'Madarska', igFollowers: 280000, igEngagement: 2.8, tiktokFollowers: 120000, tiktokEngagement: 2.7, gapVsDinamo: -287000, tier: 'direct', followerGrowth: 2.9, engagementGrowth: 0.3, contentPerWeek: 10 },
+    { company: 'GlobalReach Media', country: 'SAD', igFollowers: 15600000, igEngagement: 1.2, tiktokFollowers: 4200000, tiktokEngagement: 1.0, gapVsUs: 15033000, tier: 'aspirational', followerGrowth: 2.1, engagementGrowth: -0.3, contentPerWeek: 28 },
+    { company: 'NexaDigital Group', country: 'Nizozemska', igFollowers: 9000000, igEngagement: 1.8, tiktokFollowers: 2100000, tiktokEngagement: 1.5, gapVsUs: 8433000, tier: 'aspirational', followerGrowth: 1.8, engagementGrowth: 0.2, contentPerWeek: 24 },
+    { company: 'Pinnacle Marketing', country: 'UK', igFollowers: 5600000, igEngagement: 1.4, tiktokFollowers: 1800000, tiktokEngagement: 1.1, gapVsUs: 5033000, tier: 'aspirational', followerGrowth: 1.5, engagementGrowth: -0.1, contentPerWeek: 22 },
+    { company: 'Orbit Creative', country: 'Portugal', igFollowers: 2800000, igEngagement: 2.1, tiktokFollowers: 950000, tiktokEngagement: 2.3, gapVsUs: 2233000, tier: 'stretch', followerGrowth: 3.2, engagementGrowth: 0.5, contentPerWeek: 18 },
+    { company: 'Alpine Digital', country: 'Austrija', igFollowers: 542000, igEngagement: 2.4, tiktokFollowers: 320000, tiktokEngagement: 3.1, gapVsUs: -25000, tier: 'direct', followerGrowth: 4.8, engagementGrowth: 0.8, contentPerWeek: 16 },
+    { company: 'BrightWave Agency', country: 'Češka', igFollowers: 413000, igEngagement: 2.6, tiktokFollowers: 185000, tiktokEngagement: 2.9, gapVsUs: -154000, tier: 'direct', followerGrowth: 3.5, engagementGrowth: 0.4, contentPerWeek: 14 },
+    { company: 'Competitor A', country: 'Hrvatska', igFollowers: 302000, igEngagement: 3.1, tiktokFollowers: 145000, tiktokEngagement: 3.5, gapVsUs: -265000, tier: 'direct', followerGrowth: 5.2, engagementGrowth: 1.1, contentPerWeek: 12 },
+    { company: 'VoxMedia CEE', country: 'Mađarska', igFollowers: 280000, igEngagement: 2.8, tiktokFollowers: 120000, tiktokEngagement: 2.7, gapVsUs: -287000, tier: 'direct', followerGrowth: 2.9, engagementGrowth: 0.3, contentPerWeek: 10 },
   ],
-  dinamoIg: 567000,
-  dinamoTiktok: 245000,
-  dinamoEngagement: 3.2,
-  dinamoTiktokEngagement: 3.8,
-  dinamoFollowerGrowth: 4.2,
-  dinamoEngagementGrowth: 0.6,
-  dinamoContentPerWeek: 18,
+  ourIg: 567000,
+  ourTiktok: 245000,
+  ourEngagement: 3.2,
+  ourTiktokEngagement: 3.8,
+  ourFollowerGrowth: 4.2,
+  ourEngagementGrowth: 0.6,
+  ourContentPerWeek: 18,
   summary: {
     directCount: 4,
-    dinamoLeadsIn: 3,
-    dinamoIgFormatted: '567K',
-    dinamoRank: '#1 u direktnoj skupini',
+    weLeadIn: 3,
+    ourIgFormatted: '567K',
+    ourRank: '#1 u direktnoj skupini',
     avgEngagementDirect: 2.7,
-    dinamoEngagement: 3.2,
+    ourEngagement: 3.2,
   },
 }
 
@@ -148,7 +148,7 @@ const fallbackData: CompetitorData = {
 
 interface MatrixPayloadEntry {
   payload?: {
-    club?: string
+    company?: string
     igFollowers?: number
     igEngagement?: number
     tiktokFollowers?: number
@@ -161,10 +161,10 @@ function MatrixTooltip({ active, payload }: { active?: boolean; payload?: Matrix
   const d = payload[0].payload
   return (
     <div style={tooltipStyle} className="text-sm">
-      <p className="font-bold text-gray-900">{d.club}</p>
-      <p className="text-gray-600">IG: {formatFollowers(d.igFollowers ?? 0)} &middot; Angaz: {d.igEngagement}%</p>
-      <p className="text-gray-600">TikTok: {formatFollowers(d.tiktokFollowers ?? 0)}</p>
-      <p className="text-gray-500 text-xs mt-1">{tierLabel(d.tier ?? 'direct')}</p>
+      <p className="font-bold text-studio-text-primary">{d.company}</p>
+      <p className="text-studio-text-secondary">IG: {formatFollowers(d.igFollowers ?? 0)} &middot; Angaz: {d.igEngagement}%</p>
+      <p className="text-studio-text-secondary">TikTok: {formatFollowers(d.tiktokFollowers ?? 0)}</p>
+      <p className="text-studio-text-tertiary text-xs mt-1">{tierLabel(d.tier ?? 'direct')}</p>
     </div>
   )
 }
@@ -194,27 +194,27 @@ export default function Competitors() {
 
   const competitorList = data.competitors || fallbackData.competitors
   const summary = data.summary || fallbackData.summary
-  const dinamoIg = data.dinamoIg || fallbackData.dinamoIg
-  const dinamoTiktok = data.dinamoTiktok ?? fallbackData.dinamoTiktok
-  const dinamoEngagement = data.dinamoEngagement ?? fallbackData.dinamoEngagement
-  const dinamoTiktokEngagement = data.dinamoTiktokEngagement ?? fallbackData.dinamoTiktokEngagement
-  const dinamoFollowerGrowth = data.dinamoFollowerGrowth ?? fallbackData.dinamoFollowerGrowth
-  const dinamoEngagementGrowth = data.dinamoEngagementGrowth ?? fallbackData.dinamoEngagementGrowth
-  const dinamoContentPerWeek = data.dinamoContentPerWeek ?? fallbackData.dinamoContentPerWeek
+  const ourIg = data.ourIg || fallbackData.ourIg
+  const ourTiktok = data.ourTiktok ?? fallbackData.ourTiktok
+  const ourEngagement = data.ourEngagement ?? fallbackData.ourEngagement
+  const ourTiktokEngagement = data.ourTiktokEngagement ?? fallbackData.ourTiktokEngagement
+  const ourFollowerGrowth = data.ourFollowerGrowth ?? fallbackData.ourFollowerGrowth
+  const ourEngagementGrowth = data.ourEngagementGrowth ?? fallbackData.ourEngagementGrowth
+  const ourContentPerWeek = data.ourContentPerWeek ?? fallbackData.ourContentPerWeek
 
   const directCompetitors = competitorList.filter(c => c.tier === 'direct')
 
   // ---- Positioning matrix data ----
   const matrixData = [
     {
-      club: 'Dinamo Zagreb',
-      igFollowers: dinamoIg,
-      igEngagement: dinamoEngagement,
-      tiktokFollowers: dinamoTiktok,
-      tier: 'dinamo',
+      company: 'ShiftOneZero',
+      igFollowers: ourIg,
+      igEngagement: ourEngagement,
+      tiktokFollowers: ourTiktok,
+      tier: 'ours',
     },
     ...competitorList.map(c => ({
-      club: c.club,
+      company: c.company,
       igFollowers: c.igFollowers,
       igEngagement: c.igEngagement,
       tiktokFollowers: c.tiktokFollowers,
@@ -228,9 +228,9 @@ export default function Competitors() {
 
   // ---- Share of voice (direct competitors) ----
   const sovData = [
-    { name: 'Dinamo Zagreb', value: dinamoIg, color: SHIFTONEZERO_BRAND.colors.accent },
+    { name: 'ShiftOneZero', value: ourIg, color: SHIFTONEZERO_BRAND.colors.accent },
     ...directCompetitors.map((c, i) => ({
-      name: c.club,
+      name: c.company,
       value: c.igFollowers,
       color: ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE'][i % 4],
     })),
@@ -241,20 +241,20 @@ export default function Competitors() {
   const platformRankings = (tab: PlatformTab) => {
     const all = [
       {
-        club: 'Dinamo Zagreb',
-        igFollowers: dinamoIg,
-        igEngagement: dinamoEngagement,
-        tiktokFollowers: dinamoTiktok,
-        tiktokEngagement: dinamoTiktokEngagement,
-        isDinamo: true,
+        company: 'ShiftOneZero',
+        igFollowers: ourIg,
+        igEngagement: ourEngagement,
+        tiktokFollowers: ourTiktok,
+        tiktokEngagement: ourTiktokEngagement,
+        isOurs: true,
       },
       ...competitorList.map(c => ({
-        club: c.club,
+        company: c.company,
         igFollowers: c.igFollowers,
         igEngagement: c.igEngagement,
         tiktokFollowers: c.tiktokFollowers,
         tiktokEngagement: c.tiktokEngagement ?? 0,
-        isDinamo: false,
+        isOurs: false,
       })),
     ]
     if (tab === 'instagram') return all.sort((a, b) => b.igFollowers - a.igFollowers)
@@ -278,21 +278,21 @@ export default function Competitors() {
   const growthMetrics = [
     {
       label: 'Rast pratitelja (MoM)',
-      dinamo: dinamoFollowerGrowth,
+      ours: ourFollowerGrowth,
       avg: avgDirectFollowerGrowth,
       unit: '%',
       icon: <TrendingUp size={16} />,
     },
     {
       label: 'Rast angazmana (MoM)',
-      dinamo: dinamoEngagementGrowth,
+      ours: ourEngagementGrowth,
       avg: avgDirectEngagementGrowth,
       unit: 'pp',
       icon: <Zap size={16} />,
     },
     {
       label: 'Sadrzaj tjedno',
-      dinamo: dinamoContentPerWeek,
+      ours: ourContentPerWeek,
       avg: +avgDirectContent,
       unit: '',
       icon: <Target size={16} />,
@@ -301,19 +301,19 @@ export default function Competitors() {
 
   // ---- Follower comparison bar (kept from original) ----
   const followerComparison = [
-    { name: 'Dinamo Zagreb', value: dinamoIg },
-    ...directCompetitors.map(c => ({ name: c.club, value: c.igFollowers })),
+    { name: 'ShiftOneZero', value: ourIg },
+    ...directCompetitors.map(c => ({ name: c.company, value: c.igFollowers })),
   ]
 
   // ---- Enhanced table columns ----
   const columns = [
     {
-      key: 'club',
-      header: 'Klub',
+      key: 'company',
+      header: 'Tvrtka',
       render: (row: CompetitorRow) => (
         <div className="min-w-0">
-          <span className="text-gray-900 font-medium truncate">{row.club}</span>
-          <span className="text-xs text-gray-500 ml-2 hidden sm:inline">{row.country}</span>
+          <span className="text-studio-text-primary font-medium truncate">{row.company}</span>
+          <span className="text-xs text-studio-text-secondary ml-2 hidden sm:inline">{row.country}</span>
         </div>
       ),
     },
@@ -327,7 +327,7 @@ export default function Competitors() {
               ? 'bg-purple-100 text-purple-600'
               : row.tier === 'stretch'
               ? 'bg-yellow-100 text-yellow-600'
-              : 'bg-blue-50 text-blue-700'
+              : 'bg-blue-500/10 text-blue-400'
           }`}
         >
           {tierLabel(row.tier)}
@@ -338,7 +338,7 @@ export default function Competitors() {
       key: 'igFollowers',
       header: 'IG pratitelji',
       render: (row: CompetitorRow) => (
-        <span className="text-gray-700 font-mono">{formatFollowers(row.igFollowers)}</span>
+        <span className="text-studio-text-primary font-mono">{formatFollowers(row.igFollowers)}</span>
       ),
     },
     {
@@ -347,7 +347,7 @@ export default function Competitors() {
       render: (row: CompetitorRow) => (
         <span
           className={`text-sm ${
-            row.igEngagement > 2.5 ? 'text-green-600' : row.igEngagement > 1.5 ? 'text-yellow-600' : 'text-red-700'
+            row.igEngagement > 2.5 ? 'text-green-600' : row.igEngagement > 1.5 ? 'text-yellow-600' : 'text-red-400'
           }`}
         >
           {row.igEngagement}%
@@ -358,7 +358,7 @@ export default function Competitors() {
       key: 'tiktokFollowers',
       header: 'TikTok',
       render: (row: CompetitorRow) => (
-        <span className="text-gray-700 font-mono">{formatFollowers(row.tiktokFollowers)}</span>
+        <span className="text-studio-text-primary font-mono">{formatFollowers(row.tiktokFollowers)}</span>
       ),
     },
     {
@@ -367,7 +367,7 @@ export default function Competitors() {
       render: (row: CompetitorRow) => (
         <span
           className={`text-sm ${
-            row.tiktokEngagement > 2.5 ? 'text-green-600' : row.tiktokEngagement > 1.5 ? 'text-yellow-600' : 'text-red-700'
+            row.tiktokEngagement > 2.5 ? 'text-green-600' : row.tiktokEngagement > 1.5 ? 'text-yellow-600' : 'text-red-400'
           }`}
         >
           {row.tiktokEngagement}%
@@ -388,20 +388,20 @@ export default function Competitors() {
       },
     },
     {
-      key: 'gapVsDinamo',
-      header: 'Jaz prema Dinamu',
+      key: 'gapVsUs',
+      header: 'Jaz prema nama',
       render: (row: CompetitorRow) => {
         const icon =
-          row.gapVsDinamo > 0 ? <TrendingUp size={14} /> : row.gapVsDinamo < 0 ? <TrendingDown size={14} /> : <Minus size={14} />
+          row.gapVsUs > 0 ? <TrendingUp size={14} /> : row.gapVsUs < 0 ? <TrendingDown size={14} /> : <Minus size={14} />
         return (
           <div
             className={`flex items-center gap-1 text-sm font-mono ${
-              row.gapVsDinamo > 0 ? 'text-red-700' : 'text-green-600'
+              row.gapVsUs > 0 ? 'text-red-400' : 'text-green-600'
             }`}
           >
             {icon}
-            {row.gapVsDinamo > 0 ? '+' : ''}
-            {formatFollowers(Math.abs(row.gapVsDinamo))}
+            {row.gapVsUs > 0 ? '+' : ''}
+            {formatFollowers(Math.abs(row.gapVsUs))}
           </div>
         )
       },
@@ -422,32 +422,32 @@ export default function Competitors() {
         {/* ───── Summary cards ───── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="card">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-studio-text-secondary">
               <Shield size={14} />
               Direktni konkurenti
             </div>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.directCount}</p>
+            <p className="text-3xl font-bold text-studio-text-primary mt-1">{summary.directCount}</p>
             <p className="text-xs text-green-600 mt-1">
-              Dinamo vodi u {summary.dinamoLeadsIn} od {summary.directCount}
+              Vodimo u {summary.weLeadIn} od {summary.directCount}
             </p>
           </div>
           <div className="card">
-            <p className="text-sm text-gray-500">Dinamo IG pratitelji</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.dinamoIgFormatted}</p>
-            <p className="text-xs text-blue-700 mt-1">Rangirani {summary.dinamoRank}</p>
+            <p className="text-sm text-studio-text-secondary">Naši IG pratitelji</p>
+            <p className="text-3xl font-bold text-studio-text-primary mt-1">{summary.ourIgFormatted}</p>
+            <p className="text-xs text-dinamo-accent mt-1">Rangirani {summary.ourRank}</p>
           </div>
           <div className="card">
-            <p className="text-sm text-gray-500">Prosj. angaz. (direktni)</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{summary.avgEngagementDirect}%</p>
-            <p className="text-xs text-yellow-600 mt-1">Dinamo: {summary.dinamoEngagement}% (iznad prosjeka)</p>
+            <p className="text-sm text-studio-text-secondary">Prosj. angaz. (direktni)</p>
+            <p className="text-3xl font-bold text-studio-text-primary mt-1">{summary.avgEngagementDirect}%</p>
+            <p className="text-xs text-yellow-600 mt-1">Mi: {summary.ourEngagement}% (iznad prosjeka)</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-studio-text-secondary">
               <Zap size={14} />
               MoM rast pratitelja
             </div>
-            <p className="text-3xl font-bold text-gray-900 mt-1">+{dinamoFollowerGrowth}%</p>
-            <p className={`text-xs mt-1 ${dinamoFollowerGrowth > avgDirectFollowerGrowth ? 'text-green-600' : 'text-red-600'}`}>
+            <p className="text-3xl font-bold text-studio-text-primary mt-1">+{ourFollowerGrowth}%</p>
+            <p className={`text-xs mt-1 ${ourFollowerGrowth > avgDirectFollowerGrowth ? 'text-green-600' : 'text-red-600'}`}>
               Prosjek direktnih: +{avgDirectFollowerGrowth}%
             </p>
           </div>
@@ -456,32 +456,32 @@ export default function Competitors() {
         {/* ───── Competitive Positioning Matrix ───── */}
         <div className="card">
           <h2 className="section-title mb-2">Matrica pozicioniranja</h2>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs text-studio-text-secondary mb-4">
             X: Instagram pratitelji &middot; Y: Angaz. stopa &middot; Velicina kruga: TikTok pratitelji
           </p>
           <div className="flex flex-wrap gap-4 mb-4 text-xs">
             {(['aspirational', 'stretch', 'direct'] as const).map(t => (
               <div key={t} className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tierColor(t) }} />
-                <span className="text-gray-600">{tierLabel(t)}</span>
+                <span className="text-studio-text-secondary">{tierLabel(t)}</span>
               </div>
             ))}
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full border-2" style={{ borderColor: SHIFTONEZERO_BRAND.colors.accent, backgroundColor: '#0A1A28' }} />
-              <span className="text-gray-600">Dinamo</span>
+              <span className="text-studio-text-secondary">ShiftOneZero</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={380}>
             <ScatterChart margin={{ top: 10, right: 30, bottom: 20, left: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
               <XAxis
                 type="number"
                 dataKey="igFollowers"
                 name="IG pratitelji"
-                stroke="#6B7280"
+                stroke="#6B6B6B"
                 fontSize={11}
                 tickFormatter={(v: number) => formatFollowers(v)}
-                label={{ value: 'Instagram pratitelji', position: 'insideBottom', offset: -10, fontSize: 11, fill: '#6B7280' }}
+                label={{ value: 'Instagram pratitelji', position: 'insideBottom', offset: -10, fontSize: 11, fill: '#6B6B6B' }}
                 scale="log"
                 domain={['auto', 'auto']}
               />
@@ -489,10 +489,10 @@ export default function Competitors() {
                 type="number"
                 dataKey="igEngagement"
                 name="Angaz. (%)"
-                stroke="#6B7280"
+                stroke="#6B6B6B"
                 fontSize={11}
                 tickFormatter={(v: number) => `${v}%`}
-                label={{ value: 'Angaz. stopa (%)', angle: -90, position: 'insideLeft', offset: 5, fontSize: 11, fill: '#6B7280' }}
+                label={{ value: 'Angaz. stopa (%)', angle: -90, position: 'insideLeft', offset: 5, fontSize: 11, fill: '#6B6B6B' }}
                 domain={[0, 'auto']}
               />
               <ZAxis
@@ -505,14 +505,14 @@ export default function Competitors() {
               <Tooltip content={<MatrixTooltip />} cursor={{ strokeDasharray: '3 3' }} />
               <Scatter data={matrixData} shape="circle">
                 {matrixData.map((entry, i) => {
-                  const isDinamo = entry.tier === 'dinamo'
+                  const isOurs = entry.tier === 'ours'
                   return (
                     <Cell
                       key={i}
-                      fill={isDinamo ? SHIFTONEZERO_BRAND.colors.primary : tierColor(entry.tier)}
-                      stroke={isDinamo ? SHIFTONEZERO_BRAND.colors.accent : 'transparent'}
-                      strokeWidth={isDinamo ? 3 : 0}
-                      fillOpacity={isDinamo ? 1 : 0.75}
+                      fill={isOurs ? SHIFTONEZERO_BRAND.colors.primary : tierColor(entry.tier)}
+                      stroke={isOurs ? SHIFTONEZERO_BRAND.colors.accent : 'transparent'}
+                      strokeWidth={isOurs ? 3 : 0}
+                      fillOpacity={isOurs ? 1 : 0.75}
                     />
                   )
                 })}
@@ -537,7 +537,7 @@ export default function Competitors() {
                     outerRadius={80}
                     dataKey="value"
                     strokeWidth={2}
-                    stroke="#fff"
+                    stroke="#1A1A1A"
                   >
                     {sovData.map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
@@ -556,9 +556,9 @@ export default function Competitors() {
                     <div key={item.name} className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-700 truncate">{item.name}</p>
+                        <p className="text-sm text-studio-text-primary truncate">{item.name}</p>
                       </div>
-                      <span className="text-sm font-mono text-gray-900 font-medium">{pct}%</span>
+                      <span className="text-sm font-mono text-studio-text-primary font-medium">{pct}%</span>
                     </div>
                   )
                 })}
@@ -571,12 +571,12 @@ export default function Competitors() {
             <h2 className="section-title mb-4">Brzina rasta vs direktni konkurenti</h2>
             <div className="space-y-4">
               {growthMetrics.map(m => {
-                const diff = m.dinamo - m.avg
+                const diff = m.ours - m.avg
                 const winning = diff > 0
                 return (
                   <div key={m.label} className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-studio-text-secondary">
                         {m.icon}
                         {m.label}
                       </div>
@@ -586,30 +586,30 @@ export default function Competitors() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                          <span>Dinamo</span>
-                          <span className="font-mono font-medium text-gray-900">{m.dinamo}{m.unit}</span>
+                        <div className="flex items-center justify-between text-xs text-studio-text-secondary mb-1">
+                          <span>ShiftOneZero</span>
+                          <span className="font-mono font-medium text-studio-text-primary">{m.ours}{m.unit}</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-studio-surface-2 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full"
                             style={{
-                              width: `${Math.min(100, (m.dinamo / Math.max(m.dinamo, m.avg)) * 100)}%`,
+                              width: `${Math.min(100, (m.ours / Math.max(m.ours, m.avg)) * 100)}%`,
                               backgroundColor: SHIFTONEZERO_BRAND.colors.accent,
                             }}
                           />
                         </div>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                        <div className="flex items-center justify-between text-xs text-studio-text-secondary mb-1">
                           <span>Prosj. direktni</span>
-                          <span className="font-mono font-medium text-gray-900">{m.avg}{m.unit}</span>
+                          <span className="font-mono font-medium text-studio-text-primary">{m.avg}{m.unit}</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-studio-surface-2 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full bg-blue-400"
                             style={{
-                              width: `${Math.min(100, (m.avg / Math.max(m.dinamo, m.avg)) * 100)}%`,
+                              width: `${Math.min(100, (m.avg / Math.max(m.ours, m.avg)) * 100)}%`,
                             }}
                           />
                         </div>
@@ -626,7 +626,7 @@ export default function Competitors() {
         <div className="card">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h2 className="section-title">Usporedba po platformi</h2>
-            <div className="flex bg-gray-100 rounded-lg p-0.5">
+            <div className="flex bg-studio-surface-2 rounded-lg p-0.5">
               {([
                 { key: 'instagram' as PlatformTab, label: 'Instagram' },
                 { key: 'tiktok' as PlatformTab, label: 'TikTok' },
@@ -637,8 +637,8 @@ export default function Competitors() {
                   onClick={() => setPlatformTab(tab.key)}
                   className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
                     platformTab === tab.key
-                      ? 'bg-white text-gray-900 shadow-sm font-medium'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'bg-studio-surface-1 text-studio-text-primary shadow-sm font-medium'
+                      : 'text-studio-text-secondary hover:text-studio-text-primary'
                   }`}
                 >
                   {tab.label}
@@ -649,17 +649,17 @@ export default function Competitors() {
 
           <ResponsiveContainer width="100%" height={Math.max(280, rankings.length * 36)}>
             <BarChart data={rankings} layout="vertical" margin={{ left: 10, right: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" horizontal={false} />
               <XAxis
                 type="number"
-                stroke="#6B7280"
+                stroke="#6B6B6B"
                 fontSize={11}
                 tickFormatter={(v: number) => formatFollowers(v)}
               />
               <YAxis
-                dataKey="club"
+                dataKey="company"
                 type="category"
-                stroke="#6B7280"
+                stroke="#6B6B6B"
                 fontSize={11}
                 width={130}
                 tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
@@ -669,8 +669,8 @@ export default function Competitors() {
                     dy={4}
                     textAnchor="end"
                     fontSize={11}
-                    fill={payload.value === 'Dinamo Zagreb' ? SHIFTONEZERO_BRAND.colors.primary : '#6B7280'}
-                    fontWeight={payload.value === 'Dinamo Zagreb' ? 700 : 400}
+                    fill={payload.value === 'ShiftOneZero' ? SHIFTONEZERO_BRAND.colors.accent : '#6B6B6B'}
+                    fontWeight={payload.value === 'ShiftOneZero' ? 700 : 400}
                   >
                     {payload.value}
                   </text>
@@ -685,8 +685,8 @@ export default function Competitors() {
                   {rankings.map((entry, i) => (
                     <Cell
                       key={i}
-                      fill={entry.isDinamo ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
-                      fillOpacity={entry.isDinamo ? 1 : 0.6}
+                      fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
+                      fillOpacity={entry.isOurs ? 1 : 0.6}
                     />
                   ))}
                 </Bar>
@@ -696,8 +696,8 @@ export default function Competitors() {
                   {rankings.map((entry, i) => (
                     <Cell
                       key={i}
-                      fill={entry.isDinamo ? SHIFTONEZERO_BRAND.colors.primary : '#8B5CF6'}
-                      fillOpacity={entry.isDinamo ? 1 : 0.6}
+                      fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : '#8B5CF6'}
+                      fillOpacity={entry.isOurs ? 1 : 0.6}
                     />
                   ))}
                 </Bar>
@@ -708,8 +708,8 @@ export default function Competitors() {
                     {rankings.map((entry, i) => (
                       <Cell
                         key={i}
-                        fill={entry.isDinamo ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
-                        fillOpacity={entry.isDinamo ? 1 : 0.6}
+                        fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
+                        fillOpacity={entry.isOurs ? 1 : 0.6}
                       />
                     ))}
                   </Bar>
@@ -717,8 +717,8 @@ export default function Competitors() {
                     {rankings.map((entry, i) => (
                       <Cell
                         key={i}
-                        fill={entry.isDinamo ? SHIFTONEZERO_BRAND.colors.accent : '#8B5CF6'}
-                        fillOpacity={entry.isDinamo ? 1 : 0.5}
+                        fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.accent : '#8B5CF6'}
+                        fillOpacity={entry.isOurs ? 1 : 0.5}
                       />
                     ))}
                   </Bar>
@@ -746,7 +746,7 @@ export default function Competitors() {
           pageKey="competitors"
           pageData={{
             competitors: competitorList.map(c => ({
-              club: c.club,
+              company: c.company,
               igFollowers: c.igFollowers,
               igEngagement: c.igEngagement,
               tiktokFollowers: c.tiktokFollowers,
@@ -754,10 +754,10 @@ export default function Competitors() {
               followerGrowth: c.followerGrowth,
               tier: c.tier,
             })),
-            dinamoIg,
-            dinamoTiktok,
-            dinamoEngagement,
-            dinamoFollowerGrowth,
+            ourIg,
+            ourTiktok,
+            ourEngagement,
+            ourFollowerGrowth,
             summary,
           }}
         />

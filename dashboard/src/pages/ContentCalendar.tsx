@@ -67,10 +67,10 @@ const PLATFORM_FILTER_OPTIONS: { value: PlatformFilter; label: string; icon?: Re
 ]
 
 const STATUS_FILTER_OPTIONS: { value: StatusFilter; label: string; color: string }[] = [
-  { value: 'all', label: 'Sve', color: 'bg-gray-100 text-gray-700' },
-  { value: 'draft', label: 'Draft', color: 'bg-yellow-50 text-yellow-700' },
-  { value: 'scheduled', label: 'Zakazano', color: 'bg-blue-50 text-blue-700' },
-  { value: 'published', label: 'Objavljeno', color: 'bg-green-50 text-green-700' },
+  { value: 'all', label: 'Sve', color: 'bg-studio-surface-2 text-studio-text-primary' },
+  { value: 'draft', label: 'Draft', color: 'bg-amber-500/10 text-yellow-400' },
+  { value: 'scheduled', label: 'Zakazano', color: 'bg-blue-500/10 text-blue-400' },
+  { value: 'published', label: 'Objavljeno', color: 'bg-green-500/10 text-green-400' },
 ]
 
 const TYPE_FILTER_OPTIONS: { value: TypeFilter; label: string }[] = [
@@ -266,11 +266,11 @@ function generateFallbackData(): Record<number, Post[]> {
 const fallbackCalendar = generateFallbackData()
 
 const fallbackQueue: QueueItem[] = [
-  { id: '1', title: 'Najava utakmice: Dinamo vs Hajduk', platform: 'Instagram Reel', author: 'Tim za sadržaj', submitted: 'prije 2 sata', pillar: 'Dan utakmice' },
-  { id: '2', title: 'Akademija u fokusu: Highlights omladinskog kupa', platform: 'TikTok video', author: 'Mediji akademije', submitted: 'prije 5 sati', pillar: 'Akademija' },
-  { id: '3', title: 'Fan Q&A s Petkovicem', platform: 'YouTube Short', author: 'Odnosi s igracima', submitted: 'prije 1 dan', pillar: 'Igraci' },
-  { id: '4', title: 'Iza kulisa: Trening', platform: 'Instagram karusel', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Iza kulisa' },
-  { id: '5', title: 'Navijacki event dijaspore — Bec', platform: 'Facebook event', author: 'Tim za zajednicu', submitted: 'prije 2 dana', pillar: 'Zajednica' },
+  { id: '1', title: 'Najava nove kampanje: Proljetna kolekcija', platform: 'Instagram Reel', author: 'Tim za sadržaj', submitted: 'prije 2 sata', pillar: 'Kampanja' },
+  { id: '2', title: 'Edukativni video: Marketing trendovi 2026', platform: 'TikTok video', author: 'Tim za edukaciju', submitted: 'prije 5 sati', pillar: 'Edukacija' },
+  { id: '3', title: 'Q&A s brand ambasadorom', platform: 'YouTube Short', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Proizvodi' },
+  { id: '4', title: 'Iza kulisa: Kreativni proces', platform: 'Instagram karusel', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Iza kulisa' },
+  { id: '5', title: 'Medjunarodni event — Bec', platform: 'Facebook event', author: 'Tim za zajednicu', submitted: 'prije 2 dana', pillar: 'Zajednica' },
 ]
 
 const platformColors: Record<string, string> = {
@@ -279,29 +279,29 @@ const platformColors: Record<string, string> = {
   tiktok: 'bg-purple-500',
   youtube: 'bg-red-500',
   twitter: 'bg-sky-500',
-  web: 'bg-gray-500',
+  web: 'bg-studio-surface-00',
 }
 
 const pillarLabels: Record<string, string> = {
-  match_day: 'Dan utakmice',
-  player_spotlight: 'Igrači',
+  match_day: 'Kampanja',
+  player_spotlight: 'Proizvodi',
   behind_scenes: 'Iza kulisa',
-  academy: 'Akademija',
-  fan_engagement: 'Navijači',
-  diaspora: 'Dijaspora',
-  european_nights: 'Europske noći',
+  academy: 'Edukacija',
+  fan_engagement: 'Zajednica',
+  diaspora: 'Medjunarodno',
+  european_nights: 'Premium',
   lifestyle: 'Lifestyle',
 }
 
 const pillarColors: Record<string, string> = {
-  match_day: 'bg-red-50 text-red-700',
-  player_spotlight: 'bg-blue-50 text-blue-700',
-  behind_scenes: 'bg-amber-50 text-amber-700',
-  academy: 'bg-green-50 text-green-700',
-  fan_engagement: 'bg-purple-50 text-purple-700',
-  diaspora: 'bg-cyan-50 text-cyan-700',
-  european_nights: 'bg-indigo-50 text-indigo-700',
-  lifestyle: 'bg-pink-50 text-pink-700',
+  match_day: 'bg-red-500/10 text-red-400',
+  player_spotlight: 'bg-blue-500/10 text-blue-400',
+  behind_scenes: 'bg-amber-500/10 text-amber-400',
+  academy: 'bg-green-500/10 text-green-400',
+  fan_engagement: 'bg-purple-500/10 text-purple-400',
+  diaspora: 'bg-cyan-500/10 text-cyan-400',
+  european_nights: 'bg-indigo-500/10 text-indigo-400',
+  lifestyle: 'bg-pink-500/10 text-pink-400',
 }
 
 function formatNumber(n: number): string {
@@ -330,12 +330,12 @@ function DraggablePostDot({ post, isPast }: { post: Post; isPast: boolean }) {
     <div
       ref={setNodeRef}
       {...(isDraggable ? { ...listeners, ...attributes } : {})}
-      className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${platformColors[post.platform]?.replace('bg-', 'bg-') || 'bg-gray-100'} bg-opacity-10 ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-all hover:bg-opacity-20 group`}
+      className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${platformColors[post.platform]?.replace('bg-', 'bg-') || 'bg-studio-surface-2'} bg-opacity-10 ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-all hover:bg-opacity-20 group`}
       title={`${post.platform} - ${post.type} - ${post.title}${isDraggable ? ' (povuci za premjestiti)' : ''}`}
     >
       <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDotColors[post.status] || 'bg-gray-400'}`} />
       <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
-      <span className="text-[9px] text-gray-600 truncate max-w-[60px] hidden sm:inline">{post.title.split(' ')[0]}</span>
+      <span className="text-[9px] text-studio-text-secondary truncate max-w-[60px] hidden sm:inline">{post.title.split(' ')[0]}</span>
     </div>
   )
 }
@@ -345,7 +345,7 @@ function DroppableDay({ dayNum, children, isOver }: { dayNum: number; children: 
   const active = isOver || dropping
 
   return (
-    <div ref={setNodeRef} className={active ? 'ring-2 ring-dinamo-blue ring-inset rounded-lg' : ''}>
+    <div ref={setNodeRef} className={active ? 'ring-2 ring-dinamo-accent ring-inset rounded-lg' : ''}>
       {children}
     </div>
   )
@@ -738,7 +738,7 @@ export default function ContentCalendar() {
             <button
               onClick={handleGenerateWeek}
               disabled={generatingWeek || generating}
-              className="flex items-center gap-2 text-sm px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 text-sm px-4 py-2 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded-xl hover:bg-studio-surface-0 font-medium transition-colors disabled:opacity-50"
             >
               {generatingWeek ? <Loader2 size={16} className="animate-spin" /> : <CalendarDays size={16} />}
               {generatingWeek ? 'Generiranje...' : 'Generiraj tjedan'}
@@ -758,13 +758,13 @@ export default function ContentCalendar() {
       <div className="page-wrapper space-y-6">
         {/* Tabs + View Mode */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1 border-b border-gray-200 pb-1">
+          <div className="flex items-center gap-1 border-b border-studio-border pb-1">
             <button onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-dinamo-blue text-dinamo-blue-dark' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-dinamo-accent text-dinamo-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
               <Calendar size={16} className="inline mr-2" />Kalendar
             </button>
             <button onClick={() => setActiveTab('approvals')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-dinamo-blue text-dinamo-blue-dark' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-dinamo-accent text-dinamo-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
               <Clock size={16} className="inline mr-2" />Red za odobrenje
               <span className="ml-2 text-xs bg-yellow-500 text-white px-1.5 py-0.5 rounded-full">{queue.length}</span>
             </button>
@@ -772,16 +772,16 @@ export default function ContentCalendar() {
 
           {activeTab === 'calendar' && (
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
+              <div className="hidden sm:flex items-center gap-2 text-xs text-studio-text-secondary">
                 <BarChart3 size={14} />
                 <span>{totalPosts} objava</span>
                 <span>·</span>
                 <span>{daysWithContent}/{daysInMonth} dana</span>
               </div>
-              <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-studio-surface-0 rounded-lg p-1">
                 {([['month', LayoutGrid, 'Mjesec'], ['week', List, 'Tjedan'], ['sixmonth', CalendarDays, '6 mjeseci']] as const).map(([mode, Icon, label]) => (
                   <button key={mode} onClick={() => setViewMode(mode)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === mode ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === mode ? 'bg-studio-surface-1 shadow-sm text-studio-text-primary' : 'text-studio-text-secondary hover:text-studio-text-primary'}`}>
                     <Icon size={14} /><span className="hidden sm:inline">{label}</span>
                   </button>
                 ))}
@@ -794,7 +794,7 @@ export default function ContentCalendar() {
         {activeTab === 'calendar' && (
           <div className="card !py-3 !px-4">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3">
-              <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+              <div className="flex items-center gap-2 text-xs text-studio-text-secondary flex-shrink-0">
                 <Filter size={14} />
                 <span className="font-medium">Filteri:</span>
               </div>
@@ -805,8 +805,8 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setPlatformFilter(value)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       platformFilter === value
-                        ? 'bg-dinamo-blue text-white shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {Icon && <Icon size={12} />}
                     {label}
@@ -814,7 +814,7 @@ export default function ContentCalendar() {
                 ))}
               </div>
 
-              <div className="hidden lg:block w-px h-5 bg-gray-200" />
+              <div className="hidden lg:block w-px h-5 bg-studio-surface-3" />
 
               {/* Status filter */}
               <div className="flex items-center gap-1">
@@ -822,15 +822,15 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setStatusFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       statusFilter === value
-                        ? 'bg-dinamo-blue text-white shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
                   </button>
                 ))}
               </div>
 
-              <div className="hidden lg:block w-px h-5 bg-gray-200" />
+              <div className="hidden lg:block w-px h-5 bg-studio-surface-3" />
 
               {/* Type filter */}
               <div className="flex items-center gap-1">
@@ -838,8 +838,8 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setTypeFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       typeFilter === value
-                        ? 'bg-dinamo-blue text-white shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
                   </button>
@@ -850,7 +850,7 @@ export default function ContentCalendar() {
               {(platformFilter !== 'all' || statusFilter !== 'all' || typeFilter !== 'all') && (
                 <button
                   onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setTypeFilter('all') }}
-                  className="ml-auto text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                  className="ml-auto text-xs text-red-600 hover:text-red-400 font-medium flex items-center gap-1"
                 >
                   <X size={12} />
                   Ocisti filtere
@@ -864,14 +864,14 @@ export default function ContentCalendar() {
         {(generating || generatingWeek) && (
           <div className="card flex items-center justify-center py-12">
             <div className="text-center space-y-3">
-              <Loader2 size={40} className="animate-spin text-dinamo-blue mx-auto" />
-              <p className="text-lg font-medium text-gray-900">
+              <Loader2 size={40} className="animate-spin text-dinamo-accent mx-auto" />
+              <p className="text-lg font-medium text-studio-text-primary">
                 {generatingWeek ? 'Generiranje tjednog plana...' : 'Gemini AI generira plan...'}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-studio-text-secondary">
                 {generatingWeek
-                  ? 'Kreira sadržaj za ovaj tjedan'
-                  : `Analizira Dinamov sadržaj i kreira kvalitetne ideje za ${monthNames[currentMonth]}`}
+                  ? 'Kreira sadrzaj za ovaj tjedan'
+                  : `Analizira sadrzaj i kreira kvalitetne ideje za ${monthNames[currentMonth]}`}
               </p>
             </div>
           </div>
@@ -884,13 +884,13 @@ export default function ContentCalendar() {
             <div className="hidden xl:block" style={{ width: '220px', minWidth: '220px' }}>
               <div className="card !p-3 sticky top-4">
                 <div className="flex items-center justify-between mb-2">
-                  <button onClick={prevMonth} className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"><ChevronLeft size={14} /></button>
-                  <span className="text-xs font-bold text-gray-700">{monthNames[currentMonth]} {currentYear}</span>
-                  <button onClick={nextMonth} className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"><ChevronRight size={14} /></button>
+                  <button onClick={prevMonth} className="p-1 text-studio-text-tertiary hover:text-studio-text-primary rounded transition-colors"><ChevronLeft size={14} /></button>
+                  <span className="text-xs font-bold text-studio-text-primary">{monthNames[currentMonth]} {currentYear}</span>
+                  <button onClick={nextMonth} className="p-1 text-studio-text-tertiary hover:text-studio-text-primary rounded transition-colors"><ChevronRight size={14} /></button>
                 </div>
                 <div className="grid grid-cols-7 gap-0.5 mb-1">
                   {DAYS_OF_WEEK.map((d) => (
-                    <div key={d} className="text-center text-[9px] text-gray-400 font-medium py-0.5">{d.charAt(0)}</div>
+                    <div key={d} className="text-center text-[9px] text-studio-text-tertiary font-medium py-0.5">{d.charAt(0)}</div>
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-0.5">
@@ -906,26 +906,26 @@ export default function ContentCalendar() {
                         onClick={() => valid && setSelectedDay(isSel ? null : dn)}
                         className={`w-full aspect-square flex items-center justify-center text-[10px] rounded transition-colors relative ${
                           !valid ? 'text-transparent cursor-default'
-                          : isSel ? 'bg-dinamo-blue text-white font-bold'
-                          : isFoc ? 'bg-dinamo-blue/10 text-dinamo-blue font-bold ring-1 ring-dinamo-blue/40'
-                          : isTd ? 'bg-blue-100 text-blue-800 font-bold'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          : isSel ? 'bg-dinamo-accent text-dinamo-primary font-bold'
+                          : isFoc ? 'bg-dinamo-accent/10 text-dinamo-accent font-bold ring-1 ring-dinamo-accent/40'
+                          : isTd ? 'bg-blue-500/20 text-blue-400 font-bold'
+                          : 'text-studio-text-secondary hover:bg-studio-surface-2'
                         }`}>
                         {valid ? dn : ''}
-                        {hasPosts && !isSel && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-dinamo-blue" />}
+                        {hasPosts && !isSel && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-dinamo-accent" />}
                       </button>
                     )
                   })}
                 </div>
                 {/* Quick month jumps */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-[10px] text-gray-400 font-medium mb-1.5 uppercase tracking-wider">Brzi pristup</p>
+                <div className="mt-3 pt-3 border-t border-studio-border-subtle">
+                  <p className="text-[10px] text-studio-text-tertiary font-medium mb-1.5 uppercase tracking-wider">Brzi pristup</p>
                   <div className="grid grid-cols-3 gap-1">
                     {Array.from({ length: 12 }, (_, i) => (
                       <button key={i}
                         onClick={() => { setCurrentMonth(i); setSelectedDay(null); setGeneratedData(null) }}
                         className={`text-[10px] py-1 rounded transition-colors ${
-                          currentMonth === i ? 'bg-dinamo-blue text-white font-bold' : 'text-gray-500 hover:bg-gray-100'
+                          currentMonth === i ? 'bg-dinamo-accent text-dinamo-primary font-bold' : 'text-studio-text-secondary hover:bg-studio-surface-2'
                         }`}>
                         {monthNames[i]!.slice(0, 3)}
                       </button>
@@ -933,12 +933,12 @@ export default function ContentCalendar() {
                   </div>
                 </div>
                 {/* Keyboard hint */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Precice</p>
-                  <div className="space-y-0.5 text-[10px] text-gray-400">
-                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">&#8592;&#8593;&#8594;&#8595;</kbd> Navigacija</p>
-                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">Enter</kbd> Otvori dan</p>
-                    <p><kbd className="px-1 py-0.5 bg-gray-100 rounded text-gray-500 font-mono">Esc</kbd> Zatvori</p>
+                <div className="mt-3 pt-3 border-t border-studio-border-subtle">
+                  <p className="text-[10px] text-studio-text-tertiary font-medium mb-1 uppercase tracking-wider">Precice</p>
+                  <div className="space-y-0.5 text-[10px] text-studio-text-tertiary">
+                    <p><kbd className="px-1 py-0.5 bg-studio-surface-2 rounded text-studio-text-secondary font-mono">&#8592;&#8593;&#8594;&#8595;</kbd> Navigacija</p>
+                    <p><kbd className="px-1 py-0.5 bg-studio-surface-2 rounded text-studio-text-secondary font-mono">Enter</kbd> Otvori dan</p>
+                    <p><kbd className="px-1 py-0.5 bg-studio-surface-2 rounded text-studio-text-secondary font-mono">Esc</kbd> Zatvori</p>
                   </div>
                 </div>
               </div>
@@ -947,14 +947,14 @@ export default function ContentCalendar() {
             {/* Calendar Grid */}
             <div ref={calendarRef} className="card min-w-0 flex-1">
               <div className="flex items-center justify-between mb-6">
-                <button onClick={prevMonth} className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
-                <h2 className="text-xl font-bold text-gray-900">{monthNames[currentMonth]!.toUpperCase()} {currentYear}</h2>
-                <button onClick={nextMonth} className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"><ChevronRight size={20} /></button>
+                <button onClick={prevMonth} className="p-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
+                <h2 className="text-xl font-bold text-studio-text-primary">{monthNames[currentMonth]!.toUpperCase()} {currentYear}</h2>
+                <button onClick={nextMonth} className="p-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-lg transition-colors"><ChevronRight size={20} /></button>
               </div>
 
               <div className="grid grid-cols-7 gap-1 mb-1">
                 {DAYS_OF_WEEK.map((day) => (
-                  <div key={day} className="text-center text-xs text-gray-500 font-medium py-2">{day}</div>
+                  <div key={day} className="text-center text-xs text-studio-text-secondary font-medium py-2">{day}</div>
                 ))}
               </div>
 
@@ -972,27 +972,27 @@ export default function ContentCalendar() {
                     <div key={i} onClick={() => { if (isValid) { setSelectedDay(isSelected ? null : dayNum); setFocusedDay(dayNum) } }}
                       className={`min-h-[72px] sm:min-h-[90px] p-2 rounded-lg border transition-all ${
                         !isValid ? 'border-transparent bg-transparent pointer-events-none'
-                        : isSelected ? 'border-dinamo-blue bg-dinamo-blue/5 ring-1 ring-dinamo-blue/20 cursor-pointer'
-                        : isFocused ? 'border-dinamo-blue/50 bg-dinamo-blue/[0.02] cursor-pointer ring-1 ring-dinamo-blue/10'
-                        : isToday ? 'border-blue-400 bg-blue-50 cursor-pointer'
-                        : isPast ? 'border-gray-200 bg-gray-50/50 cursor-pointer'
-                        : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
+                        : isSelected ? 'border-dinamo-accent bg-dinamo-accent/5 ring-1 ring-dinamo-accent/20 cursor-pointer'
+                        : isFocused ? 'border-dinamo-accent/50 bg-dinamo-accent/[0.02] cursor-pointer ring-1 ring-dinamo-accent/10'
+                        : isToday ? 'border-blue-400 bg-blue-500/10 cursor-pointer'
+                        : isPast ? 'border-studio-border bg-studio-surface-0/50 cursor-pointer'
+                        : 'border-studio-border bg-studio-surface-1 hover:bg-studio-surface-0 hover:border-studio-border cursor-pointer'
                       }`}>
                       {isValid && (
                         <>
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-dinamo-blue-dark font-bold' : isPast ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-dinamo-accent font-bold' : isPast ? 'text-studio-text-tertiary' : 'text-studio-text-secondary'}`}>
                               {dayNum}
                             </span>
                             {posts.length > 0 && (
-                              <span className={`text-[10px] font-mono ${posts.length >= 3 ? 'text-green-700 font-bold' : 'text-gray-400'}`}>{posts.length}</span>
+                              <span className={`text-[10px] font-mono ${posts.length >= 3 ? 'text-green-400 font-bold' : 'text-studio-text-tertiary'}`}>{posts.length}</span>
                             )}
                           </div>
                           <div className="flex flex-col gap-0.5 mt-1">
                             {posts.slice(0, 3).map((post) => (
                               <DraggablePostDot key={post.id} post={post} isPast={!!isPast} />
                             ))}
-                            {posts.length > 3 && <span className="text-[9px] text-gray-400 pl-0.5">+{posts.length - 3} vise</span>}
+                            {posts.length > 3 && <span className="text-[9px] text-studio-text-tertiary pl-0.5">+{posts.length - 3} vise</span>}
                           </div>
                         </>
                       )}
@@ -1005,20 +1005,20 @@ export default function ContentCalendar() {
                 })}
               </div>
 
-              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200 flex-wrap">
-                <span className="text-xs text-gray-500 font-medium">Platforme:</span>
+              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-studio-border flex-wrap">
+                <span className="text-xs text-studio-text-secondary font-medium">Platforme:</span>
                 {Object.entries(platformColors).slice(0, 4).map(([platform, color]) => (
                   <div key={platform} className="flex items-center gap-1.5">
                     <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-                    <span className="text-xs text-gray-500 capitalize">{platform}</span>
+                    <span className="text-xs text-studio-text-secondary capitalize">{platform}</span>
                   </div>
                 ))}
-                <span className="text-xs text-gray-300 mx-1">|</span>
-                <span className="text-xs text-gray-500 font-medium">Status:</span>
+                <span className="text-xs text-studio-text-disabled mx-1">|</span>
+                <span className="text-xs text-studio-text-secondary font-medium">Status:</span>
                 {[['published', 'Objavljeno', 'bg-green-500'], ['scheduled', 'Zakazano', 'bg-blue-500'], ['draft', 'Draft', 'bg-yellow-500']].map(([status, label, color]) => (
                   <div key={status} className="flex items-center gap-1.5">
                     <div className={`w-2 h-2 rounded-full ${color}`} />
-                    <span className="text-xs text-gray-500">{label}</span>
+                    <span className="text-xs text-studio-text-secondary">{label}</span>
                   </div>
                 ))}
               </div>
@@ -1027,68 +1027,68 @@ export default function ContentCalendar() {
             {/* Day Detail Panel */}
             {selectedDay && (
               <div className="hidden lg:block card animate-slide-in max-h-[calc(100vh-200px)] overflow-y-auto" style={{ width: '384px', minWidth: '384px', maxWidth: '384px' }}>
-                <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-4 sticky top-0 bg-studio-surface-1 pb-2 border-b border-studio-border">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">{selectedDay}. {monthNames[currentMonth]}</h3>
-                    <p className="text-xs text-gray-500">{dayNames[new Date(currentYear, currentMonth, selectedDay).getDay()]}</p>
+                    <h3 className="text-lg font-bold text-studio-text-primary">{selectedDay}. {monthNames[currentMonth]}</h3>
+                    <p className="text-xs text-studio-text-secondary">{dayNames[new Date(currentYear, currentMonth, selectedDay).getDay()]}</p>
                   </div>
-                  <button onClick={() => setSelectedDay(null)} className="p-1 hover:bg-gray-100 rounded"><X size={16} className="text-gray-500" /></button>
+                  <button onClick={() => setSelectedDay(null)} className="p-1 hover:bg-studio-surface-2 rounded"><X size={16} className="text-studio-text-secondary" /></button>
                 </div>
 
                 {selectedDayPosts.length === 0 ? (
-                  <p className="text-sm text-gray-500 py-8 text-center">Nema objava za ovaj dan</p>
+                  <p className="text-sm text-studio-text-secondary py-8 text-center">Nema objava za ovaj dan</p>
                 ) : (
                   <div className="space-y-3">
                     {selectedDayPosts.map((post) => {
                       const isPast = post.status === 'published' || post.status === 'missed'
                       return (
                         <div key={post.id} onClick={() => setSelectedPost(post)}
-                          className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-transparent hover:border-gray-200">
+                          className="p-3 bg-studio-surface-0 rounded-lg hover:bg-studio-surface-2 transition-colors cursor-pointer border border-transparent hover:border-studio-border">
                           {/* Status + Time */}
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <PlatformIcon platform={post.platform} size="sm" />
-                              <span className="text-xs font-medium text-gray-500 capitalize">{post.type}</span>
+                              <span className="text-xs font-medium text-studio-text-secondary capitalize">{post.type}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500">{post.scheduled_time}</span>
-                              {post.status === 'published' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">Objavljeno</span>}
-                              {post.status === 'scheduled' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">Zakazano</span>}
-                              {post.status === 'draft' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-50 text-yellow-700 font-medium">Draft</span>}
-                              {post.status === 'missed' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-50 text-red-700 font-medium">Propušteno</span>}
+                              <span className="text-xs text-studio-text-secondary">{post.scheduled_time}</span>
+                              {post.status === 'published' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 font-medium">Objavljeno</span>}
+                              {post.status === 'scheduled' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-medium">Zakazano</span>}
+                              {post.status === 'draft' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-yellow-400 font-medium">Draft</span>}
+                              {post.status === 'missed' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 font-medium">Propušteno</span>}
                             </div>
                           </div>
 
                           {/* Title */}
-                          <p className="text-sm text-gray-900 font-medium">{post.title}</p>
+                          <p className="text-sm text-studio-text-primary font-medium">{post.title}</p>
 
                           {/* Pillar tag */}
-                          <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full ${pillarColors[post.content_pillar] || 'bg-gray-50 text-gray-500'}`}>
+                          <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full ${pillarColors[post.content_pillar] || 'bg-studio-surface-0 text-studio-text-secondary'}`}>
                             {pillarLabels[post.content_pillar] || post.content_pillar}
                           </span>
 
                           {/* Metrics for published posts */}
                           {isPast && post.metrics && (
-                            <div className="flex items-center gap-3 mt-2 pt-2 border-t border-gray-200">
-                              <span className="text-xs text-gray-500 flex items-center gap-1"><Eye size={11} /> {formatNumber(post.metrics.views)}</span>
-                              <span className="text-xs text-gray-500 flex items-center gap-1"><Heart size={11} /> {formatNumber(post.metrics.likes)}</span>
-                              <span className="text-xs text-gray-500 flex items-center gap-1"><MessageCircle size={11} /> {formatNumber(post.metrics.comments)}</span>
-                              <span className={`text-xs font-bold ${post.metrics.engagement_rate > 5 ? 'text-green-700' : 'text-gray-500'}`}>{post.metrics.engagement_rate}%</span>
+                            <div className="flex items-center gap-3 mt-2 pt-2 border-t border-studio-border">
+                              <span className="text-xs text-studio-text-secondary flex items-center gap-1"><Eye size={11} /> {formatNumber(post.metrics.views)}</span>
+                              <span className="text-xs text-studio-text-secondary flex items-center gap-1"><Heart size={11} /> {formatNumber(post.metrics.likes)}</span>
+                              <span className="text-xs text-studio-text-secondary flex items-center gap-1"><MessageCircle size={11} /> {formatNumber(post.metrics.comments)}</span>
+                              <span className={`text-xs font-bold ${post.metrics.engagement_rate > 5 ? 'text-green-400' : 'text-studio-text-secondary'}`}>{post.metrics.engagement_rate}%</span>
                             </div>
                           )}
 
                           {/* Description for future posts */}
                           {!isPast && post.description && (
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{post.description}</p>
+                            <p className="text-xs text-studio-text-secondary mt-1 line-clamp-2">{post.description}</p>
                           )}
 
                           {/* Hashtags preview */}
                           {!isPast && post.hashtags && post.hashtags.length > 0 && (
                             <div className="flex gap-1 mt-1 flex-wrap">
                               {post.hashtags.slice(0, 3).map((tag) => (
-                                <span key={tag} className="text-[10px] text-blue-700">{tag}</span>
+                                <span key={tag} className="text-[10px] text-blue-400">{tag}</span>
                               ))}
-                              {post.hashtags.length > 3 && <span className="text-[10px] text-gray-500">+{post.hashtags.length - 3}</span>}
+                              {post.hashtags.length > 3 && <span className="text-[10px] text-studio-text-secondary">+{post.hashtags.length - 3}</span>}
                             </div>
                           )}
                         </div>
@@ -1101,9 +1101,9 @@ export default function ContentCalendar() {
           </div>
           <DragOverlay>
             {draggedPost && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border-2 border-dinamo-blue shadow-lg text-xs">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio-surface-1 rounded-lg border-2 border-dinamo-accent shadow-lg text-xs">
                 <div className={`w-3 h-3 rounded-full ${platformColors[draggedPost.platform] || 'bg-gray-400'}`} />
-                <span className="font-medium text-gray-900 truncate max-w-[150px]">{draggedPost.title}</span>
+                <span className="font-medium text-studio-text-primary truncate max-w-[150px]">{draggedPost.title}</span>
               </div>
             )}
           </DragOverlay>
@@ -1117,7 +1117,7 @@ export default function ContentCalendar() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="section-title">6-Mjesečna strategija</h2>
-                  <p className="text-xs text-gray-500 mt-1">Planiranje sadržaja za {monthNames[currentMonth]} {currentYear} — {monthNames[(currentMonth + 5) % 12]} {currentYear + Math.floor((currentMonth + 5) / 12)}</p>
+                  <p className="text-xs text-studio-text-secondary mt-1">Planiranje sadržaja za {monthNames[currentMonth]} {currentYear} — {monthNames[(currentMonth + 5) % 12]} {currentYear + Math.floor((currentMonth + 5) / 12)}</p>
                 </div>
                 <button
                   onClick={async () => {
@@ -1155,44 +1155,44 @@ export default function ContentCalendar() {
                   const m = (currentMonth + i) % 12
                   const y = currentYear + Math.floor((currentMonth + i) / 12)
                   const monthThemes: Record<number, string> = {
-                    0: 'Zimska pauza', 1: 'Proljetni start', 2: 'Liga + Europa',
-                    3: 'Borba za naslov', 4: 'Završnica sezone', 5: 'Kraj sezone',
-                    6: 'Ljetne pripreme', 7: 'Nova sezona', 8: 'UEFA grupna',
-                    9: 'Derbiji', 10: 'Black Friday', 11: 'Božićni sadržaj',
+                    0: 'Novi pocetci', 1: 'Proljetni start', 2: 'Q1 kampanje',
+                    3: 'Proljetna promocija', 4: 'Ljetna najava', 5: 'Mid-year review',
+                    6: 'Ljetna kampanja', 7: 'Back to business', 8: 'Jesenska strategija',
+                    9: 'Q4 priprema', 10: 'Black Friday', 11: 'Bozicni sadrzaj',
                   }
                   const isCurrentMonthCard = i === 0
                   return (
                     <div key={i}
                       className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
                         isCurrentMonthCard
-                          ? 'border-dinamo-blue bg-blue-50 shadow-sm'
-                          : 'border-gray-200 bg-gray-50 hover:border-dinamo-blue/30 hover:bg-white'
+                          ? 'border-dinamo-accent bg-blue-500/10 shadow-sm'
+                          : 'border-studio-border bg-studio-surface-0 hover:border-dinamo-accent/30 hover:bg-studio-surface-1'
                       }`}
                       onClick={() => { setCurrentMonth(m); setCurrentYear(y); setViewMode('month') }}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-bold text-gray-900">{monthNames[m]}</p>
+                        <p className="text-sm font-bold text-studio-text-primary">{monthNames[m]}</p>
                         {isCurrentMonthCard && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-dinamo-blue text-white font-medium">Trenutni</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-dinamo-accent text-dinamo-primary font-medium">Trenutni</span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mb-3">{y}</p>
-                      <p className="text-[10px] text-gray-400 mb-3 italic">{monthThemes[m] || ''}</p>
+                      <p className="text-xs text-studio-text-secondary mb-3">{y}</p>
+                      <p className="text-[10px] text-studio-text-tertiary mb-3 italic">{monthThemes[m] || ''}</p>
 
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Objave</span>
-                          <span className="text-gray-700 font-mono font-bold">{isCurrentMonthCard ? totalPosts : '—'}</span>
+                          <span className="text-studio-text-secondary">Objave</span>
+                          <span className="text-studio-text-primary font-mono font-bold">{isCurrentMonthCard ? totalPosts : '—'}</span>
                         </div>
                         {isCurrentMonthCard && totalPosts > 0 && (
                           <>
                             <div className="flex justify-between text-xs">
-                              <span className="text-gray-500">Dani</span>
-                              <span className="text-gray-700 font-mono">{daysWithContent}/{daysInMonth}</span>
+                              <span className="text-studio-text-secondary">Dani</span>
+                              <span className="text-studio-text-primary font-mono">{daysWithContent}/{daysInMonth}</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                            <div className="w-full bg-studio-surface-3 rounded-full h-1.5 mt-1">
                               <div
-                                className="bg-dinamo-blue h-1.5 rounded-full transition-all"
+                                className="bg-dinamo-accent h-1.5 rounded-full transition-all"
                                 style={{ width: `${Math.min((daysWithContent / daysInMonth) * 100, 100)}%` }}
                               />
                             </div>
@@ -1207,19 +1207,19 @@ export default function ContentCalendar() {
 
             {/* Platform Distribution */}
             <div className="card">
-              <h3 className="text-sm font-bold text-gray-900 mb-3">Distribucija po platformi (trenutni mjesec)</h3>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-3">Distribucija po platformi (trenutni mjesec)</h3>
               <div className="grid grid-cols-4 gap-3">
                 {(['instagram', 'facebook', 'tiktok', 'youtube'] as const).map(platform => {
                   const count = Object.values(calendarData).flat().filter(p => p.platform === platform).length
                   const pct = totalPosts > 0 ? Math.round((count / totalPosts) * 100) : 0
                   return (
-                    <div key={platform} className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-lg font-bold text-gray-900">{count}</p>
-                      <p className="text-xs text-gray-500 capitalize">{platform}</p>
-                      <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+                    <div key={platform} className="bg-studio-surface-0 rounded-lg p-3 text-center">
+                      <p className="text-lg font-bold text-studio-text-primary">{count}</p>
+                      <p className="text-xs text-studio-text-secondary capitalize">{platform}</p>
+                      <div className="w-full bg-studio-surface-3 rounded-full h-1 mt-2">
                         <div className={`h-1 rounded-full ${platformColors[platform] || 'bg-gray-400'}`} style={{ width: `${pct}%` }} />
                       </div>
-                      <p className="text-[10px] text-gray-400 mt-1">{pct}%</p>
+                      <p className="text-[10px] text-studio-text-tertiary mt-1">{pct}%</p>
                     </div>
                   )
                 })}
@@ -1237,23 +1237,23 @@ export default function ContentCalendar() {
                 const posts = calendarData[dayNum] || []
                 const isPast = isCurrentMonth && dayNum < todayDay
                 return (
-                  <div key={day} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div key={day} className="flex items-center gap-4 p-3 bg-studio-surface-0 rounded-lg">
                     <div className="w-16 text-center">
-                      <p className="text-xs text-gray-500">{day}</p>
-                      <p className={`text-lg font-bold ${dayNum === todayDay ? 'text-blue-700' : 'text-gray-900'}`}>{dayNum > 0 && dayNum <= daysInMonth ? dayNum : '—'}</p>
+                      <p className="text-xs text-studio-text-secondary">{day}</p>
+                      <p className={`text-lg font-bold ${dayNum === todayDay ? 'text-blue-400' : 'text-studio-text-primary'}`}>{dayNum > 0 && dayNum <= daysInMonth ? dayNum : '—'}</p>
                     </div>
                     <div className="flex-1 flex gap-2 flex-wrap">
                       {posts.map((post) => (
                         <div key={post.id} onClick={() => setSelectedPost(post)}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors">
+                          className="flex items-center gap-2 px-3 py-1.5 bg-studio-surface-1 rounded-lg border border-studio-border hover:border-studio-border cursor-pointer transition-colors">
                           <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDotColors[post.status] || 'bg-gray-400'}`} />
                           <PlatformIcon platform={post.platform} size="sm" />
-                          <span className="text-xs text-gray-700 font-medium">{post.title || post.type}</span>
-                          <span className="text-[10px] text-gray-400 capitalize">{post.type}</span>
-                          {isPast && post.metrics && <span className="text-[10px] text-green-700 font-bold">{post.metrics.engagement_rate}%</span>}
+                          <span className="text-xs text-studio-text-primary font-medium">{post.title || post.type}</span>
+                          <span className="text-[10px] text-studio-text-tertiary capitalize">{post.type}</span>
+                          {isPast && post.metrics && <span className="text-[10px] text-green-400 font-bold">{post.metrics.engagement_rate}%</span>}
                         </div>
                       ))}
-                      {posts.length === 0 && <span className="text-xs text-gray-400 italic">Nema objava</span>}
+                      {posts.length === 0 && <span className="text-xs text-studio-text-tertiary italic">Nema objava</span>}
                     </div>
                   </div>
                 )
@@ -1268,13 +1268,13 @@ export default function ContentCalendar() {
             <h2 className="section-title mb-4">Ceka odobrenje</h2>
             <div className="space-y-3">
               {queue.map((item) => (
-                <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-studio-surface-0 rounded-lg hover:bg-studio-surface-2 transition-colors">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-500">{item.pillar}</span>
+                      <h3 className="text-sm font-medium text-studio-text-primary">{item.title}</h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-studio-surface-1 text-studio-text-secondary">{item.pillar}</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-studio-text-secondary">
                       <span>{item.platform}</span><span>|</span><span>{item.author}</span><span>|</span><span>{item.submitted}</span>
                     </div>
                   </div>
@@ -1283,7 +1283,7 @@ export default function ContentCalendar() {
                       <button onClick={() => handleApprove(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors">
                         <Check size={14} />Odobri
                       </button>
-                      <button onClick={() => handleReject(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs rounded-lg border border-red-200 transition-colors">
+                      <button onClick={() => handleReject(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded-lg border border-red-200 transition-colors">
                         <X size={14} />Odbij
                       </button>
                     </div>
@@ -1298,36 +1298,36 @@ export default function ContentCalendar() {
       {/* POST DETAIL MODAL */}
       {selectedPost && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPost(null)}>
-          <div className="bg-white rounded-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-fade-in" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
+          <div className="bg-studio-surface-1 rounded-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-fade-in" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
 
             {/* Header with platform color stripe */}
             <div className={`h-1 ${platformColors[selectedPost.platform] || 'bg-gray-400'}`} />
-            <div className="px-6 py-4 flex items-start justify-between border-b border-gray-200">
+            <div className="px-6 py-4 flex items-start justify-between border-b border-studio-border">
               <div className="flex items-start gap-4 min-w-0">
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  selectedPost.status === 'published' ? 'bg-green-50' :
-                  selectedPost.status === 'approved' ? 'bg-emerald-50' :
-                  selectedPost.status === 'scheduled' ? 'bg-blue-50' :
-                  selectedPost.status === 'draft' ? 'bg-yellow-50' :
-                  selectedPost.status === 'failed' ? 'bg-red-50' : 'bg-red-50'
+                  selectedPost.status === 'published' ? 'bg-green-500/10' :
+                  selectedPost.status === 'approved' ? 'bg-emerald-500/10' :
+                  selectedPost.status === 'scheduled' ? 'bg-blue-500/10' :
+                  selectedPost.status === 'draft' ? 'bg-amber-500/10' :
+                  selectedPost.status === 'failed' ? 'bg-red-500/10' : 'bg-red-500/10'
                 }`}>
                   <PlatformIcon platform={selectedPost.platform} size="md" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-base font-bold text-gray-900 leading-tight">{selectedPost.title}</h2>
+                  <h2 className="text-base font-bold text-studio-text-primary leading-tight">{selectedPost.title}</h2>
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span className="text-[11px] font-medium text-gray-500 capitalize bg-gray-50 px-2 py-0.5 rounded">{selectedPost.type}</span>
-                    <span className="text-[11px] text-gray-500">{selectedPost.scheduled_time}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${pillarColors[selectedPost.content_pillar] || 'bg-gray-50 text-gray-500'}`}>
+                    <span className="text-[11px] font-medium text-studio-text-secondary capitalize bg-studio-surface-0 px-2 py-0.5 rounded">{selectedPost.type}</span>
+                    <span className="text-[11px] text-studio-text-secondary">{selectedPost.scheduled_time}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${pillarColors[selectedPost.content_pillar] || 'bg-studio-surface-0 text-studio-text-secondary'}`}>
                       {pillarLabels[selectedPost.content_pillar] || selectedPost.content_pillar}
                     </span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                      selectedPost.status === 'published' ? 'bg-green-50 text-green-700' :
-                      selectedPost.status === 'approved' ? 'bg-emerald-50 text-emerald-700' :
-                      selectedPost.status === 'scheduled' ? 'bg-blue-50 text-blue-700' :
-                      selectedPost.status === 'draft' ? 'bg-yellow-50 text-yellow-700' :
-                      selectedPost.status === 'failed' ? 'bg-red-50 text-red-700' :
-                      'bg-red-50 text-red-700'
+                      selectedPost.status === 'published' ? 'bg-green-500/10 text-green-400' :
+                      selectedPost.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400' :
+                      selectedPost.status === 'scheduled' ? 'bg-blue-500/10 text-blue-400' :
+                      selectedPost.status === 'draft' ? 'bg-amber-500/10 text-yellow-400' :
+                      selectedPost.status === 'failed' ? 'bg-red-500/10 text-red-400' :
+                      'bg-red-500/10 text-red-400'
                     }`}>
                       {selectedPost.status === 'published' ? 'Objavljeno' :
                        selectedPost.status === 'approved' ? 'Odobreno' :
@@ -1338,8 +1338,8 @@ export default function ContentCalendar() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setSelectedPost(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-2">
-                <X size={18} className="text-gray-500" />
+              <button onClick={() => setSelectedPost(null)} className="p-1.5 hover:bg-studio-surface-2 rounded-lg transition-colors flex-shrink-0 ml-2">
+                <X size={18} className="text-studio-text-secondary" />
               </button>
             </div>
 
@@ -1357,10 +1357,10 @@ export default function ContentCalendar() {
                         { label: 'Lajkovi', value: selectedPost.metrics.likes, icon: Heart },
                         { label: 'Angažman', value: selectedPost.metrics.engagement_rate, icon: TrendingUp, suffix: '%' },
                       ].map(({ label, value, icon: Icon, suffix }) => (
-                        <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
-                          <Icon size={14} className="text-gray-500 mx-auto mb-1" />
-                          <p className="text-base font-bold text-gray-900 font-headline">{suffix ? value + suffix : formatNumber(value)}</p>
-                          <p className="text-[10px] text-gray-500 mt-0.5">{label}</p>
+                        <div key={label} className="bg-studio-surface-0 rounded-xl p-3 text-center">
+                          <Icon size={14} className="text-studio-text-secondary mx-auto mb-1" />
+                          <p className="text-base font-bold text-studio-text-primary font-headline">{suffix ? value + suffix : formatNumber(value)}</p>
+                          <p className="text-[10px] text-studio-text-secondary mt-0.5">{label}</p>
                         </div>
                       ))}
                     </div>
@@ -1372,10 +1372,10 @@ export default function ContentCalendar() {
                         { label: 'Spremljeno', value: selectedPost.metrics.saves, icon: Bookmark },
                         { label: 'Prikazivanja', value: selectedPost.metrics.impressions, icon: Zap },
                       ].map(({ label, value, icon: Icon }) => (
-                        <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
-                          <Icon size={14} className="text-gray-500 mx-auto mb-1" />
-                          <p className="text-base font-bold text-gray-900 font-headline">{formatNumber(value)}</p>
-                          <p className="text-[10px] text-gray-500 mt-0.5">{label}</p>
+                        <div key={label} className="bg-studio-surface-0 rounded-xl p-3 text-center">
+                          <Icon size={14} className="text-studio-text-secondary mx-auto mb-1" />
+                          <p className="text-base font-bold text-studio-text-primary font-headline">{formatNumber(value)}</p>
+                          <p className="text-[10px] text-studio-text-secondary mt-0.5">{label}</p>
                         </div>
                       ))}
                     </div>
@@ -1389,12 +1389,12 @@ export default function ContentCalendar() {
                           { label: 'Pregledi vs prošli tjedan', pct: viewsChange.pct, up: viewsChange.up },
                           { label: 'Angažman vs prošli tjedan', pct: engChange.pct, up: engChange.up },
                         ].map(({ label, pct, up }) => (
-                          <div key={label} className={`flex-1 rounded-xl p-3 ${up ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                          <div key={label} className={`flex-1 rounded-xl p-3 ${up ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
                             <div className="flex items-center gap-1.5">
-                              {up ? <TrendingUp size={14} className="text-emerald-700" /> : <TrendingDown size={14} className="text-red-700" />}
-                              <span className={`text-sm font-bold ${up ? 'text-emerald-700' : 'text-red-700'}`}>{pct}</span>
+                              {up ? <TrendingUp size={14} className="text-emerald-400" /> : <TrendingDown size={14} className="text-red-400" />}
+                              <span className={`text-sm font-bold ${up ? 'text-emerald-400' : 'text-red-400'}`}>{pct}</span>
                             </div>
-                            <p className="text-[10px] text-gray-500 mt-1">{label}</p>
+                            <p className="text-[10px] text-studio-text-secondary mt-1">{label}</p>
                           </div>
                         ))
                       })()}
@@ -1405,29 +1405,29 @@ export default function ContentCalendar() {
                 {/* Description */}
                 {selectedPost.description && (
                   <div>
-                    <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Opis</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{selectedPost.description}</p>
+                    <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-2">Opis</p>
+                    <p className="text-sm text-studio-text-primary leading-relaxed">{selectedPost.description}</p>
                   </div>
                 )}
 
                 {/* Caption */}
                 {selectedPost.caption_hr && (
                   <div>
-                    <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-2">
                       {selectedPost.metrics ? 'Caption' : 'Predloženi caption'}
                     </p>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <p className="text-sm text-gray-700 leading-relaxed">{selectedPost.caption_hr}</p>
+                    <div className="bg-studio-surface-0 rounded-xl p-4 border border-studio-border">
+                      <p className="text-sm text-studio-text-primary leading-relaxed">{selectedPost.caption_hr}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Visual preview + generation */}
                 <div>
-                  <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Vizual</p>
+                  <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-2">Vizual</p>
                   {selectedPost.visual_url ? (
                     <div className="space-y-2">
-                      <div className="rounded-xl overflow-hidden border border-gray-200">
+                      <div className="rounded-xl overflow-hidden border border-studio-border">
                         <img
                           src={selectedPost.visual_url.startsWith('/') ? `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}${selectedPost.visual_url}` : selectedPost.visual_url}
                           alt={selectedPost.title}
@@ -1444,7 +1444,7 @@ export default function ContentCalendar() {
                           } catch { /* ignore */ } finally { setGeneratingVisual(false) }
                         }}
                         disabled={generatingVisual}
-                        className="text-xs text-blue-700 hover:text-blue-600 flex items-center gap-1"
+                        className="text-xs text-blue-400 hover:text-blue-600 flex items-center gap-1"
                       >
                         <Sparkles size={12} />
                         {generatingVisual ? 'Generiranje...' : 'Regeneriraj vizual'}
@@ -1453,9 +1453,9 @@ export default function ContentCalendar() {
                   ) : (
                     <div className="space-y-2">
                       {selectedPost.visual_brief && (
-                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Vizualni smjer</p>
-                          <p className="text-sm text-gray-500 leading-relaxed">{selectedPost.visual_brief}</p>
+                        <div className="bg-studio-surface-0 rounded-xl p-4 border border-studio-border">
+                          <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-1">Vizualni smjer</p>
+                          <p className="text-sm text-studio-text-secondary leading-relaxed">{selectedPost.visual_brief}</p>
                         </div>
                       )}
                       <button
@@ -1467,7 +1467,7 @@ export default function ContentCalendar() {
                           } catch { /* ignore */ } finally { setGeneratingVisual(false) }
                         }}
                         disabled={generatingVisual}
-                        className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors text-sm flex items-center justify-center gap-2 border border-blue-200"
+                        className="w-full py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-medium rounded-xl transition-colors text-sm flex items-center justify-center gap-2 border border-blue-200"
                       >
                         {generatingVisual ? (
                           <><Loader2 size={14} className="animate-spin" /> Generiranje vizuala...</>
@@ -1482,10 +1482,10 @@ export default function ContentCalendar() {
                 {/* Hashtags */}
                 {selectedPost.hashtags && selectedPost.hashtags.length > 0 && (
                   <div>
-                    <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Hashtags</p>
+                    <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-2">Hashtags</p>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedPost.hashtags.map((tag) => (
-                        <span key={tag} className="text-[12px] px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg font-medium">{tag}</span>
+                        <span key={tag} className="text-[12px] px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-lg font-medium">{tag}</span>
                       ))}
                     </div>
                   </div>
@@ -1494,9 +1494,9 @@ export default function ContentCalendar() {
                 {/* Published post link */}
                 {selectedPost.platform_post_url && selectedPost.status === 'published' && (
                   <div>
-                    <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Objavljeno na</p>
+                    <p className="text-[11px] font-semibold text-studio-text-secondary uppercase tracking-wider mb-2">Objavljeno na</p>
                     <a href={selectedPost.platform_post_url} target="_blank" rel="noopener noreferrer"
-                       className="text-sm text-blue-700 hover:text-blue-600 underline break-all">
+                       className="text-sm text-blue-400 hover:text-blue-600 underline break-all">
                       {selectedPost.platform_post_url}
                     </a>
                   </div>
@@ -1504,9 +1504,9 @@ export default function ContentCalendar() {
 
                 {/* Publish error */}
                 {selectedPost.publish_error && (selectedPost.status === 'failed' || selectedPost.status === 'approved') && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p className="text-[11px] font-semibold text-red-700 uppercase tracking-wider mb-1">Greška pri objavljivanju</p>
-                    <p className="text-sm text-red-700">{selectedPost.publish_error}</p>
+                  <div className="bg-red-500/10 border border-red-200 rounded-xl p-4">
+                    <p className="text-[11px] font-semibold text-red-400 uppercase tracking-wider mb-1">Greška pri objavljivanju</p>
+                    <p className="text-sm text-red-400">{selectedPost.publish_error}</p>
                   </div>
                 )}
 

@@ -57,19 +57,19 @@ type ABMetricKey = 'ctr' | 'conversions' | 'impressions' | 'clicks'
 // ---------------------------------------------------------------------------
 
 const fallbackCampaigns: CampaignRow[] = [
-  { id: '1', name: 'UCL svijest o utakmici', platform: 'Meta (IG + FB)', market: 'HR, BA, AT, DE', status: 'aktivna', budget: 4500, spend: 3820, ctr: 3.2, roas: 4.1 },
-  { id: '2', name: 'Prezentacija akademije', platform: 'TikTok', market: 'HR, SI, RS', status: 'aktivna', budget: 2000, spend: 1650, ctr: 4.8, roas: 2.9 },
-  { id: '3', name: 'Akcija sezonskih ulaznica', platform: 'Meta (IG + FB)', market: 'HR', status: 'aktivna', budget: 3000, spend: 2780, ctr: 2.1, roas: 5.2 },
-  { id: '4', name: 'Zajednica dijaspore', platform: 'YouTube + Meta', market: 'DE, AT, CH, US', status: 'pauzirana', budget: 2500, spend: 1420, ctr: 1.8, roas: 2.4 },
-  { id: '5', name: 'Lansiranje dresa 2026', platform: 'TikTok + IG', market: 'Global', status: 'aktivna', budget: 3500, spend: 2780, ctr: 5.1, roas: 3.8 },
+  { id: '1', name: 'Brand awareness Q1', platform: 'Meta (IG + FB)', market: 'HR, BA, AT, DE', status: 'aktivna', budget: 4500, spend: 3820, ctr: 3.2, roas: 4.1 },
+  { id: '2', name: 'Product launch video', platform: 'TikTok', market: 'HR, SI, RS', status: 'aktivna', budget: 2000, spend: 1650, ctr: 4.8, roas: 2.9 },
+  { id: '3', name: 'Sezonska rasprodaja', platform: 'Meta (IG + FB)', market: 'HR', status: 'aktivna', budget: 3000, spend: 2780, ctr: 2.1, roas: 5.2 },
+  { id: '4', name: 'Medjunarodni doseg', platform: 'YouTube + Meta', market: 'DE, AT, CH, US', status: 'pauzirana', budget: 2500, spend: 1420, ctr: 1.8, roas: 2.4 },
+  { id: '5', name: 'Lansiranje kolekcije 2026', platform: 'TikTok + IG', market: 'Global', status: 'aktivna', budget: 3500, spend: 2780, ctr: 5.1, roas: 3.8 },
 ]
 
 const fallbackABTest = {
-  campaign: 'Lansiranje dresa 2026',
+  campaign: 'Lansiranje kolekcije 2026',
   variants: [
-    { name: 'Varijanta A', description: 'Fokus na igraču', impressions: 85000, clicks: 4590, ctr: 5.4, conversions: 312, spend: 920, color: 'bg-blue-500' },
-    { name: 'Varijanta B', description: 'Montaza slavlja navijaca', impressions: 82000, clicks: 3936, ctr: 4.8, conversions: 245, spend: 930, color: 'bg-purple-500' },
-    { name: 'Varijanta C', description: 'Detalji dresa izbliza', impressions: 79000, clicks: 4029, ctr: 5.1, conversions: 289, spend: 930, color: 'bg-emerald-500' },
+    { name: 'Varijanta A', description: 'Fokus na proizvodu', impressions: 85000, clicks: 4590, ctr: 5.4, conversions: 312, spend: 920, color: 'bg-blue-500' },
+    { name: 'Varijanta B', description: 'Montaza korisnickih recenzija', impressions: 82000, clicks: 3936, ctr: 4.8, conversions: 245, spend: 930, color: 'bg-purple-500' },
+    { name: 'Varijanta C', description: 'Detalji proizvoda izbliza', impressions: 79000, clicks: 4029, ctr: 5.1, conversions: 289, spend: 930, color: 'bg-emerald-500' },
   ],
 }
 
@@ -360,26 +360,26 @@ export default function Campaigns() {
   const columns = [
     { key: 'name', header: 'Kampanja', render: (row: CampaignRow) => (
       <div className="min-w-0">
-        <span className="text-gray-900 font-medium truncate block">{row.name}</span>
-        <p className="text-xs text-gray-500 mt-0.5 truncate">{row.market}</p>
+        <span className="text-studio-text-primary font-medium truncate block">{row.name}</span>
+        <p className="text-xs text-studio-text-secondary mt-0.5 truncate">{row.market}</p>
       </div>
     )},
-    { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-gray-500 text-sm">{row.platform}</span> },
+    { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-studio-text-secondary text-sm">{row.platform}</span> },
     { key: 'status', header: 'Status', render: (row: CampaignRow) => <StatusBadge status={row.status} /> },
-    { key: 'budget', header: 'Budžet', render: (row: CampaignRow) => <span className="text-gray-500 font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
+    { key: 'budget', header: 'Budžet', render: (row: CampaignRow) => <span className="text-studio-text-secondary font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
     { key: 'spend', header: 'Potrošnja', render: (row: CampaignRow) => (
       <div>
-        <span className="text-gray-700 font-mono">EUR{row.spend.toLocaleString()}</span>
-        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-          <div className="bg-dinamo-blue h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
+        <span className="text-studio-text-primary font-mono">EUR{row.spend.toLocaleString()}</span>
+        <div className="w-full bg-studio-surface-3 rounded-full h-1 mt-1">
+          <div className="bg-dinamo-accent h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
         </div>
       </div>
     ), align: 'right' as const },
     { key: 'ctr', header: 'CTR', render: (row: CampaignRow) => (
-      <span className={`font-mono ${row.ctr > 3 ? 'text-green-600' : row.ctr > 2 ? 'text-yellow-600' : 'text-gray-500'}`}>{row.ctr}%</span>
+      <span className={`font-mono ${row.ctr > 3 ? 'text-green-600' : row.ctr > 2 ? 'text-yellow-600' : 'text-studio-text-secondary'}`}>{row.ctr}%</span>
     ), align: 'right' as const },
     { key: 'roas', header: 'ROAS', render: (row: CampaignRow) => (
-      <span className={`font-bold font-mono ${row.roas > 3 ? 'text-green-600' : row.roas > 2 ? 'text-yellow-600' : 'text-red-700'}`}>{row.roas}x</span>
+      <span className={`font-bold font-mono ${row.roas > 3 ? 'text-green-600' : row.roas > 2 ? 'text-yellow-600' : 'text-red-400'}`}>{row.roas}x</span>
     ), align: 'right' as const },
     { key: 'actions', header: '', render: (row: CampaignRow) => (
       <div className="flex items-center gap-1">
@@ -387,7 +387,7 @@ export default function Campaigns() {
           <button
             onClick={(e) => { e.stopPropagation(); handlePause(row.id) }}
             disabled={actionLoading === row.id}
-            className="p-1.5 hover:bg-yellow-50 rounded text-yellow-600 disabled:opacity-50"
+            className="p-1.5 hover:bg-amber-500/10 rounded text-yellow-600 disabled:opacity-50"
             title="Pauziraj"
           >
             <Pause size={14} />
@@ -396,7 +396,7 @@ export default function Campaigns() {
           <button
             onClick={(e) => { e.stopPropagation(); handleResume(row.id) }}
             disabled={actionLoading === row.id}
-            className="p-1.5 hover:bg-green-50 rounded text-green-600 disabled:opacity-50"
+            className="p-1.5 hover:bg-green-500/10 rounded text-green-600 disabled:opacity-50"
             title="Nastavi"
           >
             <Play size={14} />
@@ -444,7 +444,7 @@ export default function Campaigns() {
 
           {/* Filter buttons */}
           <div className="flex items-center gap-2 mb-4">
-            <Filter size={14} className="text-gray-400" />
+            <Filter size={14} className="text-studio-text-tertiary" />
             {(['sve', 'aktivna', 'pauzirana'] as StatusFilter[]).map((f) => {
               const label = f === 'sve' ? 'Sve' : f === 'aktivna' ? 'Aktivne' : 'Pauzirane'
               const count = f === 'sve'
@@ -458,8 +458,8 @@ export default function Campaigns() {
                   onClick={() => setStatusFilter(f)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                     statusFilter === f
-                      ? 'bg-dinamo-blue text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                      : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                   }`}
                 >
                   {label} ({count})
@@ -486,15 +486,15 @@ export default function Campaigns() {
               <h2 className="section-title">A/B test rezultati: {fallbackABTest.campaign}</h2>
             </div>
             {/* Metric selector */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-studio-surface-2 rounded-lg p-1">
               {(Object.keys(abMetricLabel) as ABMetricKey[]).map((key) => (
                 <button
                   key={key}
                   onClick={() => setAbMetric(key)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                     abMetric === key
-                      ? 'bg-white text-purple-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'bg-studio-surface-1 text-purple-700 shadow-sm'
+                      : 'text-studio-text-secondary hover:text-studio-text-primary'
                   }`}
                 >
                   {abMetricLabel[key]}
@@ -512,8 +512,8 @@ export default function Campaigns() {
                   key={variant.name}
                   className={`relative rounded-lg border p-5 space-y-3 transition-all hover:-translate-y-0.5 ${
                     isWinner
-                      ? 'border-green-300 bg-green-50 shadow-md ring-1 ring-green-200'
-                      : 'border-gray-200 bg-gray-50'
+                      ? 'border-green-300 bg-green-500/10 shadow-md ring-1 ring-green-200'
+                      : 'border-studio-border bg-studio-surface-0'
                   }`}
                 >
                   {isWinner && (
@@ -524,32 +524,32 @@ export default function Campaigns() {
                   )}
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${variant.color}`} />
-                    <h3 className="text-gray-900 font-medium">{variant.name}</h3>
+                    <h3 className="text-studio-text-primary font-medium">{variant.name}</h3>
                   </div>
-                  <p className="text-xs text-gray-500">{variant.description}</p>
+                  <p className="text-xs text-studio-text-secondary">{variant.description}</p>
 
                   {/* Highlighted metric with bar */}
-                  <div className="bg-white rounded-md p-3 border border-gray-100">
+                  <div className="bg-studio-surface-1 rounded-md p-3 border border-studio-border-subtle">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs text-gray-500">{abMetricLabel[abMetric]}</span>
-                      <span className={`text-sm font-bold font-mono ${isWinner ? 'text-green-600' : 'text-gray-700'}`}>
+                      <span className="text-xs text-studio-text-secondary">{abMetricLabel[abMetric]}</span>
+                      <span className={`text-sm font-bold font-mono ${isWinner ? 'text-green-600' : 'text-studio-text-primary'}`}>
                         {abMetric === 'ctr' ? `${variant[abMetric]}%` : variant[abMetric].toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="w-full bg-studio-surface-2 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all duration-500 ${isWinner ? 'bg-green-500' : 'bg-gray-300'}`}
+                        className={`h-2 rounded-full transition-all duration-500 ${isWinner ? 'bg-green-500' : 'bg-studio-surface-3'}`}
                         style={{ width: `${barWidth}%` }}
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-gray-200">
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Prikazivanja</span><span className="text-gray-700 font-mono">{variant.impressions.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Klikovi</span><span className="text-gray-700 font-mono">{variant.clicks.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-gray-700'}`}>{variant.ctr}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Konverzije</span><span className="text-gray-700 font-mono">{variant.conversions}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Potrošnja</span><span className="text-gray-700 font-mono">EUR{variant.spend}</span></div>
+                  <div className="space-y-2 pt-2 border-t border-studio-border">
+                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Prikazivanja</span><span className="text-studio-text-primary font-mono">{variant.impressions.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Klikovi</span><span className="text-studio-text-primary font-mono">{variant.clicks.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-studio-text-primary'}`}>{variant.ctr}%</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Konverzije</span><span className="text-studio-text-primary font-mono">{variant.conversions}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Potrošnja</span><span className="text-studio-text-primary font-mono">EUR{variant.spend}</span></div>
                   </div>
                 </div>
               )
@@ -569,15 +569,15 @@ export default function Campaigns() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeWizard} />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
+          <div className="relative bg-studio-surface-1 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-studio-border">
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Nova kampanja</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Korak {wizardStep} od 3</p>
+                <h3 className="text-lg font-bold text-studio-text-primary">Nova kampanja</h3>
+                <p className="text-xs text-studio-text-secondary mt-0.5">Korak {wizardStep} od 3</p>
               </div>
-              <button onClick={closeWizard} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                <X size={18} className="text-gray-400" />
+              <button onClick={closeWizard} className="p-1.5 hover:bg-studio-surface-2 rounded-lg transition-colors">
+                <X size={18} className="text-studio-text-tertiary" />
               </button>
             </div>
 
@@ -587,13 +587,13 @@ export default function Campaigns() {
                 <div key={s} className="flex items-center gap-2 flex-1">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     s < wizardStep ? 'bg-green-100 text-green-600'
-                    : s === wizardStep ? 'bg-dinamo-blue text-white'
-                    : 'bg-gray-100 text-gray-400'
+                    : s === wizardStep ? 'bg-dinamo-accent text-dinamo-primary'
+                    : 'bg-studio-surface-2 text-studio-text-tertiary'
                   }`}>
                     {s < wizardStep ? <Check size={14} /> : s}
                   </div>
                   {s < 3 && (
-                    <div className={`flex-1 h-0.5 rounded ${s < wizardStep ? 'bg-green-300' : 'bg-gray-200'}`} />
+                    <div className={`flex-1 h-0.5 rounded ${s < wizardStep ? 'bg-green-300' : 'bg-studio-surface-3'}`} />
                   )}
                 </div>
               ))}
@@ -605,18 +605,18 @@ export default function Campaigns() {
               {wizardStep === 1 && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Naziv kampanje</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-1.5">Naziv kampanje</label>
                     <input
                       type="text"
                       value={wizardForm.name}
                       onChange={e => setWizardForm(f => ({ ...f, name: e.target.value }))}
                       placeholder="npr. Proljetna promocija"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Platforme</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-2">Platforme</label>
                     <div className="flex flex-wrap gap-3">
                       {([
                         { key: 'meta' as const, label: 'Meta (IG + FB)' },
@@ -627,8 +627,8 @@ export default function Campaigns() {
                           key={key}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-all ${
                             wizardForm.platforms[key]
-                              ? 'border-dinamo-blue bg-dinamo-blue/5 text-dinamo-blue'
-                              : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                              ? 'border-dinamo-accent bg-dinamo-accent/5 text-dinamo-accent'
+                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
                           }`}
                         >
                           <input
@@ -642,8 +642,8 @@ export default function Campaigns() {
                           />
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                             wizardForm.platforms[key]
-                              ? 'bg-dinamo-blue border-dinamo-blue'
-                              : 'border-gray-300 bg-white'
+                              ? 'bg-dinamo-accent border-dinamo-accent'
+                              : 'border-studio-border bg-studio-surface-1'
                           }`}>
                             {wizardForm.platforms[key] && <Check size={10} className="text-white" />}
                           </div>
@@ -654,13 +654,13 @@ export default function Campaigns() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Tržište</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-1.5">Tržište</label>
                     <input
                       type="text"
                       value={wizardForm.market}
                       onChange={e => setWizardForm(f => ({ ...f, market: e.target.value }))}
                       placeholder="npr. HR, BA, DE"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
                     />
                   </div>
                 </>
@@ -670,20 +670,20 @@ export default function Campaigns() {
               {wizardStep === 2 && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Budžet (EUR)</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-1.5">Budžet (EUR)</label>
                     <input
                       type="number"
                       min={0}
                       value={wizardForm.budget || ''}
                       onChange={e => setWizardForm(f => ({ ...f, budget: Number(e.target.value) }))}
                       placeholder="npr. 3000"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all font-mono"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all font-mono"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-medium text-studio-text-primary mb-1.5">
                         <Calendar size={12} className="inline mr-1" />
                         Datum početka
                       </label>
@@ -691,11 +691,11 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.startDate}
                         onChange={e => setWizardForm(f => ({ ...f, startDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-medium text-studio-text-primary mb-1.5">
                         <Calendar size={12} className="inline mr-1" />
                         Datum završetka
                       </label>
@@ -703,13 +703,13 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.endDate}
                         onChange={e => setWizardForm(f => ({ ...f, endDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-dinamo-blue/30 focus:border-dinamo-blue outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cilj kampanje</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-2">Cilj kampanje</label>
                     <div className="grid grid-cols-3 gap-3">
                       {([
                         { value: 'awareness' as const, label: 'Svijest', icon: Eye },
@@ -722,8 +722,8 @@ export default function Campaigns() {
                           onClick={() => setWizardForm(f => ({ ...f, objective: value }))}
                           className={`flex flex-col items-center gap-2 p-4 rounded-xl border text-sm font-medium transition-all ${
                             wizardForm.objective === value
-                              ? 'border-dinamo-blue bg-dinamo-blue/5 text-dinamo-blue'
-                              : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
+                              ? 'border-dinamo-accent bg-dinamo-accent/5 text-dinamo-accent'
+                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
                           }`}
                         >
                           <Icon size={20} />
@@ -738,37 +738,37 @@ export default function Campaigns() {
               {/* Step 3: Review */}
               {wizardStep === 3 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-500 mb-4">Pregledajte podatke prije kreiranja kampanje.</p>
+                  <p className="text-sm text-studio-text-secondary mb-4">Pregledajte podatke prije kreiranja kampanje.</p>
 
-                  <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <div className="bg-studio-surface-0 rounded-xl p-4 space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Naziv</span>
-                      <span className="text-gray-900 font-medium">{wizardForm.name}</span>
+                      <span className="text-studio-text-secondary">Naziv</span>
+                      <span className="text-studio-text-primary font-medium">{wizardForm.name}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Platforme</span>
-                      <span className="text-gray-900 font-medium">{platformLabel(wizardForm.platforms)}</span>
+                      <span className="text-studio-text-secondary">Platforme</span>
+                      <span className="text-studio-text-primary font-medium">{platformLabel(wizardForm.platforms)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Tržište</span>
-                      <span className="text-gray-900 font-medium">{wizardForm.market}</span>
+                      <span className="text-studio-text-secondary">Tržište</span>
+                      <span className="text-studio-text-primary font-medium">{wizardForm.market}</span>
                     </div>
-                    <div className="border-t border-gray-200 my-1" />
+                    <div className="border-t border-studio-border my-1" />
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Budžet</span>
-                      <span className="text-gray-900 font-medium font-mono">EUR{wizardForm.budget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Početak</span>
-                      <span className="text-gray-900 font-medium">{wizardForm.startDate}</span>
+                      <span className="text-studio-text-secondary">Budžet</span>
+                      <span className="text-studio-text-primary font-medium font-mono">EUR{wizardForm.budget.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Završetak</span>
-                      <span className="text-gray-900 font-medium">{wizardForm.endDate}</span>
+                      <span className="text-studio-text-secondary">Početak</span>
+                      <span className="text-studio-text-primary font-medium">{wizardForm.startDate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Cilj</span>
-                      <span className="text-gray-900 font-medium">{objectiveLabel(wizardForm.objective)}</span>
+                      <span className="text-studio-text-secondary">Završetak</span>
+                      <span className="text-studio-text-primary font-medium">{wizardForm.endDate}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-studio-text-secondary">Cilj</span>
+                      <span className="text-studio-text-primary font-medium">{objectiveLabel(wizardForm.objective)}</span>
                     </div>
                   </div>
                 </div>
@@ -776,11 +776,11 @@ export default function Campaigns() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-studio-border bg-studio-surface-0 rounded-b-2xl">
               {wizardStep > 1 ? (
                 <button
                   onClick={() => setWizardStep((wizardStep - 1) as WizardStep)}
-                  className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-studio-text-secondary hover:text-studio-text-primary font-medium transition-colors"
                 >
                   <ChevronLeft size={16} />
                   Natrag
@@ -788,7 +788,7 @@ export default function Campaigns() {
               ) : (
                 <button
                   onClick={closeWizard}
-                  className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                  className="text-sm text-studio-text-secondary hover:text-studio-text-primary font-medium transition-colors"
                 >
                   Odustani
                 </button>
@@ -827,17 +827,17 @@ export default function Campaigns() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDetailCampaign(null)} />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
+          <div className="relative bg-studio-surface-1 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-studio-border">
               <div>
-                <h3 className="text-lg font-bold text-gray-900">{detailCampaign.name}</h3>
-                <p className="text-xs text-gray-500 mt-0.5">{detailCampaign.platform} &middot; {detailCampaign.market}</p>
+                <h3 className="text-lg font-bold text-studio-text-primary">{detailCampaign.name}</h3>
+                <p className="text-xs text-studio-text-secondary mt-0.5">{detailCampaign.platform} &middot; {detailCampaign.market}</p>
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status={detailCampaign.status} />
-                <button onClick={() => setDetailCampaign(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                  <X size={18} className="text-gray-400" />
+                <button onClick={() => setDetailCampaign(null)} className="p-1.5 hover:bg-studio-surface-2 rounded-lg transition-colors">
+                  <X size={18} className="text-studio-text-tertiary" />
                 </button>
               </div>
             </div>
@@ -845,40 +845,40 @@ export default function Campaigns() {
             {/* Metrics grid */}
             <div className="px-6 py-5 space-y-5">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">Budžet</p>
-                  <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
+                <div className="bg-studio-surface-0 rounded-xl p-4">
+                  <p className="text-xs text-studio-text-secondary mb-1">Budžet</p>
+                  <p className="text-lg font-bold text-studio-text-primary font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">Potrošeno</p>
-                  <p className="text-lg font-bold text-gray-900 font-mono">EUR{detailCampaign.spend.toLocaleString()}</p>
+                <div className="bg-studio-surface-0 rounded-xl p-4">
+                  <p className="text-xs text-studio-text-secondary mb-1">Potrošeno</p>
+                  <p className="text-lg font-bold text-studio-text-primary font-mono">EUR{detailCampaign.spend.toLocaleString()}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">CTR</p>
-                  <p className={`text-lg font-bold font-mono ${detailCampaign.ctr > 3 ? 'text-green-600' : detailCampaign.ctr > 2 ? 'text-yellow-600' : 'text-gray-700'}`}>{detailCampaign.ctr}%</p>
+                <div className="bg-studio-surface-0 rounded-xl p-4">
+                  <p className="text-xs text-studio-text-secondary mb-1">CTR</p>
+                  <p className={`text-lg font-bold font-mono ${detailCampaign.ctr > 3 ? 'text-green-600' : detailCampaign.ctr > 2 ? 'text-yellow-600' : 'text-studio-text-primary'}`}>{detailCampaign.ctr}%</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">ROAS</p>
-                  <p className={`text-lg font-bold font-mono ${detailCampaign.roas > 3 ? 'text-green-600' : detailCampaign.roas > 2 ? 'text-yellow-600' : 'text-red-700'}`}>{detailCampaign.roas}x</p>
+                <div className="bg-studio-surface-0 rounded-xl p-4">
+                  <p className="text-xs text-studio-text-secondary mb-1">ROAS</p>
+                  <p className={`text-lg font-bold font-mono ${detailCampaign.roas > 3 ? 'text-green-600' : detailCampaign.roas > 2 ? 'text-yellow-600' : 'text-red-400'}`}>{detailCampaign.roas}x</p>
                 </div>
               </div>
 
               {/* Budget progress */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Napredak budžeta</span>
-                  <span className="text-sm font-mono text-gray-500">
+                  <span className="text-sm font-medium text-studio-text-primary">Napredak budžeta</span>
+                  <span className="text-sm font-mono text-studio-text-secondary">
                     {detailCampaign.budget > 0 ? Math.round((detailCampaign.spend / detailCampaign.budget) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-studio-surface-3 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full transition-all ${
                       detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.9
                         ? 'bg-red-500'
                         : detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.7
                           ? 'bg-yellow-500'
-                          : 'bg-dinamo-blue'
+                          : 'bg-dinamo-accent'
                     }`}
                     style={{ width: `${detailCampaign.budget > 0 ? Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100) : 0}%` }}
                   />
@@ -890,12 +890,12 @@ export default function Campaigns() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Image size={16} className="text-purple-600" />
-                    <h4 className="text-sm font-medium text-gray-700">Ad varijante i vizuali</h4>
+                    <h4 className="text-sm font-medium text-studio-text-primary">Ad varijante i vizuali</h4>
                   </div>
                   <button
                     onClick={() => handleRefreshCreative(detailCampaign.id)}
                     disabled={refreshingCreative}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-all disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-200 rounded-lg transition-all disabled:opacity-50"
                   >
                     <RefreshCw size={12} className={refreshingCreative ? 'animate-spin' : ''} />
                     {refreshingCreative ? 'Generiranje...' : 'Regeneriraj vizuale'}
@@ -904,14 +904,14 @@ export default function Campaigns() {
 
                 {perfLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 size={24} className="animate-spin text-gray-400" />
+                    <Loader2 size={24} className="animate-spin text-studio-text-tertiary" />
                   </div>
                 ) : campaignPerf?.ads && campaignPerf.ads.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {campaignPerf.ads.map((ad: AdPerformance) => (
-                      <div key={ad.ad_id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                      <div key={ad.ad_id} className="border border-studio-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                         {/* Visual preview */}
-                        <div className="aspect-square bg-gray-100 relative">
+                        <div className="aspect-square bg-studio-surface-2 relative">
                           {ad.image_url ? (
                             <img
                               src={ad.image_url}
@@ -920,7 +920,7 @@ export default function Campaigns() {
                               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <div className="w-full h-full flex items-center justify-center text-studio-text-tertiary">
                               <Image size={32} />
                             </div>
                           )}
@@ -935,26 +935,26 @@ export default function Campaigns() {
                         </div>
                         {/* Ad info */}
                         <div className="p-3 space-y-2">
-                          <p className="text-sm font-medium text-gray-900 line-clamp-1">{ad.headline}</p>
+                          <p className="text-sm font-medium text-studio-text-primary line-clamp-1">{ad.headline}</p>
                           {ad.description && (
-                            <p className="text-xs text-gray-500 line-clamp-2">{ad.description}</p>
+                            <p className="text-xs text-studio-text-secondary line-clamp-2">{ad.description}</p>
                           )}
-                          <div className="grid grid-cols-2 gap-1 pt-1 border-t border-gray-100">
+                          <div className="grid grid-cols-2 gap-1 pt-1 border-t border-studio-border-subtle">
                             <div>
-                              <p className="text-[10px] text-gray-400">CTR</p>
-                              <p className="text-xs font-mono font-bold text-gray-700">{ad.ctr}%</p>
+                              <p className="text-[10px] text-studio-text-tertiary">CTR</p>
+                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.ctr}%</p>
                             </div>
                             <div>
-                              <p className="text-[10px] text-gray-400">Klikovi</p>
-                              <p className="text-xs font-mono font-bold text-gray-700">{ad.clicks.toLocaleString()}</p>
+                              <p className="text-[10px] text-studio-text-tertiary">Klikovi</p>
+                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.clicks.toLocaleString()}</p>
                             </div>
                             <div>
-                              <p className="text-[10px] text-gray-400">Konverzije</p>
-                              <p className="text-xs font-mono font-bold text-gray-700">{ad.conversions}</p>
+                              <p className="text-[10px] text-studio-text-tertiary">Konverzije</p>
+                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.conversions}</p>
                             </div>
                             <div>
-                              <p className="text-[10px] text-gray-400">Potrošnja</p>
-                              <p className="text-xs font-mono font-bold text-gray-700">EUR{ad.spend}</p>
+                              <p className="text-[10px] text-studio-text-tertiary">Potrošnja</p>
+                              <p className="text-xs font-mono font-bold text-studio-text-primary">EUR{ad.spend}</p>
                             </div>
                           </div>
                         </div>
@@ -962,17 +962,17 @@ export default function Campaigns() {
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-gray-50 rounded-xl p-6 text-center">
-                    <Image size={24} className="text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Nema podataka o varijantama</p>
-                    <p className="text-xs text-gray-400 mt-1">Vizuali će se automatski generirati pri kreiranju kampanje</p>
+                  <div className="bg-studio-surface-0 rounded-xl p-6 text-center">
+                    <Image size={24} className="text-studio-text-disabled mx-auto mb-2" />
+                    <p className="text-sm text-studio-text-secondary">Nema podataka o varijantama</p>
+                    <p className="text-xs text-studio-text-tertiary mt-1">Vizuali će se automatski generirati pri kreiranju kampanje</p>
                   </div>
                 )}
               </div>
 
               {/* Daily spend chart */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
+                <h4 className="text-sm font-medium text-studio-text-primary mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
                 <div className="flex items-end gap-2 h-32">
                   {(campaignPerf?.ads?.[0]?.daily_metrics?.length
                     ? campaignPerf.ads[0].daily_metrics.map(m => ({ day: m.date.slice(5), spend: m.spend }))
@@ -984,12 +984,12 @@ export default function Campaigns() {
                     const maxSpend = Math.max(...items, 1)
                     return (
                       <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-[10px] font-mono text-gray-500">EUR{d.spend}</span>
+                        <span className="text-[10px] font-mono text-studio-text-secondary">EUR{d.spend}</span>
                         <div
-                          className="w-full bg-dinamo-blue/80 rounded-t-md transition-all hover:bg-dinamo-blue"
+                          className="w-full bg-dinamo-accent/80 rounded-t-md transition-all hover:bg-dinamo-accent"
                           style={{ height: `${(d.spend / maxSpend) * 80}px` }}
                         />
-                        <span className="text-[10px] text-gray-400">{d.day}</span>
+                        <span className="text-[10px] text-studio-text-tertiary">{d.day}</span>
                       </div>
                     )
                   })}
@@ -998,11 +998,11 @@ export default function Campaigns() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-studio-border bg-studio-surface-0 rounded-b-2xl">
               {(detailCampaign.status === 'aktivna' || detailCampaign.status === 'active') ? (
                 <button
                   onClick={() => { handlePause(detailCampaign.id); setDetailCampaign(null) }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-xl transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-yellow-400 bg-amber-500/10 hover:bg-amber-500/20 border border-yellow-200 rounded-xl transition-all"
                 >
                   <Pause size={14} />
                   Pauziraj
@@ -1010,7 +1010,7 @@ export default function Campaigns() {
               ) : (
                 <button
                   onClick={() => { handleResume(detailCampaign.id); setDetailCampaign(null) }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-200 rounded-xl transition-all"
                 >
                   <Play size={14} />
                   Nastavi
@@ -1018,7 +1018,7 @@ export default function Campaigns() {
               )}
               <button
                 onClick={() => setDetailCampaign(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-xl transition-all hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-studio-text-secondary hover:text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-xl transition-all hover:bg-studio-surface-0"
               >
                 Zatvori
               </button>

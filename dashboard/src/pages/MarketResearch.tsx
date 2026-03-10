@@ -14,8 +14,8 @@ interface MarketRow {
   code: string
   region: string
   population: string
-  footballInterest: number
-  diaspora: number
+  marketInterest: number
+  brandAwareness: number
   trendsScore: number
   totalScore: number
   rank: number
@@ -23,16 +23,16 @@ interface MarketRow {
 
 // Fallback data
 const fallbackData: MarketRow[] = [
-  { country: 'Bosnia & Herzegovina', code: 'BA', region: 'Balkans', population: '3.2M', footballInterest: 92, diaspora: 95, trendsScore: 88, totalScore: 275, rank: 1 },
-  { country: 'Austria', code: 'AT', region: 'DACH', population: '9.1M', footballInterest: 78, diaspora: 92, trendsScore: 85, totalScore: 255, rank: 2 },
-  { country: 'Germany', code: 'DE', region: 'DACH', population: '84.4M', footballInterest: 85, diaspora: 90, trendsScore: 78, totalScore: 253, rank: 3 },
-  { country: 'Croatia', code: 'HR', region: 'Balkans', population: '3.9M', footballInterest: 96, diaspora: 100, trendsScore: 55, totalScore: 251, rank: 4 },
-  { country: 'Switzerland', code: 'CH', region: 'DACH', population: '8.8M', footballInterest: 72, diaspora: 82, trendsScore: 76, totalScore: 230, rank: 5 },
-  { country: 'Slovenia', code: 'SI', region: 'Balkans', population: '2.1M', footballInterest: 80, diaspora: 68, trendsScore: 75, totalScore: 223, rank: 6 },
-  { country: 'Serbia', code: 'RS', region: 'Balkans', population: '6.6M', footballInterest: 88, diaspora: 55, trendsScore: 72, totalScore: 215, rank: 7 },
-  { country: 'Sweden', code: 'SE', region: 'Nordics', population: '10.5M', footballInterest: 70, diaspora: 72, trendsScore: 68, totalScore: 210, rank: 8 },
-  { country: 'Turkey', code: 'TR', region: 'Other Europe', population: '85.3M', footballInterest: 90, diaspora: 30, trendsScore: 82, totalScore: 202, rank: 9 },
-  { country: 'United States', code: 'US', region: 'Americas', population: '331M', footballInterest: 45, diaspora: 78, trendsScore: 75, totalScore: 198, rank: 10 },
+  { country: 'Bosnia & Herzegovina', code: 'BA', region: 'Balkans', population: '3.2M', marketInterest: 92, brandAwareness: 95, trendsScore: 88, totalScore: 275, rank: 1 },
+  { country: 'Austria', code: 'AT', region: 'DACH', population: '9.1M', marketInterest: 78, brandAwareness: 92, trendsScore: 85, totalScore: 255, rank: 2 },
+  { country: 'Germany', code: 'DE', region: 'DACH', population: '84.4M', marketInterest: 85, brandAwareness: 90, trendsScore: 78, totalScore: 253, rank: 3 },
+  { country: 'Croatia', code: 'HR', region: 'Balkans', population: '3.9M', marketInterest: 96, brandAwareness: 100, trendsScore: 55, totalScore: 251, rank: 4 },
+  { country: 'Switzerland', code: 'CH', region: 'DACH', population: '8.8M', marketInterest: 72, brandAwareness: 82, trendsScore: 76, totalScore: 230, rank: 5 },
+  { country: 'Slovenia', code: 'SI', region: 'Balkans', population: '2.1M', marketInterest: 80, brandAwareness: 68, trendsScore: 75, totalScore: 223, rank: 6 },
+  { country: 'Serbia', code: 'RS', region: 'Balkans', population: '6.6M', marketInterest: 88, brandAwareness: 55, trendsScore: 72, totalScore: 215, rank: 7 },
+  { country: 'Sweden', code: 'SE', region: 'Nordics', population: '10.5M', marketInterest: 70, brandAwareness: 72, trendsScore: 68, totalScore: 210, rank: 8 },
+  { country: 'Turkey', code: 'TR', region: 'Other Europe', population: '85.3M', marketInterest: 90, brandAwareness: 30, trendsScore: 82, totalScore: 202, rank: 9 },
+  { country: 'United States', code: 'US', region: 'Americas', population: '331M', marketInterest: 45, brandAwareness: 78, trendsScore: 75, totalScore: 198, rank: 10 },
 ]
 
 function CountryEventsPanel({ countryCode, countryName }: { countryCode: string; countryName: string }) {
@@ -53,50 +53,50 @@ function CountryEventsPanel({ countryCode, countryName }: { countryCode: string;
   })
 
   if (loading) return (
-    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+    <div className="px-6 py-4 bg-studio-surface-0 border-t border-studio-border-subtle">
+      <div className="flex items-center gap-2 text-sm text-studio-text-secondary">
         <RefreshCw size={14} className="animate-spin" />
-        Učitavanje liga i evenata za {countryName}...
+        Učitavanje detalja i prilika za {countryName}...
       </div>
     </div>
   )
 
   if (error || !events) return (
-    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-      <p className="text-sm text-red-500">{error || 'Nema podataka'}</p>
+    <div className="px-6 py-4 bg-studio-surface-0 border-t border-studio-border-subtle">
+      <p className="text-sm text-red-400">{error || 'Nema podataka'}</p>
     </div>
   )
 
   return (
-    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+    <div className="px-6 py-4 bg-studio-surface-0 border-t border-studio-border-subtle">
       <div className="flex items-center gap-4 mb-3">
         <div className="flex items-center gap-2">
           <Trophy size={14} className="text-yellow-600" />
-          <span className="text-sm font-medium text-gray-700">{events.total_leagues} liga</span>
+          <span className="text-sm font-medium text-studio-text-primary">{events.total_leagues} kategorija</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar size={14} className="text-blue-600" />
-          <span className="text-sm font-medium text-gray-700">{events.total_events} evenata</span>
+          <span className="text-sm font-medium text-studio-text-primary">{events.total_events} prilika</span>
         </div>
       </div>
       {events.leagues.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {events.leagues.map(league => (
-            <div key={league.league_id} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-gray-200">
+            <div key={league.league_id} className="flex items-center gap-3 bg-studio-surface-1 rounded-lg p-3 border border-studio-border">
               {league.logo_url && (
                 <img src={league.logo_url} alt="" className="w-6 h-6 object-contain" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{league.name}</p>
-                <p className="text-xs text-gray-500">
-                  {league.events_count} utakmica · Tier {league.tier} · {league.season}
+                <p className="text-sm font-medium text-studio-text-primary truncate">{league.name}</p>
+                <p className="text-xs text-studio-text-secondary">
+                  {league.events_count} prilika · Tier {league.tier} · {league.season}
                 </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Nema pronađenih liga za ovu državu</p>
+        <p className="text-sm text-studio-text-secondary">Nema pronađenih kategorija za ovu državu</p>
       )}
     </div>
   )
@@ -145,8 +145,8 @@ export default function MarketResearch() {
               <MapPin size={20} className="text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{marketData.length}</p>
-              <p className="text-xs text-gray-500">Tržišta praćena</p>
+              <p className="text-2xl font-bold text-studio-text-primary">{marketData.length}</p>
+              <p className="text-xs text-studio-text-secondary">Tržišta praćena</p>
             </div>
           </div>
           <div className="card flex items-center gap-3">
@@ -154,8 +154,8 @@ export default function MarketResearch() {
               <Trophy size={20} className="text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{marketData.filter(m => m.rank <= 3).length}</p>
-              <p className="text-xs text-gray-500">Top tržišta</p>
+              <p className="text-2xl font-bold text-studio-text-primary">{marketData.filter(m => m.rank <= 3).length}</p>
+              <p className="text-xs text-studio-text-secondary">Top tržišta</p>
             </div>
           </div>
           <div className="card flex items-center gap-3">
@@ -163,8 +163,8 @@ export default function MarketResearch() {
               <Target size={20} className="text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{marketData.length > 0 ? marketData[0]?.country ?? '-' : '-'}</p>
-              <p className="text-xs text-gray-500">#1 Tržište</p>
+              <p className="text-2xl font-bold text-studio-text-primary">{marketData.length > 0 ? marketData[0]?.country ?? '-' : '-'}</p>
+              <p className="text-xs text-studio-text-secondary">#1 Tržište</p>
             </div>
           </div>
           <div className="card flex items-center gap-3">
@@ -172,17 +172,17 @@ export default function MarketResearch() {
               <Calendar size={20} className="text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-studio-text-primary">
                 {Math.round(marketData.reduce((sum, m) => sum + m.totalScore, 0) / (marketData.length || 1))}
               </p>
-              <p className="text-xs text-gray-500">Prosj. rezultat</p>
+              <p className="text-xs text-studio-text-secondary">Prosj. rezultat</p>
             </div>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-gray-500 text-sm">Bodovanje {marketData.length} ciljnih tržišta — kliknite na red za pregled liga i evenata</p>
+          <p className="text-studio-text-secondary text-sm">Bodovanje {marketData.length} ciljnih tržišta — kliknite na red za pregled detalja i prilika</p>
           <div className="flex gap-3">
             <button className="btn-ghost flex items-center gap-2 text-sm">
               <Download size={16} />
@@ -210,15 +210,15 @@ export default function MarketResearch() {
           <div className="overflow-x-auto -mx-5 px-5">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
+                <tr className="border-b border-studio-border">
                   <th className="py-3 px-2 w-8"></th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">#</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Država</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Regija</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Populacija</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Interes za nogomet</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Dijaspora</th>
-                  <th className="py-3 px-2 text-gray-500 font-medium">Ukupni rezultat</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">#</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Država</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Regija</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Populacija</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Interes za tržište</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Prepoznatljivost brenda</th>
+                  <th className="py-3 px-2 text-studio-text-secondary font-medium">Ukupni rezultat</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,7 +227,7 @@ export default function MarketResearch() {
                     <td colSpan={8} className="p-0">
                       <div
                         className={`flex items-center border-b cursor-pointer transition-colors ${
-                          expandedCountry === row.code ? 'bg-blue-50 border-blue-100' : 'hover:bg-gray-50 border-gray-100'
+                          expandedCountry === row.code ? 'bg-blue-500/10 border-blue-500/20' : 'hover:bg-studio-surface-0 border-studio-border-subtle'
                         }`}
                         onClick={() => toggleExpand(row.code)}
                       >
@@ -235,52 +235,52 @@ export default function MarketResearch() {
                           {expandedCountry === row.code ? (
                             <ChevronDown size={14} className="text-blue-500" />
                           ) : (
-                            <ChevronRight size={14} className="text-gray-400" />
+                            <ChevronRight size={14} className="text-studio-text-tertiary" />
                           )}
                         </div>
                         <div className="py-3 px-2 w-12">
-                          <span className={`font-mono font-bold ${row.rank <= 3 ? 'text-yellow-600' : 'text-gray-400'}`}>
+                          <span className={`font-mono font-bold ${row.rank <= 3 ? 'text-yellow-600' : 'text-studio-text-tertiary'}`}>
                             {row.rank}
                           </span>
                         </div>
                         <div className="py-3 px-2 flex-1 min-w-[150px]">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 font-mono w-6">{row.code}</span>
-                            <span className="text-gray-900 font-medium truncate">{row.country}</span>
+                            <span className="text-xs text-studio-text-secondary font-mono w-6">{row.code}</span>
+                            <span className="text-studio-text-primary font-medium truncate">{row.country}</span>
                           </div>
                         </div>
                         <div className="py-3 px-2 w-28">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            row.region === 'Balkans' ? 'bg-blue-100 text-blue-700' :
-                            row.region === 'DACH' ? 'bg-green-100 text-green-700' :
+                            row.region === 'Balkans' ? 'bg-blue-100 text-blue-400' :
+                            row.region === 'DACH' ? 'bg-green-100 text-green-400' :
                             row.region === 'Nordics' ? 'bg-indigo-100 text-indigo-700' :
                             row.region === 'Americas' ? 'bg-orange-100 text-orange-700' :
-                            'bg-gray-100 text-gray-700'
+                            'bg-studio-surface-2 text-studio-text-primary'
                           }`}>
                             {row.region}
                           </span>
                         </div>
                         <div className="py-3 px-2 w-24">
-                          <span className="text-gray-500">{row.population}</span>
+                          <span className="text-studio-text-secondary">{row.population}</span>
                         </div>
                         <div className="py-3 px-2 w-40">
                           <div className="flex items-center gap-2">
-                            <div className="w-16 bg-gray-200 rounded-full h-2">
-                              <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${row.footballInterest}%` }} />
+                            <div className="w-16 bg-studio-surface-3 rounded-full h-2">
+                              <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${row.marketInterest}%` }} />
                             </div>
-                            <span className="text-gray-500 text-sm">{row.footballInterest}</span>
+                            <span className="text-studio-text-secondary text-sm">{row.marketInterest}</span>
                           </div>
                         </div>
                         <div className="py-3 px-2 w-32">
                           <div className="flex items-center gap-2">
-                            <div className="w-16 bg-gray-200 rounded-full h-2">
-                              <div className="bg-purple-500 h-2 rounded-full transition-all" style={{ width: `${row.diaspora}%` }} />
+                            <div className="w-16 bg-studio-surface-3 rounded-full h-2">
+                              <div className="bg-purple-500 h-2 rounded-full transition-all" style={{ width: `${row.brandAwareness}%` }} />
                             </div>
-                            <span className="text-gray-500 text-sm">{row.diaspora}</span>
+                            <span className="text-studio-text-secondary text-sm">{row.brandAwareness}</span>
                           </div>
                         </div>
                         <div className="py-3 px-2 w-28">
-                          <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-600' : row.rank <= 10 ? 'text-gray-900' : 'text-gray-500'}`}>
+                          <span className={`font-bold ${row.rank <= 3 ? 'text-yellow-600' : row.rank <= 10 ? 'text-studio-text-primary' : 'text-studio-text-secondary'}`}>
                             {row.totalScore}
                           </span>
                         </div>
@@ -299,24 +299,24 @@ export default function MarketResearch() {
         {/* Country Detail Modal */}
         {selectedCountry && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedCountry(null)}>
-            <div className="bg-white rounded-xl shadow-xl p-6 max-w-lg w-full mx-4" onClick={e => e.stopPropagation()}>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">{selectedCountry.country}</h3>
+            <div className="bg-studio-surface-1 rounded-xl shadow-xl p-6 max-w-lg w-full mx-4" onClick={e => e.stopPropagation()}>
+              <h3 className="text-lg font-bold text-studio-text-primary mb-4">{selectedCountry.country}</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Populacija</p>
-                  <p className="text-lg font-bold text-gray-900">{selectedCountry.population}</p>
+                <div className="bg-studio-surface-0 rounded-lg p-3">
+                  <p className="text-xs text-studio-text-secondary">Populacija</p>
+                  <p className="text-lg font-bold text-studio-text-primary">{selectedCountry.population}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Ukupni rezultat</p>
+                <div className="bg-studio-surface-0 rounded-lg p-3">
+                  <p className="text-xs text-studio-text-secondary">Ukupni rezultat</p>
                   <p className="text-lg font-bold text-yellow-600">{selectedCountry.totalScore}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Interes za nogomet</p>
-                  <p className="text-lg font-bold text-blue-600">{selectedCountry.footballInterest}</p>
+                <div className="bg-studio-surface-0 rounded-lg p-3">
+                  <p className="text-xs text-studio-text-secondary">Interes za tržište</p>
+                  <p className="text-lg font-bold text-blue-600">{selectedCountry.marketInterest}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Dijaspora</p>
-                  <p className="text-lg font-bold text-purple-600">{selectedCountry.diaspora}</p>
+                <div className="bg-studio-surface-0 rounded-lg p-3">
+                  <p className="text-xs text-studio-text-secondary">Prepoznatljivost brenda</p>
+                  <p className="text-lg font-bold text-purple-600">{selectedCountry.brandAwareness}</p>
                 </div>
               </div>
               <button onClick={() => setSelectedCountry(null)} className="mt-4 w-full btn-ghost text-sm">
@@ -326,7 +326,7 @@ export default function MarketResearch() {
           </div>
         )}
 
-        <AiInsightsPanel pageKey="market_research" pageData={{ markets: marketData.slice(0, 5).map(m => ({ country: m.country, footballInterest: m.footballInterest, diaspora: m.diaspora, totalScore: m.totalScore, rank: m.rank })) }} />
+        <AiInsightsPanel pageKey="market_research" pageData={{ markets: marketData.slice(0, 5).map(m => ({ country: m.country, marketInterest: m.marketInterest, brandAwareness: m.brandAwareness, totalScore: m.totalScore, rank: m.rank })) }} />
       </div>
     </div>
   )

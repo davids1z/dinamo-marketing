@@ -107,8 +107,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 1,
       platform: 'twitter',
-      author: '@FootballCroatia',
-      text: 'Dinamo Zagreb continues to impress in the UCL group stage. Their academy pipeline is unmatched in the region. #DynamoZagreb #UCL',
+      author: '@MarketingCroatia',
+      text: 'ShiftOneZero nastavlja impresionirati s novom digitalnom strategijom. Njihov pristup tržištu je jedinstven u regiji. #MarketingHR',
       sentiment: 'positive',
       time: 'prije 15 min',
       reach: 12400,
@@ -116,8 +116,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 2,
       platform: 'instagram',
-      author: '@balkan_football_daily',
-      text: 'Petkovic scores a brace! Dinamo showing why they are the dominant force in Croatian football. The new kit looks incredible too.',
+      author: '@digital_marketing_daily',
+      text: 'Nova kampanja lansirana! ShiftOneZero pokazuje zašto su lideri u digitalnom marketingu u Hrvatskoj.',
       sentiment: 'positive',
       time: 'prije 1 sat',
       reach: 8900,
@@ -125,8 +125,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 3,
       platform: 'facebook',
-      author: 'Dinamo Fan Club Vienna',
-      text: "Watching tonight's match at our fan hub in Wien. 200+ Croatian diaspora fans. Atmosphere is electric! Ajmo Dinamo!",
+      author: 'Marketing Meetup Zagreb',
+      text: 'Odličan event sinoć s timom iz ShiftOneZero. 200+ marketing profesionalaca. Atmosfera odlična!',
       sentiment: 'positive',
       time: 'prije 2 sata',
       reach: 3200,
@@ -134,8 +134,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 4,
       platform: 'tiktok',
-      author: '@hrvatski_sport',
-      text: 'Another questionable referee decision against Dinamo. The league needs VAR consistency. This is getting ridiculous.',
+      author: '@tech_hrvatska',
+      text: 'Cijena novih premium paketa je previsoka za male poduzetnike. Trebaju razmotriti pristupačnije opcije.',
       sentiment: 'negative',
       time: 'prije 3 sata',
       reach: 45000,
@@ -143,8 +143,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 5,
       platform: 'youtube',
-      author: 'Balkan Sports TV',
-      text: "Analysis: How Dinamo Zagreb's 3-4-3 formation is revolutionizing their attacking play this season. Full breakdown in our latest video.",
+      author: 'Digital Trends HR',
+      text: 'Analiza: Kako ShiftOneZero koristi AI za personalizaciju marketinških kampanja. Detaljan pregled u našem najnovijem videu.',
       sentiment: 'neutral',
       time: 'prije 5 sati',
       reach: 18500,
@@ -152,8 +152,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 6,
       platform: 'twitter',
-      author: '@ZagrebLife',
-      text: 'Dinamo merchandise pop-up event at Ban Jelacic today - long queues but great atmosphere. New away kit is sold out already!',
+      author: '@ZagrebStartups',
+      text: 'ShiftOneZero pop-up event na Trgu danas - velika gužva ali odlična atmosfera. Novi proizvodi su brzo rasprodani!',
       sentiment: 'positive',
       time: 'prije 6 sati',
       reach: 6700,
@@ -161,8 +161,8 @@ const fallbackData: SocialListeningData = {
     {
       id: 7,
       platform: 'facebook',
-      author: 'HNL Fan Zone',
-      text: 'Stadium food prices at Maksimir need to be reviewed. Fans deserve better options for what they are paying.',
+      author: 'Korisnici Forum',
+      text: 'Korisničku podršku treba poboljšati. Vrijeme odgovora je predugo za premium korisnike.',
       sentiment: 'negative',
       time: 'prije 7 sati',
       reach: 2100,
@@ -170,21 +170,21 @@ const fallbackData: SocialListeningData = {
     {
       id: 8,
       platform: 'instagram',
-      author: '@dinamo_ultras',
-      text: 'Choreography for the next derby is going to be massive. Stay tuned. #BBB #Dinamo',
+      author: '@brandovi_hr',
+      text: 'Nova vizualna kampanja od ShiftOneZero izgleda odlično. Očekujemo još novosti. #Branding #Marketing',
       sentiment: 'neutral',
       time: 'prije 8 sati',
       reach: 15400,
     },
   ],
   trendingTopics: [
-    { id: 1, topic: '#DinamoZagreb', mentions: 4250, change: '+32%', velocity: 'raste' },
-    { id: 2, topic: '#UCL', mentions: 3800, change: '+28%', velocity: 'raste' },
-    { id: 3, topic: 'Petkovic', mentions: 2100, change: '+65%', velocity: 'u porastu' },
-    { id: 4, topic: '#Maksimir', mentions: 1450, change: '+12%', velocity: 'stabilno' },
-    { id: 5, topic: '#HNL', mentions: 1200, change: '+8%', velocity: 'stabilno' },
-    { id: 6, topic: '#DynamoAcademy', mentions: 890, change: '+45%', velocity: 'raste' },
-    { id: 7, topic: 'Transfer Rumors', mentions: 760, change: '+120%', velocity: 'u porastu' },
+    { id: 1, topic: '#ShiftOneZero', mentions: 4250, change: '+32%', velocity: 'raste' },
+    { id: 2, topic: '#DigitalMarketing', mentions: 3800, change: '+28%', velocity: 'raste' },
+    { id: 3, topic: '#AIMarketing', mentions: 2100, change: '+65%', velocity: 'u porastu' },
+    { id: 4, topic: '#BrandStrategy', mentions: 1450, change: '+12%', velocity: 'stabilno' },
+    { id: 5, topic: '#MarketingHR', mentions: 1200, change: '+8%', velocity: 'stabilno' },
+    { id: 6, topic: '#ContentCreation', mentions: 890, change: '+45%', velocity: 'raste' },
+    { id: 7, topic: '#Ecommerce', mentions: 760, change: '+120%', velocity: 'u porastu' },
   ],
   sentimentTimeline: dates14.map((date, i) => {
     // Slightly varied percentages for realistic chart
@@ -202,10 +202,10 @@ const fallbackData: SocialListeningData = {
     return { date, mentions: volumes[i]! };
   }),
   competitorMentions: [
-    { name: 'Dinamo Zagreb', mentions: 2450, color: SHIFTONEZERO_BRAND.colors.blue },
-    { name: 'Hajduk Split', mentions: 1820, color: '#E4405F' },
-    { name: 'Rijeka', mentions: 680, color: '#6B7280' },
-    { name: 'Osijek', mentions: 520, color: '#F59E0B' },
+    { name: 'ShiftOneZero', mentions: 2450, color: SHIFTONEZERO_BRAND.colors.accent },
+    { name: 'Competitor A', mentions: 1820, color: '#E4405F' },
+    { name: 'Competitor B', mentions: 680, color: '#6B7280' },
+    { name: 'Competitor C', mentions: 520, color: '#F59E0B' },
   ],
 };
 
@@ -237,8 +237,8 @@ const PLATFORM_FILTER_OPTIONS = [
 
 const sentimentIcon = (s: string) => {
   if (s === 'positive') return <ThumbsUp size={14} className="text-green-600" />;
-  if (s === 'negative') return <ThumbsDown size={14} className="text-red-700" />;
-  return <Minus size={14} className="text-gray-500" />;
+  if (s === 'negative') return <ThumbsDown size={14} className="text-red-400" />;
+  return <Minus size={14} className="text-studio-text-secondary" />;
 };
 
 const sentimentLabel = (s: string) => {
@@ -253,7 +253,16 @@ const sentimentLabel = (s: string) => {
 
 export default function SocialListening() {
   const { data: apiData, loading } = useApi<SocialListeningData>('/social-listening/trending');
-  const data = apiData || fallbackData;
+  const data: SocialListeningData = apiData
+    ? {
+        metrics: apiData.metrics ?? fallbackData.metrics,
+        recentMentions: apiData.recentMentions ?? fallbackData.recentMentions,
+        trendingTopics: apiData.trendingTopics ?? fallbackData.trendingTopics,
+        sentimentTimeline: apiData.sentimentTimeline ?? fallbackData.sentimentTimeline,
+        mentionVolume: apiData.mentionVolume ?? fallbackData.mentionVolume,
+        competitorMentions: apiData.competitorMentions ?? fallbackData.competitorMentions,
+      }
+    : fallbackData;
 
   // Filters
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
@@ -303,18 +312,18 @@ export default function SocialListening() {
         {/* Crisis Detection Alert                                           */}
         {/* ---------------------------------------------------------------- */}
         {isCrisis ? (
-          <div className="flex items-center justify-between gap-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="flex items-center justify-between gap-4 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle size={20} className="text-red-600" />
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={20} className="text-red-400" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-500/15 px-2 py-0.5 rounded-full">
                     Krizni signal
                   </span>
                 </div>
-                <p className="text-sm text-red-800">
+                <p className="text-sm text-red-300">
                   Negativni sentiment je na <span className="font-semibold">{negativePercent.toFixed(1)}%</span> &mdash; iznad praga od {CRISIS_THRESHOLD}%.
                   Potrebna pažnja za recentne negativne reakcije.
                 </p>
@@ -325,15 +334,15 @@ export default function SocialListening() {
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl">
-            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-              <ShieldCheck size={20} className="text-green-600" />
+          <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
+            <div className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck size={20} className="text-green-400" />
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold uppercase tracking-wider text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">
                 Nema kriznih signala
               </span>
-              <p className="text-sm text-green-800 mt-1">
+              <p className="text-sm text-green-300 mt-1">
                 Negativni sentiment je na {negativePercent.toFixed(1)}% &mdash; ispod praga od {CRISIS_THRESHOLD}%. Sve je u redu.
               </p>
             </div>
@@ -365,7 +374,7 @@ export default function SocialListening() {
 
           {/* Mention Volume Area Chart */}
           <div className="card">
-            <h3 className="font-headline text-base tracking-wider text-gray-900 mb-5">Volumen spominjanja (14 dana)</h3>
+            <h3 className="font-headline text-base tracking-wider text-studio-text-primary mb-5">Volumen spominjanja (14 dana)</h3>
             <ResponsiveContainer width="100%" height={180}>
               <AreaChart data={data.mentionVolume} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <defs>
@@ -374,13 +383,13 @@ export default function SocialListening() {
                     <stop offset="95%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #E5E7EB',
+                    backgroundColor: '#1A1A1A',
+                    border: '1px solid #2A2A2A',
                     borderRadius: '12px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                     padding: '8px 12px',
@@ -406,16 +415,16 @@ export default function SocialListening() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sentiment Timeline Line Chart */}
           <div className="lg:col-span-2 card">
-            <h3 className="font-headline text-base tracking-wider text-gray-900 mb-5">Kretanje sentimenta (14 dana)</h3>
+            <h3 className="font-headline text-base tracking-wider text-studio-text-primary mb-5">Kretanje sentimenta (14 dana)</h3>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={data.sentimentTimeline} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} unit="%" domain={[0, 100]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} unit="%" domain={[0, 100]} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #E5E7EB',
+                    backgroundColor: '#1A1A1A',
+                    border: '1px solid #2A2A2A',
                     borderRadius: '12px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                     padding: '8px 12px',
@@ -434,32 +443,32 @@ export default function SocialListening() {
             <div className="flex items-center gap-5 mt-3">
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: SHIFTONEZERO_BRAND.colors.positive }} />
-                <span className="text-xs text-gray-500">Pozitivno</span>
+                <span className="text-xs text-studio-text-secondary">Pozitivno</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: SHIFTONEZERO_BRAND.colors.neutral }} />
-                <span className="text-xs text-gray-500">Neutralno</span>
+                <span className="text-xs text-studio-text-secondary">Neutralno</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-1.5 rounded-full" style={{ backgroundColor: SHIFTONEZERO_BRAND.colors.negative }} />
-                <span className="text-xs text-gray-500">Negativno</span>
+                <span className="text-xs text-studio-text-secondary">Negativno</span>
               </div>
             </div>
           </div>
 
           {/* Competitor Mention Comparison */}
           <div className="card">
-            <h3 className="font-headline text-base tracking-wider text-gray-900 mb-5">Usporedba s konkurencijom</h3>
+            <h3 className="font-headline text-base tracking-wider text-studio-text-primary mb-5">Usporedba s konkurencijom</h3>
             <div className="space-y-4">
               {data.competitorMentions.map((comp) => {
                 const pct = (comp.mentions / maxCompetitorMentions) * 100;
                 return (
                   <div key={comp.name}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900">{comp.name}</span>
-                      <span className="text-xs font-mono text-gray-500">{comp.mentions.toLocaleString()}</span>
+                      <span className="text-sm font-medium text-studio-text-primary">{comp.name}</span>
+                      <span className="text-xs font-mono text-studio-text-secondary">{comp.mentions.toLocaleString()}</span>
                     </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-studio-surface-2 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{ width: `${pct}%`, backgroundColor: comp.color }}
@@ -480,17 +489,17 @@ export default function SocialListening() {
           <div className="lg:col-span-2 card">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Globe size={20} className="text-blue-700" />
+                <Globe size={20} className="text-dinamo-accent" />
                 <h2 className="section-title">Nedavna spominjanja</h2>
               </div>
               {/* Filters */}
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary pointer-events-none" />
                   <select
                     value={sentimentFilter}
                     onChange={(e) => setSentimentFilter(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 appearance-none cursor-pointer"
+                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent/40 appearance-none cursor-pointer"
                   >
                     {SENTIMENT_FILTER_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -498,11 +507,11 @@ export default function SocialListening() {
                   </select>
                 </div>
                 <div className="relative">
-                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary pointer-events-none" />
                   <select
                     value={platformFilter}
                     onChange={(e) => setPlatformFilter(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 appearance-none cursor-pointer"
+                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent/40 appearance-none cursor-pointer"
                   >
                     {PLATFORM_FILTER_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -513,40 +522,40 @@ export default function SocialListening() {
             </div>
 
             {filteredMentions.length === 0 ? (
-              <div className="py-10 text-center text-sm text-gray-400">Nema rezultata za odabrane filtere.</div>
+              <div className="py-10 text-center text-sm text-studio-text-tertiary">Nema rezultata za odabrane filtere.</div>
             ) : (
               <div className="space-y-3">
                 {filteredMentions.map((mention) => {
                   const reachPct = (mention.reach / maxReach) * 100;
                   return (
-                    <div key={mention.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div key={mention.id} className="p-4 bg-studio-surface-0 rounded-lg hover:bg-studio-surface-2 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
                           <PlatformIcon platform={mention.platform} size="sm" />
-                          <span className="text-sm font-medium text-blue-700">{mention.author}</span>
+                          <span className="text-sm font-medium text-dinamo-accent">{mention.author}</span>
                           {sentimentIcon(mention.sentiment)}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500">{mention.time}</span>
-                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                          <span className="text-xs text-studio-text-secondary">{mention.time}</span>
+                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-dinamo-accent bg-dinamo-accent/10 rounded-lg hover:bg-dinamo-accent/20 transition-colors">
                             <Reply size={12} />
                             Odgovori
                           </button>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500 mt-2 leading-relaxed">{mention.text}</p>
+                      <p className="text-sm text-studio-text-secondary mt-2 leading-relaxed">{mention.text}</p>
                       <div className="flex items-center gap-3 mt-3">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          mention.sentiment === 'positive' ? 'bg-green-50 text-green-700' :
-                          mention.sentiment === 'negative' ? 'bg-red-50 text-red-700' :
-                          'bg-gray-100 text-gray-500'
+                          mention.sentiment === 'positive' ? 'bg-green-500/10 text-green-400' :
+                          mention.sentiment === 'negative' ? 'bg-red-500/10 text-red-400' :
+                          'bg-studio-surface-2 text-studio-text-secondary'
                         }`}>
                           {sentimentLabel(mention.sentiment)}
                         </span>
-                        <span className="text-xs text-gray-500">Doseg: {(mention.reach / 1000).toFixed(1)}K</span>
+                        <span className="text-xs text-studio-text-secondary">Doseg: {(mention.reach / 1000).toFixed(1)}K</span>
                         {/* Reach magnitude bar */}
                         <div className="flex-1 max-w-[120px]">
-                          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-studio-surface-3 rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-300"
                               style={{
@@ -575,26 +584,26 @@ export default function SocialListening() {
             </div>
             <div className="space-y-3">
               {data.trendingTopics.map((topic, index) => (
-                <div key={topic.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={topic.id} className="flex items-center justify-between p-3 bg-studio-surface-0 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500 font-mono w-4">{index + 1}</span>
+                    <span className="text-xs text-studio-text-secondary font-mono w-4">{index + 1}</span>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{topic.topic}</p>
-                      <p className="text-xs text-gray-500">{topic.mentions.toLocaleString()} spominjanja</p>
+                      <p className="text-sm font-medium text-studio-text-primary">{topic.topic}</p>
+                      <p className="text-xs text-studio-text-secondary">{topic.mentions.toLocaleString()} spominjanja</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <span className={`text-xs font-mono ${
-                      topic.velocity === 'u porastu' ? 'text-red-700' :
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
                       topic.velocity === 'raste' ? 'text-green-600' :
-                      'text-gray-500'
+                      'text-studio-text-secondary'
                     }`}>
                       {topic.change}
                     </span>
                     <p className={`text-xs mt-0.5 ${
-                      topic.velocity === 'u porastu' ? 'text-red-700' :
+                      topic.velocity === 'u porastu' ? 'text-red-400' :
                       topic.velocity === 'raste' ? 'text-green-600' :
-                      'text-gray-500'
+                      'text-studio-text-secondary'
                     }`}>
                       {topic.velocity}
                     </p>

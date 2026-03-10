@@ -21,7 +21,7 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
     <div>
       {title && (
         <div className="mb-5">
-          <h3 className="font-headline text-base tracking-wider text-gray-900">{title}</h3>
+          <h3 className="font-headline text-base tracking-wider text-studio-text-primary">{title}</h3>
         </div>
       )}
       <div className="flex items-center gap-6">
@@ -42,8 +42,8 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E7EB',
+                backgroundColor: '#1A1A1A',
+                border: '1px solid #2A2A2A',
                 borderRadius: '12px',
                 color: '#111827',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
@@ -57,8 +57,8 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
             <div key={item.name} className="flex items-center gap-3">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
               <div>
-                <p className="text-xs text-gray-500 leading-none">{item.name}</p>
-                <p className="font-stats text-lg text-gray-900 leading-tight mt-0.5">
+                <p className="text-xs text-studio-text-secondary leading-none">{item.name}</p>
+                <p className="font-stats text-lg text-studio-text-primary leading-tight mt-0.5">
                   {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
                 </p>
               </div>

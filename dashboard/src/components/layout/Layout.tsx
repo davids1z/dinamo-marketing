@@ -58,7 +58,7 @@ export default function Layout() {
 
   return (
     <SidebarContext.Provider value={{ collapsed, mobileOpen, setCollapsed, setMobileOpen, toggleSidebar }}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-studio-bg">
         <Sidebar />
         {/* Mobile overlay */}
         {isMobile && mobileOpen && (

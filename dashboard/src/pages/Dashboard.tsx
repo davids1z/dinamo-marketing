@@ -124,7 +124,7 @@ const fallbackOverview: OverviewData = {
     },
     {
       id: 2, type: 'comment',
-      text: '148 novih komentara na highlights reel utakmice',
+      text: '148 novih komentara na promotivni video sadržaj',
       time: 'prije 4 sata',
       timestamp: new Date(Date.now() - 4 * 3600000).toISOString(),
       link: '/content',
@@ -145,21 +145,21 @@ const fallbackOverview: OverviewData = {
     },
     {
       id: 5, type: 'report',
-      text: 'Mjesečni izvještaj generiran i poslan dioničarima',
+      text: 'Mjesečni izvještaj generiran i poslan klijentima',
       time: 'prije 12 sati',
       timestamp: new Date(Date.now() - 12 * 3600000).toISOString(),
       link: '/reports',
     },
     {
       id: 6, type: 'campaign',
-      text: 'Nova Instagram Stories kampanja pokrenuta za U19 momčad',
+      text: 'Nova Instagram Stories kampanja pokrenuta za lansiranje proizvoda',
       time: 'prije 1 dan',
       timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
       link: '/campaigns',
     },
     {
       id: 7, type: 'follow',
-      text: 'YouTube kanal presao 50K pretplatnika',
+      text: 'YouTube kanal prešao 50K pretplatnika',
       time: 'prije 1 dan',
       timestamp: new Date(Date.now() - 28 * 3600000).toISOString(),
       link: '/analytics',
@@ -172,7 +172,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 1,
     icon: TrendingDown,
     iconColor: 'text-amber-600',
-    iconBg: 'bg-amber-50',
+    iconBg: 'bg-amber-500/10',
     title: 'Engagement rate pao 5%',
     description: 'Razmotrite video sadržaj u petak navečer — analize pokazuju da video postovi dobivaju 3x više interakcija u tom terminu.',
     action: 'Kreiraj video objavu',
@@ -183,7 +183,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 2,
     icon: TrendingUp,
     iconColor: 'text-emerald-600',
-    iconBg: 'bg-emerald-50',
+    iconBg: 'bg-emerald-500/10',
     title: 'TikTok publika raste',
     description: 'TikTok pratitelji porasli 23% ovaj mjesec. Povećajte objave s 3 na 5 tjedno kako biste iskoristili algoritamski momentum.',
     action: 'Planiraj TikTok sadržaj',
@@ -194,9 +194,9 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 3,
     icon: Calendar,
     iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-50',
-    title: 'UCL utakmica za 3 dana',
-    description: 'Pripremite matchday sadržaj unaprijed — pretprodajna kampanja, countdown objave i live coverage plan za maksimalni doseg.',
+    iconBg: 'bg-blue-500/10',
+    title: 'Lansiranje kampanje za 3 dana',
+    description: 'Pripremite sadržaj unaprijed — countdown objave, teaser video i plan promocije za maksimalni doseg.',
     action: 'Pripremi kampanju',
     actionLink: '/campaigns',
     priority: 'high',
@@ -204,17 +204,17 @@ const RECOMMENDATIONS: Recommendation[] = [
 ]
 
 const activityIcons: Record<string, { icon: LucideIcon; color: string; bg: string; border: string }> = {
-  follow: { icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-l-emerald-400' },
-  comment: { icon: MessageCircle, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-l-blue-400' },
-  campaign: { icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-l-violet-400' },
-  alert: { icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-l-amber-400' },
-  report: { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-l-emerald-400' },
+  follow: { icon: UserPlus, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-l-emerald-400' },
+  comment: { icon: MessageCircle, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-l-blue-400' },
+  campaign: { icon: TrendingUp, color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-l-violet-400' },
+  alert: { icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-l-amber-400' },
+  report: { icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-l-emerald-400' },
 }
 
 const PRIORITY_BADGES: Record<string, { label: string; className: string }> = {
-  high: { label: 'Visoki', className: 'bg-red-50 text-red-700 border-red-200' },
-  medium: { label: 'Srednji', className: 'bg-amber-50 text-amber-700 border-amber-200' },
-  low: { label: 'Niski', className: 'bg-gray-50 text-gray-600 border-gray-200' },
+  high: { label: 'Visoki', className: 'bg-red-500/10 text-red-400 border-red-500/20' },
+  medium: { label: 'Srednji', className: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+  low: { label: 'Niski', className: 'bg-studio-surface-0 text-studio-text-secondary border-studio-border' },
 }
 
 // ---------------------------------------------------------------------------
@@ -304,12 +304,12 @@ function useAnimatedNumber(target: number, duration = 1200): number {
 // ---------------------------------------------------------------------------
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`} />
+  return <div className={`animate-pulse bg-studio-surface-3 rounded-lg ${className}`} />
 }
 
 function MetricCardSkeleton() {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
+    <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5 shadow-studio-panel">
       <div className="flex items-start justify-between mb-3">
         <SkeletonBlock className="h-3 w-24" />
         <SkeletonBlock className="h-9 w-9 !rounded-xl" />
@@ -364,7 +364,7 @@ function DashboardLoadingSkeleton() {
           <SkeletonBlock className="h-5 w-40 mb-4" />
           <div className="space-y-2.5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl bg-studio-surface-0 border border-studio-border">
                 <SkeletonBlock className="w-8 h-8 !rounded-lg flex-shrink-0" />
                 <div className="flex-1 space-y-2">
                   <SkeletonBlock className="h-4 w-full max-w-sm" />
@@ -380,7 +380,7 @@ function DashboardLoadingSkeleton() {
           <SkeletonBlock className="h-5 w-32 mb-4" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5">
+              <div key={i} className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5">
                 <div className="flex items-start gap-3 mb-3">
                   <SkeletonBlock className="w-10 h-10 !rounded-xl flex-shrink-0" />
                   <div className="flex-1 space-y-2">
@@ -424,22 +424,22 @@ function PeriodSelector({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-dinamo-blue/30 hover:bg-gray-50 transition-all shadow-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-medium text-studio-text-secondary hover:border-dinamo-accent/30 hover:bg-studio-surface-2 transition-all shadow-sm"
       >
-        <Clock size={15} className="text-gray-400" />
+        <Clock size={15} className="text-studio-text-tertiary" />
         {selectedOption.label}
-        <ChevronDown size={14} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={14} className={`text-studio-text-tertiary transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1.5 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1 animate-fade-in">
+        <div className="absolute right-0 mt-1.5 w-52 bg-studio-surface-2 border border-studio-border rounded-xl shadow-studio-dropdown z-20 py-1 animate-fade-in">
           {PERIOD_OPTIONS.map(opt => (
             <button
               key={opt.key}
               onClick={() => { onChange(opt.key); setOpen(false) }}
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                 opt.key === selected
-                  ? 'bg-dinamo-blue/5 text-dinamo-blue font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-dinamo-accent/10 text-dinamo-accent font-medium'
+                  : 'text-studio-text-secondary hover:bg-studio-surface-3'
               }`}
             >
               {opt.label}
@@ -454,9 +454,9 @@ function PeriodSelector({
 function QuickActions() {
   const navigate = useNavigate()
   const actions = [
-    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-dinamo-blue text-white hover:bg-dinamo-blue/90' },
-    { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-white text-gray-700 border border-gray-200 hover:border-dinamo-blue/30 hover:bg-gray-50' },
-    { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-white text-gray-700 border border-gray-200 hover:border-dinamo-blue/30 hover:bg-gray-50' },
+    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-dinamo-accent text-dinamo-primary hover:bg-dinamo-accent-hover' },
+    { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-dinamo-accent/30 hover:bg-studio-surface-2' },
+    { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-dinamo-accent/30 hover:bg-studio-surface-2' },
   ]
 
   return (
@@ -510,27 +510,27 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
   const badge = PRIORITY_BADGES[rec.priority]
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card hover:shadow-card-hover hover:border-dinamo-blue/20 hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
+    <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5 shadow-studio-panel hover:shadow-card-hover hover:border-studio-border-hover hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
       <div className="flex items-start gap-3 mb-3">
         <div className={`w-10 h-10 rounded-xl ${rec.iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon size={18} className={rec.iconColor} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h3 className="text-sm font-semibold text-gray-900">{rec.title}</h3>
+            <h3 className="text-sm font-semibold text-studio-text-primary">{rec.title}</h3>
             {badge && (
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badge.className}`}>
                 {badge.label}
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">{rec.description}</p>
+          <p className="text-xs text-studio-text-secondary leading-relaxed">{rec.description}</p>
         </div>
       </div>
       <div className="mt-auto pt-3">
         <button
           onClick={() => navigate(rec.actionLink)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-dinamo-blue hover:text-dinamo-blue/80 transition-colors group"
+          className="flex items-center gap-1.5 text-xs font-semibold text-dinamo-accent hover:text-dinamo-accent/80 transition-colors group"
         >
           {rec.action}
           <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
@@ -625,7 +625,7 @@ export default function Dashboard() {
             <h2 className="section-title">Nedavna aktivnost</h2>
             <div className="flex items-center gap-3">
               {isConnected ? (
-                <div className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
+                <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 px-2.5 py-1 rounded-full">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
@@ -649,17 +649,17 @@ export default function Dashboard() {
                 <div
                   key={item.id}
                   onClick={() => item.link && navigate(item.link)}
-                  className={`flex items-start gap-3 p-3.5 rounded-xl bg-gray-50 hover:bg-white transition-all border border-gray-200 border-l-[3px] ${iconInfo.border} ${item.link ? 'cursor-pointer group' : ''}`}
+                  className={`flex items-start gap-3 p-3.5 rounded-xl bg-studio-surface-0 hover:bg-studio-surface-2 transition-all border border-studio-border border-l-[3px] ${iconInfo.border} ${item.link ? 'cursor-pointer group' : ''}`}
                 >
                   <div className={`w-8 h-8 rounded-lg ${iconInfo.bg} flex items-center justify-center flex-shrink-0`}>
                     <Icon size={15} className={iconInfo.color} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 leading-snug">{item.text}</p>
+                    <p className="text-sm text-studio-text-primary leading-snug">{item.text}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <p className="text-[11px] text-gray-400">{relativeTime}</p>
+                      <p className="text-[11px] text-studio-text-tertiary">{relativeTime}</p>
                       {item.link && (
-                        <ExternalLink size={10} className="text-gray-300 group-hover:text-dinamo-blue transition-colors" />
+                        <ExternalLink size={10} className="text-studio-text-disabled group-hover:text-dinamo-accent transition-colors" />
                       )}
                     </div>
                   </div>
@@ -677,7 +677,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h2 className="section-title">Preporuke</h2>
-              <p className="text-xs text-gray-400 -mt-0.5">AI uvidi i prijedlozi za poboljšanje</p>
+              <p className="text-xs text-studio-text-tertiary -mt-0.5">AI uvidi i prijedlozi za poboljšanje</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

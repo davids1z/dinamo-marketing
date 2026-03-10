@@ -28,14 +28,14 @@ const navigation = [
   { name: 'Istraživanje tržišta', href: '/market-research', icon: Globe },
   { name: 'Audit kanala', href: '/channels', icon: Radio },
   { name: 'Konkurencija', href: '/competitors', icon: Users },
-  { name: 'Uvidi o navijačima', href: '/fans', icon: Heart },
+  { name: 'Segmentacija korisnika', href: '/fans', icon: Heart },
   { name: 'Kalendar sadržaja', href: '/content', icon: CalendarDays },
   { name: 'Kampanje', href: '/campaigns', icon: Megaphone },
   { name: 'Analitika', href: '/analytics', icon: BarChart3 },
   { name: 'Sentiment', href: '/sentiment', icon: MessageCircle },
   { name: 'Social listening', href: '/social-listening', icon: Ear },
-  { name: 'Akademija', href: '/academy', icon: GraduationCap },
-  { name: 'Dijaspora', href: '/diaspora', icon: MapPin },
+  { name: 'Partneri & kreatori', href: '/academy', icon: GraduationCap },
+  { name: 'Geografska tržišta', href: '/diaspora', icon: MapPin },
   { name: 'Izvještaji', href: '/reports', icon: FileText },
   { name: 'Istraživanje kampanja', href: '/campaign-research', icon: FlaskConical },
   { name: 'Postavke', href: '/settings', icon: Settings },
@@ -57,23 +57,23 @@ export default function Sidebar() {
     <>
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 bg-dinamo-sidebar flex flex-col transition-all duration-300 ease-in-out',
+          'fixed inset-y-0 left-0 z-50 bg-studio-surface-0 flex flex-col transition-all duration-300 ease-in-out border-r border-studio-border',
           !isMobileView && (collapsed ? 'w-[72px]' : 'w-64'),
           isMobileView && (mobileOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full')
         )}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-4 border-b border-white/10 justify-between">
+        <div className="h-16 flex items-center px-4 border-b border-studio-border justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="font-headline text-sm text-dinamo-blue font-bold">S1Z</span>
+            <div className="w-9 h-9 rounded-xl bg-dinamo-accent flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="font-headline text-sm text-dinamo-primary font-bold">S1Z</span>
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <h1 className="font-headline text-lg tracking-wider text-white leading-none font-bold truncate">
+                <h1 className="font-headline text-lg tracking-wider text-studio-text-primary leading-none font-bold truncate">
                   SHIFTONEZERO
                 </h1>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-blue-200 truncate">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-studio-text-tertiary truncate">
                   Marketing Platforma
                 </p>
               </div>
@@ -82,7 +82,7 @@ export default function Sidebar() {
           {isMobileView && mobileOpen && (
             <button
               onClick={() => setMobileOpen(false)}
-              className="p-1.5 rounded-lg text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-3 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -108,17 +108,17 @@ export default function Sidebar() {
                       'flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 relative group',
                       collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
                       isActive
-                        ? 'bg-white/20 text-white'
-                        : 'text-blue-200 hover:text-white hover:bg-white/10'
+                        ? 'bg-dinamo-accent/10 text-dinamo-accent'
+                        : 'text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2'
                     )}
                   >
                     {isActive && !collapsed && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-white rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-dinamo-accent rounded-r-full" />
                     )}
                     <item.icon className={clsx('w-[18px] h-[18px] flex-shrink-0')} />
                     {!collapsed && <span className="truncate">{item.name}</span>}
                     {collapsed && (
-                      <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-900 rounded-lg text-xs text-white whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
+                      <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-studio-surface-4 rounded-lg text-xs text-studio-text-primary whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
                         {item.name}
                       </div>
                     )}
@@ -130,15 +130,15 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className={clsx('p-3 border-t border-white/10', collapsed && 'flex flex-col items-center gap-2')}>
+        <div className={clsx('p-3 border-t border-studio-border', collapsed && 'flex flex-col items-center gap-2')}>
           {!collapsed && user && (
             <div className="flex items-center gap-2.5 mb-3 px-1">
-              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-white">{user.full_name?.[0] || 'U'}</span>
+              <div className="w-8 h-8 rounded-xl bg-studio-surface-3 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-dinamo-accent">{user.full_name?.[0] || 'U'}</span>
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-white font-medium truncate">{user.full_name}</p>
-                <p className="text-[10px] text-blue-200 truncate">{user.role}</p>
+                <p className="text-xs text-studio-text-primary font-medium truncate">{user.full_name}</p>
+                <p className="text-[10px] text-studio-text-tertiary truncate">{user.role}</p>
               </div>
             </div>
           )}
@@ -146,7 +146,7 @@ export default function Sidebar() {
             onClick={logout}
             title={collapsed ? 'Odjava' : undefined}
             className={clsx(
-              'flex items-center gap-2 text-blue-200 hover:text-white hover:bg-white/10 rounded-xl transition-colors w-full',
+              'flex items-center gap-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-xl transition-colors w-full',
               collapsed ? 'px-3 py-2 justify-center' : 'px-3 py-2'
             )}
           >
@@ -155,7 +155,7 @@ export default function Sidebar() {
           </button>
           <div className="flex items-center gap-2 mt-1 px-1">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-            {!collapsed && <span className="text-[10px] text-blue-200 truncate">Mock način aktivan</span>}
+            {!collapsed && <span className="text-[10px] text-studio-text-tertiary truncate">Demo način aktivan</span>}
           </div>
         </div>
       </aside>
@@ -164,7 +164,7 @@ export default function Sidebar() {
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:border-dinamo-blue hover:bg-dinamo-blue hover:text-white text-gray-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-studio-surface-3 border border-studio-border shadow-md flex items-center justify-center hover:border-dinamo-accent hover:bg-dinamo-accent hover:text-dinamo-primary text-studio-text-secondary transition-all duration-200 hover:shadow-lg hover:scale-110"
           style={{ left: collapsed ? 72 - 12 : 256 - 12 }}
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>

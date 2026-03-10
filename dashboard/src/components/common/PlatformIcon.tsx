@@ -30,7 +30,7 @@ export default function PlatformIcon({ platform, size = 'md', showLabel = false 
   return (
     <div className="flex items-center gap-2">
       <Icon className={clsx(sizes[size])} style={{ color: config?.color || '#6B7280' }} />
-      {showLabel && <span className="text-sm text-gray-600">{config?.name || platform}</span>}
+      {showLabel && <span className="text-sm text-studio-text-secondary">{config?.name || platform}</span>}
     </div>
   )
 }

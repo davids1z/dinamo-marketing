@@ -23,18 +23,22 @@ def _get_attribution_service():
 
 
 @router.get("/overview")
-async def get_overview(db: AsyncSession = Depends(get_db)):
+async def get_overview(
+    days: int = Query(default=30),
+    db: AsyncSession = Depends(get_db),
+):
     """Full dashboard overview: KPIs + reach series + funnel + top posts."""
     from app.services.cache import cache_get, cache_set
     from app.config import settings as cfg
 
-    cached = await cache_get("analytics:overview")
+    cache_key = f"analytics:overview:{days}"
+    cached = await cache_get(cache_key)
     if cached is not None:
         return cached
 
     service = _get_analytics_service()
-    result = await service.get_overview_for_dashboard(db)
-    await cache_set("analytics:overview", result, cfg.CACHE_TTL_DASHBOARD)
+    result = await service.get_overview_for_dashboard(db, days)
+    await cache_set(cache_key, result, cfg.CACHE_TTL_DASHBOARD)
     return result
 
 

@@ -5,12 +5,12 @@ import { useApi } from '../hooks/useApi'
 import { Globe, Users, MapPin, Languages, Calendar } from 'lucide-react'
 import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
-interface Community {
+interface MarketRegion {
   country: string
   city: string
   population: number
   activeMembers: number
-  fanClubs: number
+  offices: number
   engagement: number
   flag: string
 }
@@ -25,86 +25,86 @@ interface ContentItem {
   description: string
 }
 
-interface DiasporaData {
-  communities: Community[]
+interface GeographicMarketsData {
+  communities: MarketRegion[]
   contentPipeline: ContentItem[]
 }
 
 // Fallback mock data for when API is not available
-const fallbackData: DiasporaData = {
+const fallbackData: GeographicMarketsData = {
   communities: [
-    { country: 'Germany', city: 'Multiple cities', population: 500000, activeMembers: 12400, fanClubs: 8, engagement: 4.2, flag: '🇩🇪' },
-    { country: 'Austria', city: 'Vienna, Salzburg', population: 150000, activeMembers: 8200, fanClubs: 5, engagement: 5.1, flag: '🇦🇹' },
-    { country: 'United States', city: 'Chicago, NYC, LA', population: 130000, activeMembers: 4800, fanClubs: 4, engagement: 3.8, flag: '🇺🇸' },
-    { country: 'Canada', city: 'Toronto, Vancouver', population: 80000, activeMembers: 2900, fanClubs: 3, engagement: 3.5, flag: '🇨🇦' },
-    { country: 'Switzerland', city: 'Zurich, Basel', population: 60000, activeMembers: 3100, fanClubs: 3, engagement: 4.5, flag: '🇨🇭' },
-    { country: 'Australia', city: 'Sydney, Melbourne', population: 50000, activeMembers: 2200, fanClubs: 2, engagement: 3.2, flag: '🇦🇺' },
-    { country: 'Sweden', city: 'Stockholm, Malmo', population: 45000, activeMembers: 1800, fanClubs: 2, engagement: 3.9, flag: '🇸🇪' },
-    { country: 'Ireland', city: 'Dublin', population: 25000, activeMembers: 1100, fanClubs: 1, engagement: 4.0, flag: '🇮🇪' },
-    { country: 'Norway', city: 'Oslo, Bergen', population: 20000, activeMembers: 950, fanClubs: 1, engagement: 3.6, flag: '🇳🇴' },
+    { country: 'Germany', city: 'Multiple cities', population: 500000, activeMembers: 12400, offices: 8, engagement: 4.2, flag: '' },
+    { country: 'Austria', city: 'Vienna, Salzburg', population: 150000, activeMembers: 8200, offices: 5, engagement: 5.1, flag: '' },
+    { country: 'United States', city: 'Chicago, NYC, LA', population: 130000, activeMembers: 4800, offices: 4, engagement: 3.8, flag: '' },
+    { country: 'Canada', city: 'Toronto, Vancouver', population: 80000, activeMembers: 2900, offices: 3, engagement: 3.5, flag: '' },
+    { country: 'Switzerland', city: 'Zurich, Basel', population: 60000, activeMembers: 3100, offices: 3, engagement: 4.5, flag: '' },
+    { country: 'Australia', city: 'Sydney, Melbourne', population: 50000, activeMembers: 2200, offices: 2, engagement: 3.2, flag: '' },
+    { country: 'Sweden', city: 'Stockholm, Malmo', population: 45000, activeMembers: 1800, offices: 2, engagement: 3.9, flag: '' },
+    { country: 'Ireland', city: 'Dublin', population: 25000, activeMembers: 1100, offices: 1, engagement: 4.0, flag: '' },
+    { country: 'Norway', city: 'Oslo, Bergen', population: 20000, activeMembers: 950, offices: 1, engagement: 3.6, flag: '' },
   ],
   contentPipeline: [
     {
       id: 1,
-      title: 'Utakmica uživo thread — UCL',
+      title: 'Kampanja uživo thread — Globalni launch',
       languages: ['HR', 'EN', 'DE'],
       platform: 'Sve platforme',
       date: 'Mar 7, 2026',
       status: 'Zakazano',
-      description: 'Višejezična ažuriranja utakmica u realnom vremenu za navijače dijaspore u svim vremenskim zonama',
+      description: 'Višejezična ažuriranja kampanja u realnom vremenu za korisnike u svim vremenskim zonama',
     },
     {
       id: 2,
-      title: 'Fan hub Beč — pregled eventa',
+      title: 'Hub Beč — pregled eventa',
       languages: ['HR', 'DE'],
       platform: 'Instagram + Facebook',
       date: 'Mar 8, 2026',
       status: 'U produkciji',
-      description: 'Video pregled watch partyja dijaspore s 200+ navijača u Beču',
+      description: 'Video pregled networking eventa s 200+ korisnika u Beču',
     },
     {
       id: 3,
-      title: 'Dinamo bilten dijaspore',
+      title: 'ShiftOneZero bilten za tržišta',
       languages: ['HR', 'EN'],
       platform: 'Email',
       date: 'Mar 10, 2026',
       status: 'Nacrt',
-      description: 'Mjesečni bilten s novostima kluba, highlightsima utakmica i pregledom zajednice',
+      description: 'Mjesečni bilten s novostima platforme, highlightsima kampanja i pregledom tržišta',
     },
     {
       id: 4,
-      title: 'Kako gledati: Vodič za streaming',
+      title: 'Kako koristiti: Vodič za onboarding',
       languages: ['EN', 'DE'],
       platform: 'Website + Social',
       date: 'Mar 6, 2026',
       status: 'Spremno',
-      description: 'Ažurirani vodič za navijače dijaspore o gledanju Dinamovih utakmica po državama',
+      description: 'Ažurirani vodič za korisnike o korištenju platforme po regijama',
     },
     {
       id: 5,
-      title: 'Video poruka igrača — njemački navijači',
+      title: 'Video poruka tima — njemačko tržište',
       languages: ['DE', 'HR'],
       platform: 'TikTok + Instagram',
       date: 'Mar 12, 2026',
       status: 'Pregled scenarija',
-      description: 'Personalizirani video pozdrav igrača zajednici njemačke dijaspore',
+      description: 'Personalizirani video pozdrav tima za zajednicu korisnika na njemačkom tržištu',
     },
   ],
 }
 
 const langColors: Record<string, string> = {
-  HR: 'bg-red-50 text-red-700 border-red-200',
-  EN: 'bg-blue-50 text-blue-700 border-blue-200',
+  HR: 'bg-red-500/10 text-red-400 border-red-200',
+  EN: 'bg-blue-500/10 text-blue-400 border-blue-200',
   DE: 'bg-yellow-100 text-yellow-600 border-yellow-200',
 }
 
-export default function Diaspora() {
-  const { data: apiData, loading } = useApi<DiasporaData>('/diaspora/populations')
+export default function GeographicMarkets() {
+  const { data: apiData, loading } = useApi<GeographicMarketsData>('/diaspora/populations')
   const data = apiData || fallbackData
 
   if (loading && !apiData) return (
     <>
-      <Header title="DIJASPORA" subtitle="Angažeman i pristup zajednicama dijaspore" />
+      <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
       <div className="page-wrapper space-y-6">
         <CardSkeleton count={4} cols="grid grid-cols-1 sm:grid-cols-4 gap-4" />
         <ChartSkeleton />
@@ -112,21 +112,21 @@ export default function Diaspora() {
     </>
   )
 
-  const communities = data.communities || fallbackData.communities
+  const regions = data.communities || fallbackData.communities
   const contentPipeline = data.contentPipeline || fallbackData.contentPipeline
 
-  const communityComparison = communities.map(c => ({
+  const regionComparison = regions.map(c => ({
     name: c.country,
     value: c.population,
   }))
 
-  const totalPopulation = communities.reduce((sum, c) => sum + c.population, 0)
-  const totalActive = communities.reduce((sum, c) => sum + c.activeMembers, 0)
-  const totalClubs = communities.reduce((sum, c) => sum + c.fanClubs, 0)
+  const totalPopulation = regions.reduce((sum, c) => sum + c.population, 0)
+  const totalActive = regions.reduce((sum, c) => sum + c.activeMembers, 0)
+  const totalOffices = regions.reduce((sum, c) => sum + c.offices, 0)
 
   return (
     <div className="animate-fade-in">
-      <Header title="DIJASPORA" subtitle="Angažeman i pristup zajednicama dijaspore" />
+      <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
 
       <div className="page-wrapper space-y-6">
 
@@ -134,57 +134,57 @@ export default function Diaspora() {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><Globe size={16} />Država</div>
-            <p className="text-3xl font-bold text-gray-900">{communities.length}</p>
+            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Globe size={16} />Tržišta</div>
+            <p className="text-3xl font-bold text-studio-text-primary">{regions.length}</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><Users size={16} />Ukupna dijaspora</div>
-            <p className="text-3xl font-bold text-gray-900">{(totalPopulation / 1000).toFixed(0)}K</p>
+            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Users size={16} />Ukupni doseg</div>
+            <p className="text-3xl font-bold text-studio-text-primary">{(totalPopulation / 1000).toFixed(0)}K</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><Users size={16} />Aktivni online</div>
-            <p className="text-3xl font-bold text-gray-900">{(totalActive / 1000).toFixed(1)}K</p>
+            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Users size={16} />Aktivni korisnici</div>
+            <p className="text-3xl font-bold text-studio-text-primary">{(totalActive / 1000).toFixed(1)}K</p>
           </div>
           <div className="card">
-            <div className="flex items-center gap-2 text-gray-500 mb-1"><MapPin size={16} />Navijački klubovi</div>
-            <p className="text-3xl font-bold text-gray-900">{totalClubs}</p>
+            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><MapPin size={16} />Regionalni uredi</div>
+            <p className="text-3xl font-bold text-studio-text-primary">{totalOffices}</p>
           </div>
         </div>
 
-        {/* Community Comparison */}
+        {/* Region Comparison */}
         <div className="card">
-          <ComparisonBar data={communityComparison} title="Populacija dijaspore po državama" valueLabel="Population" />
+          <ComparisonBar data={regionComparison} title="Veličina tržišta po državama" valueLabel="Population" />
         </div>
 
-        {/* Community List */}
+        {/* Region List */}
         <div className="card">
-          <h2 className="section-title mb-4">Detalji zajednice</h2>
+          <h2 className="section-title mb-4">Detalji tržišta</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {communities.map((community) => (
-              <div key={community.country} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200">
+            {regions.map((region) => (
+              <div key={region.country} className="bg-studio-surface-0 rounded-lg p-4 hover:bg-studio-surface-2 transition-colors border border-studio-border">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{community.flag}</span>
+                  <span className="text-2xl">{region.flag}</span>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">{community.country}</h3>
-                    <p className="text-xs text-gray-500">{community.city}</p>
+                    <h3 className="text-sm font-medium text-studio-text-primary">{region.country}</h3>
+                    <p className="text-xs text-studio-text-secondary">{region.city}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <p className="text-gray-500 text-xs">Population</p>
-                    <p className="text-gray-700 font-mono">{(community.population / 1000).toFixed(0)}K</p>
+                    <p className="text-studio-text-secondary text-xs">Veličina tržišta</p>
+                    <p className="text-studio-text-primary font-mono">{(region.population / 1000).toFixed(0)}K</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Active Members</p>
-                    <p className="text-gray-700 font-mono">{(community.activeMembers / 1000).toFixed(1)}K</p>
+                    <p className="text-studio-text-secondary text-xs">Aktivni korisnici</p>
+                    <p className="text-studio-text-primary font-mono">{(region.activeMembers / 1000).toFixed(1)}K</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Fan Clubs</p>
-                    <p className="text-gray-700">{community.fanClubs}</p>
+                    <p className="text-studio-text-secondary text-xs">Uredi</p>
+                    <p className="text-studio-text-primary">{region.offices}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Engagement</p>
-                    <p className="text-green-600">{community.engagement}%</p>
+                    <p className="text-studio-text-secondary text-xs">Angažman</p>
+                    <p className="text-green-600">{region.engagement}%</p>
                   </div>
                 </div>
               </div>
@@ -200,29 +200,29 @@ export default function Diaspora() {
           </div>
           <div className="space-y-3">
             {contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-studio-surface-0 rounded-lg hover:bg-studio-surface-2 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-medium text-gray-900">{item.title}</h3>
+                    <h3 className="text-sm font-medium text-studio-text-primary">{item.title}</h3>
                     {item.languages.map((lang) => (
-                      <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-gray-50 text-gray-500'}`}>
+                      <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-studio-surface-0 text-studio-text-secondary'}`}>
                         {lang}
                       </span>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+                  <p className="text-xs text-studio-text-secondary mt-1">{item.description}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500">{item.platform}</span>
-                    <span className="text-xs text-gray-200">|</span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1"><Calendar size={10} />{item.date}</span>
+                    <span className="text-xs text-studio-text-secondary">{item.platform}</span>
+                    <span className="text-xs text-studio-text-disabled">|</span>
+                    <span className="text-xs text-studio-text-secondary flex items-center gap-1"><Calendar size={10} />{item.date}</span>
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-4 ${
-                  item.status === 'Spremno' ? 'bg-green-50 text-green-700' :
-                  item.status === 'Zakazano' ? 'bg-blue-50 text-blue-700' :
+                  item.status === 'Spremno' ? 'bg-green-500/10 text-green-400' :
+                  item.status === 'Zakazano' ? 'bg-blue-500/10 text-blue-400' :
                   item.status === 'U produkciji' ? 'bg-purple-100 text-purple-600' :
                   item.status === 'Pregled scenarija' ? 'bg-yellow-100 text-yellow-600' :
-                  'bg-gray-50 text-gray-500'
+                  'bg-studio-surface-0 text-studio-text-secondary'
                 }`}>
                   {item.status}
                 </span>
@@ -231,7 +231,7 @@ export default function Diaspora() {
           </div>
         </div>
 
-        <AiInsightsPanel pageKey="diaspora" pageData={{ communities: communities.map(c => ({ country: c.country, population: c.population, activeMembers: c.activeMembers, engagement: c.engagement })), pipeline: contentPipeline.map(c => ({ title: c.title, languages: c.languages, status: c.status })) }} />
+        <AiInsightsPanel pageKey="diaspora" pageData={{ communities: regions.map(c => ({ country: c.country, population: c.population, activeMembers: c.activeMembers, engagement: c.engagement })), pipeline: contentPipeline.map(c => ({ title: c.title, languages: c.languages, status: c.status })) }} />
       </div>
     </div>
   )

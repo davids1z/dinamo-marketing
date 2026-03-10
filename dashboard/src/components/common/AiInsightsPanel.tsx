@@ -17,7 +17,7 @@ const typeConfig: Record<string, { icon: React.ElementType; label: string; color
 const impactBadge: Record<string, string> = {
   high: 'bg-red-500/20 text-red-400 border-red-500/30',
   medium: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  low: 'bg-gray-500/20 text-studio-text-tertiary border-gray-500/30',
 }
 
 const impactLabel: Record<string, string> = {
@@ -44,7 +44,7 @@ function InsightCard({ insight }: { insight: AiInsight }) {
               {impactLabel[insight.impact] || insight.impact}
             </span>
           </div>
-          <p className="text-xs text-gray-400 mb-2">{insight.description}</p>
+          <p className="text-xs text-studio-text-tertiary mb-2">{insight.description}</p>
           {insight.action && (
             <p className="text-xs text-[#B8FF00]">
               → {insight.action}
@@ -73,7 +73,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
         </div>
         <div className="flex items-center gap-2">
           {cached && (
-            <span className="text-[10px] text-gray-500 flex items-center gap-1">
+            <span className="text-[10px] text-studio-text-secondary flex items-center gap-1">
               <Clock size={10} />
               iz cache-a
             </span>
@@ -82,7 +82,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="p-1.5 rounded-lg hover:bg-[#1a3a5c] text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+              className="p-1.5 rounded-lg hover:bg-[#1a3a5c] text-studio-text-tertiary hover:text-white transition-colors disabled:opacity-50"
               title="Osvježi uvide"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -105,7 +105,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
       {loading && (
         <div className="flex items-center justify-center gap-3 py-6">
           <div className="w-5 h-5 border-2 border-[#B8FF00] border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-gray-400">AI analizira podatke...</span>
+          <span className="text-sm text-studio-text-tertiary">AI analizira podatke...</span>
         </div>
       )}
 
@@ -125,7 +125,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
         <div className="space-y-3">
           {/* Summary */}
           {insights.summary && (
-            <p className="text-sm text-gray-300 bg-[#0d2137] rounded-lg p-3 border border-[#1a3a5c]">
+            <p className="text-sm text-studio-text-disabled bg-[#0d2137] rounded-lg p-3 border border-[#1a3a5c]">
               {insights.summary}
             </p>
           )}
@@ -137,7 +137,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
 
           {/* Timestamp */}
           {insights.generated_at && (
-            <p className="text-[10px] text-gray-600 text-right">
+            <p className="text-[10px] text-studio-text-secondary text-right">
               Generirano: {new Date(insights.generated_at).toLocaleString('hr-HR')}
             </p>
           )}

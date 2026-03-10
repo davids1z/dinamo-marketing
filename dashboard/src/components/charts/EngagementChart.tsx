@@ -17,18 +17,18 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
     <div>
       {title && (
         <div className="mb-5">
-          <h3 className="font-headline text-base tracking-wider text-gray-900">{title}</h3>
+          <h3 className="font-headline text-base tracking-wider text-studio-text-primary">{title}</h3>
         </div>
       )}
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-          <XAxis dataKey="date" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
-          <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
+          <XAxis dataKey="date" stroke="#6B6B6B" fontSize={11} tickLine={false} axisLine={false} />
+          <YAxis stroke="#6B6B6B" fontSize={11} tickLine={false} axisLine={false} />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7EB',
+              backgroundColor: '#1A1A1A',
+              border: '1px solid #2A2A2A',
               borderRadius: '12px',
               color: '#111827',
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',

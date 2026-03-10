@@ -330,13 +330,13 @@ class AnalyticsAggregatorService:
             {"label": "Conversions", "value": conversions, "color": "#22c55e"},
         ]
 
-    async def get_overview_for_dashboard(self, db: AsyncSession) -> dict:
+    async def get_overview_for_dashboard(self, db: AsyncSession, days: int = 30) -> dict:
         """Combined dashboard response matching frontend AnalyticsData interface."""
         from app.models.content import ContentPost
 
         kpis = await self.get_overview_kpis(db)
-        reach_data = await self.get_daily_reach_series(db)
-        funnel = await self.get_funnel_data(db)
+        reach_data = await self.get_daily_reach_series(db, days)
+        funnel = await self.get_funnel_data(db, days)
 
         # Campaign data by platform
         platform_data = await self.get_platform_breakdown(db)

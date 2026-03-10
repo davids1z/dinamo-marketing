@@ -60,10 +60,10 @@ function calculateHealthScore(p: PlatformStat): number {
 }
 
 function getHealthLabel(score: number): { label: string; color: string; bg: string; ring: string } {
-  if (score >= 80) return { label: 'Odlično', color: 'text-green-700', bg: 'bg-green-50', ring: 'ring-green-500' }
-  if (score >= 60) return { label: 'Dobro', color: 'text-blue-700', bg: 'bg-blue-50', ring: 'ring-blue-500' }
-  if (score >= 40) return { label: 'Potrebno poboljšanje', color: 'text-yellow-700', bg: 'bg-yellow-50', ring: 'ring-yellow-500' }
-  return { label: 'Kritično', color: 'text-red-700', bg: 'bg-red-50', ring: 'ring-red-500' }
+  if (score >= 80) return { label: 'Odlično', color: 'text-green-400', bg: 'bg-green-500/10', ring: 'ring-green-500' }
+  if (score >= 60) return { label: 'Dobro', color: 'text-blue-400', bg: 'bg-blue-500/10', ring: 'ring-blue-500' }
+  if (score >= 40) return { label: 'Potrebno poboljšanje', color: 'text-yellow-400', bg: 'bg-yellow-500/10', ring: 'ring-yellow-500' }
+  return { label: 'Kritično', color: 'text-red-400', bg: 'bg-red-500/10', ring: 'ring-red-500' }
 }
 
 function healthRingColor(score: number): string {
@@ -96,8 +96,8 @@ function heatColor(score: number): string {
   if (score >= 80) return 'bg-blue-700 text-white'
   if (score >= 60) return 'bg-blue-500 text-white'
   if (score >= 40) return 'bg-blue-300 text-blue-900'
-  if (score >= 20) return 'bg-blue-100 text-blue-700'
-  return 'bg-gray-100 text-gray-400'
+  if (score >= 20) return 'bg-blue-100 text-blue-400'
+  return 'bg-studio-surface-2 text-studio-text-tertiary'
 }
 
 // ---------------------------------------------------------------------------
@@ -142,11 +142,11 @@ const fallbackData: ChannelData = {
   ],
   engagementData30: Array.from({ length: 30 }, (_, i) => {
     const date = new Date(2026, 1, 4 + i)
-    const isMatchDay = [0, 3, 7, 10, 14, 17, 21, 24, 28].includes(i)
+    const isCampaignDay = [0, 3, 7, 10, 14, 17, 21, 24, 28].includes(i)
     return {
       date: date.toISOString().split('T')[0]!,
-      engagement: Math.round(3000 + Math.random() * 4000 + (isMatchDay ? 5000 : 0)),
-      reach: Math.round(80000 + Math.random() * 120000 + (isMatchDay ? 150000 : 0)),
+      engagement: Math.round(3000 + Math.random() * 4000 + (isCampaignDay ? 5000 : 0)),
+      reach: Math.round(80000 + Math.random() * 120000 + (isCampaignDay ? 150000 : 0)),
     }
   }),
   formatBreakdown: [
@@ -243,7 +243,7 @@ export default function ChannelAudit() {
                 <div className="flex items-center justify-between">
                   <PlatformIcon platform={p.platform} size="md" showLabel />
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    p.followerGrowth >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                    p.followerGrowth >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
                   }`}>
                     {p.followerGrowth >= 0 ? '+' : ''}{p.followerGrowth.toFixed(1)}%
                   </span>
@@ -251,11 +251,11 @@ export default function ChannelAudit() {
 
                 {/* Follower count */}
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-studio-text-primary">
                     {p.platform === 'web' ? `${formatNumber(p.followers)} visits` : formatNumber(p.followers)}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Stopa ang.: <span className="font-medium text-gray-700">{p.engagement}%</span>
+                  <p className="text-xs text-studio-text-secondary mt-1">
+                    Stopa ang.: <span className="font-medium text-studio-text-primary">{p.engagement}%</span>
                     <span className={`ml-1.5 ${p.engagementChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       ({p.engagementChange >= 0 ? '+' : ''}{p.engagementChange.toFixed(1)}%)
                     </span>
@@ -266,7 +266,7 @@ export default function ChannelAudit() {
                 <div className="flex items-center gap-3 pt-1">
                   <div className="relative w-11 h-11 shrink-0">
                     <svg viewBox="0 0 36 36" className="w-11 h-11 -rotate-90">
-                      <circle cx="18" cy="18" r="15" fill="none" stroke="#E5E7EB" strokeWidth="3" />
+                      <circle cx="18" cy="18" r="15" fill="none" stroke="#2A2A2A" strokeWidth="3" />
                       <circle
                         cx="18" cy="18" r="15"
                         fill="none"
@@ -276,7 +276,7 @@ export default function ChannelAudit() {
                         strokeLinecap="round"
                       />
                     </svg>
-                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-gray-900">
+                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-studio-text-primary">
                       {p.healthScore}
                     </span>
                   </div>
@@ -301,44 +301,44 @@ export default function ChannelAudit() {
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Best engagement platform */}
-            <div className="bg-blue-50 rounded-xl p-4 space-y-1">
+            <div className="bg-blue-500/10 rounded-xl p-4 space-y-1">
               <p className="text-xs text-blue-600 font-medium">Najbolji angažman</p>
               <div className="flex items-center gap-2">
                 <PlatformIcon platform={benchmarks.bestEngagement.platform} size="sm" />
-                <span className="text-lg font-bold text-gray-900">
+                <span className="text-lg font-bold text-studio-text-primary">
                   {(PLATFORMS as Record<string, { name: string }>)[benchmarks.bestEngagement.platform]?.name || benchmarks.bestEngagement.platform}
                 </span>
               </div>
-              <p className="text-sm text-blue-700 font-medium">{benchmarks.bestEngagement.engagement}%</p>
+              <p className="text-sm text-blue-400 font-medium">{benchmarks.bestEngagement.engagement}%</p>
             </div>
 
             {/* Average engagement */}
-            <div className="bg-gray-50 rounded-xl p-4 space-y-1">
-              <p className="text-xs text-gray-500 font-medium">Prosječni angažman</p>
-              <p className="text-lg font-bold text-gray-900">{benchmarks.avgEngagement.toFixed(2)}%</p>
-              <p className="text-xs text-gray-500">Sve platforme</p>
+            <div className="bg-studio-surface-0 rounded-xl p-4 space-y-1">
+              <p className="text-xs text-studio-text-secondary font-medium">Prosječni angažman</p>
+              <p className="text-lg font-bold text-studio-text-primary">{benchmarks.avgEngagement.toFixed(2)}%</p>
+              <p className="text-xs text-studio-text-secondary">Sve platforme</p>
             </div>
 
             {/* Total combined reach */}
-            <div className="bg-green-50 rounded-xl p-4 space-y-1">
+            <div className="bg-green-500/10 rounded-xl p-4 space-y-1">
               <p className="text-xs text-green-600 font-medium">Ukupni doseg</p>
               <div className="flex items-center gap-1.5">
                 <Eye size={16} className="text-green-600" />
-                <p className="text-lg font-bold text-gray-900">{formatNumber(benchmarks.totalReach)}</p>
+                <p className="text-lg font-bold text-studio-text-primary">{formatNumber(benchmarks.totalReach)}</p>
               </div>
-              <p className="text-xs text-gray-500">Kombinirani doseg</p>
+              <p className="text-xs text-studio-text-secondary">Kombinirani doseg</p>
             </div>
 
             {/* Highest growth */}
-            <div className="bg-emerald-50 rounded-xl p-4 space-y-1">
+            <div className="bg-emerald-500/10 rounded-xl p-4 space-y-1">
               <p className="text-xs text-emerald-600 font-medium">Najveći rast</p>
               <div className="flex items-center gap-2">
                 <PlatformIcon platform={benchmarks.highestGrowth.platform} size="sm" />
-                <span className="text-lg font-bold text-gray-900">
+                <span className="text-lg font-bold text-studio-text-primary">
                   {(PLATFORMS as Record<string, { name: string }>)[benchmarks.highestGrowth.platform]?.name || benchmarks.highestGrowth.platform}
                 </span>
               </div>
-              <p className="text-sm text-emerald-700 font-medium flex items-center gap-0.5">
+              <p className="text-sm text-emerald-400 font-medium flex items-center gap-0.5">
                 <TrendingUp size={14} />
                 +{benchmarks.highestGrowth.followerGrowth.toFixed(1)}%
               </p>
@@ -365,9 +365,9 @@ export default function ChannelAudit() {
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="text-left py-2 px-2 text-gray-500 font-medium w-16">Dan</th>
+                  <th className="text-left py-2 px-2 text-studio-text-secondary font-medium w-16">Dan</th>
                   {TIME_SLOTS.map(h => (
-                    <th key={h} className="text-center py-2 px-1 text-gray-500 font-medium text-xs">
+                    <th key={h} className="text-center py-2 px-1 text-studio-text-secondary font-medium text-xs">
                       {h.toString().padStart(2, '0')}:00
                     </th>
                   ))}
@@ -376,7 +376,7 @@ export default function ChannelAudit() {
               <tbody>
                 {DAYS.map(day => (
                   <tr key={day}>
-                    <td className="py-1.5 px-2 text-gray-700 font-medium text-xs">{day}</td>
+                    <td className="py-1.5 px-2 text-studio-text-primary font-medium text-xs">{day}</td>
                     {TIME_SLOTS.map(hour => {
                       const slot = postingTimes.find(s => s.day === day && s.hour === hour)
                       const score = slot?.score ?? 0
@@ -397,9 +397,9 @@ export default function ChannelAudit() {
             </table>
           </div>
           {/* Legend */}
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+          <div className="flex items-center gap-4 mt-3 text-xs text-studio-text-secondary">
             <span>Legenda:</span>
-            <span className="flex items-center gap-1"><span className="w-4 h-3 rounded bg-gray-100 inline-block" /> Nizak</span>
+            <span className="flex items-center gap-1"><span className="w-4 h-3 rounded bg-studio-surface-2 inline-block" /> Nizak</span>
             <span className="flex items-center gap-1"><span className="w-4 h-3 rounded bg-blue-100 inline-block" /> Umjeren</span>
             <span className="flex items-center gap-1"><span className="w-4 h-3 rounded bg-blue-300 inline-block" /> Dobar</span>
             <span className="flex items-center gap-1"><span className="w-4 h-3 rounded bg-blue-500 inline-block" /> Visok</span>
@@ -415,23 +415,23 @@ export default function ChannelAudit() {
           <div className="space-y-3">
             {formatRecommendations.map(f => (
               <div key={f.type} className="flex items-center gap-4">
-                <span className="text-sm text-gray-500 w-40 shrink-0 truncate">{f.type}</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-3">
+                <span className="text-sm text-studio-text-secondary w-40 shrink-0 truncate">{f.type}</span>
+                <div className="flex-1 bg-studio-surface-3 rounded-full h-3">
                   <div
                     className="bg-gradient-to-r from-blue-600 to-blue-400 h-3 rounded-full transition-all"
                     style={{ width: `${f.share}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-500 w-12 text-right hidden sm:flex justify-end">{f.share}%</span>
-                <span className="text-sm text-gray-500 w-20 text-right hidden sm:flex justify-end">{f.posts} objava</span>
-                <span className="text-sm text-emerald-700 w-16 text-right hidden sm:flex justify-end">{f.avgEngagement}% ang</span>
+                <span className="text-sm text-studio-text-secondary w-12 text-right hidden sm:flex justify-end">{f.share}%</span>
+                <span className="text-sm text-studio-text-secondary w-20 text-right hidden sm:flex justify-end">{f.posts} objava</span>
+                <span className="text-sm text-emerald-400 w-16 text-right hidden sm:flex justify-end">{f.avgEngagement}% ang</span>
                 {/* Recommendation badge */}
                 <span className={`hidden md:inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
                   f.recommendation === 'increase'
-                    ? 'bg-green-50 text-green-700'
+                    ? 'bg-green-500/10 text-green-400'
                     : f.recommendation === 'decrease'
-                      ? 'bg-red-50 text-red-700'
-                      : 'bg-gray-100 text-gray-600'
+                      ? 'bg-red-500/10 text-red-400'
+                      : 'bg-studio-surface-2 text-studio-text-secondary'
                 }`}>
                   {f.recommendation === 'increase' && <><ArrowUpRight size={12} /> Povećaj</>}
                   {f.recommendation === 'decrease' && <><ArrowDownRight size={12} /> Smanji</>}
@@ -441,8 +441,8 @@ export default function ChannelAudit() {
             ))}
           </div>
           {/* Recommendation summary */}
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-xs text-gray-500">
+          <div className="mt-4 pt-4 border-t border-studio-border-subtle">
+            <p className="text-xs text-studio-text-secondary">
               Preporuke se temelje na omjeru angažmana i udjela. Formati s visokim angažmanom ali niskim udjelom dobivaju oznaku "Povećaj".
             </p>
           </div>
@@ -459,14 +459,14 @@ export default function ChannelAudit() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">Platforma</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">Pratitelji</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">Angažman</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Doseg</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium hidden md:table-cell">Rast</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium hidden md:table-cell">Objave</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">Zdravlje</th>
+                <tr className="border-b border-studio-border">
+                  <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Platforma</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">Pratitelji</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">Angažman</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden sm:table-cell">Doseg</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Rast</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Objave</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">Zdravlje</th>
                 </tr>
               </thead>
               <tbody>
@@ -477,23 +477,23 @@ export default function ChannelAudit() {
                     const health = getHealthLabel(p.healthScore)
                     const isTop = idx === 0
                     return (
-                      <tr key={p.platform} className={`border-b border-gray-100 hover:bg-gray-50 ${isTop ? 'bg-yellow-50/40' : ''}`}>
+                      <tr key={p.platform} className={`border-b border-studio-border-subtle hover:bg-studio-surface-1 ${isTop ? 'bg-yellow-500/5' : ''}`}>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             {isTop && <Trophy size={14} className="text-yellow-500" />}
                             <PlatformIcon platform={p.platform} size="sm" showLabel />
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-900 font-mono font-medium">
+                        <td className="py-3 px-4 text-right text-studio-text-primary font-mono font-medium">
                           {formatNumber(p.followers)}
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <span className="text-gray-900 font-medium">{p.engagement}%</span>
+                          <span className="text-studio-text-primary font-medium">{p.engagement}%</span>
                           <span className={`ml-1.5 text-xs ${p.engagementChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {p.engagementChange >= 0 ? '+' : ''}{p.engagementChange.toFixed(1)}%
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-700 font-mono hidden sm:table-cell">
+                        <td className="py-3 px-4 text-right text-studio-text-primary font-mono hidden sm:table-cell">
                           {formatNumber(p.reach)}
                         </td>
                         <td className="py-3 px-4 text-right hidden md:table-cell">
@@ -504,7 +504,7 @@ export default function ChannelAudit() {
                             {p.followerGrowth >= 0 ? '+' : ''}{p.followerGrowth.toFixed(1)}%
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right text-gray-700 font-mono hidden md:table-cell">
+                        <td className="py-3 px-4 text-right text-studio-text-primary font-mono hidden md:table-cell">
                           {p.contentCount ?? '-'}
                         </td>
                         <td className="py-3 px-4 text-right">

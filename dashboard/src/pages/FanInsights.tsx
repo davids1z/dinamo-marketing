@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
-interface FanSegment {
+interface CustomerSegment {
   stage: string
   count: number
   iconName: string
@@ -74,14 +74,14 @@ const fallbackChurnDistribution = [
 ]
 
 const churnRiskColor = (risk: string) => {
-  if (risk === 'Visoki') return { bg: 'bg-red-50', text: 'text-red-700', bar: 'bg-red-500', width: '85%' }
-  if (risk === 'Srednji') return { bg: 'bg-yellow-50', text: 'text-yellow-700', bar: 'bg-yellow-500', width: '55%' }
-  if (risk === 'Niski') return { bg: 'bg-green-50', text: 'text-green-700', bar: 'bg-green-500', width: '25%' }
-  return { bg: 'bg-emerald-50', text: 'text-emerald-700', bar: 'bg-emerald-500', width: '10%' }
+  if (risk === 'Visoki') return { bg: 'bg-red-500/10', text: 'text-red-400', bar: 'bg-red-500', width: '85%' }
+  if (risk === 'Srednji') return { bg: 'bg-yellow-500/10', text: 'text-yellow-400', bar: 'bg-yellow-500', width: '55%' }
+  if (risk === 'Niski') return { bg: 'bg-green-500/10', text: 'text-green-400', bar: 'bg-green-500', width: '25%' }
+  return { bg: 'bg-emerald-500/10', text: 'text-emerald-400', bar: 'bg-emerald-500', width: '10%' }
 }
 
-export default function FanInsights() {
-  const [fanSegments, setFanSegments] = useState<FanSegment[]>([])
+export default function CustomerSegmentation() {
+  const [customerSegments, setCustomerSegments] = useState<CustomerSegment[]>([])
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([])
   const [clvData, setClvData] = useState<ClvRow[]>([])
   const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>([])
@@ -102,7 +102,7 @@ export default function FanInsights() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const segData = segmentsRes.data as any
       if (segData.fan_segments) {
-        setFanSegments(
+        setCustomerSegments(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           segData.fan_segments.map((s: any) => ({
             stage: String(s.stage ?? ''),
@@ -162,7 +162,7 @@ export default function FanInsights() {
   if (loading) {
     return (
       <>
-        <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
+        <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
         <div className="page-wrapper space-y-6">
           <CardSkeleton count={4} />
           <ChartSkeleton />
@@ -174,7 +174,7 @@ export default function FanInsights() {
   if (error) {
     return (
       <>
-        <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
+        <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
         <div className="page-wrapper">
           <ErrorState message={error} onRetry={fetchData} />
         </div>
@@ -183,46 +183,46 @@ export default function FanInsights() {
   }
 
   // Calculate totals for segment distribution
-  const totalFans = fanSegments.reduce((sum, s) => sum + s.count, 0)
-  const segmentDistribution = fanSegments.map((s, i) => ({
+  const totalCustomers = customerSegments.reduce((sum, s) => sum + s.count, 0)
+  const segmentDistribution = customerSegments.map((s, i) => ({
     name: s.stage,
     value: s.count,
     color: SEGMENT_COLORS[i % SEGMENT_COLORS.length]!,
-    pct: totalFans > 0 ? ((s.count / totalFans) * 100).toFixed(1) : '0',
+    pct: totalCustomers > 0 ? ((s.count / totalCustomers) * 100).toFixed(1) : '0',
   }))
 
   // Determine overall health
-  const avgGrowth = fanSegments.length > 0
-    ? fanSegments.reduce((sum, s) => sum + s.growth, 0) / fanSegments.length
+  const avgGrowth = customerSegments.length > 0
+    ? customerSegments.reduce((sum, s) => sum + s.growth, 0) / customerSegments.length
     : 0
   const highRiskCount = clvData.filter(c => c.churnRisk === 'Visoki').length
 
   return (
     <div className="animate-fade-in">
-      <Header title="UVIDI O NAVIJAČIMA" subtitle="Segmentacija navijača, životni ciklus i analiza vrijednosti" />
+      <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
 
       <div className="page-wrapper space-y-6">
         {/* Top Bar: Refresh + Health Summary */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg">
-              <Users size={16} className="text-blue-700" />
-              <span className="text-sm font-medium text-blue-700">
-                {totalFans >= 1000 ? `${(totalFans / 1000).toFixed(0)}K` : totalFans} ukupno navijača
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg">
+              <Users size={16} className="text-dinamo-accent" />
+              <span className="text-sm font-medium text-dinamo-accent">
+                {totalCustomers >= 1000 ? `${(totalCustomers / 1000).toFixed(0)}K` : totalCustomers} ukupno korisnika
               </span>
             </div>
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-              avgGrowth > 5 ? 'bg-green-50' : avgGrowth > 0 ? 'bg-blue-50' : 'bg-yellow-50'
+              avgGrowth > 5 ? 'bg-green-500/10' : avgGrowth > 0 ? 'bg-blue-500/10' : 'bg-amber-500/10'
             }`}>
               {avgGrowth > 0 ? <ArrowUpRight size={16} className="text-green-600" /> : <ArrowDownRight size={16} className="text-yellow-600" />}
-              <span className={`text-sm font-medium ${avgGrowth > 0 ? 'text-green-700' : 'text-yellow-700'}`}>
+              <span className={`text-sm font-medium ${avgGrowth > 0 ? 'text-green-400' : 'text-amber-400'}`}>
                 +{avgGrowth.toFixed(1)}% prosječni rast
               </span>
             </div>
             {highRiskCount > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 rounded-lg">
-                <ShieldAlert size={16} className="text-red-700" />
-                <span className="text-sm font-medium text-red-700">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 rounded-lg">
+                <ShieldAlert size={16} className="text-red-400" />
+                <span className="text-sm font-medium text-red-400">
                   {highRiskCount} segment{highRiskCount > 1 ? 'a' : ''} s visokim rizikom
                 </span>
               </div>
@@ -237,9 +237,9 @@ export default function FanInsights() {
           </button>
         </div>
 
-        {/* Fan Segment Cards */}
+        {/* Customer Segment Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {fanSegments.map((seg, i) => {
+          {customerSegments.map((seg, i) => {
             const Icon = iconMap[seg.iconName] || Users
             return (
               <div key={seg.stage} className="card space-y-3">
@@ -248,29 +248,29 @@ export default function FanInsights() {
                     <Icon size={18} className="text-white" />
                   </div>
                   <span className={`text-xs flex items-center gap-0.5 ${
-                    seg.growth > 0 ? 'text-green-600' : 'text-red-700'
+                    seg.growth > 0 ? 'text-green-600' : 'text-red-400'
                   }`}>
                     {seg.growth > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                     {seg.growth > 0 ? '+' : ''}{seg.growth}%
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{seg.stage}</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-studio-text-secondary">{seg.stage}</p>
+                  <p className="text-2xl font-bold text-studio-text-primary">
                     {seg.count >= 1000 ? `${(seg.count / 1000).toFixed(0)}K` : seg.count}
                   </p>
                 </div>
                 {/* Mini distribution bar */}
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="w-full bg-studio-surface-3 rounded-full h-1.5">
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
-                      width: totalFans > 0 ? `${(seg.count / totalFans) * 100}%` : '0%',
+                      width: totalCustomers > 0 ? `${(seg.count / totalCustomers) * 100}%` : '0%',
                       backgroundColor: SEGMENT_COLORS[i % SEGMENT_COLORS.length],
                     }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 truncate">{seg.description}</p>
+                <p className="text-xs text-studio-text-secondary truncate">{seg.description}</p>
               </div>
             )
           })}
@@ -281,7 +281,7 @@ export default function FanInsights() {
           {/* Segment Distribution Donut */}
           <div className="card">
             <h2 className="section-title mb-4 flex items-center gap-2">
-              <Target size={18} className="text-blue-700" />
+              <Target size={18} className="text-dinamo-accent" />
               Raspodjela segmenata
             </h2>
             <div className="flex justify-center">
@@ -302,7 +302,7 @@ export default function FanInsights() {
                   </Pie>
                   <Tooltip
                     formatter={(value: number, name: string) => [
-                      `${(value / 1000).toFixed(0)}K (${totalFans > 0 ? ((value / totalFans) * 100).toFixed(1) : 0}%)`,
+                      `${(value / 1000).toFixed(0)}K (${totalCustomers > 0 ? ((value / totalCustomers) * 100).toFixed(1) : 0}%)`,
                       name,
                     ]}
                   />
@@ -314,9 +314,9 @@ export default function FanInsights() {
                 <div key={s.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
-                    <span className="text-gray-700">{s.name}</span>
+                    <span className="text-studio-text-primary">{s.name}</span>
                   </div>
-                  <span className="text-gray-500 font-mono">{s.pct}%</span>
+                  <span className="text-studio-text-secondary font-mono">{s.pct}%</span>
                 </div>
               ))}
             </div>
@@ -325,13 +325,13 @@ export default function FanInsights() {
           {/* Growth Trend Chart */}
           <div className="lg:col-span-2 card">
             <h2 className="section-title mb-4 flex items-center gap-2">
-              <Activity size={18} className="text-emerald-700" />
+              <Activity size={18} className="text-emerald-400" />
               Trend rasta segmenata (6 mjeseci)
             </h2>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={fallbackGrowthTrend}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
                 <Tooltip formatter={(value: number) => [`${(value / 1000).toFixed(1)}K`, '']} />
                 <Line type="monotone" dataKey="casual" stroke="#3b82f6" strokeWidth={2} dot={false} name="Casual" />
                 <Line type="monotone" dataKey="engaged" stroke="#8b5cf6" strokeWidth={2} dot={false} name="Angažirani" />
@@ -342,7 +342,7 @@ export default function FanInsights() {
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-4 mt-3 justify-center">
               {['Casual', 'Angažirani', 'Lojalni', 'VIP', 'Ambasadori'].map((label, i) => (
-                <div key={label} className="flex items-center gap-1.5 text-xs text-gray-500">
+                <div key={label} className="flex items-center gap-1.5 text-xs text-studio-text-secondary">
                   <div className="w-3 h-0.5 rounded" style={{ backgroundColor: SEGMENT_COLORS[i] }} />
                   {label}
                 </div>
@@ -354,7 +354,7 @@ export default function FanInsights() {
         {/* Funnel */}
         {funnelSteps.length > 0 && (
           <div className="card">
-            <FunnelChart steps={funnelSteps} title="Lijevak životnog ciklusa navijača" />
+            <FunnelChart steps={funnelSteps} title="Lijevak životnog ciklusa korisnika" />
           </div>
         )}
 
@@ -364,35 +364,35 @@ export default function FanInsights() {
           {clvData.length > 0 && (
             <div className="lg:col-span-2 card">
               <h2 className="section-title mb-4 flex items-center gap-2">
-                <DollarSign size={20} className="text-emerald-700" />
-                Doživotna vrijednost navijača po segmentu
+                <DollarSign size={20} className="text-emerald-400" />
+                Doživotna vrijednost korisnika po segmentu
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Segment</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Prosj. CLV</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Zadržavanje</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium">Rizik odljeva</th>
-                      <th className="text-left py-3 px-4 text-gray-500 font-medium hidden md:table-cell">Razina rizika</th>
+                    <tr className="border-b border-studio-border">
+                      <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Segment</th>
+                      <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Prosj. CLV</th>
+                      <th className="text-left py-3 px-4 text-studio-text-secondary font-medium hidden sm:table-cell">Zadržavanje</th>
+                      <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Rizik odljeva</th>
+                      <th className="text-left py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Razina rizika</th>
                     </tr>
                   </thead>
                   <tbody>
                     {clvData.map((row) => {
                       const riskStyle = churnRiskColor(row.churnRisk)
                       return (
-                        <tr key={row.segment} className="border-b border-gray-200 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-gray-900 font-medium">{row.segment}</td>
-                          <td className="py-3 px-4 text-emerald-700 font-mono">{row.clv}</td>
-                          <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">{row.retention}</td>
+                        <tr key={row.segment} className="border-b border-studio-border hover:bg-studio-surface-1">
+                          <td className="py-3 px-4 text-studio-text-primary font-medium">{row.segment}</td>
+                          <td className="py-3 px-4 text-emerald-400 font-mono">{row.clv}</td>
+                          <td className="py-3 px-4 text-studio-text-secondary hidden sm:table-cell">{row.retention}</td>
                           <td className="py-3 px-4">
                             <span className={`text-xs px-2 py-0.5 rounded-full ${riskStyle.bg} ${riskStyle.text}`}>
                               {row.churnRisk}
                             </span>
                           </td>
                           <td className="py-3 px-4 hidden md:table-cell">
-                            <div className="w-full bg-gray-200 rounded-full h-2 max-w-[120px]">
+                            <div className="w-full bg-studio-surface-3 rounded-full h-2 max-w-[120px]">
                               <div
                                 className={`h-2 rounded-full ${riskStyle.bar} transition-all`}
                                 style={{ width: riskStyle.width }}
@@ -411,15 +411,15 @@ export default function FanInsights() {
           {/* Churn Risk Distribution */}
           <div className="card">
             <h2 className="section-title mb-4 flex items-center gap-2">
-              <ShieldCheck size={18} className="text-blue-700" />
+              <ShieldCheck size={18} className="text-dinamo-accent" />
               Distribucija rizika odljeva
             </h2>
             <div className="flex justify-center">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fallbackChurnDistribution} layout="vertical">
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} tickFormatter={(v: number) => `${v}%`} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} width={80} />
-                  <Tooltip formatter={(value: number) => [`${value}%`, 'Udio navijača']} />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} tickFormatter={(v: number) => `${v}%`} />
+                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} width={80} />
+                  <Tooltip formatter={(value: number) => [`${value}%`, 'Udio korisnika']} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {fallbackChurnDistribution.map((entry, idx) => (
                       <Cell key={`bar-${idx}`} fill={entry.color} />
@@ -430,16 +430,16 @@ export default function FanInsights() {
             </div>
             {/* Risk summary */}
             <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
-                <span className="text-xs text-green-700 font-medium">Sigurno (Minimalni + Niski)</span>
-                <span className="text-sm text-green-700 font-bold">73%</span>
+              <div className="flex items-center justify-between p-2 bg-green-500/10 rounded-lg">
+                <span className="text-xs text-green-400 font-medium">Sigurno (Minimalni + Niski)</span>
+                <span className="text-sm text-green-400 font-bold">73%</span>
               </div>
-              <div className="flex items-center justify-between p-2 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between p-2 bg-red-500/10 rounded-lg">
                 <div className="flex items-center gap-1.5">
-                  <AlertTriangle size={14} className="text-red-700" />
-                  <span className="text-xs text-red-700 font-medium">Potrebna intervencija</span>
+                  <AlertTriangle size={14} className="text-red-400" />
+                  <span className="text-xs text-red-400 font-medium">Potrebna intervencija</span>
                 </div>
-                <span className="text-sm text-red-700 font-bold">9%</span>
+                <span className="text-sm text-red-400 font-bold">9%</span>
               </div>
             </div>
           </div>
@@ -454,25 +454,25 @@ export default function FanInsights() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {churnPredictions.map((item) => (
-                <div key={item.metric} className="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200 hover:border-blue-200 transition-colors">
-                  <p className="text-sm text-gray-500">{item.metric}</p>
+                <div key={item.metric} className="bg-studio-surface-0 rounded-xl p-4 space-y-2 border border-studio-border hover:border-dinamo-accent/30 transition-colors">
+                  <p className="text-sm text-studio-text-secondary">{item.metric}</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-gray-900">{item.value}</span>
+                    <span className="text-2xl font-bold text-studio-text-primary">{item.value}</span>
                     <span className={`text-xs flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
-                      item.trend === 'up' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                      item.trend === 'up' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-yellow-600'
                     }`}>
                       {item.trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                       {item.change}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>
+                  <p className="text-xs text-studio-text-secondary leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        <AiInsightsPanel pageKey="fan_insights" pageData={{ segments: fanSegments.map(s => ({ stage: s.stage, count: s.count, growth: s.growth })), clv: clvData, churn: churnPredictions }} />
+        <AiInsightsPanel pageKey="fan_insights" pageData={{ segments: customerSegments.map(s => ({ stage: s.stage, count: s.count, growth: s.growth })), clv: clvData, churn: churnPredictions }} />
       </div>
     </div>
   )
