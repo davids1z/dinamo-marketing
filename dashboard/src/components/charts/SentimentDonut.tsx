@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import { DINAMO_BRAND } from '../../utils/constants'
+import { SHIFTONEZERO_BRAND } from '../../utils/constants'
 
 interface SentimentDonutProps {
   positive: number
@@ -10,9 +10,9 @@ interface SentimentDonutProps {
 
 export function SentimentDonut({ positive, neutral, negative, title }: SentimentDonutProps) {
   const data = [
-    { name: 'Pozitivno', value: positive, color: DINAMO_BRAND.colors.positive },
-    { name: 'Neutralno', value: neutral, color: DINAMO_BRAND.colors.neutral },
-    { name: 'Negativno', value: negative, color: DINAMO_BRAND.colors.negative },
+    { name: 'Pozitivno', value: positive, color: SHIFTONEZERO_BRAND.colors.positive },
+    { name: 'Neutralno', value: neutral, color: SHIFTONEZERO_BRAND.colors.neutral },
+    { name: 'Negativno', value: negative, color: SHIFTONEZERO_BRAND.colors.negative },
   ]
 
   const total = positive + neutral + negative

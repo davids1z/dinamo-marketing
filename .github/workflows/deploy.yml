@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_HOST: dinamo.xyler.ai
+  DEPLOY_HOST: shiftonezero.xyler.ai
   DEPLOY_USER: deploy
   DEPLOY_PATH: /opt/dinamo-marketing
 

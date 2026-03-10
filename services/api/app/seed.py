@@ -32,21 +32,21 @@ def load_json(path: str) -> dict:
 async def seed_admin_user(session: AsyncSession):
     """Create default admin user if not exists."""
     existing = (await session.execute(
-        select(User).where(User.email == "admin@dinamo.hr")
+        select(User).where(User.email == "admin@shiftonezero.com")
     )).scalar_one_or_none()
     if existing:
         logger.info("Admin user already exists, skipping")
         return
     admin = User(
-        email="admin@dinamo.hr",
-        hashed_password=hash_password("dinamo2026"),
-        full_name="Dinamo Admin",
+        email="admin@shiftonezero.com",
+        hashed_password=hash_password("shiftonezero2026"),
+        full_name="ShiftOneZero Admin",
         role="admin",
         is_active=True,
     )
     session.add(admin)
     await session.flush()
-    logger.info("Seeded admin user: admin@dinamo.hr")
+    logger.info("Seeded admin user: admin@shiftonezero.com")
 
 
 async def seed_countries(session: AsyncSession):

@@ -66,12 +66,12 @@ export default function Sidebar() {
         <div className="h-16 flex items-center px-4 border-b border-white/10 justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="font-headline text-lg text-dinamo-blue font-bold">D</span>
+              <span className="font-headline text-sm text-dinamo-blue font-bold">S1Z</span>
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <h1 className="font-headline text-xl tracking-wider text-white leading-none font-bold truncate">
-                  DINAMO
+                <h1 className="font-headline text-lg tracking-wider text-white leading-none font-bold truncate">
+                  SHIFTONEZERO
                 </h1>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-blue-200 truncate">
                   Marketing Platforma

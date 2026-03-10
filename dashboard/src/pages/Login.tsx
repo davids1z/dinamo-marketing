@@ -35,9 +35,9 @@ export default function Login() {
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="w-16 h-16 rounded-2xl bg-white mx-auto flex items-center justify-center mb-5 shadow-lg shadow-black/10">
-            <span className="font-headline text-3xl text-dinamo-blue font-bold">D</span>
+            <span className="font-headline text-2xl text-dinamo-blue font-bold">S1Z</span>
           </div>
-          <h1 className="font-headline text-3xl tracking-wider text-white font-bold">DINAMO</h1>
+          <h1 className="font-headline text-3xl tracking-wider text-white font-bold">SHIFTONEZERO</h1>
           <p className="text-sm uppercase tracking-[0.25em] text-blue-200 mt-1.5 font-medium">Marketing Platforma</p>
         </div>
 
@@ -95,7 +95,7 @@ export default function Login() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-blue-200 mt-8">GNK Dinamo Zagreb</p>
+        <p className="text-center text-xs text-blue-200 mt-8">ShiftOneZero</p>
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { DINAMO_BRAND } from '../../utils/constants'
+import { SHIFTONEZERO_BRAND } from '../../utils/constants'
 
 interface ComparisonBarProps {
   data: Array<{ name: string; value: number; color?: string }>
@@ -25,7 +25,7 @@ export function ComparisonBar({ data, title, valueLabel = 'Vrijednost' }: Compar
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             }}
           />
-          <Bar dataKey="value" name={valueLabel} fill={DINAMO_BRAND.colors.blue} />
+          <Bar dataKey="value" name={valueLabel} fill={SHIFTONEZERO_BRAND.colors.blue} />
         </BarChart>
       </ResponsiveContainer>
     </div>

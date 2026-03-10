@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Dinamo Marketing Platform — Production Deploy Script
+# ShiftOneZero Marketing Platform — Production Deploy Script
 # Usage: ./scripts/deploy.sh
 
 cd "$(dirname "$0")/.."
 
 echo "╔══════════════════════════════════════════╗"
-echo "║  Dinamo Marketing — Production Deploy    ║"
+echo "║  ShiftOneZero — Production Deploy        ║"
 echo "╚══════════════════════════════════════════╝"
 
 echo ""
@@ -59,4 +59,4 @@ echo "==> Service status:"
 docker compose -f docker-compose.prod.yml ps
 
 echo ""
-echo "Deploy complete! Dashboard: http://dinamo.xyler.ai"
+echo "Deploy complete! Dashboard: https://shiftonezero.xyler.ai"

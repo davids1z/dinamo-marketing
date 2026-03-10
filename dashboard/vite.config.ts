@@ -11,9 +11,9 @@ export default defineConfig({
       includeAssets: ['dinamo-icon.svg', 'icons/*.png'],
       manifest: {
         id: '/',
-        name: 'Dinamo Marketing Platforma',
-        short_name: 'Dinamo Marketing',
-        description: 'AI-powered marketing platforma za GNK Dinamo Zagreb. Kreirajte sadržaj, upravljajte kampanjama, analizirajte performanse.',
+        name: 'ShiftOneZero Marketing Platforma',
+        short_name: 'ShiftOneZero',
+        description: 'AI-powered marketing platforma. Kreirajte sadržaj, upravljajte kampanjama, analizirajte performanse.',
         lang: 'hr',
         dir: 'ltr',
         theme_color: '#03162a',
@@ -95,7 +95,7 @@ export default defineConfig({
   server: {
     host: true,
     port: Number(process.env.VITE_PORT || 3001),
-    allowedHosts: ['dinamo.xyler.ai'],
+    allowedHosts: ['shiftonezero.xyler.ai'],
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:8001',

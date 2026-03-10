@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # App
-    APP_NAME: str = "Dinamo Marketing Platform"
+    APP_NAME: str = "ShiftOneZero Marketing Platform"
     APP_SECRET_KEY: str = "change-this-to-a-random-secret-key"
     CORS_ORIGINS: str = "http://localhost:3001"
 
@@ -62,6 +62,9 @@ class Settings(BaseSettings):
 
     # TheSportsDB
     THESPORTSDB_API_KEY: str = "123"
+
+    # API-Football (api-sports.io)
+    API_FOOTBALL_API_KEY: str = ""
 
     # Buffer
     BUFFER_ACCESS_TOKEN: str = ""

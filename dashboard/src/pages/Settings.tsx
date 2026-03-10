@@ -44,7 +44,7 @@ const fallbackData: SettingsData = {
     { id: 'trends', name: 'Google Trends', description: 'Podaci o trendovima pretraživanja i uvidi', enabled: true, mode: 'mock', icon: '📈' },
   ],
   brandColors: [
-    { name: 'Dinamo plava', hex: '#0057A8', usage: 'Primarna boja brenda' },
+    { name: 'Primarna plava', hex: '#0057A8', usage: 'Primarna boja brenda' },
     { name: 'Sidebar tamna', hex: '#0A1A28', usage: 'Navigacija sidebar' },
     { name: 'Bijela', hex: '#FFFFFF', usage: 'Pozadina kartica' },
     { name: 'Accent zelena', hex: '#B8FF00', usage: 'Naglasci i CTA' },

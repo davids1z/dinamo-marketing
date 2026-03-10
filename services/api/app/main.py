@@ -16,6 +16,7 @@ from app.middleware.security import SecurityHeadersMiddleware
 from app.routers import (
     academy,
     admin,
+    ai_insights,
     analytics,
     auth,
     campaign_research,
@@ -62,7 +63,7 @@ async def lifespan(app: FastAPI):
         except ImportError:
             logger.warning("sentry-sdk not installed, skipping Sentry init")
 
-    logger.info("Dinamo Marketing Platform started")
+    logger.info("ShiftOneZero Marketing Platform started")
     yield
     # Shutdown
     from app.database import engine
@@ -72,7 +73,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="GNK Dinamo Zagreb - AI-Powered Marketing Platform",
+    description="ShiftOneZero - AI-Powered Marketing Platform",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -118,6 +119,7 @@ app.include_router(engagement.router, prefix="/api/v1/engagement", tags=["Engage
 app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Settings"], dependencies=_auth)
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["Content Studio"], dependencies=_auth)
 app.include_router(campaign_research.router, prefix="/api/v1/campaign-research", tags=["Campaign Research"], dependencies=_auth)
+app.include_router(ai_insights.router, prefix="/api/v1/ai-insights", tags=["AI Insights"], dependencies=_auth)
 
 
 # Static media files (generated images)

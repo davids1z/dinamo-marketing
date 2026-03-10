@@ -1,5 +1,5 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { DINAMO_BRAND } from '../../utils/constants'
+import { SHIFTONEZERO_BRAND } from '../../utils/constants'
 
 interface ReachChartProps {
   data: Array<{ date: string; reach: number; impressions: number }>
@@ -14,12 +14,12 @@ export function ReachChart({ data, title }: ReachChartProps) {
         <AreaChart data={data}>
           <defs>
             <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={DINAMO_BRAND.colors.accentDark} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={DINAMO_BRAND.colors.accentDark} stopOpacity={0} />
+              <stop offset="5%" stopColor={SHIFTONEZERO_BRAND.colors.accentDark} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={SHIFTONEZERO_BRAND.colors.accentDark} stopOpacity={0} />
             </linearGradient>
             <linearGradient id="impressionGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={DINAMO_BRAND.colors.blue} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={DINAMO_BRAND.colors.blue} stopOpacity={0} />
+              <stop offset="5%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -34,8 +34,8 @@ export function ReachChart({ data, title }: ReachChartProps) {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             }}
           />
-          <Area type="monotone" dataKey="impressions" stroke={DINAMO_BRAND.colors.blue} fill="url(#impressionGradient)" name="Impressions" />
-          <Area type="monotone" dataKey="reach" stroke={DINAMO_BRAND.colors.accentDark} fill="url(#reachGradient)" name="Reach" />
+          <Area type="monotone" dataKey="impressions" stroke={SHIFTONEZERO_BRAND.colors.blue} fill="url(#impressionGradient)" name="Impressions" />
+          <Area type="monotone" dataKey="reach" stroke={SHIFTONEZERO_BRAND.colors.accentDark} fill="url(#reachGradient)" name="Reach" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

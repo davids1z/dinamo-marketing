@@ -1,7 +1,7 @@
 [project]
-name = "dinamo-marketing-api"
+name = "shiftonezero-marketing-api"
 version = "1.0.0"
-description = "GNK Dinamo Zagreb - AI-Powered Marketing Platform"
+description = "ShiftOneZero - AI-Powered Marketing Platform"
 requires-python = ">=3.12"
 dependencies = [
     # Web framework

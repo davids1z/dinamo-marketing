@@ -1,4 +1,4 @@
-export const DINAMO_BRAND = {
+export const SHIFTONEZERO_BRAND = {
   colors: {
     primary: '#0A1A28',
     primaryLight: '#112233',

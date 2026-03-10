@@ -1,5 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { DINAMO_BRAND } from '../../utils/constants'
+import { SHIFTONEZERO_BRAND } from '../../utils/constants'
 
 interface DataPoint {
   date: string
@@ -38,7 +38,7 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
           <Line
             type="monotone"
             dataKey="engagement"
-            stroke={DINAMO_BRAND.colors.accentDark}
+            stroke={SHIFTONEZERO_BRAND.colors.accentDark}
             strokeWidth={2.5}
             dot={false}
             name="Angažman"
@@ -46,7 +46,7 @@ export function EngagementChart({ data, title }: EngagementChartProps) {
           <Line
             type="monotone"
             dataKey="reach"
-            stroke={DINAMO_BRAND.colors.blue}
+            stroke={SHIFTONEZERO_BRAND.colors.blue}
             strokeWidth={2.5}
             dot={false}
             name="Doseg"
