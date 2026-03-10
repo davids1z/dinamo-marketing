@@ -125,7 +125,7 @@ export default function AnimationPicker({
                   key={`inline-preview-${previewAnim}`}
                   className={`anim-${previewAnim} text-white font-headline font-bold text-sm`}
                 >
-                  DINAMO
+                  S1Z
                 </div>
               </div>
             </div>

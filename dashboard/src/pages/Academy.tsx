@@ -101,7 +101,11 @@ const columns = [
 
 export default function PartnersCreators() {
   const { data: apiData, loading } = useApi<PartnersData>('/academy/players');
-  const data = apiData || fallbackData;
+  const data: PartnersData = {
+    metrics: apiData?.metrics || fallbackData.metrics,
+    partners: apiData?.partners || fallbackData.partners,
+    contentPipeline: apiData?.contentPipeline || fallbackData.contentPipeline,
+  };
 
   if (loading && !apiData) return (
     <>
@@ -169,7 +173,7 @@ export default function PartnersCreators() {
           </div>
         </div>
 
-        <AiInsightsPanel pageKey="academy" pageData={{ metrics: data.metrics, topPartners: data.partners.slice(0, 5).map(p => ({ name: p.name, category: p.category, reach: p.reach, conversions: p.conversions, socialMentions: p.socialMentions })), pipeline: data.contentPipeline.map(c => ({ title: c.title, status: c.status })) }} />
+        <AiInsightsPanel pageKey="academy" pageData={{ metrics: data.metrics, topPartners: (data.partners || []).slice(0, 5).map(p => ({ name: p.name, category: p.category, reach: p.reach, conversions: p.conversions, socialMentions: p.socialMentions })), pipeline: (data.contentPipeline || []).map(c => ({ title: c.title, status: c.status })) }} />
       </div>
     </div>
   );

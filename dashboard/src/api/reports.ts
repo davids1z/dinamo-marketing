@@ -18,7 +18,7 @@ export const reportsApi = {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `dinamo_${type === 'weekly' ? 'tjedni' : 'mjesecni'}_izvjestaj_${id}.pdf`;
+    link.download = `s1z_${type === 'weekly' ? 'tjedni' : 'mjesecni'}_izvjestaj_${id}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -25,7 +25,7 @@ export const matchdayAnnouncement: StudioTemplate = {
       background: { type: 'gradient', colors: ['#0A1A28', '#0057A8'], direction: 'to bottom right' },
       text_layers: [
         { id: 'mt1_1', text: 'MATCHDAY', position: { x: 50, y: 35 }, font_size: 72, font_family: 'Tektur', font_weight: '800', color: '#B8FF00', text_align: 'center', animation: 'scale_up', animation_delay: 0 },
-        { id: 'mt1_2', text: 'GNK DINAMO ZAGREB', position: { x: 50, y: 50 }, font_size: 28, font_family: 'Inter', font_weight: '600', color: '#FFFFFF', text_align: 'center', animation: 'fade_in', animation_delay: 0.3 },
+        { id: 'mt1_2', text: 'SHIFTONEZERO', position: { x: 50, y: 50 }, font_size: 28, font_family: 'Inter', font_weight: '600', color: '#FFFFFF', text_align: 'center', animation: 'fade_in', animation_delay: 0.3 },
       ],
       overlay_layers: [
         { id: 'mo1_1', type: 'badge', position: { x: 50, y: 18 }, size: 80, animation: 'scale_up', animation_delay: 0.1 },
@@ -36,7 +36,7 @@ export const matchdayAnnouncement: StudioTemplate = {
       id: 'matchday_2', order: 2, duration: 4,
       background: { type: 'gradient', colors: ['#0057A8', '#0A1A28'], direction: 'to bottom' },
       text_layers: [
-        { id: 'mt2_1', text: 'DINAMO', position: { x: 25, y: 40 }, font_size: 48, font_family: 'Tektur', font_weight: '800', color: '#FFFFFF', text_align: 'center', animation: 'slide_right', animation_delay: 0 },
+        { id: 'mt2_1', text: 'S1Z', position: { x: 25, y: 40 }, font_size: 48, font_family: 'Tektur', font_weight: '800', color: '#FFFFFF', text_align: 'center', animation: 'slide_right', animation_delay: 0 },
         { id: 'mt2_2', text: 'VS', position: { x: 50, y: 40 }, font_size: 36, font_family: 'Tektur', font_weight: '800', color: '#B8FF00', text_align: 'center', animation: 'scale_up', animation_delay: 0.3 },
         { id: 'mt2_3', text: 'PROTIVNIK', position: { x: 75, y: 40 }, font_size: 48, font_family: 'Tektur', font_weight: '800', color: '#FFFFFF', text_align: 'center', animation: 'slide_left', animation_delay: 0 },
       ],

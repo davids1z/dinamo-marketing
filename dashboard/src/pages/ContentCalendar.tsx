@@ -195,7 +195,7 @@ function generateFallbackData(): Record<number, Post[]> {
       scheduled('17b', 'instagram', 'carousel', 'Player ratings', 'Ocjene igrača nakon utakmice s kratkim komentarima za svakog.', '📊 Ocjene igrača! Slažete li se? Koji igrač zaslužuje 10? ⬇️ #S1Z #Ocjene', '15:00', 'match_day', ['#S1Z', '#Ocjene', '#HNL'], 'Carousel: svaki igrač s ocjenom i kratkim opisom, plava tema'),
     ]],
     [18, [
-      scheduled('18a', 'tiktok', 'video', 'Dijaspora event: Beč', 'Najava gledanja utakmice za dijasporu u Becu. Community building.', '🇦🇹 DINAMO u Beču! Pridružite nam se na zajedničkom gledanju! 🔵 #S1Z #Dijaspora #Wien', '12:00', 'diaspora', ['#S1Z', '#Dijaspora', '#Wien', '#Bec'], 'Video poziv, lokacija u Beču, zajedničko gledanje, zastave'),
+      scheduled('18a', 'tiktok', 'video', 'Dijaspora event: Beč', 'Najava gledanja utakmice za dijasporu u Becu. Community building.', '🇦🇹 S1Z u Beču! Pridružite nam se na zajedničkom gledanju! 🔵 #S1Z #Dijaspora #Wien', '12:00', 'diaspora', ['#S1Z', '#Dijaspora', '#Wien', '#Bec'], 'Video poziv, lokacija u Beču, zajedničko gledanje, zastave'),
       scheduled('18b', 'instagram', 'post', 'Merch drop: Nova kolekcija', 'Najava nove kolekcije merchandise-a. Lifestyle fotografije s igracima.', '🛍️ NOVO u shopu! Lifestyle kolekcija 2026 🔵 Link u bio! #S1Z #Merch #Moda', '18:00', 'lifestyle', ['#S1Z', '#Merch', '#Shop', '#Lifestyle'], 'Lifestyle fotografije, igraci u casual odjevnim kombinacijama, gradski Zagreb'),
     ]],
     [19, [
