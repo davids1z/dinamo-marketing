@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_HOST: shiftonezero.xyler.ai
-  DEPLOY_USER: deploy
+  DEPLOY_HOST: 72.146.176.84
+  DEPLOY_USER: david
   DEPLOY_PATH: /opt/dinamo-marketing
 
 jobs:
