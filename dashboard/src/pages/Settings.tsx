@@ -194,9 +194,9 @@ export default function Settings() {
         {/* API Integrations */}
         <div className="card">
           <div className="flex items-center gap-2 mb-6">
-            <Plug size={20} className="text-blue-600" />
+            <Plug size={20} className="text-blue-400" />
             <h2 className="section-title">API integracije</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-yellow-700 ml-2">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 ml-2">
               {allMock ? 'Sve mock način' : `${mockCount}/${apis.length} mock`}
             </span>
           </div>
@@ -222,7 +222,7 @@ export default function Settings() {
                     className="shrink-0 ml-2"
                   >
                     {api.enabled ? (
-                      <ToggleRight size={28} className="text-blue-600" />
+                      <ToggleRight size={28} className="text-blue-400" />
                     ) : (
                       <ToggleLeft size={28} className="text-studio-text-secondary" />
                     )}
@@ -297,7 +297,7 @@ export default function Settings() {
         {/* Notification Settings */}
         <div className="card">
           <div className="flex items-center gap-2 mb-6">
-            <Bell size={20} className="text-yellow-600" />
+            <Bell size={20} className="text-amber-400" />
             <h2 className="section-title">Postavke obavijesti</h2>
           </div>
 
@@ -319,7 +319,7 @@ export default function Settings() {
                   {togglingNotifs.has(notif.id) ? (
                     <Loader2 size={28} className="animate-spin text-studio-text-tertiary" />
                   ) : notif.enabled ? (
-                    <ToggleRight size={28} className="text-blue-600" />
+                    <ToggleRight size={28} className="text-blue-400" />
                   ) : (
                     <ToggleLeft size={28} className="text-studio-text-secondary" />
                   )}
@@ -342,11 +342,11 @@ export default function Settings() {
             </div>
             <div>
               <p className="text-studio-text-secondary">Okruženje</p>
-              <p className="text-yellow-600 font-mono">{system.environment}</p>
+              <p className="text-amber-400 font-mono">{system.environment}</p>
             </div>
             <div>
               <p className="text-studio-text-secondary">Način podataka</p>
-              <p className="text-green-600 font-mono">{system.dataMode}</p>
+              <p className="text-emerald-400 font-mono">{system.dataMode}</p>
             </div>
             <div>
               <p className="text-studio-text-secondary">Zadnje ažurirano</p>
@@ -367,7 +367,7 @@ export default function Settings() {
                   ? 'bg-emerald-600 text-white'
                   : toast.type === 'error'
                   ? 'bg-red-600 text-white'
-                  : 'bg-blue-600 text-white'
+                  : 'bg-dinamo-blue text-white'
               }`}
             >
               {toast.type === 'success' && <CheckCircle size={16} />}

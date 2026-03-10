@@ -86,14 +86,14 @@ const StatusBadge = ({ status }: { status: string }) => {
   }
   if (status === 'generating') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full border border-blue-200">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full border border-blue-500/20">
         <Loader2 size={12} className="animate-spin" />
         Generira se
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500/10 text-red-400 text-xs font-medium rounded-full border border-red-200">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500/10 text-red-400 text-xs font-medium rounded-full border border-red-500/20">
       <AlertCircle size={12} />
       Neuspjelo
     </span>
@@ -114,11 +114,11 @@ const GeneratingProgress = () => {
 
   return (
     <div className="w-32">
-      <div className="flex justify-between text-xs text-blue-600 mb-1">
+      <div className="flex justify-between text-xs text-blue-400 mb-1">
         <span>Generiranje</span>
         <span>{Math.round(progress)}%</span>
       </div>
-      <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-blue-500/20 rounded-full overflow-hidden">
         <div
           className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
@@ -348,7 +348,7 @@ export default function Reports() {
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2.5 bg-dinamo-blue hover:bg-dinamo-blue-hover text-white text-sm font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
             {isGenerating ? 'Generira se...' : 'Generiraj izvještaj'}
@@ -377,7 +377,7 @@ export default function Reports() {
         {latestCompleted && (
           <div className="card border border-blue-500/20 bg-gradient-to-r from-blue-500/5 to-studio-surface-1">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 size={18} className="text-blue-600" />
+              <BarChart3 size={18} className="text-blue-400" />
               <h2 className="text-sm font-semibold text-studio-text-primary">Ključne metrike - {latestCompleted.period}</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -392,11 +392,11 @@ export default function Reports() {
                     {latestCompleted.engagementChange !== undefined ? Math.abs(latestCompleted.engagementChange).toFixed(1) : '0'}%
                   </span>
                   {(latestCompleted.engagementChange ?? 0) >= 0 ? (
-                    <span className="flex items-center gap-0.5 text-emerald-600 text-xs font-medium bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                    <span className="flex items-center gap-0.5 text-emerald-400 text-xs font-medium bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
                       <ArrowUpRight size={10} />+{latestCompleted.engagementChange}%
                     </span>
                   ) : (
-                    <span className="flex items-center gap-0.5 text-red-600 text-xs font-medium bg-red-500/10 px-1.5 py-0.5 rounded-full">
+                    <span className="flex items-center gap-0.5 text-red-400 text-xs font-medium bg-red-500/10 px-1.5 py-0.5 rounded-full">
                       <ArrowDownRight size={10} />{latestCompleted.engagementChange}%
                     </span>
                   )}
@@ -444,10 +444,10 @@ export default function Reports() {
 
         {/* Generating indicator */}
         {isGenerating && (
-          <div className="card border-2 border-dashed border-blue-300 bg-blue-500/5">
+          <div className="card border-2 border-dashed border-blue-500/30 bg-blue-500/5">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Loader2 size={20} className="text-blue-600 animate-spin" />
+              <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                <Loader2 size={20} className="text-blue-400 animate-spin" />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-studio-text-primary">Generiranje novog izvještaja...</h3>
@@ -472,18 +472,18 @@ export default function Reports() {
                 <div
                   className={`flex items-center justify-between p-4 rounded-xl transition-all ${
                     comparisonId === report.id
-                      ? 'bg-blue-500/10 border border-blue-200 shadow-sm'
+                      ? 'bg-blue-500/10 border border-blue-500/20 shadow-sm'
                       : 'bg-studio-surface-0 hover:bg-studio-surface-2 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      report.status === 'completed' ? 'bg-emerald-100' :
-                      report.status === 'generating' ? 'bg-blue-100' : 'bg-red-100'
+                      report.status === 'completed' ? 'bg-emerald-500/10' :
+                      report.status === 'generating' ? 'bg-blue-500/10' : 'bg-red-500/10'
                     }`}>
                       <FileText size={18} className={
-                        report.status === 'completed' ? 'text-emerald-600' :
-                        report.status === 'generating' ? 'text-blue-600' : 'text-red-600'
+                        report.status === 'completed' ? 'text-emerald-400' :
+                        report.status === 'generating' ? 'text-blue-400' : 'text-red-400'
                       } />
                     </div>
                     <div className="min-w-0">
@@ -499,7 +499,7 @@ export default function Reports() {
                           <>
                             <span className="text-xs text-studio-text-disabled">|</span>
                             <span className={`text-xs font-medium flex items-center gap-0.5 ${
-                              report.engagementChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+                              report.engagementChange >= 0 ? 'text-emerald-400' : 'text-red-400'
                             }`}>
                               {report.engagementChange >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                               {report.engagementChange >= 0 ? '+' : ''}{report.engagementChange}% engagement
@@ -521,8 +521,8 @@ export default function Reports() {
                           title="Usporedi s prošlim periodom"
                           className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all ${
                             comparisonId === report.id
-                              ? 'bg-blue-600 text-white shadow-sm'
-                              : 'bg-studio-surface-2 hover:bg-blue-500/10 text-studio-text-secondary hover:text-blue-600'
+                              ? 'bg-dinamo-blue text-white shadow-sm'
+                              : 'bg-studio-surface-2 hover:bg-dinamo-blue/10 text-studio-text-secondary hover:text-blue-400'
                           }`}
                         >
                           <GitCompareArrows size={13} />
@@ -544,7 +544,7 @@ export default function Reports() {
                         <button
                           onClick={() => handleDownload(report.id)}
                           disabled={downloadingId === report.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 shadow-sm"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-dinamo-blue hover:bg-dinamo-blue-hover text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 shadow-sm"
                         >
                           {downloadingId === report.id ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
                           Preuzmi PDF
@@ -557,7 +557,7 @@ export default function Reports() {
                     {report.status === 'failed' && (
                       <button
                         onClick={handleGenerate}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-400 text-xs font-medium rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium rounded-lg transition-colors"
                       >
                         <AlertCircle size={13} />
                         Ponovi generiranje
@@ -580,9 +580,9 @@ export default function Reports() {
                   const follDiff = (report.followerGrowth ?? 0) - (prev.followerGrowth ?? 0)
                   const reachDiff = (report.totalReach ?? 0) - (prev.totalReach ?? 0)
                   return (
-                    <div className="ml-14 mt-2 p-4 bg-studio-surface-1 rounded-xl border border-blue-200 shadow-sm">
+                    <div className="ml-14 mt-2 p-4 bg-studio-surface-1 rounded-xl border border-blue-500/20 shadow-sm">
                       <div className="flex items-center gap-2 mb-3">
-                        <GitCompareArrows size={14} className="text-blue-600" />
+                        <GitCompareArrows size={14} className="text-blue-400" />
                         <span className="text-xs font-semibold text-studio-text-primary">
                           Usporedba: {report.period} vs {prev.period}
                         </span>
@@ -590,7 +590,7 @@ export default function Reports() {
                       <div className="grid grid-cols-3 gap-4">
                         <div>
                           <p className="text-xs text-studio-text-secondary mb-1">Engagement promjena</p>
-                          <p className={`text-sm font-bold ${engDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <p className={`text-sm font-bold ${engDiff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {engDiff >= 0 ? '+' : ''}{engDiff.toFixed(1)} p.p.
                           </p>
                           <p className="text-xs text-studio-text-tertiary">
@@ -599,7 +599,7 @@ export default function Reports() {
                         </div>
                         <div>
                           <p className="text-xs text-studio-text-secondary mb-1">Rast pratitelja</p>
-                          <p className={`text-sm font-bold ${follDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <p className={`text-sm font-bold ${follDiff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {follDiff >= 0 ? '+' : ''}{follDiff.toLocaleString()}
                           </p>
                           <p className="text-xs text-studio-text-tertiary">
@@ -608,7 +608,7 @@ export default function Reports() {
                         </div>
                         <div>
                           <p className="text-xs text-studio-text-secondary mb-1">Doseg promjena</p>
-                          <p className={`text-sm font-bold ${reachDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <p className={`text-sm font-bold ${reachDiff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {reachDiff >= 0 ? '+' : ''}{(reachDiff / 1000).toFixed(1)}K
                           </p>
                           <p className="text-xs text-studio-text-tertiary">
@@ -645,7 +645,7 @@ export default function Reports() {
                   ? 'bg-emerald-600 text-white'
                   : toast.type === 'error'
                   ? 'bg-red-600 text-white'
-                  : 'bg-blue-600 text-white'
+                  : 'bg-dinamo-blue text-white'
               }`}
             >
               {toast.type === 'success' && <CheckCircle size={16} />}

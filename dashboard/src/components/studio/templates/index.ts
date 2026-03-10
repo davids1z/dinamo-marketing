@@ -17,8 +17,8 @@ export const matchdayAnnouncement: StudioTemplate = {
   description: 'Najava utakmice s grbom, VS grafikom i detalji',
   icon: '⚽',
   aspectRatio: '9:16',
-  caption: '🔵⚪ MATCHDAY! Podržite Dinamo na utakmici!',
-  hashtags: ['#Dinamo', '#GNKDinamo', '#Modri', '#HNL', '#Matchday'],
+  caption: '🔵⚪ MATCHDAY! Podržite ShiftOneZero na utakmici!',
+  hashtags: ['#S1Z', '#ShiftOneZero', '#Marketing', '#HNL', '#Matchday'],
   scenes: [
     {
       id: 'matchday_1', order: 1, duration: 3,
@@ -49,7 +49,7 @@ export const matchdayAnnouncement: StudioTemplate = {
       text_layers: [
         { id: 'mt3_1', text: '📍 Stadion Maksimir', position: { x: 50, y: 35 }, font_size: 32, font_family: 'Inter', font_weight: '600', color: '#FFFFFF', text_align: 'center', animation: 'slide_up', animation_delay: 0 },
         { id: 'mt3_2', text: '🕐 20:00', position: { x: 50, y: 50 }, font_size: 48, font_family: 'Tektur', font_weight: '800', color: '#B8FF00', text_align: 'center', animation: 'scale_up', animation_delay: 0.2 },
-        { id: 'mt3_3', text: '#Dinamo #Modri #HNL', position: { x: 50, y: 70 }, font_size: 18, font_family: 'Inter', font_weight: '400', color: '#FFFFFF80', text_align: 'center', animation: 'fade_in', animation_delay: 0.5 },
+        { id: 'mt3_3', text: '#S1Z #Marketing #HNL', position: { x: 50, y: 70 }, font_size: 18, font_family: 'Inter', font_weight: '400', color: '#FFFFFF80', text_align: 'center', animation: 'fade_in', animation_delay: 0.5 },
       ],
       overlay_layers: [],
       transition: 'zoom_in',
@@ -63,8 +63,8 @@ export const victoryCelebration: StudioTemplate = {
   description: '4 scene: rezultat, strijelci, highlights, sljedeća utakmica',
   icon: '🏆',
   aspectRatio: '9:16',
-  caption: '💙 POBJEDA! Dinamo nastavlja pobjednički niz!',
-  hashtags: ['#Dinamo', '#GNKDinamo', '#Modri', '#Pobjeda', '#HNL'],
+  caption: '💙 POBJEDA! ShiftOneZero nastavlja pobjednički niz!',
+  hashtags: ['#S1Z', '#ShiftOneZero', '#Marketing', '#Pobjeda', '#HNL'],
   scenes: [
     {
       id: 'victory_1', order: 1, duration: 3,
@@ -116,7 +116,7 @@ export const playerSpotlight: StudioTemplate = {
   icon: '⭐',
   aspectRatio: '9:16',
   caption: '⭐ Upoznajte našeg igrača!',
-  hashtags: ['#Dinamo', '#GNKDinamo', '#Modri', '#PlayerSpotlight'],
+  hashtags: ['#S1Z', '#ShiftOneZero', '#Marketing', '#PlayerSpotlight'],
   scenes: [
     {
       id: 'player_1', order: 1, duration: 3,
@@ -142,7 +142,7 @@ export const playerSpotlight: StudioTemplate = {
       id: 'player_3', order: 3, duration: 3,
       background: { type: 'color', color: '#0A1A28' },
       text_layers: [
-        { id: 'pt3_1', text: '"Dinamo je moj dom.\nOvdje sam postao igrač."', position: { x: 50, y: 40 }, font_size: 28, font_family: 'Inter', font_weight: '500', color: '#FFFFFF', text_align: 'center', animation: 'fade_in', animation_delay: 0 },
+        { id: 'pt3_1', text: '"ShiftOneZero je moj dom.\nOvdje sam postao igrač."', position: { x: 50, y: 40 }, font_size: 28, font_family: 'Inter', font_weight: '500', color: '#FFFFFF', text_align: 'center', animation: 'fade_in', animation_delay: 0 },
         { id: 'pt3_2', text: '— Ime Igrača', position: { x: 50, y: 65 }, font_size: 18, font_family: 'Inter', font_weight: '400', color: '#B8FF00', text_align: 'center', animation: 'fade_in', animation_delay: 0.5 },
       ],
       overlay_layers: [],
@@ -158,14 +158,14 @@ export const quoteCard: StudioTemplate = {
   icon: '💬',
   aspectRatio: '1:1',
   caption: '💬 Inspirativne riječi od našeg kluba.',
-  hashtags: ['#Dinamo', '#GNKDinamo', '#Modri', '#Quote'],
+  hashtags: ['#S1Z', '#ShiftOneZero', '#Marketing', '#Quote'],
   scenes: [
     {
       id: 'quote_1', order: 1, duration: 5,
       background: { type: 'gradient', colors: ['#0A1A28', '#0057A8'], direction: 'to bottom right' },
       text_layers: [
         { id: 'qt1_1', text: '"Snaga je u\njedinstvu."', position: { x: 50, y: 40 }, font_size: 48, font_family: 'Tektur', font_weight: '700', color: '#FFFFFF', text_align: 'center', animation: 'blur_in', animation_delay: 0 },
-        { id: 'qt1_2', text: '— GNK Dinamo Zagreb', position: { x: 50, y: 65 }, font_size: 18, font_family: 'Inter', font_weight: '400', color: '#B8FF00', text_align: 'center', animation: 'fade_in', animation_delay: 0.5 },
+        { id: 'qt1_2', text: '— ShiftOneZero', position: { x: 50, y: 65 }, font_size: 18, font_family: 'Inter', font_weight: '400', color: '#B8FF00', text_align: 'center', animation: 'fade_in', animation_delay: 0.5 },
       ],
       overlay_layers: [
         { id: 'qo1_1', type: 'badge', position: { x: 50, y: 85 }, size: 40, animation: 'fade_in', animation_delay: 0.8 },

@@ -291,7 +291,7 @@ export default function PublishModal({
                     value={editHashtags}
                     onChange={(e) => setEditHashtags(e.target.value)}
                     className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors placeholder:text-studio-text-disabled"
-                    placeholder="#Dinamo #Modri ..."
+                    placeholder="#ShiftOneZero #Marketing ..."
                   />
                   {editHashtags.trim() && (
                     <p className="text-[9px] text-studio-text-disabled mt-1 px-1">

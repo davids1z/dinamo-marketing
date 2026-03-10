@@ -17,9 +17,9 @@ export default function SystemHealth() {
   if (loading && !data) {
     return (
       <div className="card animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-48 mb-4" />
+        <div className="h-6 bg-studio-surface-2 rounded w-48 mb-4" />
         <div className="space-y-3">
-          {[1, 2, 3].map(i => <div key={i} className="h-12 bg-gray-100 rounded" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-12 bg-studio-surface-1 rounded" />)}
         </div>
       </div>
     )
@@ -57,12 +57,12 @@ export default function SystemHealth() {
   return (
     <div className="card">
       <div className="flex items-center gap-2 mb-6">
-        <Activity size={20} className="text-green-600" />
+        <Activity size={20} className="text-emerald-400" />
         <h2 className="section-title">Zdravlje sustava</h2>
         <span className={`text-xs px-2 py-0.5 rounded-full ml-2 ${
           isHealthy
-            ? 'bg-green-100 text-green-700'
-            : 'bg-yellow-100 text-yellow-700'
+            ? 'bg-emerald-500/10 text-emerald-400'
+            : 'bg-amber-500/10 text-amber-400'
         }`}>
           {isHealthy ? 'Zdravo' : 'Degradirano'}
         </span>
@@ -72,18 +72,18 @@ export default function SystemHealth() {
         {checks.map((check) => {
           const ok = check.status === 'ok' || check.status === 'healthy'
           return (
-            <div key={check.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={check.name} className="flex items-center justify-between p-3 bg-studio-surface-1 rounded-lg">
               <div className="flex items-center gap-3">
-                <check.icon size={18} className={ok ? 'text-green-600' : 'text-red-500'} />
+                <check.icon size={18} className={ok ? 'text-emerald-400' : 'text-red-400'} />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{check.name}</p>
-                  {check.detail && <p className="text-xs text-dinamo-muted">{check.detail}</p>}
+                  <p className="text-sm font-medium text-studio-text-primary">{check.name}</p>
+                  {check.detail && <p className="text-xs text-studio-text-tertiary">{check.detail}</p>}
                 </div>
               </div>
               {ok ? (
-                <CheckCircle2 size={18} className="text-green-500" />
+                <CheckCircle2 size={18} className="text-emerald-400" />
               ) : (
-                <AlertCircle size={18} className="text-red-500" />
+                <AlertCircle size={18} className="text-red-400" />
               )}
             </div>
           )
@@ -92,15 +92,15 @@ export default function SystemHealth() {
 
       {Object.keys(breakers).length > 0 && (
         <div className="mt-4">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Circuit Breakers</p>
+          <p className="text-xs font-medium text-studio-text-tertiary uppercase tracking-wider mb-2">Circuit Breakers</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {Object.entries(breakers).map(([name, info]) => (
-              <div key={name} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-xs">
+              <div key={name} className="flex items-center gap-2 p-2 bg-studio-surface-1 rounded text-xs">
                 <Wifi size={14} className={
-                  info.state === 'closed' ? 'text-green-500' :
-                  info.state === 'half_open' ? 'text-yellow-500' : 'text-red-500'
+                  info.state === 'closed' ? 'text-emerald-400' :
+                  info.state === 'half_open' ? 'text-amber-400' : 'text-red-400'
                 } />
-                <span className="text-gray-700 truncate">{name}</span>
+                <span className="text-studio-text-secondary truncate">{name}</span>
               </div>
             ))}
           </div>

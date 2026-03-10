@@ -10,19 +10,19 @@ interface CampaignChartProps {
 export function CampaignChart({ data, bars, title }: CampaignChartProps) {
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-gray-900">{title}</h3>}
+      {title && <h3 className="font-headline text-lg mb-4 text-studio-text-primary">{title}</h3>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
-          <YAxis stroke="#6B7280" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+          <XAxis dataKey="name" stroke="#8B8FA3" fontSize={12} />
+          <YAxis stroke="#8B8FA3" fontSize={12} />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7EB',
+              backgroundColor: '#1A1D2E',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '8px',
-              color: '#111827',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              color: '#E8E9F0',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             }}
           />
           <Legend />
