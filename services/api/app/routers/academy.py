@@ -4,7 +4,7 @@ from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies import get_claude_client
+from app.dependencies import get_current_client, get_claude_client
 from app.services.academy_content import AcademyContentService
 from app.models.academy import AcademyPlayer, AcademyMatch
 
@@ -16,8 +16,12 @@ def _get_service():
 
 
 @router.get("/players")
-async def get_players(db: AsyncSession = Depends(get_db)):
+async def get_players(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
     """BFF endpoint: returns {metrics, players, contentPipeline} for the Academy page."""
+    user, client, role = ctx
     service = _get_service()
 
     # Get stats for metrics
@@ -25,7 +29,7 @@ async def get_players(db: AsyncSession = Depends(get_db)):
 
     # Get all players as flat list
     result = await db.execute(
-        select(AcademyPlayer).order_by(AcademyPlayer.name)
+        select(AcademyPlayer).where(AcademyPlayer.client_id == client.id).order_by(AcademyPlayer.name)
     )
     players_db = result.scalars().all()
 
@@ -78,29 +82,47 @@ async def get_players(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/players/{player_id}")
-async def get_player_detail(player_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_player_detail(
+    player_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.get_player_detail(db, player_id)
     return result
 
 
 @router.post("/match-report/{match_id}")
-async def generate_match_report(match_id: UUID, db: AsyncSession = Depends(get_db)):
+async def generate_match_report(
+    match_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.generate_match_report(db, match_id)
     return result
 
 
 @router.get("/stats")
-async def get_academy_stats(db: AsyncSession = Depends(get_db)):
+async def get_academy_stats(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.get_academy_stats(db)
     return result
 
 
 @router.get("/matches")
-async def list_matches(db: AsyncSession = Depends(get_db)):
-    query = select(AcademyMatch).order_by(AcademyMatch.created_at.desc())
+async def list_matches(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
+    query = select(AcademyMatch).where(AcademyMatch.client_id == client.id).order_by(AcademyMatch.created_at.desc())
     res = await db.execute(query)
     matches = res.scalars().all()
     return matches

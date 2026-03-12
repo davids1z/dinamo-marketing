@@ -249,15 +249,21 @@ def check_ad_fatigue(self):
     Check all active ads for frequency fatigue and generate fresh
     creative variants using Claude AI.
 
-    Ads with frequency > 4 are flagged. For each fatigued ad, the task
-    generates 3 new creative variants for the team to review.
+    Iterates over all active clients. For each client, ads with
+    frequency > 4 are flagged. For each fatigued ad, the task generates
+    3 new creative variants for the team to review.
     Runs every 6 hours via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Creative Refresh Check started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "ads_checked": 0,
         "ads_fatigued": 0,
         "ads_healthy": 0,
@@ -268,81 +274,108 @@ def check_ad_fatigue(self):
     }
 
     try:
-        for ad in MOCK_ACTIVE_ADS:
-            if ad["status"] != "active":
-                continue
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-            results["ads_checked"] += 1
-            ad_id = ad["ad_id"]
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-            # Skip ads without enough data
-            if ad["impressions"] < MIN_IMPRESSIONS_FOR_CHECK:
-                results["ads_skipped_low_impressions"] += 1
-                logger.debug(
-                    "Skipping %s -- only %d impressions (need %d)",
-                    ad_id, ad["impressions"], MIN_IMPRESSIONS_FOR_CHECK,
-                )
-                continue
+        logger.info("  Found %d active clients", len(clients))
 
-            # Check frequency
-            if ad["frequency"] <= FREQUENCY_FATIGUE_THRESHOLD:
-                results["ads_healthy"] += 1
-                logger.info(
-                    "Ad %s (%s) -- frequency=%.1f -- HEALTHY",
-                    ad_id, ad["name"], ad["frequency"],
-                )
-                continue
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-            # ---- Ad is fatigued ----
-            results["ads_fatigued"] += 1
-            logger.warning(
-                "Ad %s (%s) -- frequency=%.1f -- FATIGUED (threshold=%.1f)",
-                ad_id, ad["name"], ad["frequency"], FREQUENCY_FATIGUE_THRESHOLD,
-            )
+            # TODO: In production, query active ads from DB filtered by client_id
+            active_ads = MOCK_ACTIVE_ADS
 
-            # Generate creative variants
-            try:
-                variants = _mock_claude_generate_variants(ad, VARIANTS_TO_GENERATE)
-                results["variants_generated"] += len(variants)
+            for ad in active_ads:
+                if ad["status"] != "active":
+                    continue
 
-                fatigued_entry = {
-                    "ad_id": ad_id,
-                    "ad_name": ad["name"],
-                    "platform": ad["platform"],
-                    "frequency": ad["frequency"],
-                    "impressions": ad["impressions"],
-                    "ctr": ad["ctr"],
-                    "variants": [],
-                }
+                results["ads_checked"] += 1
+                ad_id = ad["ad_id"]
 
-                for variant in variants:
-                    logger.info(
-                        "  Generated variant %s [%s]: \"%s\"",
-                        variant["variant_id"],
-                        variant["style"],
-                        variant["headline"][:80],
+                # Skip ads without enough data
+                if ad["impressions"] < MIN_IMPRESSIONS_FOR_CHECK:
+                    results["ads_skipped_low_impressions"] += 1
+                    logger.debug(
+                        "  Skipping %s -- only %d impressions (need %d)",
+                        ad_id, ad["impressions"], MIN_IMPRESSIONS_FOR_CHECK,
                     )
-                    fatigued_entry["variants"].append({
-                        "variant_id": variant["variant_id"],
-                        "style": variant["style"],
-                        "headline": variant["headline"],
-                        "status": variant["status"],
-                    })
+                    continue
 
-                results["fatigued_ads"].append(fatigued_entry)
+                # Check frequency
+                if ad["frequency"] <= FREQUENCY_FATIGUE_THRESHOLD:
+                    results["ads_healthy"] += 1
+                    logger.info(
+                        "  Ad %s (%s) -- frequency=%.1f -- HEALTHY",
+                        ad_id, ad["name"], ad["frequency"],
+                    )
+                    continue
 
-                # In production: insert variants into creative_variants table
-                # for variant in variants:
-                #     db.execute(insert(CreativeVariant).values(**variant))
+                # ---- Ad is fatigued ----
+                results["ads_fatigued"] += 1
+                logger.warning(
+                    "  Ad %s (%s) -- frequency=%.1f -- FATIGUED (threshold=%.1f)",
+                    ad_id, ad["name"], ad["frequency"], FREQUENCY_FATIGUE_THRESHOLD,
+                )
 
-            except Exception as exc:
-                results["errors"].append({"ad_id": ad_id, "error": str(exc)})
-                logger.error("Failed to generate variants for %s: %s", ad_id, exc)
+                # Generate creative variants
+                try:
+                    variants = _mock_claude_generate_variants(ad, VARIANTS_TO_GENERATE)
+                    results["variants_generated"] += len(variants)
+
+                    fatigued_entry = {
+                        "ad_id": ad_id,
+                        "ad_name": ad["name"],
+                        "platform": ad["platform"],
+                        "frequency": ad["frequency"],
+                        "impressions": ad["impressions"],
+                        "ctr": ad["ctr"],
+                        "client_id": str(client.id),
+                        "variants": [],
+                    }
+
+                    for variant in variants:
+                        logger.info(
+                            "    Generated variant %s [%s]: \"%s\"",
+                            variant["variant_id"],
+                            variant["style"],
+                            variant["headline"][:80],
+                        )
+                        fatigued_entry["variants"].append({
+                            "variant_id": variant["variant_id"],
+                            "style": variant["style"],
+                            "headline": variant["headline"],
+                            "status": variant["status"],
+                        })
+
+                    results["fatigued_ads"].append(fatigued_entry)
+
+                    # In production: insert variants into creative_variants table
+                    # for variant in variants:
+                    #     variant["client_id"] = client.id
+                    #     db.execute(insert(CreativeVariant).values(**variant))
+
+                except Exception as exc:
+                    results["errors"].append({"ad_id": ad_id, "client_id": str(client.id), "error": str(exc)})
+                    logger.error("  Failed to generate variants for %s: %s", ad_id, exc)
 
         # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
         logger.info("=== Creative Refresh Check Complete ===")
+        logger.info("  Clients processed: %d", results["clients_processed"])
         logger.info("  Ads checked: %d", results["ads_checked"])
         logger.info("  Healthy: %d", results["ads_healthy"])
         logger.info("  Fatigued: %d", results["ads_fatigued"])

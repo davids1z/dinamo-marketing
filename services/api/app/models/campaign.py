@@ -29,6 +29,12 @@ class Campaign(BaseModel):
     total_spend: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
     ad_sets: Mapped[list["AdSet"]] = relationship(back_populates="campaign")
     ab_tests: Mapped[list["ABTest"]] = relationship(back_populates="campaign")
@@ -46,6 +52,9 @@ class AdSet(BaseModel):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
     budget: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     audience_size: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     campaign: Mapped["Campaign"] = relationship(back_populates="ad_sets")
     ads: Mapped[list["Ad"]] = relationship(back_populates="ad_set")
@@ -68,6 +77,9 @@ class Ad(BaseModel):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="active"
     )  # active, paused, winner, loser
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     ad_set: Mapped["AdSet"] = relationship(back_populates="ads")
     metrics: Mapped[list["AdMetric"]] = relationship(
@@ -93,5 +105,8 @@ class ABTest(BaseModel):
     )
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     decision_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     campaign: Mapped["Campaign"] = relationship(back_populates="ab_tests")

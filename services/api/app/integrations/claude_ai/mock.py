@@ -13,7 +13,7 @@ class ClaudeMockClient(ClaudeClientBase):
     async def health_check(self) -> dict:
         return {"status": "ok", "platform": "claude_ai", "mock": True}
 
-    async def generate_content_plan(self, context: dict) -> dict:
+    async def generate_content_plan(self, context: dict, client=None) -> dict:
         return {
             "plan_id": "plan_mock_20260305",
             "period": "2026-03-05 to 2026-03-11",
@@ -99,7 +99,7 @@ class ClaudeMockClient(ClaudeClientBase):
             ),
         }
 
-    async def generate_post_copy(self, brief: dict) -> dict:
+    async def generate_post_copy(self, brief: dict, client=None) -> dict:
         platform = brief.get("platform", "instagram")
         tone = brief.get("tone", "energetic")
         return {
@@ -117,7 +117,7 @@ class ClaudeMockClient(ClaudeClientBase):
             "estimated_engagement": "high - campaign launches content historically performs 2.5x above average",
         }
 
-    async def generate_ab_variants(self, base_copy: str, num_variants: int = 3) -> list[dict]:
+    async def generate_ab_variants(self, base_copy: str, num_variants: int = 3, client=None) -> list[dict]:
         variants = [
             {
                 "variant_id": "var_A",
@@ -150,7 +150,7 @@ class ClaudeMockClient(ClaudeClientBase):
         ]
         return variants[:num_variants]
 
-    async def analyze_sentiment(self, texts: list[str]) -> list[dict]:
+    async def analyze_sentiment(self, texts: list[str], client=None) -> list[dict]:
         mock_sentiments = [
             {
                 "text": texts[0] if texts else "",
@@ -176,7 +176,7 @@ class ClaudeMockClient(ClaudeClientBase):
             )
         return mock_sentiments
 
-    async def generate_report_summary(self, data: dict) -> str:
+    async def generate_report_summary(self, data: dict, client=None) -> str:
         return (
             "Weekly Performance Summary (Feb 27 - Mar 5, 2026)\n\n"
             "Overall social media performance showed strong growth this week, driven "
@@ -197,7 +197,7 @@ class ClaudeMockClient(ClaudeClientBase):
         )
 
     async def translate_content(
-        self, text: str, source_lang: str, target_langs: list[str]
+        self, text: str, source_lang: str, target_langs: list[str], client=None
     ) -> dict[str, str]:
         result = {}
         if "en" in target_langs:
@@ -209,7 +209,7 @@ class ClaudeMockClient(ClaudeClientBase):
                 result[lang] = f"[{lang.upper()}] {text[:80]}..."
         return result
 
-    async def generate_strategy_recommendation(self, performance_data: dict) -> dict:
+    async def generate_strategy_recommendation(self, performance_data: dict, client=None) -> dict:
         return {
             "summary": (
                 "Current social strategy is performing above industry benchmarks for sports "

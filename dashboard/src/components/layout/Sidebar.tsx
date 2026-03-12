@@ -16,12 +16,14 @@ import {
   FlaskConical,
   Settings,
   Shield,
+  Building2,
   X,
   LogOut,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useSidebar } from './Layout'
 import { useAuth } from '../../contexts/AuthContext'
+import { useClient } from '../../contexts/ClientContext'
 
 const navigation = [
   { name: 'Nadzorna ploča', href: '/', icon: LayoutDashboard },
@@ -38,6 +40,7 @@ const navigation = [
   { name: 'Geografska tržišta', href: '/diaspora', icon: MapPin },
   { name: 'Izvještaji', href: '/reports', icon: FileText },
   { name: 'Istraživanje kampanja', href: '/campaign-research', icon: FlaskConical },
+  { name: 'Brand profil', href: '/brand-profile', icon: Building2 },
   { name: 'Postavke', href: '/settings', icon: Settings },
   { name: 'Administracija', href: '/admin', icon: Shield, adminOnly: true },
 ] as const
@@ -46,6 +49,7 @@ export default function Sidebar() {
   const { collapsed, mobileOpen, setMobileOpen, toggleSidebar } = useSidebar()
   const location = useLocation()
   const { user, logout } = useAuth()
+  const { currentClient } = useClient()
 
   const handleNavClick = () => {
     if (mobileOpen) setMobileOpen(false)
@@ -92,7 +96,7 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-2">
           <ul className="space-y-0.5">
-            {navigation.filter((item) => !('adminOnly' in item && item.adminOnly) || user?.role === 'admin').map((item) => {
+            {navigation.filter((item) => !('adminOnly' in item && item.adminOnly) || user?.is_superadmin).map((item) => {
               const isActive = item.href === '/'
                 ? location.pathname === '/'
                 : location.pathname.startsWith(item.href)
@@ -138,7 +142,7 @@ export default function Sidebar() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-studio-text-primary font-medium truncate">{user.full_name}</p>
-                <p className="text-[10px] text-studio-text-tertiary truncate">{user.role}</p>
+                <p className="text-[10px] text-studio-text-tertiary truncate">{currentClient?.role || user.role}</p>
               </div>
             </div>
           )}

@@ -38,7 +38,7 @@ FREQUENCY_FATIGUE_THRESHOLD = 4.0  # Frequency > 4 = fatigued
 # DB data fetchers
 # ---------------------------------------------------------------------------
 
-def _query_ab_tests():
+def _query_ab_tests(client_id=None):
     """Fetch running A/B tests with ad metrics from DB."""
     from app.database import SyncSessionLocal
     from app.models.analytics import AdMetric
@@ -48,10 +48,10 @@ def _query_ab_tests():
     now = datetime.now(timezone.utc)
     tests = []
     with SyncSessionLocal() as db:
-        rows = db.execute(
-            select(ABTest)
-            .where(ABTest.status == "running")
-        ).scalars().all()
+        query = select(ABTest).where(ABTest.status == "running")
+        if client_id is not None:
+            query = query.where(ABTest.client_id == client_id)
+        rows = db.execute(query).scalars().all()
 
         for ab in rows:
             hours_running = (now - ab.started_at).total_seconds() / 3600
@@ -95,7 +95,7 @@ def _query_ab_tests():
     return tests
 
 
-def _query_active_ads():
+def _query_active_ads(client_id=None):
     """Fetch active ads with latest metrics from DB."""
     from app.database import SyncSessionLocal
     from app.models.analytics import AdMetric
@@ -108,12 +108,15 @@ def _query_active_ads():
     result = []
 
     with SyncSessionLocal() as db:
-        rows = db.execute(
+        query = (
             select(Ad, AdSet, Campaign)
             .join(AdSet, Ad.ad_set_id == AdSet.id)
             .join(Campaign, AdSet.campaign_id == Campaign.id)
             .where(Ad.status == "active")
-        ).all()
+        )
+        if client_id is not None:
+            query = query.where(Campaign.client_id == client_id)
+        rows = db.execute(query).all()
 
         for ad, ad_set, campaign in rows:
             # Latest metric snapshot
@@ -358,33 +361,24 @@ def run_optimization_cycle(self):
     """
     Run the full 5-rule campaign optimization cycle.
 
-    Evaluates all active ads and A/B tests against the optimization rules
-    and takes automatic actions (pause, scale, flag, refresh).
+    Iterates over all active clients. For each client, evaluates all
+    active ads and A/B tests against the optimization rules and takes
+    automatic actions (pause, scale, flag, refresh).
     Runs every hour via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Campaign Optimization Cycle started at %s ===", run_ts)
 
-    # Fetch real data from DB, log if falling back empty
-    try:
-        ab_tests = _query_ab_tests()
-        logger.info("Loaded %d running A/B tests from DB", len(ab_tests))
-    except Exception as exc:
-        logger.warning("Failed to query A/B tests from DB: %s — using empty list", exc)
-        ab_tests = []
-
-    try:
-        active_ads = _query_active_ads()
-        logger.info("Loaded %d active ads from DB", len(active_ads))
-    except Exception as exc:
-        logger.warning("Failed to query active ads from DB: %s — using empty list", exc)
-        active_ads = []
-
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "rules_evaluated": 5,
-        "ads_evaluated": len(active_ads),
-        "ab_tests_evaluated": len(ab_tests),
+        "ads_evaluated": 0,
+        "ab_tests_evaluated": 0,
         "actions_taken": [],
         "summary": {
             "R1_AB_WINNER": 0,
@@ -400,97 +394,142 @@ def run_optimization_cycle(self):
     }
 
     try:
-        # ------------------------------------------------------------------
-        # Rule 1: A/B Winner Detection
-        # ------------------------------------------------------------------
-        logger.info("--- Rule 1: A/B Winner Detection ---")
+        # 0. Load all active clients
+        session = SyncSessionLocal()
         try:
-            r1_actions = _rule_1_ab_winner(ab_tests)
-            for action in r1_actions:
-                logger.info("  R1 ACTION: %s", action["action"])
-                results["actions_taken"].append(action)
-                results["summary"]["R1_AB_WINNER"] += 1
-                results["ads_paused"] += 1
-            if not r1_actions:
-                logger.info("  R1: No A/B winners detected this cycle")
-        except Exception as exc:
-            results["errors"].append({"rule": "R1", "error": str(exc)})
-            logger.error("Rule 1 failed: %s", exc)
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-        # ------------------------------------------------------------------
-        # Rule 2: Low CTR Pause
-        # ------------------------------------------------------------------
-        logger.info("--- Rule 2: Low CTR Pause ---")
-        try:
-            r2_actions = _rule_2_low_ctr(active_ads)
-            for action in r2_actions:
-                logger.info("  R2 ACTION: %s", action["action"])
-                results["actions_taken"].append(action)
-                results["summary"]["R2_LOW_CTR"] += 1
-                results["ads_paused"] += 1
-            if not r2_actions:
-                logger.info("  R2: No ads below CTR threshold")
-        except Exception as exc:
-            results["errors"].append({"rule": "R2", "error": str(exc)})
-            logger.error("Rule 2 failed: %s", exc)
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-        # ------------------------------------------------------------------
-        # Rule 3: High ROAS Scaling
-        # ------------------------------------------------------------------
-        logger.info("--- Rule 3: High ROAS Budget Scaling ---")
-        try:
-            r3_actions = _rule_3_high_roas(active_ads)
-            for action in r3_actions:
-                logger.info("  R3 ACTION: %s", action["action"])
-                results["actions_taken"].append(action)
-                results["summary"]["R3_HIGH_ROAS"] += 1
-                budget_increase = action["new_budget"] - action["old_budget"]
-                results["total_budget_change"] += budget_increase
-            if not r3_actions:
-                logger.info("  R3: No ads with ROAS above threshold")
-        except Exception as exc:
-            results["errors"].append({"rule": "R3", "error": str(exc)})
-            logger.error("Rule 3 failed: %s", exc)
+        logger.info("  Found %d active clients", len(clients))
 
-        # ------------------------------------------------------------------
-        # Rule 4: Low Engagement
-        # ------------------------------------------------------------------
-        logger.info("--- Rule 4: Low Engagement Detection ---")
-        try:
-            r4_actions = _rule_4_low_engagement(active_ads)
-            for action in r4_actions:
-                logger.info("  R4 ACTION: %s", action["action"])
-                results["actions_taken"].append(action)
-                results["summary"]["R4_LOW_ENGAGEMENT"] += 1
-                results["ads_flagged"] += 1
-            if not r4_actions:
-                logger.info("  R4: All ads meeting engagement thresholds")
-        except Exception as exc:
-            results["errors"].append({"rule": "R4", "error": str(exc)})
-            logger.error("Rule 4 failed: %s", exc)
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-        # ------------------------------------------------------------------
-        # Rule 5: Ad Fatigue
-        # ------------------------------------------------------------------
-        logger.info("--- Rule 5: Ad Fatigue Detection ---")
-        try:
-            r5_actions = _rule_5_ad_fatigue(active_ads)
-            for action in r5_actions:
-                logger.info("  R5 ACTION: %s", action["action"])
-                results["actions_taken"].append(action)
-                results["summary"]["R5_AD_FATIGUE"] += 1
-                results["ads_flagged"] += 1
-            if not r5_actions:
-                logger.info("  R5: No ad fatigue detected")
-        except Exception as exc:
-            results["errors"].append({"rule": "R5", "error": str(exc)})
-            logger.error("Rule 5 failed: %s", exc)
+            # Fetch real data from DB for this client
+            try:
+                ab_tests = _query_ab_tests(client_id=client.id)
+                logger.info("  Loaded %d running A/B tests for client %s", len(ab_tests), client.name)
+            except Exception as exc:
+                logger.warning("  Failed to query A/B tests for client %s: %s — using empty list", client.name, exc)
+                ab_tests = []
+
+            try:
+                active_ads = _query_active_ads(client_id=client.id)
+                logger.info("  Loaded %d active ads for client %s", len(active_ads), client.name)
+            except Exception as exc:
+                logger.warning("  Failed to query active ads for client %s: %s — using empty list", client.name, exc)
+                active_ads = []
+
+            results["ads_evaluated"] += len(active_ads)
+            results["ab_tests_evaluated"] += len(ab_tests)
+
+            # ------------------------------------------------------------------
+            # Rule 1: A/B Winner Detection
+            # ------------------------------------------------------------------
+            logger.info("  --- Rule 1: A/B Winner Detection ---")
+            try:
+                r1_actions = _rule_1_ab_winner(ab_tests)
+                for action in r1_actions:
+                    action["client_id"] = str(client.id)
+                    logger.info("    R1 ACTION: %s", action["action"])
+                    results["actions_taken"].append(action)
+                    results["summary"]["R1_AB_WINNER"] += 1
+                    results["ads_paused"] += 1
+                if not r1_actions:
+                    logger.info("    R1: No A/B winners detected this cycle")
+            except Exception as exc:
+                results["errors"].append({"rule": "R1", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Rule 1 failed: %s", exc)
+
+            # ------------------------------------------------------------------
+            # Rule 2: Low CTR Pause
+            # ------------------------------------------------------------------
+            logger.info("  --- Rule 2: Low CTR Pause ---")
+            try:
+                r2_actions = _rule_2_low_ctr(active_ads)
+                for action in r2_actions:
+                    action["client_id"] = str(client.id)
+                    logger.info("    R2 ACTION: %s", action["action"])
+                    results["actions_taken"].append(action)
+                    results["summary"]["R2_LOW_CTR"] += 1
+                    results["ads_paused"] += 1
+                if not r2_actions:
+                    logger.info("    R2: No ads below CTR threshold")
+            except Exception as exc:
+                results["errors"].append({"rule": "R2", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Rule 2 failed: %s", exc)
+
+            # ------------------------------------------------------------------
+            # Rule 3: High ROAS Scaling
+            # ------------------------------------------------------------------
+            logger.info("  --- Rule 3: High ROAS Budget Scaling ---")
+            try:
+                r3_actions = _rule_3_high_roas(active_ads)
+                for action in r3_actions:
+                    action["client_id"] = str(client.id)
+                    logger.info("    R3 ACTION: %s", action["action"])
+                    results["actions_taken"].append(action)
+                    results["summary"]["R3_HIGH_ROAS"] += 1
+                    budget_increase = action["new_budget"] - action["old_budget"]
+                    results["total_budget_change"] += budget_increase
+                if not r3_actions:
+                    logger.info("    R3: No ads with ROAS above threshold")
+            except Exception as exc:
+                results["errors"].append({"rule": "R3", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Rule 3 failed: %s", exc)
+
+            # ------------------------------------------------------------------
+            # Rule 4: Low Engagement
+            # ------------------------------------------------------------------
+            logger.info("  --- Rule 4: Low Engagement Detection ---")
+            try:
+                r4_actions = _rule_4_low_engagement(active_ads)
+                for action in r4_actions:
+                    action["client_id"] = str(client.id)
+                    logger.info("    R4 ACTION: %s", action["action"])
+                    results["actions_taken"].append(action)
+                    results["summary"]["R4_LOW_ENGAGEMENT"] += 1
+                    results["ads_flagged"] += 1
+                if not r4_actions:
+                    logger.info("    R4: All ads meeting engagement thresholds")
+            except Exception as exc:
+                results["errors"].append({"rule": "R4", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Rule 4 failed: %s", exc)
+
+            # ------------------------------------------------------------------
+            # Rule 5: Ad Fatigue
+            # ------------------------------------------------------------------
+            logger.info("  --- Rule 5: Ad Fatigue Detection ---")
+            try:
+                r5_actions = _rule_5_ad_fatigue(active_ads)
+                for action in r5_actions:
+                    action["client_id"] = str(client.id)
+                    logger.info("    R5 ACTION: %s", action["action"])
+                    results["actions_taken"].append(action)
+                    results["summary"]["R5_AD_FATIGUE"] += 1
+                    results["ads_flagged"] += 1
+                if not r5_actions:
+                    logger.info("    R5: No ad fatigue detected")
+            except Exception as exc:
+                results["errors"].append({"rule": "R5", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Rule 5 failed: %s", exc)
 
         # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
         total_actions = len(results["actions_taken"])
         logger.info("=== Optimization Cycle Complete ===")
+        logger.info("  Clients processed: %d", results["clients_processed"])
         logger.info("  Ads evaluated: %d", results["ads_evaluated"])
         logger.info("  A/B tests evaluated: %d", results["ab_tests_evaluated"])
         logger.info("  Total actions: %d", total_actions)

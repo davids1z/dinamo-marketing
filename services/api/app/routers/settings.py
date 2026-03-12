@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.dependencies import (
+    get_current_client,
     get_meta_client,
     get_tiktok_client,
     get_youtube_client,
@@ -76,7 +77,10 @@ def _resolve_api_name(name: str) -> str:
 # ---------- Health ----------
 
 @router.get("/health")
-async def health_check(db: AsyncSession = Depends(get_db)):
+async def health_check(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
     checks: dict = {}
     overall = "healthy"
 
@@ -142,7 +146,10 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 # ---------- API Status (full shape for Settings page) ----------
 
 @router.get("/api-status")
-async def get_api_status(db: AsyncSession = Depends(get_db)):
+async def get_api_status(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
     """Return the full settings payload for the frontend Settings page."""
     from app.services.settings_service import get_all_api_modes, get_all_notification_prefs
 
@@ -229,6 +236,7 @@ class ApiToggleRequest(BaseModel):
 async def toggle_api(
     payload: ApiToggleRequest,
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
 ):
     """Toggle an API between mock and live mode, persisting to DB."""
     from app.services.settings_service import set_api_mode
@@ -274,6 +282,7 @@ class NotificationToggleRequest(BaseModel):
 async def toggle_notification(
     payload: NotificationToggleRequest,
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
 ):
     """Toggle a notification preference, persisting to DB."""
     from app.services.settings_service import set_notification_enabled
@@ -301,27 +310,35 @@ async def toggle_notification(
 # ---------- Brand ----------
 
 @router.get("/brand")
-async def get_brand_guidelines():
+async def get_brand_guidelines(
+    ctx: tuple = Depends(get_current_client),
+):
+    user, client, role = ctx
+    # Return brand info from Client record if available, else defaults
+    brand_profile = client.brand_profile if hasattr(client, "brand_profile") and client.brand_profile else {}
     return {
-        "primary_color": "#0057A8",
-        "primary_light": "#1a6fbf",
-        "primary_dark": "#004080",
-        "dark": "#0A0E1A",
-        "accent": "#00A8E8",
+        "primary_color": brand_profile.get("primary_color", "#0057A8"),
+        "primary_light": brand_profile.get("primary_light", "#1a6fbf"),
+        "primary_dark": brand_profile.get("primary_dark", "#004080"),
+        "dark": brand_profile.get("dark", "#0A0E1A"),
+        "accent": brand_profile.get("accent", "#00A8E8"),
         "white": "#FFFFFF",
-        "headline_font": "Bebas Neue",
-        "body_font": "Barlow Condensed",
-        "stats_font": "Oswald",
-        "club_name": "Demo Brand",
-        "founded": 1945,
-        "stadium": "Home Stadium, Zagreb",
+        "headline_font": brand_profile.get("headline_font", "Bebas Neue"),
+        "body_font": brand_profile.get("body_font", "Barlow Condensed"),
+        "stats_font": brand_profile.get("stats_font", "Oswald"),
+        "club_name": client.name,
+        "founded": brand_profile.get("founded", 1945),
+        "stadium": brand_profile.get("stadium", "Home Stadium, Zagreb"),
     }
 
 
 # ---------- Notification settings (read) ----------
 
 @router.get("/notifications")
-async def get_notification_settings(db: AsyncSession = Depends(get_db)):
+async def get_notification_settings(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
     """Return notification settings with persisted overrides from DB."""
     from app.services.settings_service import get_all_notification_prefs
 
@@ -343,12 +360,19 @@ async def get_notification_settings(db: AsyncSession = Depends(get_db)):
 # ---------- Recent notifications ----------
 
 @router.get("/notifications/recent")
-async def get_recent_notifications(db: AsyncSession = Depends(get_db)):
+async def get_recent_notifications(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
     """Get recent notifications from DB."""
+    user, client, role = ctx
     from app.models.notification import Notification
 
     result = await db.execute(
-        select(Notification).order_by(Notification.created_at.desc()).limit(20)
+        select(Notification)
+        .where(Notification.client_id == client.id)
+        .order_by(Notification.created_at.desc())
+        .limit(20)
     )
     notifications = result.scalars().all()
     return [
@@ -368,13 +392,19 @@ async def get_recent_notifications(db: AsyncSession = Depends(get_db)):
 
 @router.put("/notifications/{notification_id}/read")
 async def mark_notification_read(
-    notification_id: UUID, db: AsyncSession = Depends(get_db)
+    notification_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
 ):
     """Mark a notification as read."""
+    user, client, role = ctx
     from app.models.notification import Notification
 
     result = await db.execute(
-        select(Notification).where(Notification.id == notification_id)
+        select(Notification).where(
+            Notification.id == notification_id,
+            Notification.client_id == client.id,
+        )
     )
     notif = result.scalar_one_or_none()
     if not notif:
@@ -386,7 +416,9 @@ async def mark_notification_read(
 # ---------- API Quotas ----------
 
 @router.get("/quotas")
-async def get_api_quotas():
+async def get_api_quotas(
+    ctx: tuple = Depends(get_current_client),
+):
     """Get API quota usage for all tracked services."""
     from app.services.quota_tracker import quota_tracker
 

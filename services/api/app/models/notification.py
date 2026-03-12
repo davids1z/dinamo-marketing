@@ -1,6 +1,9 @@
 """Notification models."""
 
-from sqlalchemy import Boolean, String, Text
+import uuid
+
+from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import BaseModel
@@ -18,3 +21,6 @@ class Notification(BaseModel):
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
     link: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )

@@ -1,8 +1,9 @@
 """Dependency injection factory: resolves mock vs real API clients based on config."""
 
+import uuid as _uuid
 from functools import lru_cache
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,6 +46,130 @@ async def get_current_user(
         )
 
     return user
+
+
+async def get_client_id(
+    x_client_id: str = Header(..., alias="X-Client-ID"),
+) -> _uuid.UUID:
+    """Extract and validate the X-Client-ID header."""
+    try:
+        return _uuid.UUID(x_client_id)
+    except (ValueError, AttributeError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nevažeći X-Client-ID header",
+        )
+
+
+async def get_current_client(
+    client_id: _uuid.UUID = Depends(get_client_id),
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> tuple:
+    """
+    Validate that the current user has access to the requested client.
+    Returns (user, client, role) tuple.
+    Superadmins bypass membership check.
+    """
+    from app.models.client import Client, UserClient
+
+    result = await db.execute(
+        select(Client).where(Client.id == client_id, Client.is_active == True)
+    )
+    client = result.scalar_one_or_none()
+    if not client:
+        raise HTTPException(status_code=404, detail="Klijent nije pronađen")
+
+    if current_user.is_superadmin:
+        return (current_user, client, "superadmin")
+
+    result = await db.execute(
+        select(UserClient).where(
+            UserClient.user_id == current_user.id,
+            UserClient.client_id == client_id,
+        )
+    )
+    membership = result.scalar_one_or_none()
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Nemate pristup ovom klijentu",
+        )
+
+    return (current_user, client, membership.role)
+
+
+async def get_project_id(
+    x_project_id: str = Header(..., alias="X-Project-ID"),
+) -> _uuid.UUID:
+    """Extract and validate the X-Project-ID header."""
+    try:
+        return _uuid.UUID(x_project_id)
+    except (ValueError, AttributeError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nevažeći X-Project-ID header",
+        )
+
+
+async def get_current_project(
+    project_id: _uuid.UUID = Depends(get_project_id),
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+) -> tuple:
+    """
+    Validate that the requested project belongs to the user's current client.
+    Returns (user, client, project, role) 4-tuple.
+    """
+    from app.models.project import Project
+
+    user, client, role = ctx
+
+    result = await db.execute(
+        select(Project).where(
+            Project.id == project_id,
+            Project.client_id == client.id,
+            Project.is_active == True,
+        )
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=404,
+            detail="Projekt nije pronađen ili ne pripada ovom klijentu",
+        )
+
+    return (user, client, project, role)
+
+
+def require_role(*allowed_roles: str):
+    """Factory: returns a dependency that checks the user's client role."""
+    async def _check(ctx: tuple = Depends(get_current_client)):
+        user, client, role = ctx
+        if role == "superadmin":
+            return ctx
+        if role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Potrebna uloga: {', '.join(allowed_roles)}",
+            )
+        return ctx
+    return _check
+
+
+require_viewer = require_role("viewer", "moderator", "admin")
+require_moderator = require_role("moderator", "admin")
+require_admin_role = require_role("admin")
+
+
+async def require_superadmin(current_user=Depends(get_current_user)):
+    """Platform-wide superadmin check (no client context needed)."""
+    if not current_user.is_superadmin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Samo superadmin ima pristup",
+        )
+    return current_user
 
 
 @lru_cache

@@ -10,7 +10,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.dependencies import get_claude_client
+from app.dependencies import get_claude_client, get_current_project
 from app.services.report_generator import ReportGeneratorService
 from app.config import settings
 
@@ -71,9 +71,13 @@ def _generate_placeholder_pdf(report_type: str, report_id: str) -> bytes:
 
 
 @router.post("/generate/weekly")
-async def generate_weekly_report(db: AsyncSession = Depends(get_db)):
+async def generate_weekly_report(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
+    user, client, project, role = ctx
     service = _get_service()
-    result = await service.generate_weekly_report(db)
+    result = await service.generate_weekly_report(db, client_id=client.id)
     return result
 
 
@@ -82,37 +86,64 @@ async def generate_monthly_report(
     month: int = Body(...),
     year: int = Body(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
+    user, client, project, role = ctx
     service = _get_service()
-    result = await service.generate_monthly_report(db, month, year)
+    result = await service.generate_monthly_report(db, month, year, client_id=client.id)
     return result
 
 
 @router.get("/weekly")
-async def list_weekly_reports(db: AsyncSession = Depends(get_db)):
+async def list_weekly_reports(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
+    user, client, project, role = ctx
     from app.models import WeeklyReport
 
-    query = select(WeeklyReport).order_by(WeeklyReport.created_at.desc())
+    query = (
+        select(WeeklyReport)
+        .where(WeeklyReport.client_id == client.id, WeeklyReport.project_id == project.id)
+        .order_by(WeeklyReport.created_at.desc())
+    )
     res = await db.execute(query)
     reports = res.scalars().all()
     return reports
 
 
 @router.get("/monthly")
-async def list_monthly_reports(db: AsyncSession = Depends(get_db)):
+async def list_monthly_reports(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
+    user, client, project, role = ctx
     from app.models import MonthlyReport
 
-    query = select(MonthlyReport).order_by(MonthlyReport.created_at.desc())
+    query = (
+        select(MonthlyReport)
+        .where(MonthlyReport.client_id == client.id, MonthlyReport.project_id == project.id)
+        .order_by(MonthlyReport.created_at.desc())
+    )
     res = await db.execute(query)
     reports = res.scalars().all()
     return reports
 
 
 @router.get("/weekly/{report_id}")
-async def get_weekly_report(report_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_weekly_report(
+    report_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
+    user, client, project, role = ctx
     from app.models import WeeklyReport
 
-    query = select(WeeklyReport).where(WeeklyReport.id == report_id)
+    query = select(WeeklyReport).where(
+        WeeklyReport.id == report_id,
+        WeeklyReport.client_id == client.id,
+        WeeklyReport.project_id == project.id,
+    )
     res = await db.execute(query)
     report = res.scalar_one_or_none()
     if not report:
@@ -121,10 +152,19 @@ async def get_weekly_report(report_id: UUID, db: AsyncSession = Depends(get_db))
 
 
 @router.get("/monthly/{report_id}")
-async def get_monthly_report(report_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_monthly_report(
+    report_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
+    user, client, project, role = ctx
     from app.models import MonthlyReport
 
-    query = select(MonthlyReport).where(MonthlyReport.id == report_id)
+    query = select(MonthlyReport).where(
+        MonthlyReport.id == report_id,
+        MonthlyReport.client_id == client.id,
+        MonthlyReport.project_id == project.id,
+    )
     res = await db.execute(query)
     report = res.scalar_one_or_none()
     if not report:
@@ -133,7 +173,10 @@ async def get_monthly_report(report_id: UUID, db: AsyncSession = Depends(get_db)
 
 
 @router.get("/weekly/{report_id}/download")
-async def download_weekly_pdf(report_id: str):
+async def download_weekly_pdf(
+    report_id: str,
+    ctx: tuple = Depends(get_current_project),
+):
     """Download the weekly report PDF. Falls back to placeholder if file doesn't exist."""
     # Try UUID parse for real file lookup
     pdf_path = Path(settings.MEDIA_ROOT) / f"reports/weekly_{report_id}.pdf"
@@ -156,7 +199,10 @@ async def download_weekly_pdf(report_id: str):
 
 
 @router.get("/monthly/{report_id}/download")
-async def download_monthly_pdf(report_id: str):
+async def download_monthly_pdf(
+    report_id: str,
+    ctx: tuple = Depends(get_current_project),
+):
     """Download the monthly report PDF. Falls back to placeholder if file doesn't exist."""
     pdf_path = Path(settings.MEDIA_ROOT) / f"reports/monthly_{report_id}.pdf"
     if pdf_path.exists():
@@ -184,7 +230,10 @@ class EmailReportRequest(BaseModel):
 
 
 @router.post("/email")
-async def email_report(request: EmailReportRequest):
+async def email_report(
+    request: EmailReportRequest,
+    ctx: tuple = Depends(get_current_project),
+):
     """Send report via email. Returns mock success in dev mode."""
     # In production, this would use SMTP settings to send the actual PDF
     # For now, return success mock response

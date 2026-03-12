@@ -7,6 +7,7 @@ from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db, async_session_factory
+from app.dependencies import get_current_client
 from app.services.analytics_aggregator import AnalyticsAggregatorService
 from app.services.attribution import AttributionService
 
@@ -25,13 +26,15 @@ def _get_attribution_service():
 @router.get("/overview")
 async def get_overview(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """Full dashboard overview: KPIs + reach series + funnel + top posts."""
+    user, client, role = ctx
     from app.services.cache import cache_get, cache_set
     from app.config import settings as cfg
 
-    cache_key = f"analytics:overview:{days}"
+    cache_key = f"analytics:overview:{client.id}:{days}"
     cached = await cache_get(cache_key)
     if cached is not None:
         return cached
@@ -45,12 +48,14 @@ async def get_overview(
 @router.get("/platforms")
 async def get_platform_breakdown(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     from app.services.cache import cache_get, cache_set
     from app.config import settings as cfg
 
-    cache_key = f"analytics:platforms:{days}"
+    cache_key = f"analytics:platforms:{client.id}:{days}"
     cached = await cache_get(cache_key)
     if cached is not None:
         return cached
@@ -62,7 +67,11 @@ async def get_platform_breakdown(
 
 
 @router.get("/markets")
-async def get_market_performance(db: AsyncSession = Depends(get_db)):
+async def get_market_performance(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_analytics_service()
     result = await service.get_market_performance(db)
     return result
@@ -71,18 +80,25 @@ async def get_market_performance(db: AsyncSession = Depends(get_db)):
 @router.get("/content-ranking")
 async def get_content_rankings(
     limit: int = Query(default=20),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     service = _get_analytics_service()
     result = await service.get_content_rankings(db, limit)
     return result
 
 
 @router.get("/post-metrics/{post_id}")
-async def get_post_metrics(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_post_metrics(
+    post_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     from app.models import PostMetric
 
-    query = select(PostMetric).where(PostMetric.post_id == post_id)
+    query = select(PostMetric).where(PostMetric.post_id == post_id, PostMetric.client_id == client.id)
     res = await db.execute(query)
     metrics = res.scalar_one_or_none()
     if not metrics:
@@ -93,10 +109,15 @@ async def get_post_metrics(post_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/ad-metrics/{ad_id}")
-async def get_ad_metrics(ad_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_ad_metrics(
+    ad_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     from app.models import AdMetric
 
-    query = select(AdMetric).where(AdMetric.ad_id == ad_id)
+    query = select(AdMetric).where(AdMetric.ad_id == ad_id, AdMetric.client_id == client.id)
     res = await db.execute(query)
     metrics = res.scalar_one_or_none()
     if not metrics:
@@ -113,9 +134,11 @@ async def get_all_ads_metrics(
     sort_by: str = Query(default="spend"),
     sort_dir: str = Query(default="desc"),
     limit: int = Query(default=50),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """All ads with aggregated metrics, sortable and filterable."""
+    user, client, role = ctx
     from app.models.campaign import Ad, AdSet, Campaign
     from app.models.analytics import AdMetric
     from sqlalchemy import func as sqlfunc
@@ -140,6 +163,7 @@ async def get_all_ads_metrics(
         .join(AdSet, Ad.ad_set_id == AdSet.id)
         .join(Campaign, AdSet.campaign_id == Campaign.id)
         .outerjoin(AdMetric, AdMetric.ad_id == Ad.id)
+        .where(Campaign.client_id == client.id)
         .group_by(Ad.id, Campaign.id)
     )
 
@@ -203,14 +227,16 @@ async def get_all_ads_metrics(
 async def get_ad_metrics_history(
     ad_id: UUID,
     days: int = Query(default=7),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """Time-series metrics for a single ad."""
+    user, client, role = ctx
     from app.models.analytics import AdMetric
 
     result = await db.execute(
         select(AdMetric)
-        .where(AdMetric.ad_id == ad_id)
+        .where(AdMetric.ad_id == ad_id, AdMetric.client_id == client.id)
         .order_by(AdMetric.timestamp.desc())
         .limit(days)
     )
@@ -236,8 +262,10 @@ async def get_ad_metrics_history(
 @router.get("/attribution")
 async def get_attribution_report(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     service = _get_attribution_service()
     result = await service.get_attribution_report(db, days)
     return result
@@ -250,9 +278,11 @@ async def get_attribution_report(
 @router.get("/roi/summary")
 async def get_roi_summary(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """ROAS, CPA, total spend, conversions, conversion value."""
+    user, client, role = ctx
     service = _get_analytics_service()
     return await service.get_roi_summary(db, days)
 
@@ -260,9 +290,11 @@ async def get_roi_summary(
 @router.get("/roi/by-platform")
 async def get_roi_by_platform(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """ROI breakdown per platform."""
+    user, client, role = ctx
     service = _get_analytics_service()
     return await service.get_roi_by_platform(db, days)
 
@@ -271,9 +303,11 @@ async def get_roi_by_platform(
 async def get_post_metrics_history(
     post_id: UUID,
     days: int = Query(default=7),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """Time-series metrics for a single post."""
+    user, client, role = ctx
     service = _get_analytics_service()
     return await service.get_post_metrics_history(db, post_id, days)
 

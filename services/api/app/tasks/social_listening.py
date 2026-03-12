@@ -163,15 +163,20 @@ def scan_brand_mentions(self):
     """
     Scan all platforms for brand mentions.
 
-    Detects trending topics and alerts on mention volume spikes.
+    Iterates over all active clients. For each client, detects trending
+    topics and alerts on mention volume spikes.
     Runs every 30 minutes via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select as sa_select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Social Listening scan started at %s ===", run_ts)
-    logger.info("Tracking keywords: %s", ", ".join(BRAND_KEYWORDS))
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "total_mentions": 0,
         "platform_counts": {},
         "sentiment_breakdown": {"positive": 0, "neutral": 0, "negative": 0},
@@ -181,31 +186,109 @@ def scan_brand_mentions(self):
         "errors": [],
     }
 
-    all_mentions = []
-
     try:
-        # ------------------------------------------------------------------
-        # 1. Scan each platform
-        # ------------------------------------------------------------------
-        for platform in PLATFORMS_TO_SCAN:
-            try:
-                mentions = _simulate_mention_scan(platform)
-                all_mentions.extend(mentions)
-                results["platform_counts"][platform] = len(mentions)
-                logger.info("Scanned %s -- found %d mentions", platform, len(mentions))
-            except Exception as exc:
-                results["errors"].append({"platform": platform, "error": str(exc)})
-                logger.error("Failed to scan %s: %s", platform, exc)
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                sa_select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-        results["total_mentions"] = len(all_mentions)
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-        # ------------------------------------------------------------------
-        # 2. Aggregate sentiment
-        # ------------------------------------------------------------------
-        for m in all_mentions:
-            sentiment = m.get("sentiment", "neutral")
-            if sentiment in results["sentiment_breakdown"]:
-                results["sentiment_breakdown"][sentiment] += 1
+        logger.info("  Found %d active clients", len(clients))
+
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
+
+            # TODO: In production, use client-specific brand keywords
+            logger.info("  Tracking keywords: %s", ", ".join(BRAND_KEYWORDS))
+
+            all_mentions = []
+
+            # ------------------------------------------------------------------
+            # 1. Scan each platform
+            # ------------------------------------------------------------------
+            client_platform_counts = {}
+            for platform in PLATFORMS_TO_SCAN:
+                try:
+                    mentions = _simulate_mention_scan(platform)
+                    for m in mentions:
+                        m["client_id"] = str(client.id)
+                    all_mentions.extend(mentions)
+                    client_platform_counts[platform] = len(mentions)
+                    results["platform_counts"][platform] = results["platform_counts"].get(platform, 0) + len(mentions)
+                    logger.info("  Scanned %s -- found %d mentions", platform, len(mentions))
+                except Exception as exc:
+                    results["errors"].append({"platform": platform, "client_id": str(client.id), "error": str(exc)})
+                    logger.error("  Failed to scan %s: %s", platform, exc)
+
+            results["total_mentions"] += len(all_mentions)
+
+            # ------------------------------------------------------------------
+            # 2. Aggregate sentiment
+            # ------------------------------------------------------------------
+            for m in all_mentions:
+                sentiment = m.get("sentiment", "neutral")
+                if sentiment in results["sentiment_breakdown"]:
+                    results["sentiment_breakdown"][sentiment] += 1
+
+            # Alert if negative ratio is high for this client
+            client_total = len(all_mentions)
+            if client_total > 0:
+                client_neg = sum(1 for m in all_mentions if m.get("sentiment") == "negative")
+                neg_ratio = client_neg / client_total
+                if neg_ratio > 0.30:
+                    alert = {
+                        "type": "negative_sentiment_spike",
+                        "severity": "high",
+                        "client_id": str(client.id),
+                        "negative_ratio": round(neg_ratio * 100, 1),
+                        "message": f"Negative sentiment at {neg_ratio*100:.1f}% -- exceeds 30% threshold (client: {client.name})",
+                    }
+                    results["alerts"].append(alert)
+                    logger.warning("ALERT: %s", alert["message"])
+
+            # ------------------------------------------------------------------
+            # 3. Detect trending topics
+            # ------------------------------------------------------------------
+            client_trending = _detect_trending_topics(all_mentions)
+            results["trending_topics"].extend(client_trending)
+            for topic in client_trending:
+                logger.info(
+                    "  Trending: %s (count=%d, velocity=%.1f/hr, category=%s)",
+                    topic["topic"], topic["mention_count"], topic["velocity"], topic["category"],
+                )
+
+            # ------------------------------------------------------------------
+            # 4. Check for volume spikes
+            # ------------------------------------------------------------------
+            spike_alerts = _check_for_spikes(client_platform_counts)
+            for alert in spike_alerts:
+                alert["client_id"] = str(client.id)
+            results["alerts"].extend(spike_alerts)
+            for alert in spike_alerts:
+                logger.warning("ALERT [%s] (client=%s): %s", alert["severity"], client.name, alert["message"])
+
+            # ------------------------------------------------------------------
+            # 5. Capture top mentions by reach
+            # ------------------------------------------------------------------
+            all_mentions.sort(key=lambda m: m.get("reach_estimate", 0), reverse=True)
+            results["top_mentions"].extend(all_mentions[:5])
+
+        # Log top mentions across all clients
+        for m in results["top_mentions"][:10]:
+            logger.info(
+                "Top mention: @%s on %s (reach=%d)",
+                m["author"], m["platform"], m["reach_estimate"],
+            )
 
         pos = results["sentiment_breakdown"]["positive"]
         neu = results["sentiment_breakdown"]["neutral"]
@@ -215,55 +298,13 @@ def scan_brand_mentions(self):
             pos, neu, neg,
         )
 
-        # Alert if negative ratio is high
-        if results["total_mentions"] > 0:
-            neg_ratio = neg / results["total_mentions"]
-            if neg_ratio > 0.30:
-                alert = {
-                    "type": "negative_sentiment_spike",
-                    "severity": "high",
-                    "negative_ratio": round(neg_ratio * 100, 1),
-                    "message": f"Negative sentiment at {neg_ratio*100:.1f}% -- exceeds 30% threshold",
-                }
-                results["alerts"].append(alert)
-                logger.warning("ALERT: %s", alert["message"])
-
-        # ------------------------------------------------------------------
-        # 3. Detect trending topics
-        # ------------------------------------------------------------------
-        results["trending_topics"] = _detect_trending_topics(all_mentions)
-        for topic in results["trending_topics"]:
-            logger.info(
-                "Trending: %s (count=%d, velocity=%.1f/hr, category=%s)",
-                topic["topic"], topic["mention_count"], topic["velocity"], topic["category"],
-            )
-
-        # ------------------------------------------------------------------
-        # 4. Check for volume spikes
-        # ------------------------------------------------------------------
-        spike_alerts = _check_for_spikes(results["platform_counts"])
-        results["alerts"].extend(spike_alerts)
-        for alert in spike_alerts:
-            logger.warning("ALERT [%s]: %s", alert["severity"], alert["message"])
-
-        # ------------------------------------------------------------------
-        # 5. Capture top mentions by reach
-        # ------------------------------------------------------------------
-        all_mentions.sort(key=lambda m: m.get("reach_estimate", 0), reverse=True)
-        results["top_mentions"] = all_mentions[:5]
-        for m in results["top_mentions"]:
-            logger.info(
-                "Top mention: @%s on %s (reach=%d) -- \"%s\"",
-                m["author"], m["platform"], m["reach_estimate"], m["text"][:80],
-            )
-
         # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
         logger.info(
-            "=== Social Listening complete -- %d mentions across %d platforms, %d trending topics, %d alerts ===",
+            "=== Social Listening complete -- %d clients, %d mentions, %d trending topics, %d alerts ===",
+            results["clients_processed"],
             results["total_mentions"],
-            len(results["platform_counts"]),
             len(results["trending_topics"]),
             len(results["alerts"]),
         )

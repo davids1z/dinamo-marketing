@@ -28,6 +28,9 @@ class SentimentRecord(BaseModel):
     analyzed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class SentimentAlert(BaseModel):
@@ -47,6 +50,9 @@ class SentimentAlert(BaseModel):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class BrandMention(BaseModel):
@@ -62,6 +68,9 @@ class BrandMention(BaseModel):
     detected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class TrendingTopic(BaseModel):
@@ -76,4 +85,7 @@ class TrendingTopic(BaseModel):
     )
     last_updated: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )

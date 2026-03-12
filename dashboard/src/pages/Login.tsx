@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, KeyRound } from 'lucide-react'
 
@@ -94,8 +94,14 @@ export default function Login() {
           </form>
         </div>
 
+        {/* Register link */}
+        <p className="text-center text-sm text-studio-text-tertiary mt-6">
+          {'Nemate račun? '}
+          <Link to="/register" className="text-brand-accent hover:underline font-medium">Registrirajte se</Link>
+        </p>
+
         {/* Footer */}
-        <p className="text-center text-xs text-studio-text-tertiary mt-8">ShiftOneZero</p>
+        <p className="text-center text-xs text-studio-text-tertiary mt-4">ShiftOneZero</p>
       </div>
     </div>
   )

@@ -296,18 +296,23 @@ def _detect_alerts(scan_result: dict, competitor: dict) -> list:
 )
 def scan_all_competitors(self):
     """
-    Scan all 8 competitor clubs for updated social media metrics.
+    Scan competitor clubs for updated social media metrics.
 
-    Compares current performance against baselines and generates alerts
-    for engagement spikes, follower growth, and content frequency changes.
+    Iterates over all active clients. For each client, compares current
+    competitor performance against baselines and generates alerts for
+    engagement spikes, follower growth, and content frequency changes.
     Runs every 12 hours via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Competitor Scan started at %s ===", run_ts)
-    logger.info("Scanning %d competitors across HNL + regional rivals", len(COMPETITORS))
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "competitors_scanned": 0,
         "competitors_failed": 0,
         "total_alerts": 0,
@@ -318,38 +323,67 @@ def scan_all_competitors(self):
     }
 
     try:
-        for competitor in COMPETITORS:
-            try:
-                scan = _scan_competitor_socials(competitor)
-                results["competitors_scanned"] += 1
-                results["scan_results"].append(scan)
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-                agg = scan["aggregate"]
-                logger.info(
-                    "Scanned %s [%s] -- followers=%s (%+.1f%%), engagement=%.1f%%, posts=%d/wk",
-                    scan["name"],
-                    scan["rivalry"],
-                    f"{agg['total_followers']:,}",
-                    agg["follower_growth_pct"],
-                    agg["avg_engagement_rate"],
-                    agg["total_posts_this_week"],
-                )
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-                # Detect alerts
-                comp_alerts = _detect_alerts(scan, competitor)
-                for alert in comp_alerts:
-                    results["alerts"].append(alert)
-                    logger.warning(
-                        "ALERT [%s/%s]: %s",
-                        alert["severity"],
-                        alert["type"],
-                        alert["message"],
+        logger.info("  Found %d active clients", len(clients))
+
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
+
+            # TODO: In production, query competitors from DB filtered by client_id
+            competitors = COMPETITORS
+
+            logger.info("  Scanning %d competitors for client %s", len(competitors), client.name)
+
+            for competitor in competitors:
+                try:
+                    scan = _scan_competitor_socials(competitor)
+                    scan["client_id"] = str(client.id)
+                    results["competitors_scanned"] += 1
+                    results["scan_results"].append(scan)
+
+                    agg = scan["aggregate"]
+                    logger.info(
+                        "Scanned %s [%s] -- followers=%s (%+.1f%%), engagement=%.1f%%, posts=%d/wk",
+                        scan["name"],
+                        scan["rivalry"],
+                        f"{agg['total_followers']:,}",
+                        agg["follower_growth_pct"],
+                        agg["avg_engagement_rate"],
+                        agg["total_posts_this_week"],
                     )
 
-            except Exception as exc:
-                results["competitors_failed"] += 1
-                results["errors"].append({"competitor": competitor["name"], "error": str(exc)})
-                logger.error("Failed to scan %s: %s", competitor["name"], exc)
+                    # Detect alerts
+                    comp_alerts = _detect_alerts(scan, competitor)
+                    for alert in comp_alerts:
+                        alert["client_id"] = str(client.id)
+                        results["alerts"].append(alert)
+                        logger.warning(
+                            "ALERT [%s/%s] (client=%s): %s",
+                            alert["severity"],
+                            alert["type"],
+                            client.name,
+                            alert["message"],
+                        )
+
+                except Exception as exc:
+                    results["competitors_failed"] += 1
+                    results["errors"].append({"competitor": competitor["name"], "error": str(exc)})
+                    logger.error("Failed to scan %s: %s", competitor["name"], exc)
 
         results["total_alerts"] = len(results["alerts"])
 
@@ -383,7 +417,8 @@ def scan_all_competitors(self):
         # Summary
         # ------------------------------------------------------------------
         logger.info("=== Competitor Scan Complete ===")
-        logger.info("  Scanned: %d/%d competitors", results["competitors_scanned"], len(COMPETITORS))
+        logger.info("  Clients processed: %d", results["clients_processed"])
+        logger.info("  Scanned: %d competitors total", results["competitors_scanned"])
         logger.info("  Alerts generated: %d", results["total_alerts"])
         high_alerts = [a for a in results["alerts"] if a["severity"] == "high"]
         if high_alerts:

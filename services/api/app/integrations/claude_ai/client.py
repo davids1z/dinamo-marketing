@@ -13,21 +13,26 @@ import re
 import httpx
 
 from app.integrations.base import ClaudeClientBase
+from app.integrations.openrouter import build_system_prompt
 
 logger = logging.getLogger(__name__)
 
-BRAND_SYSTEM = (
+# Fallback system prompt used when no client context is available
+_FALLBACK_BRAND_SYSTEM = (
     "You are an expert marketing strategist for a brand's marketing platform. "
     "You help create compelling content, analyze performance data, and generate "
     "strategic recommendations for social media marketing.\n\n"
-    "Key brand context:\n"
-    "- Brand colours: navy #0A1A28, accent lime #B8FF00, blue #0057A8\n"
-    "- Content pillars: product, team_spotlight, behind_scenes, community_engagement, "
-    "education, lifestyle, campaigns, values\n"
-    "- Tone: professional, modern, community-first\n"
-    "- Languages: Croatian (primary), English, German\n\n"
     "Always respond with valid JSON unless instructed otherwise."
 )
+
+_JSON_SUFFIX = "\n\nAlways respond with valid JSON unless instructed otherwise."
+
+
+def _get_brand_system(client=None) -> str:
+    """Get the brand system prompt, using client context if available."""
+    if client is None:
+        return _FALLBACK_BRAND_SYSTEM
+    return build_system_prompt(client) + _JSON_SUFFIX
 
 
 def _parse_json(text: str) -> dict | list:
@@ -101,7 +106,8 @@ class ClaudeClient(ClaudeClientBase):
         except Exception as exc:
             return {"status": "error", "error": str(exc)}
 
-    async def generate_content_plan(self, context: dict) -> dict:
+    async def generate_content_plan(self, context: dict, client=None) -> dict:
+        system = _get_brand_system(client)
         prompt = (
             "Generate a weekly content plan for the brand social media.\n\n"
             f"Context: {json.dumps(context, default=str)}\n\n"
@@ -113,51 +119,56 @@ class ClaudeClient(ClaudeClientBase):
             "topic, caption, hashtags, best_time_to_post, visual_direction)\n"
             "- strategy_notes (string paragraph)"
         )
-        text = await self._call(BRAND_SYSTEM, prompt)
+        text = await self._call(system, prompt)
         return _parse_json(text)
 
-    async def generate_post_copy(self, brief: dict) -> dict:
+    async def generate_post_copy(self, brief: dict, client=None) -> dict:
+        system = _get_brand_system(client)
         prompt = (
             "Generate social media post copy for the brand.\n\n"
             f"Brief: {json.dumps(brief, default=str)}\n\n"
             "Return JSON with keys: headline, body, call_to_action, hashtags (array), "
             "platform, tone, estimated_engagement"
         )
-        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=1024)
+        text = await self._call(system, prompt, max_tokens=1024)
         return _parse_json(text)
 
-    async def generate_ab_variants(self, base_copy: str, num_variants: int = 3) -> list[dict]:
+    async def generate_ab_variants(self, base_copy: str, num_variants: int = 3, client=None) -> list[dict]:
+        system = _get_brand_system(client)
         prompt = (
             f"Generate {num_variants} A/B test copy variants for this ad:\n\n"
             f'"{base_copy}"\n\n'
             "Return a JSON array. Each element has: variant_id (var_A, var_B, ...), "
             "label, copy, rationale, predicted_ctr (float)"
         )
-        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
+        text = await self._call(system, prompt, max_tokens=2048)
         result = _parse_json(text)
         return result if isinstance(result, list) else result.get("variants", [result])
 
-    async def analyze_sentiment(self, texts: list[str]) -> list[dict]:
+    async def analyze_sentiment(self, texts: list[str], client=None) -> list[dict]:
+        system = _get_brand_system(client)
         prompt = (
             "Analyze the sentiment of each text below. Return a JSON array.\n"
             "Each element: text, sentiment (positive/neutral/negative), "
             "confidence (0-1 float), key_phrases (array), emotion (string)\n\n"
             "Texts:\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
         )
-        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
+        text = await self._call(system, prompt, max_tokens=2048)
         result = _parse_json(text)
         return result if isinstance(result, list) else [result]
 
-    async def generate_report_summary(self, data: dict) -> str:
+    async def generate_report_summary(self, data: dict, client=None) -> str:
+        system = _get_brand_system(client)
         prompt = (
             "Write a concise weekly performance summary for the brand's "
             "marketing team based on this data. Use plain text (not JSON). "
             "Include: overall performance, channel insights, key actions.\n\n"
             f"Data: {json.dumps(data, default=str)}"
         )
-        return await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
+        return await self._call(system, prompt, max_tokens=2048)
 
-    async def generate_strategy_recommendation(self, performance_data: dict) -> dict:
+    async def generate_strategy_recommendation(self, performance_data: dict, client=None) -> dict:
+        system = _get_brand_system(client)
         prompt = (
             "Generate a strategic marketing recommendation for the brand.\n\n"
             f"Performance data: {json.dumps(performance_data, default=str)}\n\n"
@@ -172,12 +183,13 @@ class ClaudeClient(ClaudeClientBase):
             "engagement_rate_change, website_traffic_change, merch_revenue_change, "
             "estimated_roi)"
         )
-        text = await self._call(BRAND_SYSTEM, prompt)
+        text = await self._call(system, prompt)
         return _parse_json(text)
 
     async def translate_content(
-        self, text: str, source_lang: str, target_langs: list[str]
+        self, text: str, source_lang: str, target_langs: list[str], client=None
     ) -> dict[str, str]:
+        system = _get_brand_system(client)
         langs_str = ", ".join(target_langs)
         prompt = (
             f"Translate the following {source_lang} social media caption into: {langs_str}.\n"
@@ -186,5 +198,5 @@ class ClaudeClient(ClaudeClientBase):
             f"Return JSON object with keys: {langs_str}. "
             "Each value is the translated string."
         )
-        text_resp = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
+        text_resp = await self._call(system, prompt, max_tokens=2048)
         return _parse_json(text_resp)

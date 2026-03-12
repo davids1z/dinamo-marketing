@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
-from app.dependencies import get_studio_service
+from app.dependencies import get_studio_service, get_current_project
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -40,8 +40,10 @@ async def upload_media(
     post_id: UUID,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Upload a media file (image, video, audio) for a post."""
+    user, client, project, role = ctx
     # Validate MIME type
     mime = file.content_type or "application/octet-stream"
     if mime not in ALLOWED_MIME_TYPES:
@@ -65,6 +67,7 @@ async def upload_media(
         file_content=content,
         original_filename=file.filename or "upload",
         mime_type=mime,
+        client_id=client.id,
     )
 
     return {
@@ -83,10 +86,12 @@ async def upload_media(
 async def list_uploads(
     post_id: UUID,
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """List all uploaded media for a post."""
+    user, client, project, role = ctx
     service = get_studio_service()
-    assets = await service.list_uploads(db, post_id)
+    assets = await service.list_uploads(db, post_id, client_id=client.id)
     return [
         {
             "id": str(a.id),
@@ -106,10 +111,12 @@ async def list_uploads(
 async def delete_upload(
     asset_id: UUID,
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Delete an uploaded media file."""
+    user, client, project, role = ctx
     service = get_studio_service()
-    deleted = await service.delete_upload(db, asset_id)
+    deleted = await service.delete_upload(db, asset_id, client_id=client.id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Datoteka nije pronađena")
     return {"deleted": True}
@@ -123,23 +130,29 @@ async def delete_upload(
 async def get_project(
     post_id: UUID,
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Get or create a studio project for a post.
 
     Also returns post metadata (title, platform, visual_brief, etc.)
     so the frontend has everything it needs in a single call.
     """
+    user, client, project, role = ctx
     from app.models.content import ContentPost
     from sqlalchemy import select as sa_select
 
     service = get_studio_service()
     try:
-        project = await service.get_or_create_project(db, post_id)
+        project = await service.get_or_create_project(db, post_id, client_id=client.id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
     # Also load post metadata
-    post_query = sa_select(ContentPost).where(ContentPost.id == post_id)
+    post_query = sa_select(ContentPost).where(
+        ContentPost.id == post_id,
+        ContentPost.client_id == client.id,
+        ContentPost.project_id == project.id,
+    )
     post_result = await db.execute(post_query)
     post = post_result.scalar_one_or_none()
 
@@ -166,11 +179,13 @@ async def update_project(
     post_id: UUID,
     updates: dict = Body(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Update a studio project (brief, scene_data, captions, etc.)."""
+    user, client, project, role = ctx
     service = get_studio_service()
     try:
-        project = await service.update_project(db, post_id, updates)
+        project = await service.update_project(db, post_id, updates, client_id=client.id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -210,8 +225,10 @@ async def generate_scenes(
     post_id: UUID,
     brief: str = Body(..., embed=True),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Start async AI scene generation. Returns task_id to poll."""
+    user, client, project, role = ctx
     api_key = settings.OPENROUTER_API_KEY
     if not api_key:
         raise HTTPException(
@@ -223,7 +240,11 @@ async def generate_scenes(
     from app.models.content import ContentPost
     from sqlalchemy import select
 
-    query = select(ContentPost).where(ContentPost.id == post_id)
+    query = select(ContentPost).where(
+        ContentPost.id == post_id,
+        ContentPost.client_id == client.id,
+        ContentPost.project_id == project.id,
+    )
     result = await db.execute(query)
     post = result.scalar_one_or_none()
     if not post:
@@ -238,7 +259,10 @@ async def generate_scenes(
 
 
 @router.get("/projects/task/{task_id}")
-async def get_generation_result(task_id: str):
+async def get_generation_result(
+    task_id: str,
+    ctx: tuple = Depends(get_current_project),
+):
     """Poll for AI scene generation result."""
     task = _studio_tasks.get(task_id)
     if not task:
@@ -255,8 +279,10 @@ async def render_video(
     post_id: UUID,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Accept WebM upload, convert to MP4 via FFmpeg."""
+    user, client, project, role = ctx
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(
@@ -266,7 +292,7 @@ async def render_video(
 
     service = get_studio_service()
     try:
-        output_url = await service.render_video(db, post_id, content)
+        output_url = await service.render_video(db, post_id, content, client_id=client.id)
     except (ValueError, RuntimeError) as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -278,15 +304,17 @@ async def export_image(
     post_id: UUID,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Save an exported PNG from the client-side canvas."""
+    user, client, project, role = ctx
     content = await file.read()
     if len(content) > 20 * 1024 * 1024:  # 20MB max for images
         raise HTTPException(status_code=400, detail="Slika prevelika. Maksimalno 20MB")
 
     service = get_studio_service()
     output_url = await service.save_export(
-        db, post_id, content, filename=file.filename or "export.png"
+        db, post_id, content, filename=file.filename or "export.png", client_id=client.id
     )
 
     return {"output_url": output_url, "post_id": str(post_id)}
@@ -301,15 +329,17 @@ async def publish_project(
     post_id: UUID,
     target_platform: str | None = Body(None, embed=True),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Publish the studio project output to the target platform.
 
     Pass target_platform='telegram' to publish to the test Telegram channel.
     If omitted, publishes to the post's original platform via UnifiedPublisher.
     """
+    user, client, project, role = ctx
     service = get_studio_service()
     try:
-        result = await service.publish(db, post_id, target_platform=target_platform)
+        result = await service.publish(db, post_id, target_platform=target_platform, client_id=client.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

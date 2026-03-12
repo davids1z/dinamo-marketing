@@ -10,20 +10,23 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 
-def create_notification_sync(type: str, title: str, body: str, severity: str = "info", link: str = ""):
+def create_notification_sync(type: str, title: str, body: str, severity: str = "info", link: str = "", client_id=None):
     """Create a notification from a Celery task (sync context)."""
     from app.database import SyncSessionLocal
     from app.models.notification import Notification
 
     try:
         with SyncSessionLocal() as db:
-            notif = Notification(
+            kwargs = dict(
                 type=type,
                 title=title,
                 body=body,
                 severity=severity,
                 link=link,
             )
+            if client_id is not None:
+                kwargs["client_id"] = client_id
+            notif = Notification(**kwargs)
             db.add(notif)
             db.commit()
 

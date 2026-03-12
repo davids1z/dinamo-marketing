@@ -28,6 +28,9 @@ class MediaAsset(BaseModel):
         String(20), nullable=False
     )  # image, video, audio
     thumbnail_url: Mapped[str] = mapped_column(String(1000), nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class StudioProject(BaseModel):
@@ -48,5 +51,11 @@ class StudioProject(BaseModel):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="draft"
     )  # draft, generating, generated, rendering, rendered, published
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
     post: Mapped["ContentPost"] = relationship(back_populates="studio_project")  # type: ignore[name-defined]  # noqa: F821

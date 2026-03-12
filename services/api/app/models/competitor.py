@@ -19,6 +19,9 @@ class Competitor(BaseModel):
     league: Mapped[str] = mapped_column(String(200), nullable=False)
     website: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     logo_url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     metrics: Mapped[list["CompetitorMetric"]] = relationship(back_populates="competitor")
     alerts: Mapped[list["CompetitorAlert"]] = relationship(back_populates="competitor")
@@ -37,6 +40,9 @@ class CompetitorMetric(BaseModel):
     content_formats: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     target_markets: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     language_strategy: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     competitor: Mapped["Competitor"] = relationship(back_populates="metrics")
 
@@ -57,5 +63,8 @@ class CompetitorAlert(BaseModel):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     competitor: Mapped["Competitor"] = relationship(back_populates="alerts")

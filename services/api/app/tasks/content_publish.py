@@ -25,7 +25,7 @@ MAX_PUBLISH_ATTEMPTS = 5     # Max retries per post before marking as failed
 # Database helpers (sync wrapper around async ORM)
 # ---------------------------------------------------------------------------
 
-def _get_eligible_posts():
+def _get_eligible_posts(client_id=None):
     """Query the database for posts ready to publish."""
     from app.database import SyncSessionLocal
     from app.models.content import ContentPost
@@ -45,6 +45,8 @@ def _get_eligible_posts():
             .where(ContentPost.scheduled_at <= window_end)
             .where(ContentPost.publish_attempts < MAX_PUBLISH_ATTEMPTS)
         )
+        if client_id is not None:
+            query = query.where(ContentPost.client_id == client_id)
         result = db.execute(query)
         posts = result.scalars().all()
 
@@ -167,15 +169,21 @@ def publish_scheduled_content(self):
     Check for approved content scheduled for now and publish via
     the UnifiedPublisher.
 
-    Queries ContentPost table for posts with status='approved',
-    scheduled_at within the publish window, and not yet published.
+    Iterates over all active clients. For each client, queries
+    ContentPost table for posts with status='approved', scheduled_at
+    within the publish window, and not yet published.
     Runs every 5 minutes via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Content Publishing check started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "posts_checked": 0,
         "publish_success": 0,
         "publish_failed": 0,
@@ -184,29 +192,52 @@ def publish_scheduled_content(self):
     }
 
     try:
-        # 1. Fetch eligible posts from DB
-        posts = _get_eligible_posts()
-        results["posts_checked"] = len(posts)
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-        if not posts:
-            logger.info("  No eligible posts to publish")
+        if not clients:
+            logger.info("  No active clients found")
             return results
 
-        logger.info("  Found %d eligible posts", len(posts))
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-        # 2. Run async publishing
-        loop = asyncio.new_event_loop()
-        try:
-            pub_results = loop.run_until_complete(_publish_posts_async(posts))
-        finally:
-            loop.close()
+            # 1. Fetch eligible posts from DB for this client
+            posts = _get_eligible_posts(client_id=client.id)
+            results["posts_checked"] += len(posts)
 
-        results.update(pub_results)
+            if not posts:
+                logger.info("    No eligible posts for client %s", client.name)
+                continue
+
+            logger.info("    Found %d eligible posts", len(posts))
+
+            # 2. Run async publishing
+            loop = asyncio.new_event_loop()
+            try:
+                pub_results = loop.run_until_complete(_publish_posts_async(posts))
+            finally:
+                loop.close()
+
+            results["publish_success"] += pub_results.get("publish_success", 0)
+            results["publish_failed"] += pub_results.get("publish_failed", 0)
+            results["published_items"].extend(pub_results.get("published_items", []))
+            results["errors"].extend(pub_results.get("errors", []))
 
         # 3. Summary
         logger.info("=== Content Publishing Complete ===")
         logger.info(
-            "  Checked: %d, Published: %d, Failed: %d",
+            "  Clients: %d, Checked: %d, Published: %d, Failed: %d",
+            results["clients_processed"],
             results["posts_checked"],
             results["publish_success"],
             results["publish_failed"],

@@ -126,7 +126,7 @@ def _mock_post_metrics(post) -> dict:
 # DB helpers
 # ---------------------------------------------------------------------------
 
-def _get_published_posts():
+def _get_published_posts(client_id=None):
     """Query the database for published posts with platform IDs."""
     from app.database import SyncSessionLocal
     from app.models.content import ContentPost
@@ -138,6 +138,8 @@ def _get_published_posts():
             .where(ContentPost.status == "published")
             .where(ContentPost.platform_post_id.isnot(None))
         )
+        if client_id is not None:
+            query = query.where(ContentPost.client_id == client_id)
         result = db.execute(query)
         posts = result.scalars().all()
 
@@ -238,46 +240,78 @@ def pull_all_metrics(self):
     """
     Pull metrics from all platforms for every published post.
 
-    Runs every hour. Queries ContentPost table for published posts,
-    fetches metrics from platform APIs (or mock), and stores in
-    PostMetric table.
+    Runs every hour. Iterates over all active clients, queries
+    ContentPost table for published posts per client, fetches metrics
+    from platform APIs (or mock), and stores in PostMetric table.
     """
     from app.config import settings
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
 
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Metrics Pull started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "posts_processed": 0,
         "platforms": {},
         "errors": [],
     }
 
     try:
-        # 1. Get published posts from DB
-        posts = _get_published_posts()
-        if not posts:
-            logger.info("  No published posts to pull metrics for")
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
+
+        if not clients:
+            logger.info("  No active clients found")
             return results
 
-        logger.info("  Found %d published posts", len(posts))
+        logger.info("  Found %d active clients", len(clients))
 
-        # 2. Pull metrics (async)
         use_mock = settings.SOZ_USE_MOCK_APIS
-        loop = asyncio.new_event_loop()
-        try:
-            pull_results = loop.run_until_complete(
-                _pull_all_metrics_async(posts, use_mock)
-            )
-        finally:
-            loop.close()
 
-        results.update(pull_results)
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+
+            # 1. Get published posts from DB for this client
+            posts = _get_published_posts(client_id=client.id)
+            if not posts:
+                logger.info("    No published posts for client %s", client.name)
+                continue
+
+            logger.info("    Found %d published posts", len(posts))
+            results["clients_processed"] += 1
+
+            # 2. Pull metrics (async)
+            loop = asyncio.new_event_loop()
+            try:
+                pull_results = loop.run_until_complete(
+                    _pull_all_metrics_async(posts, use_mock)
+                )
+            finally:
+                loop.close()
+
+            results["posts_processed"] += pull_results.get("posts_processed", 0)
+            results["errors"].extend(pull_results.get("errors", []))
+            for platform, counts in pull_results.get("platforms", {}).items():
+                results["platforms"].setdefault(platform, {"success": 0, "failed": 0})
+                results["platforms"][platform]["success"] += counts.get("success", 0)
+                results["platforms"][platform]["failed"] += counts.get("failed", 0)
 
         # 3. Summary
         logger.info(
-            "=== Metrics Pull complete -- posts=%d, errors=%d ===",
+            "=== Metrics Pull complete -- clients=%d, posts=%d, errors=%d ===",
+            results["clients_processed"],
             results["posts_processed"],
             len(results["errors"]),
         )

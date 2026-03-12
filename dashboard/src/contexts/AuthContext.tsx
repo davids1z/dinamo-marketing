@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import api from '../api/client'
+import type { ClientMembership } from './ClientContext'
 
 interface AuthUser {
   id: string
   email: string
   full_name: string
   role: string
+  is_superadmin: boolean
+  clients: ClientMembership[]
 }
 
 interface AuthContextType {
@@ -65,14 +68,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null)
     setUser(null)
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('current_client_id')
+    localStorage.removeItem('current_project_id')
   }, [])
 
   return (
     <AuthContext.Provider value={{
       user, token,
       isAuthenticated: !!token && !!user,
-      isAdmin: user?.role === 'admin',
-      canApprove: user?.role === 'admin' || user?.role === 'editor',
+      isAdmin: user?.is_superadmin ?? false,
+      canApprove: user?.is_superadmin || user?.role === 'admin' || user?.role === 'editor',
       login, logout, loading,
     }}>
       {children}

@@ -240,7 +240,8 @@ def check_cl_schedule(self):
     """
     Check the Champions League schedule for upcoming matches.
 
-    If a match is within 7 days, activate surge mode:
+    Iterates over all active clients. For each client, if a match is
+    within 7 days, activate surge mode:
     - Double posting frequency
     - Boost ad budgets by 50%
     - Generate surge content plan
@@ -248,11 +249,16 @@ def check_cl_schedule(self):
 
     Runs every 6 hours via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Champions League Surge Check started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "surge_active": False,
         "upcoming_matches": [],
         "nearest_match": None,
@@ -263,125 +269,156 @@ def check_cl_schedule(self):
     }
 
     try:
-        # ------------------------------------------------------------------
-        # 1. Check for upcoming CL matches
-        # ------------------------------------------------------------------
-        upcoming = _find_upcoming_matches(MOCK_CL_SCHEDULE, SURGE_WINDOW_DAYS)
-        results["upcoming_matches"] = [
-            {
-                "match_id": m["match_id"],
-                "opponent": m["away_team"] if m["is_home"] else m["home_team"],
-                "venue": m["venue"],
-                "kickoff": m["kickoff"],
-                "days_until": m["days_until"],
-                "is_home": m["is_home"],
-            }
-            for m in upcoming
-        ]
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-        if not upcoming:
-            logger.info("No CL matches within %d days. Surge mode not needed.", SURGE_WINDOW_DAYS)
-
-            # Deactivate surge if it was active
-            if MOCK_CURRENT_SETTINGS["surge_mode_active"]:
-                logger.info("Deactivating surge mode -- no upcoming matches")
-                results["settings_changes"]["surge_mode_active"] = False
-                results["settings_changes"]["daily_posts_target"] = MOCK_CURRENT_SETTINGS["daily_posts_target"]
-                # In production: reset budgets to original levels
-
-            logger.info("=== CL Surge Check complete -- no action needed ===")
+        if not clients:
+            logger.info("  No active clients found")
             return results
 
-        # ------------------------------------------------------------------
-        # 2. Activate surge mode
-        # ------------------------------------------------------------------
-        nearest = upcoming[0]
-        results["nearest_match"] = results["upcoming_matches"][0]
-        results["surge_active"] = True
+        logger.info("  Found %d active clients", len(clients))
 
-        opponent = nearest["away_team"] if nearest["is_home"] else nearest["home_team"]
-        logger.info(
-            "CL MATCH DETECTED: Demo Brand %s %s in %.1f days at %s",
-            "vs" if nearest["is_home"] else "@",
-            opponent,
-            nearest["days_until"],
-            nearest["venue"],
-        )
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-        # ------------------------------------------------------------------
-        # 3. Boost posting frequency
-        # ------------------------------------------------------------------
-        old_posts = MOCK_CURRENT_SETTINGS["daily_posts_target"]
-        new_posts = int(old_posts * POST_FREQUENCY_MULTIPLIER)
-        results["settings_changes"]["daily_posts_target"] = new_posts
-        results["settings_changes"]["surge_mode_active"] = True
-        results["settings_changes"]["surge_match_id"] = nearest["match_id"]
-        results["settings_changes"]["surge_hashtags"] = SURGE_HASHTAGS
-        logger.info(
-            "SURGE: Posting frequency boosted %d -> %d posts/day (%.0fx)",
-            old_posts, new_posts, POST_FREQUENCY_MULTIPLIER,
-        )
+            # TODO: In production, load CL schedule from DB filtered by client_id
+            cl_schedule = MOCK_CL_SCHEDULE
+            current_settings = MOCK_CURRENT_SETTINGS
 
-        # ------------------------------------------------------------------
-        # 4. Boost ad budgets
-        # ------------------------------------------------------------------
-        budget_boosts = _calculate_budget_boosts(
-            MOCK_CURRENT_SETTINGS["ad_campaigns"],
-            AD_BUDGET_BOOST_PCT,
-        )
-        results["budget_boosts"] = budget_boosts
-        total_boost = sum(b["boost_amount"] for b in budget_boosts)
+            # ------------------------------------------------------------------
+            # 1. Check for upcoming CL matches
+            # ------------------------------------------------------------------
+            upcoming = _find_upcoming_matches(cl_schedule, SURGE_WINDOW_DAYS)
+            client_upcoming = [
+                {
+                    "match_id": m["match_id"],
+                    "opponent": m["away_team"] if m["is_home"] else m["home_team"],
+                    "venue": m["venue"],
+                    "kickoff": m["kickoff"],
+                    "days_until": m["days_until"],
+                    "is_home": m["is_home"],
+                    "client_id": str(client.id),
+                }
+                for m in upcoming
+            ]
+            results["upcoming_matches"].extend(client_upcoming)
 
-        for boost in budget_boosts:
+            if not upcoming:
+                logger.info("  No CL matches within %d days for client %s. Surge mode not needed.",
+                            SURGE_WINDOW_DAYS, client.name)
+
+                # Deactivate surge if it was active
+                if current_settings["surge_mode_active"]:
+                    logger.info("  Deactivating surge mode for client %s -- no upcoming matches", client.name)
+
+                continue
+
+            # ------------------------------------------------------------------
+            # 2. Activate surge mode
+            # ------------------------------------------------------------------
+            nearest = upcoming[0]
+            if results["nearest_match"] is None:
+                results["nearest_match"] = client_upcoming[0]
+            results["surge_active"] = True
+
+            opponent = nearest["away_team"] if nearest["is_home"] else nearest["home_team"]
             logger.info(
-                "SURGE: Budget boost %s -- EUR%.2f -> EUR%.2f (+EUR%.2f, +%d%%)",
-                boost["campaign_name"],
-                boost["old_budget"],
-                boost["new_budget"],
-                boost["boost_amount"],
-                boost["boost_pct"],
+                "  CL MATCH DETECTED [%s]: %s %s in %.1f days at %s",
+                client.name,
+                "vs" if nearest["is_home"] else "@",
+                opponent,
+                nearest["days_until"],
+                nearest["venue"],
             )
 
-        logger.info("SURGE: Total daily budget increase: +EUR%.2f", total_boost)
-
-        # ------------------------------------------------------------------
-        # 5. Generate surge content plan
-        # ------------------------------------------------------------------
-        content_plan = _generate_surge_content_plan(nearest)
-        results["content_plan"] = content_plan
-
-        logger.info("SURGE: Generated %d content pieces for the match week:", len(content_plan))
-        for item in content_plan:
+            # ------------------------------------------------------------------
+            # 3. Boost posting frequency
+            # ------------------------------------------------------------------
+            old_posts = current_settings["daily_posts_target"]
+            new_posts = int(old_posts * POST_FREQUENCY_MULTIPLIER)
+            results["settings_changes"]["daily_posts_target"] = new_posts
+            results["settings_changes"]["surge_mode_active"] = True
+            results["settings_changes"]["surge_match_id"] = nearest["match_id"]
+            results["settings_changes"]["surge_hashtags"] = SURGE_HASHTAGS
+            results["settings_changes"]["client_id"] = str(client.id)
             logger.info(
-                "  Day %+d: [%s] \"%s\" -> %s (priority=%s)",
-                item["day_offset"],
-                item["type"],
-                item["title"],
-                ", ".join(item["platforms"]),
-                item["priority"],
+                "  SURGE: Posting frequency boosted %d -> %d posts/day (%.0fx)",
+                old_posts, new_posts, POST_FREQUENCY_MULTIPLIER,
             )
 
-        # ------------------------------------------------------------------
-        # 6. Additional surge actions
-        # ------------------------------------------------------------------
-        if nearest["is_home"]:
-            results["settings_changes"]["enable_geo_targeting"] = True
-            results["settings_changes"]["geo_target_radius_km"] = 50
-            results["settings_changes"]["geo_target_center"] = "Zagreb, Croatia"
-            logger.info("SURGE: Enabled geo-targeting for home match (50km radius around Zagreb)")
+            # ------------------------------------------------------------------
+            # 4. Boost ad budgets
+            # ------------------------------------------------------------------
+            budget_boosts = _calculate_budget_boosts(
+                current_settings["ad_campaigns"],
+                AD_BUDGET_BOOST_PCT,
+            )
+            for b in budget_boosts:
+                b["client_id"] = str(client.id)
+            results["budget_boosts"].extend(budget_boosts)
+            total_boost = sum(b["boost_amount"] for b in budget_boosts)
 
-        if nearest["days_until"] <= 2:
-            results["settings_changes"]["real_time_posting"] = True
-            logger.info("SURGE: Enabled real-time posting mode (match within 48 hours)")
+            for boost in budget_boosts:
+                logger.info(
+                    "  SURGE: Budget boost %s -- EUR%.2f -> EUR%.2f (+EUR%.2f, +%d%%)",
+                    boost["campaign_name"],
+                    boost["old_budget"],
+                    boost["new_budget"],
+                    boost["boost_amount"],
+                    boost["boost_pct"],
+                )
+
+            logger.info("  SURGE: Total daily budget increase: +EUR%.2f", total_boost)
+
+            # ------------------------------------------------------------------
+            # 5. Generate surge content plan
+            # ------------------------------------------------------------------
+            content_plan = _generate_surge_content_plan(nearest)
+            for item in content_plan:
+                item["client_id"] = str(client.id)
+            results["content_plan"].extend(content_plan)
+
+            logger.info("  SURGE: Generated %d content pieces for the match week:", len(content_plan))
+            for item in content_plan:
+                logger.info(
+                    "    Day %+d: [%s] \"%s\" -> %s (priority=%s)",
+                    item["day_offset"],
+                    item["type"],
+                    item["title"],
+                    ", ".join(item["platforms"]),
+                    item["priority"],
+                )
+
+            # ------------------------------------------------------------------
+            # 6. Additional surge actions
+            # ------------------------------------------------------------------
+            if nearest["is_home"]:
+                results["settings_changes"]["enable_geo_targeting"] = True
+                results["settings_changes"]["geo_target_radius_km"] = 50
+                results["settings_changes"]["geo_target_center"] = "Zagreb, Croatia"
+                logger.info("  SURGE: Enabled geo-targeting for home match (50km radius around Zagreb)")
+
+            if nearest["days_until"] <= 2:
+                results["settings_changes"]["real_time_posting"] = True
+                logger.info("  SURGE: Enabled real-time posting mode (match within 48 hours)")
 
         # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
         logger.info("=== CL Surge Check Complete ===")
+        logger.info("  Clients processed: %d", results["clients_processed"])
         logger.info("  Surge active: %s", results["surge_active"])
-        logger.info("  Nearest match: %s in %.1f days", opponent, nearest["days_until"])
         logger.info("  Content pieces planned: %d", len(results["content_plan"]))
-        logger.info("  Budget boosts: %d campaigns, +EUR%.2f/day total", len(budget_boosts), total_boost)
+        logger.info("  Budget boosts: %d campaigns total", len(results["budget_boosts"]))
 
         return results
 

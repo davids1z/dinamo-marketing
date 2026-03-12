@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from datetime import datetime, timedelta
 
 from app.database import get_db
-from app.dependencies import get_meta_client, get_claude_client
+from app.dependencies import get_current_client, get_meta_client, get_claude_client
 from app.services.social_listener import SocialListenerService
 from app.models.sentiment import BrandMention, TrendingTopic
 
@@ -19,7 +19,11 @@ def _get_service():
 
 
 @router.post("/scan")
-async def scan_brand_mentions(db: AsyncSession = Depends(get_db)):
+async def scan_brand_mentions(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.scan_brand_mentions(db)
     return result
@@ -28,9 +32,11 @@ async def scan_brand_mentions(db: AsyncSession = Depends(get_db)):
 @router.get("/trending")
 async def get_trending_page_data(
     days: int = Query(default=7),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """BFF endpoint: returns {metrics, recentMentions, trendingTopics} for SocialListening page."""
+    user, client, role = ctx
     service = _get_service()
     cutoff = datetime.utcnow() - timedelta(days=days)
     prev_cutoff = datetime.utcnow() - timedelta(days=days * 2)
@@ -38,7 +44,7 @@ async def get_trending_page_data(
     # Total mentions (current period)
     total_result = await db.execute(
         select(func.count(BrandMention.id))
-        .where(BrandMention.detected_at >= cutoff)
+        .where(BrandMention.detected_at >= cutoff, BrandMention.client_id == client.id)
     )
     total_mentions = total_result.scalar() or 0
 
@@ -48,6 +54,7 @@ async def get_trending_page_data(
         .where(
             BrandMention.detected_at >= prev_cutoff,
             BrandMention.detected_at < cutoff,
+            BrandMention.client_id == client.id,
         )
     )
     prev_mentions = prev_result.scalar() or 0
@@ -55,7 +62,7 @@ async def get_trending_page_data(
     # Get trending topics count
     topics_result = await db.execute(
         select(TrendingTopic)
-        .where(TrendingTopic.last_updated >= cutoff)
+        .where(TrendingTopic.last_updated >= cutoff, TrendingTopic.client_id == client.id)
         .order_by(TrendingTopic.volume.desc())
         .limit(15)
     )
@@ -67,6 +74,7 @@ async def get_trending_page_data(
         .where(
             BrandMention.detected_at >= cutoff,
             BrandMention.sentiment == "positive",
+            BrandMention.client_id == client.id,
         )
     )
     positive_count = positive_result.scalar() or 0
@@ -78,6 +86,7 @@ async def get_trending_page_data(
             BrandMention.detected_at >= prev_cutoff,
             BrandMention.detected_at < cutoff,
             BrandMention.sentiment == "positive",
+            BrandMention.client_id == client.id,
         )
     )
     prev_positive = prev_positive_result.scalar() or 0
@@ -94,6 +103,7 @@ async def get_trending_page_data(
     # Recent mentions
     mentions_result = await db.execute(
         select(BrandMention)
+        .where(BrandMention.client_id == client.id)
         .order_by(BrandMention.detected_at.desc())
         .limit(10)
     )
@@ -146,14 +156,22 @@ async def get_trending_page_data(
 
 
 @router.get("/share-of-voice")
-async def get_share_of_voice(db: AsyncSession = Depends(get_db)):
+async def get_share_of_voice(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.get_share_of_voice(db)
     return result
 
 
 @router.get("/crisis")
-async def detect_crisis(db: AsyncSession = Depends(get_db)):
+async def detect_crisis(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.detect_crisis(db)
     return result

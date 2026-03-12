@@ -14,7 +14,7 @@ from datetime import datetime, date, timedelta
 # Ensure app is importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from sqlalchemy import text
+from sqlalchemy import text, select as sa_select
 from app.database import sync_engine, SyncSessionLocal
 from app.models import (
     Base, Country, SportEvent, MarketAudience, DiasporaData, SearchTrend, MarketScore,
@@ -31,6 +31,8 @@ from app.models import (
     WeeklyReport, MonthlyReport,
     Notification, User, PlatformSetting,
 )
+from app.models.client import Client, UserClient
+from app.services.auth_service import hash_password
 
 
 def seed():
@@ -67,6 +69,87 @@ def seed():
         now = datetime.utcnow()
         today = date.today()
 
+        # Get or create default client
+        client = session.execute(sa_select(Client).where(Client.slug == "demo-brand")).scalar_one_or_none()
+        if not client:
+            client = Client(
+                name="Demo Brand",
+                slug="demo-brand",
+                is_active=True,
+                business_description="Moderna marketinska platforma za demonstraciju mogucnosti sustava.",
+                product_info="Digitalni marketing, sadrzaj za drustvene mreze, kampanje",
+                tone_of_voice="Profesionalan, moderan, pristupacan publici",
+                target_audience="Digitalno osvijesteni korisnici, 18-45 godina",
+                brand_colors={
+                    "primary": "#0A1A28",
+                    "accent": "#B8FF00",
+                    "blue": "#0057A8",
+                },
+                brand_fonts={
+                    "headline": "Tektur",
+                    "body": "Inter",
+                    "code": "JetBrains Mono",
+                },
+                logo_url="/assets/brand-logo.svg",
+                website_url="https://demo-brand.com",
+                languages=["hr", "en", "de"],
+                content_pillars=[
+                    {"id": "product", "name": "Proizvod/usluga"},
+                    {"id": "team_spotlight", "name": "Tim/ljudi"},
+                    {"id": "behind_scenes", "name": "Iza kulisa"},
+                    {"id": "community_engagement", "name": "Zajednica"},
+                    {"id": "education", "name": "Edukacija"},
+                    {"id": "lifestyle", "name": "Lifestyle"},
+                    {"id": "campaigns", "name": "Kampanje"},
+                    {"id": "values", "name": "Vrijednosti"},
+                ],
+                social_handles={
+                    "instagram": "@demo_brand",
+                    "facebook": "Demo Brand",
+                    "tiktok": "@demo_brand",
+                    "youtube": "Demo Brand",
+                },
+                hashtags=["#DemoBrand", "#OurBrand", "#Innovation"],
+                ai_system_prompt_override="",
+            )
+            session.add(client)
+            session.flush()
+            print(f"  Created default client: {client.name} ({client.id})")
+        else:
+            print(f"  Using existing client: {client.name} ({client.id})")
+        client_id = client.id
+
+        # Ensure admin user exists and is linked to default client
+        admin = session.execute(
+            sa_select(User).where(User.email == "admin@shiftonezero.com")
+        ).scalar_one_or_none()
+        if not admin:
+            admin = User(
+                email="admin@shiftonezero.com",
+                hashed_password=hash_password("shiftonezero2026"),
+                full_name="ShiftOneZero Admin",
+                role="admin",
+                is_superadmin=True,
+                is_active=True,
+            )
+            session.add(admin)
+            session.flush()
+            print(f"  Created admin user: {admin.email} (superadmin)")
+        else:
+            print(f"  Using existing admin user: {admin.email}")
+
+        # Ensure admin <-> client membership
+        membership = session.execute(
+            sa_select(UserClient).where(
+                UserClient.user_id == admin.id,
+                UserClient.client_id == client_id,
+            )
+        ).scalar_one_or_none()
+        if not membership:
+            session.add(UserClient(user_id=admin.id, client_id=client_id, role="admin"))
+            session.flush()
+            print("  Linked admin user to default client")
+
         # ═══════════════════════════════════════════
         # 1. COMPETITORS
         # ═══════════════════════════════════════════
@@ -83,7 +166,7 @@ def seed():
         ]
         competitors = []
         for name, short, country, league, web, _ in competitors_data:
-            c = Competitor(name=name, short_name=short, country=country, league=league, website=web)
+            c = Competitor(name=name, short_name=short, country=country, league=league, website=web, client_id=client_id)
             session.add(c)
             competitors.append(c)
         session.flush()
@@ -104,6 +187,7 @@ def seed():
                         content_formats={"reels": 40, "stories": 30, "posts": 20, "live": 10},
                         target_markets={"local": 60, "regional": 25, "global": 15},
                         language_strategy="Multi-language" if comp.country != "Croatia" else "Croatian + English",
+                        client_id=client_id,
                     )
                     session.add(cm)
 
@@ -118,6 +202,7 @@ def seed():
                     engagement_spike=round(random.uniform(1.5, 4.0), 1),
                     detected_at=now - timedelta(hours=random.randint(1, 72)),
                     is_read=random.choice([True, False]),
+                    client_id=client_id,
                 )
                 session.add(ca)
 
@@ -140,6 +225,7 @@ def seed():
                 handle=handle,
                 url=url,
                 is_primary=primary,
+                client_id=client_id,
             )
             session.add(ch)
             channels.append(ch)
@@ -165,6 +251,7 @@ def seed():
                     demographics={"18-24": 28, "25-34": 35, "35-44": 22, "45+": 15},
                     top_posts=[],
                     format_breakdown={"reels": 35, "stories": 30, "carousel": 20, "single": 15},
+                    client_id=client_id,
                 )
                 session.add(cm)
 
@@ -180,6 +267,7 @@ def seed():
                     content_quality_score=round(random.uniform(65, 92), 1),
                     audience_quality_score=round(random.uniform(70, 95), 1),
                     overall_score=round(random.uniform(65, 90), 1),
+                    client_id=client_id,
                 )
                 session.add(chs)
 
@@ -207,6 +295,7 @@ def seed():
                 lifecycle_stage=stage,
                 clv_score=round(random.uniform(5, 500), 2),
                 external_ids={},
+                client_id=client_id,
             )
             session.add(fp)
             fan_profiles.append(fp)
@@ -227,6 +316,7 @@ def seed():
                 avg_clv=clv,
                 churn_rate=churn,
                 growth_trend=growth,
+                client_id=client_id,
             )
             session.add(fs)
         session.flush()
@@ -247,7 +337,7 @@ def seed():
         ]
         templates = []
         for cat, subcat, name, plat, fmt, struct in templates_data:
-            t = ContentTemplate(category=cat, subcategory=subcat, name=name, platform=plat, format_type=fmt, structure=struct)
+            t = ContentTemplate(category=cat, subcategory=subcat, name=name, platform=plat, format_type=fmt, structure=struct, client_id=client_id)
             session.add(t)
             templates.append(t)
         session.flush()
@@ -261,6 +351,7 @@ def seed():
             approved_count=22,
             published_count=15,
             created_by="ai",
+            client_id=client_id,
         )
         session.add(plan)
         session.flush()
@@ -276,6 +367,7 @@ def seed():
             approved_count=28,
             published_count=28,
             created_by="ai",
+            client_id=client_id,
         )
         session.add(plan_prev)
         session.flush()
@@ -337,6 +429,7 @@ def seed():
                 visual_brief=f"Visual za: {title}",
                 is_champions_league="UCL" in title or "Champions" in title,
                 is_academy="Academy" in title or "Akademija" in title or "academy" in pillar,
+                client_id=client_id,
             )
             session.add(post)
             posts.append(post)
@@ -372,6 +465,7 @@ def seed():
                     clicks=clicks,
                     engagement_rate=eng_rate,
                     new_followers_attributed=random.randint(0, 50),
+                    client_id=client_id,
                 )
                 session.add(pm)
 
@@ -401,6 +495,7 @@ def seed():
                 total_spend=spent,
                 start_date=today - timedelta(days=random.randint(5, 30)),
                 end_date=today + timedelta(days=random.randint(10, 60)),
+                client_id=client_id,
             )
             session.add(camp)
             campaigns.append(camp)
@@ -417,6 +512,7 @@ def seed():
                     status="active" if camp.status == "active" else camp.status,
                     budget=camp.daily_budget / (j + 1),
                     audience_size=random.randint(50000, 500000),
+                    client_id=client_id,
                 )
                 session.add(adset)
                 session.flush()
@@ -431,6 +527,7 @@ def seed():
                         description=f"Demo Brandva kampanja - kreativa {v}",
                         cta="Learn more" if camp.objective == "awareness" else "Shop now",
                         status="active",
+                        client_id=client_id,
                     )
                     session.add(ad)
                     ads.append(ad)
@@ -460,6 +557,7 @@ def seed():
                             frequency=round(random.uniform(1.2, 3.5), 1),
                             video_views=random.randint(500, 15000) if "tiktok" in camp.platform else 0,
                             video_completion_rate=round(random.uniform(20, 65), 1),
+                            client_id=client_id,
                         )
                         session.add(am)
 
@@ -470,6 +568,7 @@ def seed():
                     status="running",
                     confidence_pct=round(random.uniform(75, 95), 1),
                     started_at=now - timedelta(days=7),
+                    client_id=client_id,
                 )
                 session.add(ab)
 
@@ -506,6 +605,7 @@ def seed():
                 confidence=round(random.uniform(0.75, 0.98), 2),
                 topics={"club": True, "match": random.choice([True, False])},
                 analyzed_at=now - timedelta(hours=random.randint(0, 168)),
+                client_id=client_id,
             )
             session.add(sr)
 
@@ -530,6 +630,7 @@ def seed():
                 reach_estimate=reach,
                 is_influencer=reach > 10000,
                 detected_at=now - timedelta(hours=random.randint(0, 48)),
+                client_id=client_id,
             )
             session.add(bm)
 
@@ -554,6 +655,7 @@ def seed():
                 related_keywords={"related": [topic.lower()]},
                 first_detected=now - timedelta(days=random.randint(1, 14)),
                 last_updated=now - timedelta(hours=random.randint(0, 6)),
+                client_id=client_id,
             )
             session.add(tt)
 
@@ -564,6 +666,7 @@ def seed():
             description="Rise in negative sentiment about product quality in latest release",
             triggered_at=now - timedelta(hours=12),
             is_resolved=False,
+            client_id=client_id,
         )
         session.add(sa)
 
@@ -593,6 +696,7 @@ def seed():
                 joined_date=date(year + 10, 7, 1),
                 stats=stats,
                 is_featured=featured,
+                client_id=client_id,
             )
             session.add(ap)
             academy_players.append(ap)
@@ -613,6 +717,7 @@ def seed():
                 result=result,
                 scorers=scorers,
                 highlights={"key_moments": ["Goal", "Save", "Tackle"]},
+                client_id=client_id,
             )
             session.add(am)
 
@@ -623,6 +728,7 @@ def seed():
             players_sold=3,
             transfer_revenue=45000000,
             active_camps={"summer": True, "winter": True, "elite": True, "community": True},
+            client_id=client_id,
         )
         session.add(astat)
 
@@ -637,6 +743,7 @@ def seed():
             wr = WeeklyReport(
                 week_start=ws,
                 week_end=we,
+                client_id=client_id,
                 data={
                     "total_reach": random.randint(800000, 2500000),
                     "total_engagement": random.randint(40000, 150000),
@@ -676,6 +783,7 @@ def seed():
             mr = MonthlyReport(
                 month=month,
                 year=year,
+                client_id=client_id,
                 data={
                     "total_reach": random.randint(3000000, 10000000),
                     "total_engagement": random.randint(200000, 600000),
@@ -721,6 +829,7 @@ def seed():
                 action_type=action,
                 action_params=params,
                 is_active=True,
+                client_id=client_id,
             )
             session.add(rule)
 
@@ -744,6 +853,7 @@ def seed():
                 body=body,
                 severity=severity,
                 is_read=random.choice([True, False]),
+                client_id=client_id,
             )
             session.add(n)
 
@@ -784,6 +894,7 @@ def seed():
             starts_at=now - timedelta(days=1),
             ends_at=now + timedelta(days=2),
             total_votes=1247,
+            client_id=client_id,
         )
         session.add(poll)
         session.flush()
@@ -796,6 +907,7 @@ def seed():
             starts_at=now - timedelta(days=7),
             ends_at=now - timedelta(days=4),
             total_votes=3456,
+            client_id=client_id,
         )
         session.add(poll2)
 
@@ -814,6 +926,7 @@ def seed():
                 sentiment=sent,
                 is_featured=random.choice([True, False]),
                 submitted_at=now - timedelta(days=random.randint(0, 14)),
+                client_id=client_id,
             )
             session.add(ugc)
 
@@ -833,6 +946,7 @@ def seed():
                 conversion_type=random.choice(conv_types),
                 conversion_value=round(random.uniform(10, 200), 2),
                 occurred_at=now - timedelta(days=random.randint(0, 30)),
+                client_id=client_id,
             )
             session.add(ae)
 
@@ -841,6 +955,7 @@ def seed():
         # ═══════════════════════════════════════════
         session.commit()
         print("\n✅ Database seeded successfully!")
+        print(f"   - Client: {client.name} (slug={client.slug}, id={client_id})")
         print(f"   - {len(competitors)} competitors with 30-day metrics")
         print(f"   - {len(channels)} social channels with metrics & health scores")
         print(f"   - {len(fan_profiles)} fan profiles, 5 segments")

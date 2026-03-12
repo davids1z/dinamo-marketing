@@ -22,6 +22,8 @@ from app.models.optimization import OptimizationLog, OptimizationRule
 from app.models.report import MonthlyReport, WeeklyReport
 from app.models.notification import Notification
 from app.models.user import User
+from app.models.client import Client, UserClient
+from app.models.project import Project
 from app.models.media import MediaAsset, StudioProject
 from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
 from app.models.platform_setting import PlatformSetting
@@ -73,6 +75,9 @@ __all__ = [
     "MonthlyReport",
     "Notification",
     "User",
+    "Client",
+    "UserClient",
+    "Project",
     "MediaAsset",
     "StudioProject",
     "CampaignResearch",

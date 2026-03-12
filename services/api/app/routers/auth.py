@@ -11,7 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.services.auth_service import create_access_token, verify_password
+from app.services.auth_service import (
+    create_access_token,
+    hash_password,
+    verify_invite_token,
+    verify_password,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -28,12 +33,28 @@ class TokenResponse(PydanticBase):
     user: dict
 
 
+class RegisterRequest(PydanticBase):
+    email: str
+    password: str
+    full_name: str
+    company_name: str
+
+
+class AcceptInviteRequest(PydanticBase):
+    token: str
+    email: str
+    password: str
+    full_name: str
+
+
 class UserOut(PydanticBase):
     id: str
     email: str
     full_name: str
     role: str
+    is_superadmin: bool = False
     is_active: bool
+    clients: list = []
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -60,6 +81,45 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
 
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    memberships_result = await db.execute(
+        select(UserClient, Client)
+        .join(Client, UserClient.client_id == Client.id)
+        .where(UserClient.user_id == user.id, Client.is_active == True)
+    )
+    memberships = memberships_result.all()
+
+    # Load projects for each client
+    client_ids = [uc.client_id for uc, c in memberships]
+    projects_result = await db.execute(
+        select(Project)
+        .where(Project.client_id.in_(client_ids), Project.is_active == True)
+        .order_by(Project.name)
+    )
+    projects_by_client: dict[str, list] = {}
+    for p in projects_result.scalars().all():
+        cid = str(p.client_id)
+        projects_by_client.setdefault(cid, []).append({
+            "project_id": str(p.id),
+            "project_name": p.name,
+            "project_slug": p.slug,
+        })
+
+    clients = [
+        {
+            "client_id": str(uc.client_id),
+            "client_name": c.name,
+            "client_slug": c.slug,
+            "client_logo_url": c.logo_url,
+            "role": uc.role,
+            "onboarding_completed": c.onboarding_completed,
+            "projects": projects_by_client.get(str(uc.client_id), []),
+        }
+        for uc, c in memberships
+    ]
+
     return TokenResponse(
         access_token=token,
         user={
@@ -67,18 +127,278 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
             "email": user.email,
             "full_name": user.full_name,
             "role": user.role,
+            "is_superadmin": user.is_superadmin,
             "is_active": user.is_active,
+            "clients": clients,
         },
     )
 
 
-@router.get("/me", response_model=UserOut)
-async def get_me(current_user: User = Depends(get_current_user)):
+@router.get("/me")
+async def get_me(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Return the currently authenticated user's profile."""
-    return UserOut(
-        id=str(current_user.id),
-        email=current_user.email,
-        full_name=current_user.full_name,
-        role=current_user.role,
-        is_active=current_user.is_active,
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    memberships_result = await db.execute(
+        select(UserClient, Client)
+        .join(Client, UserClient.client_id == Client.id)
+        .where(UserClient.user_id == current_user.id, Client.is_active == True)
+    )
+    memberships = memberships_result.all()
+
+    # Load projects for each client
+    client_ids = [uc.client_id for uc, c in memberships]
+    projects_result = await db.execute(
+        select(Project)
+        .where(Project.client_id.in_(client_ids), Project.is_active == True)
+        .order_by(Project.name)
+    )
+    projects_by_client: dict[str, list] = {}
+    for p in projects_result.scalars().all():
+        cid = str(p.client_id)
+        projects_by_client.setdefault(cid, []).append({
+            "project_id": str(p.id),
+            "project_name": p.name,
+            "project_slug": p.slug,
+        })
+
+    clients = [
+        {
+            "client_id": str(uc.client_id),
+            "client_name": c.name,
+            "client_slug": c.slug,
+            "client_logo_url": c.logo_url,
+            "role": uc.role,
+            "onboarding_completed": c.onboarding_completed,
+            "projects": projects_by_client.get(str(uc.client_id), []),
+        }
+        for uc, c in memberships
+    ]
+
+    return {
+        "id": str(current_user.id),
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "role": current_user.role,
+        "is_superadmin": current_user.is_superadmin,
+        "is_active": current_user.is_active,
+        "clients": clients,
+    }
+
+
+@router.post("/register", status_code=201, response_model=TokenResponse)
+async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    """Self-service registration: creates user, client, default project, and membership."""
+    import re
+
+    # Check if email already exists
+    existing_user = await db.execute(select(User).where(User.email == body.email))
+    if existing_user.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Korisnik s ovim e-mailom već postoji")
+
+    # Generate slug from company name
+    slug = re.sub(r"[^a-z0-9]+", "-", body.company_name.lower()).strip("-")
+    if not slug:
+        slug = "company"
+
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    # Ensure slug uniqueness
+    base_slug = slug
+    counter = 1
+    while True:
+        existing_client = await db.execute(select(Client).where(Client.slug == slug))
+        if not existing_client.scalar_one_or_none():
+            break
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
+    # Create user
+    user = User(
+        email=body.email,
+        hashed_password=hash_password(body.password),
+        full_name=body.full_name,
+        role="admin",
+        is_active=True,
+        is_superadmin=False,
+    )
+    db.add(user)
+    await db.flush()
+
+    # Create client (onboarding not completed)
+    client = Client(
+        name=body.company_name,
+        slug=slug,
+        onboarding_completed=False,
+    )
+    db.add(client)
+    await db.flush()
+
+    # Create default project
+    project = Project(
+        client_id=client.id,
+        name="Default",
+        slug="default",
+        description="",
+    )
+    db.add(project)
+
+    # Create membership (admin role)
+    membership = UserClient(
+        user_id=user.id,
+        client_id=client.id,
+        role="admin",
+    )
+    db.add(membership)
+    await db.commit()
+    await db.refresh(user)
+    await db.refresh(client)
+    await db.refresh(project)
+
+    logger.info("New registration: %s (company=%s, slug=%s)", body.email, body.company_name, slug)
+
+    token = create_access_token(data={"sub": user.email, "role": user.role})
+
+    return TokenResponse(
+        access_token=token,
+        user={
+            "id": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role,
+            "is_superadmin": user.is_superadmin,
+            "is_active": user.is_active,
+            "clients": [
+                {
+                    "client_id": str(client.id),
+                    "client_name": client.name,
+                    "client_slug": client.slug,
+                    "client_logo_url": client.logo_url,
+                    "role": "admin",
+                    "onboarding_completed": False,
+                    "projects": [
+                        {
+                            "project_id": str(project.id),
+                            "project_name": project.name,
+                            "project_slug": project.slug,
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+
+
+@router.post("/accept-invite", response_model=TokenResponse)
+async def accept_invite(body: AcceptInviteRequest, db: AsyncSession = Depends(get_db)):
+    """Accept an invitation to join a client. Creates user if needed, adds membership."""
+    import uuid as _uuid
+
+    # Verify invite token
+    payload = verify_invite_token(body.token)
+    if not payload:
+        raise HTTPException(status_code=400, detail="Nevažeći ili istekli pozivni token")
+
+    client_id = _uuid.UUID(payload["client_id"])
+    invite_role = payload["role"]
+
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    # Verify client exists
+    client_result = await db.execute(select(Client).where(Client.id == client_id, Client.is_active == True))
+    client = client_result.scalar_one_or_none()
+    if not client:
+        raise HTTPException(status_code=404, detail="Klijent nije pronađen")
+
+    # Check if user exists
+    user_result = await db.execute(select(User).where(User.email == body.email))
+    user = user_result.scalar_one_or_none()
+
+    if user:
+        # Existing user — just add membership
+        existing_membership = await db.execute(
+            select(UserClient).where(
+                UserClient.user_id == user.id,
+                UserClient.client_id == client_id,
+            )
+        )
+        if existing_membership.scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Već ste član ovog klijenta")
+    else:
+        # New user — create account
+        user = User(
+            email=body.email,
+            hashed_password=hash_password(body.password),
+            full_name=body.full_name,
+            role=invite_role,
+            is_active=True,
+            is_superadmin=False,
+        )
+        db.add(user)
+        await db.flush()
+
+    # Create membership
+    membership = UserClient(
+        user_id=user.id,
+        client_id=client_id,
+        role=invite_role,
+    )
+    db.add(membership)
+    await db.commit()
+    await db.refresh(user)
+
+    logger.info("Invite accepted: %s joined %s (role=%s)", body.email, client.slug, invite_role)
+
+    token = create_access_token(data={"sub": user.email, "role": user.role})
+
+    # Load all memberships for the response
+    memberships_result = await db.execute(
+        select(UserClient, Client)
+        .join(Client, UserClient.client_id == Client.id)
+        .where(UserClient.user_id == user.id, Client.is_active == True)
+    )
+    memberships = memberships_result.all()
+
+    mem_client_ids = [uc.client_id for uc, c in memberships]
+    projects_result = await db.execute(
+        select(Project)
+        .where(Project.client_id.in_(mem_client_ids), Project.is_active == True)
+        .order_by(Project.name)
+    )
+    projects_by_client: dict[str, list] = {}
+    for p in projects_result.scalars().all():
+        cid = str(p.client_id)
+        projects_by_client.setdefault(cid, []).append({
+            "project_id": str(p.id),
+            "project_name": p.name,
+            "project_slug": p.slug,
+        })
+
+    clients_list = [
+        {
+            "client_id": str(uc.client_id),
+            "client_name": c.name,
+            "client_slug": c.slug,
+            "client_logo_url": c.logo_url,
+            "role": uc.role,
+            "onboarding_completed": c.onboarding_completed,
+            "projects": projects_by_client.get(str(uc.client_id), []),
+        }
+        for uc, c in memberships
+    ]
+
+    return TokenResponse(
+        access_token=token,
+        user={
+            "id": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role,
+            "is_superadmin": user.is_superadmin,
+            "is_active": user.is_active,
+            "clients": clients_list,
+        },
     )

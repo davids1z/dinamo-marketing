@@ -180,15 +180,21 @@ def analyze_new_comments(self):
     """
     Analyze new unprocessed comments for sentiment using Claude AI.
 
-    Classifies each comment as positive / neutral / negative with a
-    confidence score, extracts themes, and generates alerts for negative
-    sentiment spikes. Runs every 20 minutes via Celery Beat.
+    Iterates over all active clients. For each client, classifies comments
+    as positive / neutral / negative with a confidence score, extracts
+    themes, and generates alerts for negative sentiment spikes.
+    Runs every 20 minutes via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Sentiment Analysis started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "comments_analyzed": 0,
         "sentiment_breakdown": {"positive": 0, "neutral": 0, "negative": 0},
         "avg_confidence": 0.0,
@@ -199,56 +205,97 @@ def analyze_new_comments(self):
     }
 
     try:
-        # ------------------------------------------------------------------
-        # 1. Fetch unanalyzed comments (mock: take a random subset)
-        # ------------------------------------------------------------------
-        batch = random.sample(MOCK_COMMENTS, min(BATCH_SIZE, len(MOCK_COMMENTS)))
-        logger.info("Fetched %d unanalyzed comments for processing", len(batch))
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-        if not batch:
-            logger.info("No new comments to analyze. Exiting.")
+        if not clients:
+            logger.info("  No active clients found")
             return results
 
-        # ------------------------------------------------------------------
-        # 2. Run Claude AI sentiment analysis (mock)
-        # ------------------------------------------------------------------
-        analyzed = _mock_claude_sentiment_analysis(batch)
-        results["comments_analyzed"] = len(analyzed)
+        logger.info("  Found %d active clients", len(clients))
 
-        # ------------------------------------------------------------------
-        # 3. Aggregate results
-        # ------------------------------------------------------------------
         total_confidence = 0.0
-        for comment in analyzed:
-            sentiment = comment["sentiment"]
-            results["sentiment_breakdown"][sentiment] += 1
-            total_confidence += comment["confidence"]
 
-            for theme in comment["themes"]:
-                results["themes_detected"][theme] = results["themes_detected"].get(theme, 0) + 1
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-            if comment.get("requires_response"):
-                results["response_queue"].append({
-                    "comment_id": comment["comment_id"],
-                    "platform": comment["platform"],
-                    "author": comment["author"],
-                    "text": comment["text"][:150],
-                })
+            # ------------------------------------------------------------------
+            # 1. Fetch unanalyzed comments (mock: take a random subset)
+            # ------------------------------------------------------------------
+            # TODO: In production, query comments filtered by client_id
+            batch = random.sample(MOCK_COMMENTS, min(BATCH_SIZE, len(MOCK_COMMENTS)))
+            logger.info("  Fetched %d unanalyzed comments for client %s", len(batch), client.name)
 
-            logger.debug(
-                "Comment %s -- sentiment=%s (%.0f%%), themes=%s",
-                comment["comment_id"],
-                comment["sentiment"],
-                comment["confidence"] * 100,
-                ", ".join(comment["themes"]),
-            )
+            if not batch:
+                logger.info("  No new comments for client %s. Skipping.", client.name)
+                continue
 
-        results["avg_confidence"] = round(total_confidence / len(analyzed), 2) if analyzed else 0.0
+            # ------------------------------------------------------------------
+            # 2. Run Claude AI sentiment analysis (mock)
+            # ------------------------------------------------------------------
+            analyzed = _mock_claude_sentiment_analysis(batch)
+            results["comments_analyzed"] += len(analyzed)
+
+            # ------------------------------------------------------------------
+            # 3. Aggregate results
+            # ------------------------------------------------------------------
+            for comment in analyzed:
+                sentiment = comment["sentiment"]
+                results["sentiment_breakdown"][sentiment] += 1
+                total_confidence += comment["confidence"]
+
+                for theme in comment["themes"]:
+                    results["themes_detected"][theme] = results["themes_detected"].get(theme, 0) + 1
+
+                if comment.get("requires_response"):
+                    results["response_queue"].append({
+                        "comment_id": comment["comment_id"],
+                        "platform": comment["platform"],
+                        "author": comment["author"],
+                        "text": comment["text"][:150],
+                        "client_id": str(client.id),
+                    })
+
+                logger.debug(
+                    "Comment %s -- sentiment=%s (%.0f%%), themes=%s",
+                    comment["comment_id"],
+                    comment["sentiment"],
+                    comment["confidence"] * 100,
+                    ", ".join(comment["themes"]),
+                )
+
+            # ------------------------------------------------------------------
+            # 4. Generate alerts for this client
+            # ------------------------------------------------------------------
+            client_alerts = _generate_alerts(analyzed)
+            for alert in client_alerts:
+                alert["client_id"] = str(client.id)
+                results["alerts"].append(alert)
+                logger.warning(
+                    "ALERT [%s/%s] (client=%s): %s",
+                    alert["type"],
+                    alert["severity"],
+                    client.name,
+                    alert["message"],
+                )
+
+        results["avg_confidence"] = round(
+            total_confidence / results["comments_analyzed"], 2
+        ) if results["comments_analyzed"] > 0 else 0.0
 
         pos = results["sentiment_breakdown"]["positive"]
         neu = results["sentiment_breakdown"]["neutral"]
         neg = results["sentiment_breakdown"]["negative"]
-        total = len(analyzed)
+        total = results["comments_analyzed"]
         logger.info(
             "Sentiment results -- positive=%d (%.0f%%), neutral=%d (%.0f%%), negative=%d (%.0f%%), avg_confidence=%.0f%%",
             pos, (pos / total) * 100 if total else 0,
@@ -259,36 +306,15 @@ def analyze_new_comments(self):
 
         logger.info("Themes detected: %s", results["themes_detected"])
 
-        # ------------------------------------------------------------------
-        # 4. Generate alerts
-        # ------------------------------------------------------------------
-        results["alerts"] = _generate_alerts(analyzed)
-        for alert in results["alerts"]:
-            logger.warning(
-                "ALERT [%s/%s]: %s",
-                alert["type"],
-                alert["severity"],
-                alert["message"],
-            )
-
         if results["response_queue"]:
             logger.info(
                 "%d comments added to response queue",
                 len(results["response_queue"]),
             )
 
-        # ------------------------------------------------------------------
-        # In production: persist results
-        # ------------------------------------------------------------------
-        # for comment in analyzed:
-        #     db.execute(
-        #         update(Comment)
-        #         .where(Comment.id == comment["comment_id"])
-        #         .values(sentiment=comment["sentiment"], confidence=comment["confidence"])
-        #     )
-
         logger.info(
-            "=== Sentiment Analysis complete -- %d comments analyzed, %d alerts generated ===",
+            "=== Sentiment Analysis complete -- %d clients, %d comments analyzed, %d alerts generated ===",
+            results["clients_processed"],
             results["comments_analyzed"],
             len(results["alerts"]),
         )

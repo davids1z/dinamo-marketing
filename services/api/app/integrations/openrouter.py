@@ -4,6 +4,7 @@ ShiftOneZero Marketing Platform
 """
 
 import json
+import json as _json
 import logging
 import calendar
 from datetime import datetime
@@ -15,48 +16,60 @@ logger = logging.getLogger(__name__)
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "google/gemini-2.5-pro"
 
-SYSTEM_PROMPT = """Ti si AI content strateg za marketinšku platformu brenda.
+# Fallback system prompt used when no client context is available
+_FALLBACK_SYSTEM_PROMPT = "Ti si AI content strateg za marketinšku platformu. Kreiraj sadržaj prema zadanim parametrima."
 
-KONTEKST:
-- Pomazes brendovima kreirati sadrzaj za drustvene mreze
-- Boje brenda: navy (#0A1A28), accent (#B8FF00), plava (#0057A8)
-- Ton: profesionalan, moderan, pristupacan publici
+
+def build_system_prompt(client=None) -> str:
+    """Build AI system prompt from client's brand profile."""
+    if client is None:
+        # Fallback for when no client context is available
+        return _FALLBACK_SYSTEM_PROMPT
+
+    if hasattr(client, 'ai_system_prompt_override') and client.ai_system_prompt_override:
+        return client.ai_system_prompt_override
+
+    languages = ", ".join(client.languages or ["hr"])
+    colors = _json.dumps(client.brand_colors or {})
+    pillars = client.content_pillars or []
+    pillar_text = "\n".join(
+        f"  {i+1}. {p.get('name', p.get('id', ''))}" for i, p in enumerate(pillars)
+    ) or "  (nije definirano)"
+    hashtags = ", ".join(client.hashtags or [])
+    handles = client.social_handles or {}
+    handles_text = "\n".join(f"  - {k}: {v}" for k, v in handles.items()) or "  (nije definirano)"
+
+    return f"""Ti si AI content strateg za marketinšku platformu brenda "{client.name}".
+
+KONTEKST BRENDA:
+- Opis: {client.business_description or 'Nije definirano'}
+- Proizvod/usluga: {client.product_info or 'Nije definirano'}
+- Ton komunikacije: {client.tone_of_voice or 'Profesionalan, moderan'}
+- Ciljna publika: {client.target_audience or 'Nije definirano'}
+- Boje brenda: {colors}
+- Website: {client.website_url or 'Nije definirano'}
+- Jezici: {languages}
+- Hashtagovi: {hashtags or 'Nisu definirani'}
 
 STUPOVI SADRŽAJA:
-1. Proizvod/usluga — najave, promocije, demonstracije, recenzije
-2. Tim/ljudi — spotlight serije, intervjui, iza kulisa
-3. Edukacija — savjeti, vodiči, how-to sadržaj
-4. Zajednica — Q&A, ankete, challenge, UGC
-5. Lifestyle — kultura, trendovi, inspiracija
-6. Vijesti — novosti iz industrije, eventi, partnerstva
-7. Kampanje — sezonske, lansiranja, specijalne prilike
-8. Vrijednosti — misija, vizija, društvena odgovornost
+{pillar_text}
+
+DRUŠTVENE MREŽE:
+{handles_text}
 
 PLATFORME I FORMATI:
 - Instagram: Reels (15-60s), Stories (24h), Carousel (do 10 slika), Post
-- TikTok: Video (15-60s), trend challenge, duet, behind the scenes
-- YouTube: Full video (5-15min), Shorts (<60s), Livestream, Analize
+- TikTok: Video (15-60s), trend challenge, behind the scenes
+- YouTube: Full video (5-15min), Shorts (<60s), Livestream
 - Facebook: Event, Post, Video, Community post, Live stream
 
-RASPORED OBJAVLJIVANJA:
-- Optimalna vremena: 9:00 (jutarnji), 12:00 (ručak), 17:00 (poslije posla), 20:00 (večernji)
-- Aktivni dani: 3-5 objava raspoređenih kroz dan
-- Normalni dan: 2-3 objave raspoređene kroz dan
-- Vikend: 1-2 objave (lifestyle, throwback, zajednica)
-
-UZORCI SADRŽAJA PO TJEDNU KAMPANJE:
-- Dan -2: Teaser + najava (YouTube)
-- Dan -1: Countdown + preview (IG carousel + TikTok)
-- Dan kampanje: Full launch sadržaj, stories, engagement
-- Dan +1: Reakcije, highlights, user feedback
-- Dan +2: Rezultati, zahvala zajednici, najava sljedećeg
-
-KLJUČNE NAPOMENE:
-- Sav tekst MORA biti na HRVATSKOM jeziku
-- Hashtagovi: #DemoBrand #OurBrand + specifični za sadržaj
-- Vizualni stil: plavi overlay, dinamične fotografije, čisti dizajn
-- Ton: profesionalan, pristupačan, moderan
-- Svaki post mora imati jasnu svrhu i poziv na akciju"""
+PRAVILA:
+1. Sadržaj UVIJEK prilagodi tonu i identitetu brenda
+2. Koristi definirane hashtagove i handle-ove
+3. Poštuj jezične preferencije klijenta
+4. Svaki post mora imati jasnu poruku i CTA
+5. Odgovori ISKLJUČIVO u JSON formatu kada je zatraženo
+"""
 
 USER_PROMPT_TEMPLATE = """Generiraj content plan za {month_name} {year}. za brend.
 
@@ -72,7 +85,7 @@ JSON niz objekata, svaki:
 SAMO JSON niz, bez teksta."""
 
 
-async def generate_content_plan(api_key: str, month: int, year: int) -> list[dict]:
+async def generate_content_plan(api_key: str, month: int, year: int, client=None) -> list[dict]:
     """Call OpenRouter (Gemini 2.5 Pro) to generate a monthly content plan."""
     month_name = [
         "Siječanj", "Veljača", "Ožujak", "Travanj", "Svibanj", "Lipanj",
@@ -87,6 +100,8 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
         total_posts=days_in_month * 2,
     )
 
+    system_prompt = build_system_prompt(client)
+
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -97,7 +112,7 @@ async def generate_content_plan(api_key: str, month: int, year: int) -> list[dic
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.8,

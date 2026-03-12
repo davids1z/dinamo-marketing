@@ -27,6 +27,12 @@ class ContentPlan(BaseModel):
     created_by: Mapped[str] = mapped_column(
         String(20), nullable=False, default="ai"
     )  # ai, manual
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
     posts: Mapped[list["ContentPost"]] = relationship(back_populates="plan")
 
@@ -70,6 +76,12 @@ class ContentPost(BaseModel):
     platform_post_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     publish_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     publish_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
     plan: Mapped["ContentPlan | None"] = relationship(back_populates="posts")
     template: Mapped["ContentTemplate | None"] = relationship()
@@ -96,6 +108,9 @@ class ContentTemplate(BaseModel):
     )  # image, video, carousel, story, reel
     structure: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     preview_url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class ApprovalAction(BaseModel):
@@ -113,6 +128,9 @@ class ApprovalAction(BaseModel):
     edited_caption: Mapped[str] = mapped_column(Text, nullable=False, default="")
     acted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )
 
     post: Mapped["ContentPost"] = relationship(back_populates="approval_actions")

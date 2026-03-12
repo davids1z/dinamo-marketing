@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.dependencies import get_current_project
 from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
 
 router = APIRouter()
@@ -66,8 +67,10 @@ async def upload_campaign_brief(
     text: str = Form(None),
     title: str = Form("Nova kampanja"),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Upload a campaign brief (PDF, DOCX, or plain text) and start research."""
+    user, client, project, role = ctx
     from app.tasks.campaign_research import run_campaign_research
 
     # Extract text from file or use provided text
@@ -93,6 +96,8 @@ async def upload_campaign_brief(
         status=CampaignResearchStatus.UPLOADED.value,
         uploaded_filename=filename,
         uploaded_text=extracted_text[:50000],  # Limit text size
+        client_id=client.id,
+        project_id=project.id,
     )
     db.add(campaign)
     await db.flush()
@@ -111,9 +116,17 @@ async def upload_campaign_brief(
 
 
 @router.get("/")
-async def list_campaigns(db: AsyncSession = Depends(get_db)):
+async def list_campaigns(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
     """List all campaign research records."""
-    query = select(CampaignResearch).order_by(CampaignResearch.created_at.desc())
+    user, client, project, role = ctx
+    query = (
+        select(CampaignResearch)
+        .where(CampaignResearch.client_id == client.id, CampaignResearch.project_id == project.id)
+        .order_by(CampaignResearch.created_at.desc())
+    )
     result = await db.execute(query)
     campaigns = result.scalars().all()
     return [
@@ -129,15 +142,24 @@ async def list_campaigns(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{campaign_id}")
-async def get_campaign(campaign_id: str, db: AsyncSession = Depends(get_db)):
+async def get_campaign(
+    campaign_id: str,
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
     """Get full campaign research details."""
+    user, client, project, role = ctx
     try:
         uid = uuid.UUID(campaign_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid campaign ID")
 
     result = await db.execute(
-        select(CampaignResearch).where(CampaignResearch.id == uid)
+        select(CampaignResearch).where(
+            CampaignResearch.id == uid,
+            CampaignResearch.client_id == client.id,
+            CampaignResearch.project_id == project.id,
+        )
     )
     campaign = result.scalar_one_or_none()
     if not campaign:
@@ -159,15 +181,24 @@ async def get_campaign(campaign_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/{campaign_id}")
-async def delete_campaign(campaign_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_campaign(
+    campaign_id: str,
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_project),
+):
     """Delete a campaign research record."""
+    user, client, project, role = ctx
     try:
         uid = uuid.UUID(campaign_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid campaign ID")
 
     result = await db.execute(
-        select(CampaignResearch).where(CampaignResearch.id == uid)
+        select(CampaignResearch).where(
+            CampaignResearch.id == uid,
+            CampaignResearch.client_id == client.id,
+            CampaignResearch.project_id == project.id,
+        )
     )
     campaign = result.scalar_one_or_none()
     if not campaign:

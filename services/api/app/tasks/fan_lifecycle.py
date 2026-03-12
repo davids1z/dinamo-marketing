@@ -348,7 +348,7 @@ def update_fan_lifecycles(self):
     """
     Update fan lifecycle stages, churn scores, and CLV estimates.
 
-    For each fan in the database:
+    Iterates over all active clients. For each client and each fan:
     1. Re-evaluate lifecycle stage based on recent activity
     2. Calculate churn risk score
     3. Estimate Customer Lifetime Value
@@ -356,11 +356,16 @@ def update_fan_lifecycles(self):
 
     Runs daily at 05:00 via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Fan Lifecycle Update started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
+        "clients_processed": 0,
         "fans_processed": 0,
         "stage_changes": 0,
         "churn_alerts": 0,
@@ -377,94 +382,121 @@ def update_fan_lifecycles(self):
     total_churn = 0.0
 
     try:
-        for fan in MOCK_FANS:
-            fan_id = fan["fan_id"]
-            results["fans_processed"] += 1
+        # 0. Load all active clients
+        session = SyncSessionLocal()
+        try:
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-            try:
-                # ----------------------------------------------------------
-                # 1. Determine lifecycle stage
-                # ----------------------------------------------------------
-                old_stage = fan["current_stage"]
-                new_stage = _determine_lifecycle_stage(fan)
-                old_idx = LIFECYCLE_STAGES.index(old_stage) if old_stage in LIFECYCLE_STAGES else 0
-                new_idx = LIFECYCLE_STAGES.index(new_stage)
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-                results["stage_distribution"][new_stage] += 1
+        logger.info("  Found %d active clients", len(clients))
 
-                if old_stage != new_stage:
-                    results["stage_changes"] += 1
-                    direction = "UPGRADED" if new_idx > old_idx else "DOWNGRADED"
-                    transition = {
-                        "fan_id": fan_id,
-                        "name": fan["name"],
-                        "old_stage": old_stage,
-                        "new_stage": new_stage,
-                        "direction": direction,
-                    }
-                    results["stage_transitions"].append(transition)
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
+
+            # TODO: In production, query fans from DB filtered by client_id
+            fans = MOCK_FANS
+
+            for fan in fans:
+                fan_id = fan["fan_id"]
+                results["fans_processed"] += 1
+
+                try:
+                    # ----------------------------------------------------------
+                    # 1. Determine lifecycle stage
+                    # ----------------------------------------------------------
+                    old_stage = fan["current_stage"]
+                    new_stage = _determine_lifecycle_stage(fan)
+                    old_idx = LIFECYCLE_STAGES.index(old_stage) if old_stage in LIFECYCLE_STAGES else 0
+                    new_idx = LIFECYCLE_STAGES.index(new_stage)
+
+                    results["stage_distribution"][new_stage] += 1
+
+                    if old_stage != new_stage:
+                        results["stage_changes"] += 1
+                        direction = "UPGRADED" if new_idx > old_idx else "DOWNGRADED"
+                        transition = {
+                            "fan_id": fan_id,
+                            "name": fan["name"],
+                            "old_stage": old_stage,
+                            "new_stage": new_stage,
+                            "direction": direction,
+                            "client_id": str(client.id),
+                        }
+                        results["stage_transitions"].append(transition)
+                        logger.info(
+                            "    %s %s: %s -> %s (%s)",
+                            fan_id, fan["name"], old_stage, new_stage, direction,
+                        )
+
+                    # ----------------------------------------------------------
+                    # 2. Calculate churn score
+                    # ----------------------------------------------------------
+                    churn_info = _calculate_churn_score(fan)
+                    total_churn += churn_info["churn_score"]
+                    results["churn_distribution"][churn_info["risk_level"]] += 1
+
+                    if churn_info["risk_level"] == "high":
+                        results["churn_alerts"] += 1
+                        results["high_churn_fans"].append({
+                            "fan_id": fan_id,
+                            "name": fan["name"],
+                            "stage": new_stage,
+                            "churn_score": churn_info["churn_score"],
+                            "days_inactive": churn_info["days_inactive"],
+                            "email": fan["email"],
+                            "client_id": str(client.id),
+                        })
+                        logger.warning(
+                            "    HIGH CHURN RISK: %s (%s) -- score=%.2f, inactive=%d days",
+                            fan["name"], fan_id, churn_info["churn_score"], churn_info["days_inactive"],
+                        )
+
+                    # ----------------------------------------------------------
+                    # 3. Calculate CLV
+                    # ----------------------------------------------------------
+                    clv_info = _calculate_clv(fan, churn_info)
+                    results["clv_distribution"][clv_info["clv_tier"]] += 1
+                    results["total_portfolio_clv"] += clv_info["total_clv"]
+
                     logger.info(
-                        "  %s %s: %s -> %s (%s)",
-                        fan_id, fan["name"], old_stage, new_stage, direction,
+                        "    %s [%s] -- stage=%s, churn=%.2f (%s), CLV=EUR%.2f (%s)",
+                        fan["name"],
+                        fan_id,
+                        new_stage,
+                        churn_info["churn_score"],
+                        churn_info["risk_level"],
+                        clv_info["total_clv"],
+                        clv_info["clv_tier"],
                     )
 
-                # ----------------------------------------------------------
-                # 2. Calculate churn score
-                # ----------------------------------------------------------
-                churn_info = _calculate_churn_score(fan)
-                total_churn += churn_info["churn_score"]
-                results["churn_distribution"][churn_info["risk_level"]] += 1
+                    # In production: update fan record in database
+                    # db.execute(
+                    #     update(Fan)
+                    #     .where(Fan.id == fan_id)
+                    #     .where(Fan.client_id == client.id)
+                    #     .values(
+                    #         lifecycle_stage=new_stage,
+                    #         churn_score=churn_info["churn_score"],
+                    #         churn_risk=churn_info["risk_level"],
+                    #         clv=clv_info["total_clv"],
+                    #         clv_tier=clv_info["clv_tier"],
+                    #         updated_at=datetime.now(timezone.utc),
+                    #     )
+                    # )
 
-                if churn_info["risk_level"] == "high":
-                    results["churn_alerts"] += 1
-                    results["high_churn_fans"].append({
-                        "fan_id": fan_id,
-                        "name": fan["name"],
-                        "stage": new_stage,
-                        "churn_score": churn_info["churn_score"],
-                        "days_inactive": churn_info["days_inactive"],
-                        "email": fan["email"],
-                    })
-                    logger.warning(
-                        "  HIGH CHURN RISK: %s (%s) -- score=%.2f, inactive=%d days",
-                        fan["name"], fan_id, churn_info["churn_score"], churn_info["days_inactive"],
-                    )
-
-                # ----------------------------------------------------------
-                # 3. Calculate CLV
-                # ----------------------------------------------------------
-                clv_info = _calculate_clv(fan, churn_info)
-                results["clv_distribution"][clv_info["clv_tier"]] += 1
-                results["total_portfolio_clv"] += clv_info["total_clv"]
-
-                logger.info(
-                    "  %s [%s] -- stage=%s, churn=%.2f (%s), CLV=EUR%.2f (%s)",
-                    fan["name"],
-                    fan_id,
-                    new_stage,
-                    churn_info["churn_score"],
-                    churn_info["risk_level"],
-                    clv_info["total_clv"],
-                    clv_info["clv_tier"],
-                )
-
-                # In production: update fan record in database
-                # db.execute(
-                #     update(Fan)
-                #     .where(Fan.id == fan_id)
-                #     .values(
-                #         lifecycle_stage=new_stage,
-                #         churn_score=churn_info["churn_score"],
-                #         churn_risk=churn_info["risk_level"],
-                #         clv=clv_info["total_clv"],
-                #         clv_tier=clv_info["clv_tier"],
-                #         updated_at=datetime.now(timezone.utc),
-                #     )
-                # )
-
-            except Exception as exc:
-                results["errors"].append({"fan_id": fan_id, "error": str(exc)})
-                logger.error("Failed to process fan %s: %s", fan_id, exc)
+                except Exception as exc:
+                    results["errors"].append({"fan_id": fan_id, "client_id": str(client.id), "error": str(exc)})
+                    logger.error("  Failed to process fan %s: %s", fan_id, exc)
 
         # ------------------------------------------------------------------
         # Summary
@@ -475,6 +507,7 @@ def update_fan_lifecycles(self):
         results["total_portfolio_clv"] = round(results["total_portfolio_clv"], 2)
 
         logger.info("=== Fan Lifecycle Update Complete ===")
+        logger.info("  Clients processed: %d", results["clients_processed"])
         logger.info("  Fans processed: %d", results["fans_processed"])
         logger.info("  Stage changes: %d", results["stage_changes"])
         logger.info("  Stage distribution: %s", results["stage_distribution"])

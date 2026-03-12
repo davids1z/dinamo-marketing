@@ -23,6 +23,9 @@ class SocialChannel(BaseModel):
     handle: Mapped[str] = mapped_column(String(100), nullable=False)
     url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     is_primary: Mapped[bool] = mapped_column(default=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     metrics: Mapped[list["ChannelMetric"]] = relationship(back_populates="channel")
     health_scores: Mapped[list["ChannelHealthScore"]] = relationship(back_populates="channel")
@@ -44,6 +47,9 @@ class ChannelMetric(BaseModel):
     demographics: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     top_posts: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     format_breakdown: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     channel: Mapped["SocialChannel"] = relationship(back_populates="metrics")
 
@@ -60,5 +66,8 @@ class ChannelHealthScore(BaseModel):
     content_quality_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     audience_quality_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     overall_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     channel: Mapped["SocialChannel"] = relationship(back_populates="health_scores")

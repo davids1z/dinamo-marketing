@@ -1,9 +1,10 @@
 """Modul 12: Academy Content Factory models."""
 
+import uuid
 from datetime import date
 
-from sqlalchemy import Boolean, Date, Float, Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import Boolean, Date, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import BaseModel
@@ -21,6 +22,9 @@ class AcademyPlayer(BaseModel):
     joined_date: Mapped[date] = mapped_column(Date, nullable=False)
     stats: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class AcademyMatch(BaseModel):
@@ -32,6 +36,9 @@ class AcademyMatch(BaseModel):
     result: Mapped[str] = mapped_column(String(20), nullable=False, default="")  # "3-1"
     scorers: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     highlights: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class AcademyStat(BaseModel):
@@ -42,3 +49,6 @@ class AcademyStat(BaseModel):
     players_sold: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     transfer_revenue: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     active_camps: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )

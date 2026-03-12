@@ -23,6 +23,7 @@ from app.routers import (
     campaigns,
     champions_league,
     channel_audit,
+    clients,
     competitors,
     content,
     diaspora,
@@ -30,6 +31,7 @@ from app.routers import (
     fans,
     market_research,
     optimization,
+    projects,
     reports,
     sentiment,
     settings as settings_router,
@@ -91,7 +93,7 @@ app.add_middleware(
     allow_origins=settings.CORS_ORIGINS.split(","),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
+    allow_headers=["Content-Type", "Authorization", "X-Request-ID", "X-Client-ID", "X-Project-ID"],
 )
 
 # Auth router (public — no auth dependency)
@@ -99,6 +101,12 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 
 # Admin router (has its own require_admin dependency inside)
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["Admin"], dependencies=_auth)
+
+# Client management router (multi-tenant RBAC)
+app.include_router(clients.router, prefix="/api/v1/clients", tags=["Clients"], dependencies=_auth)
+
+# Project management router (client-scoped)
+app.include_router(projects.router, prefix="/api/v1/projects", tags=["Projects"], dependencies=_auth)
 
 # Protected routers
 app.include_router(market_research.router, prefix="/api/v1/market-research", tags=["Market Research"], dependencies=_auth)

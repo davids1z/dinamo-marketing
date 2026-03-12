@@ -20,6 +20,12 @@ class OptimizationRule(BaseModel):
     )  # pause, scale, refresh, reallocate, alert
     action_params: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
 
 class OptimizationLog(BaseModel):
@@ -40,4 +46,7 @@ class OptimizationLog(BaseModel):
     new_value: Mapped[str] = mapped_column(String(200), nullable=False, default="")
     executed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )

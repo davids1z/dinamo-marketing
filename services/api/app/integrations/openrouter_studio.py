@@ -4,6 +4,7 @@ ShiftOneZero Marketing Platform
 """
 
 import json
+import json as _json
 import logging
 
 import httpx
@@ -13,19 +14,11 @@ logger = logging.getLogger(__name__)
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "google/gemini-2.5-pro"
 
-STUDIO_SYSTEM_PROMPT = """Ti si AI kreativni direktor za content studio marketinske platforme.
-Pomazes brendovima kreirati vizualno atraktivne sadrzaje za drustvene mreze.
 
-TVOJ ZADATAK:
-Generiraš strukturirane scene-by-scene vizualne sadržaje (reels, videe, plakate) za društvene mreže.
-Output je JSON koji frontend koristi za live preview s CSS animacijama.
-Sadržaj mora biti profesionalan, moderan i privlačan ciljnoj publici.
-
-═══════════════════════════════════════════════════════════
-BRANDING I VIZUALNI IDENTITET
-═══════════════════════════════════════════════════════════
-
-BOJE:
+def _build_studio_brand_section(client=None) -> str:
+    """Build the branding section of the studio prompt from client context."""
+    if client is None:
+        return """BOJE:
 - Brand Primary: #0057A8 (primarna)
 - Tamno / Noć: #0A1A28 (pozadine, kontrast)
 - Neon Zelena / Accent: #B8FF00 (CTA, naglasci, energija — moderne kampanje)
@@ -49,7 +42,62 @@ TON SADRŽAJA PO TIPU:
 - Proizvod: Informativan, profesionalan
 - Tim/ljudi: Topao, autentičan, inspirativan
 - Kampanja: Energičan, poziv na akciju
-- Throwback: Nostalgičan, priča o brendu
+- Throwback: Nostalgičan, priča o brendu"""
+
+    colors = client.brand_colors or {}
+    fonts = client.brand_fonts or {}
+    hashtags = ", ".join(client.hashtags or [])
+    languages = ", ".join(client.languages or ["hr"])
+    tone = client.tone_of_voice or "Profesionalan, moderan"
+
+    color_lines = "\n".join(f"- {k}: {v}" for k, v in colors.items()) or "- (koristi default boje)"
+    font_lines = ""
+    if fonts:
+        font_lines = "\n".join(f"- {k}: {v}" for k, v in fonts.items())
+    else:
+        font_lines = '- Font naslova: "Tektur" — heavy, uppercase, dinamičan\n- Font tijela: "Inter" — čist, moderan, čitljiv'
+
+    return f"""BOJE:
+{color_lines}
+- Bijela: #FFFFFF (tekst na tamnim pozadinama)
+- Zlatna: #FFD700 (za specijalne prilike)
+
+TIPOGRAFIJA:
+{font_lines}
+- Uvijek UPPERCASE za naslove i ključne poruke
+- Bold je defaultni weight za naslove (700-800)
+
+STIL KOMUNIKACIJE:
+- Ton: {tone}
+- Jezici: {languages}
+- Hashtags: {hashtags or '#Brand + specifični za kampanju'}
+
+TON SADRŽAJA PO TIPU:
+- Lansiranje: Intenzivan, uzbudljiv ("NOVO! OTKRIJTE SADA!")
+- Proizvod: Informativan, profesionalan
+- Tim/ljudi: Topao, autentičan, inspirativan
+- Kampanja: Energičan, poziv na akciju
+- Throwback: Nostalgičan, priča o brendu"""
+
+
+def _build_studio_system_prompt(client=None) -> str:
+    """Build the complete studio system prompt, optionally with client brand context."""
+    brand_name = f'brenda "{client.name}"' if client else "marketinske platforme"
+    brand_section = _build_studio_brand_section(client)
+
+    return f"""Ti si AI kreativni direktor za content studio {brand_name}.
+Pomazes brendovima kreirati vizualno atraktivne sadrzaje za drustvene mreze.
+
+TVOJ ZADATAK:
+Generiraš strukturirane scene-by-scene vizualne sadržaje (reels, videe, plakate) za društvene mreže.
+Output je JSON koji frontend koristi za live preview s CSS animacijama.
+Sadržaj mora biti profesionalan, moderan i privlačan ciljnoj publici.
+
+═══════════════════════════════════════════════════════════
+BRANDING I VIZUALNI IDENTITET
+═══════════════════════════════════════════════════════════
+
+{brand_section}
 
 ═══════════════════════════════════════════════════════════
 PRAVILA ZA SCENE
@@ -70,9 +118,9 @@ PRAVILA ZA SCENE
 12. Caption mora sadržavati relevantne hashtagove (#DemoBrand #OurBrand itd.)
 
 TIPOVI POZADINA:
-- gradient: { "type": "gradient", "colors": ["#0A1A28", "#0057A8"], "direction": "to bottom right" }
-- color: { "type": "color", "color": "#0A1A28" }
-- image: { "type": "image", "src": "uploaded_image_url", "overlay_opacity": 0.6, "overlay_color": "#0A1A28" }
+- gradient: {{ "type": "gradient", "colors": ["#0A1A28", "#0057A8"], "direction": "to bottom right" }}
+- color: {{ "type": "color", "color": "#0A1A28" }}
+- image: {{ "type": "image", "src": "uploaded_image_url", "overlay_opacity": 0.6, "overlay_color": "#0A1A28" }}
 
 DOSTUPNE ANIMACIJE ZA TEXT:
 Osnovno:
@@ -101,18 +149,18 @@ Specijalno:
 - letter_spread: razmak slova se širi — odličan za ime igrača
 
 OUTPUT FORMAT (samo JSON, bez teksta):
-{
+{{
   "scenes": [
-    {
+    {{
       "id": "scene_1",
       "order": 1,
       "duration": 3.0,
-      "background": { "type": "gradient", "colors": ["#0A1A28", "#0057A8"], "direction": "to bottom" },
+      "background": {{ "type": "gradient", "colors": ["#0A1A28", "#0057A8"], "direction": "to bottom" }},
       "text_layers": [
-        {
+        {{
           "id": "text_1",
           "text": "MATCHDAY",
-          "position": { "x": 50, "y": 40 },
+          "position": {{ "x": 50, "y": 40 }},
           "font_size": 72,
           "font_family": "Tektur",
           "font_weight": "800",
@@ -120,28 +168,28 @@ OUTPUT FORMAT (samo JSON, bez teksta):
           "text_align": "center",
           "animation": "scale_up",
           "animation_delay": 0.0
-        }
+        }}
       ],
       "overlay_layers": [
-        {
+        {{
           "id": "overlay_1",
           "type": "logo",
           "src": "/assets/brand-logo.svg",
-          "position": { "x": 50, "y": 15 },
+          "position": {{ "x": 50, "y": 15 }},
           "size": 80,
           "animation": "fade_in",
           "animation_delay": 0.2
-        }
+        }}
       ],
       "transition": "fade"
-    }
+    }}
   ],
   "caption": "Hrvatski tekst opisa za objavu...",
   "hashtags": ["#DemoBrand", "#OurBrand"],
   "description": "Kratki opis za SEO / alt text",
   "total_duration": 15.0,
   "aspect_ratio": "9:16"
-}"""
+}}"""
 
 
 def _build_user_prompt(
@@ -197,6 +245,7 @@ async def generate_studio_scenes(
     platform: str,
     content_type: str,
     media_descriptions: list[str] | None = None,
+    client=None,
 ) -> dict:
     """Call OpenRouter (Gemini 2.5 Pro) to generate structured scene data.
 
@@ -210,6 +259,8 @@ async def generate_studio_scenes(
         media_descriptions=media_descriptions,
     )
 
+    system_prompt = _build_studio_system_prompt(client)
+
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -220,15 +271,15 @@ async def generate_studio_scenes(
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": STUDIO_SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.7,
         "max_tokens": 16384,
     }
 
-    async with httpx.AsyncClient(timeout=180.0) as client:
-        response = await client.post(OPENROUTER_URL, json=payload, headers=headers)
+    async with httpx.AsyncClient(timeout=180.0) as http_client:
+        response = await http_client.post(OPENROUTER_URL, json=payload, headers=headers)
         response.raise_for_status()
 
     data = response.json()

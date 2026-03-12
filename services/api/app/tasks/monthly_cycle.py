@@ -86,7 +86,7 @@ MOCK_MARKET_POSITION = {
 # Monthly report generation
 # ---------------------------------------------------------------------------
 
-def _query_monthly_organic(year: int, month: int) -> dict:
+def _query_monthly_organic(year: int, month: int, client_id=None) -> dict:
     """Aggregate organic post metrics for a given month from real DB."""
     from app.database import SyncSessionLocal
     from app.models.analytics import PostMetric
@@ -97,18 +97,19 @@ def _query_monthly_organic(year: int, month: int) -> dict:
     end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
 
     with SyncSessionLocal() as db:
-        row = db.execute(
-            select(
-                func.count(PostMetric.id).label("cnt"),
-                func.sum(PostMetric.impressions).label("imp"),
-                func.sum(PostMetric.reach).label("reach"),
-                func.avg(PostMetric.engagement_rate).label("eng"),
-                func.sum(PostMetric.likes).label("likes"),
-                func.sum(PostMetric.comments).label("comments"),
-                func.sum(PostMetric.shares).label("shares"),
-                func.sum(PostMetric.new_followers_attributed).label("followers"),
-            ).where(PostMetric.timestamp >= start, PostMetric.timestamp <= end)
-        ).one()
+        query = select(
+            func.count(PostMetric.id).label("cnt"),
+            func.sum(PostMetric.impressions).label("imp"),
+            func.sum(PostMetric.reach).label("reach"),
+            func.avg(PostMetric.engagement_rate).label("eng"),
+            func.sum(PostMetric.likes).label("likes"),
+            func.sum(PostMetric.comments).label("comments"),
+            func.sum(PostMetric.shares).label("shares"),
+            func.sum(PostMetric.new_followers_attributed).label("followers"),
+        ).where(PostMetric.timestamp >= start, PostMetric.timestamp <= end)
+        if client_id is not None:
+            query = query.where(PostMetric.client_id == client_id)
+        row = db.execute(query).one()
 
         has_data = (row.cnt or 0) > 0
         if has_data:
@@ -125,7 +126,7 @@ def _query_monthly_organic(year: int, month: int) -> dict:
     return MOCK_MONTHLY_ORGANIC
 
 
-def _query_monthly_paid(year: int, month: int) -> dict:
+def _query_monthly_paid(year: int, month: int, client_id=None) -> dict:
     """Aggregate ad metrics for a given month from real DB."""
     from app.database import SyncSessionLocal
     from app.models.analytics import AdMetric
@@ -136,18 +137,19 @@ def _query_monthly_paid(year: int, month: int) -> dict:
     end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
 
     with SyncSessionLocal() as db:
-        row = db.execute(
-            select(
-                func.count(AdMetric.id).label("cnt"),
-                func.sum(AdMetric.spend).label("spend"),
-                func.sum(AdMetric.impressions).label("imp"),
-                func.sum(AdMetric.conversions).label("conv"),
-                func.sum(AdMetric.conversion_value).label("revenue"),
-                func.avg(AdMetric.roas).label("roas"),
-                func.avg(AdMetric.ctr).label("ctr"),
-                func.avg(AdMetric.cpc).label("cpc"),
-            ).where(AdMetric.timestamp >= start, AdMetric.timestamp <= end)
-        ).one()
+        query = select(
+            func.count(AdMetric.id).label("cnt"),
+            func.sum(AdMetric.spend).label("spend"),
+            func.sum(AdMetric.impressions).label("imp"),
+            func.sum(AdMetric.conversions).label("conv"),
+            func.sum(AdMetric.conversion_value).label("revenue"),
+            func.avg(AdMetric.roas).label("roas"),
+            func.avg(AdMetric.ctr).label("ctr"),
+            func.avg(AdMetric.cpc).label("cpc"),
+        ).where(AdMetric.timestamp >= start, AdMetric.timestamp <= end)
+        if client_id is not None:
+            query = query.where(AdMetric.client_id == client_id)
+        row = db.execute(query).one()
 
         has_data = (row.cnt or 0) > 0
         if has_data:
@@ -167,7 +169,7 @@ def _query_monthly_paid(year: int, month: int) -> dict:
     return MOCK_MONTHLY_PAID
 
 
-def _query_top_ads(year: int, month: int, limit: int = 5) -> list[dict]:
+def _query_top_ads(year: int, month: int, limit: int = 5, client_id=None) -> list[dict]:
     """Get top and worst performing ads for the month."""
     from app.database import SyncSessionLocal
     from app.models.analytics import AdMetric
@@ -179,7 +181,7 @@ def _query_top_ads(year: int, month: int, limit: int = 5) -> list[dict]:
     end = datetime(year, month, days, 23, 59, 59, tzinfo=timezone.utc)
 
     with SyncSessionLocal() as db:
-        rows = db.execute(
+        query = (
             select(
                 Ad.headline,
                 Ad.variant_label,
@@ -195,7 +197,11 @@ def _query_top_ads(year: int, month: int, limit: int = 5) -> list[dict]:
             .join(AdSet, Ad.ad_set_id == AdSet.id)
             .join(Campaign, AdSet.campaign_id == Campaign.id)
             .where(AdMetric.timestamp >= start, AdMetric.timestamp <= end)
-            .group_by(Ad.id, Campaign.id)
+        )
+        if client_id is not None:
+            query = query.where(Campaign.client_id == client_id)
+        rows = db.execute(
+            query.group_by(Ad.id, Campaign.id)
             .order_by(func.avg(AdMetric.roas).desc())
             .limit(limit * 2)
         ).all()
@@ -219,7 +225,7 @@ def _query_top_ads(year: int, month: int, limit: int = 5) -> list[dict]:
         ]
 
 
-def _generate_monthly_report() -> dict:
+def _generate_monthly_report(client_id=None) -> dict:
     """Generate the full monthly performance report."""
     now = datetime.now(timezone.utc)
     year = now.year
@@ -227,9 +233,9 @@ def _generate_monthly_report() -> dict:
     report_year = year if now.month > 1 else year - 1
     days_in_month = monthrange(report_year, month)[1]
 
-    organic = _query_monthly_organic(report_year, month)
-    paid = _query_monthly_paid(report_year, month)
-    top_ads = _query_top_ads(report_year, month)
+    organic = _query_monthly_organic(report_year, month, client_id=client_id)
+    paid = _query_monthly_paid(report_year, month, client_id=client_id)
+    top_ads = _query_top_ads(report_year, month, client_id=client_id)
 
     total_engagement = (organic.get("total_likes", 0) +
                         organic.get("total_comments", 0) +
@@ -421,133 +427,140 @@ def run_monthly_cycle(self):
     """
     Run the full monthly marketing cycle.
 
+    Iterates over all active clients. For each client:
     1. Generate monthly performance report (PDF-ready data)
     2. Create next month's content plan
     3. Update market position scores
 
     Runs on the 1st of every month at 06:00 via Celery Beat.
     """
+    from app.database import SyncSessionLocal
+    from app.models.client import Client
+    from sqlalchemy import select
+
     run_ts = datetime.now(timezone.utc).isoformat()
     logger.info("=== Monthly Cycle started at %s ===", run_ts)
 
     results = {
         "timestamp": run_ts,
-        "monthly_report_generated": False,
-        "content_plan_generated": False,
-        "market_scores_updated": False,
-        "monthly_report": None,
-        "content_plan_summary": None,
-        "market_scores": None,
+        "clients_processed": 0,
+        "monthly_reports_generated": 0,
+        "content_plans_generated": 0,
+        "market_scores_updated": 0,
+        "client_results": [],
         "errors": [],
     }
 
     try:
-        # ------------------------------------------------------------------
-        # Phase 1: Monthly Report
-        # ------------------------------------------------------------------
-        logger.info("--- Phase 1: Monthly Report Generation ---")
+        # 0. Load all active clients
+        session = SyncSessionLocal()
         try:
-            report = _generate_monthly_report()
-            results["monthly_report"] = report
-            results["monthly_report_generated"] = True
+            clients = session.execute(
+                select(Client).where(Client.is_active == True)
+            ).scalars().all()
+            for c in clients:
+                session.expunge(c)
+        finally:
+            session.close()
 
-            summary = report["executive_summary"]
-            logger.info("Monthly report generated for %s-%02d",
-                         report["period"]["year"], report["period"]["month"])
-            logger.info("  Headline: %s", summary["headline"])
-            logger.info("  Total reach: %s", f"{summary['total_reach']:,}")
-            logger.info("  Total spend: EUR%.2f", summary["total_spend"])
-            logger.info("  Total revenue: EUR%.2f", summary["total_revenue"])
-            logger.info("  Profit: EUR%.2f", summary["profit"])
-            logger.info("  NPS estimate: %d", summary["sentiment_score"])
+        if not clients:
+            logger.info("  No active clients found")
+            return results
 
-            # In production: generate actual PDF
-            # pdf_bytes = render_pdf_template("monthly_report.html", report)
-            # s3.upload("reports/monthly_{period}.pdf", pdf_bytes)
-            logger.info("  PDF generation: simulated (would upload to S3)")
+        logger.info("  Found %d active clients", len(clients))
 
-        except Exception as exc:
-            results["errors"].append({"phase": "monthly_report", "error": str(exc)})
-            logger.error("Monthly report generation failed: %s", exc)
+        for client in clients:
+            logger.info("  Processing client: %s (%s)", client.name, client.id)
+            results["clients_processed"] += 1
 
-        # ------------------------------------------------------------------
-        # Phase 2: Next Month Content Plan
-        # ------------------------------------------------------------------
-        logger.info("--- Phase 2: Next Month Content Plan ---")
-        try:
-            content_plan = _generate_next_month_content_plan()
-            results["content_plan_generated"] = True
-            results["content_plan_summary"] = {
-                "month": content_plan["plan_month"],
-                "year": content_plan["plan_year"],
-                "total_posts": content_plan["total_posts_planned"],
-                "weeks": content_plan["total_weeks"],
-                "themes": [t["theme"] for t in content_plan["themes"]],
-                "platform_distribution": content_plan["platform_distribution"],
+            client_result = {
+                "client_id": str(client.id),
+                "monthly_report_generated": False,
+                "content_plan_generated": False,
+                "market_scores_updated": False,
             }
 
-            logger.info("Content plan generated for %d-%02d",
-                         content_plan["plan_year"], content_plan["plan_month"])
-            logger.info("  Total posts planned: %d", content_plan["total_posts_planned"])
-            logger.info("  Weeks covered: %d", content_plan["total_weeks"])
-            logger.info("  Themes: %s", ", ".join(t["theme"] for t in content_plan["themes"]))
-            logger.info("  Platform distribution: %s", content_plan["platform_distribution"])
-            logger.info("  Category distribution: %s", content_plan["category_distribution"])
+            # ------------------------------------------------------------------
+            # Phase 1: Monthly Report
+            # ------------------------------------------------------------------
+            logger.info("  --- Phase 1: Monthly Report Generation [%s] ---", client.name)
+            try:
+                report = _generate_monthly_report(client_id=client.id)
+                report["client_id"] = str(client.id)
+                client_result["monthly_report_generated"] = True
+                results["monthly_reports_generated"] += 1
 
-            # In production: insert plan into content_calendar table
-            # for week in content_plan["weekly_plans"]:
-            #     for post in week["posts"]:
-            #         db.execute(insert(ContentSlot).values(**post))
+                summary = report["executive_summary"]
+                logger.info("  Monthly report generated for %s-%02d",
+                             report["period"]["year"], report["period"]["month"])
+                logger.info("    Headline: %s", summary["headline"])
+                logger.info("    Total reach: %s", f"{summary['total_reach']:,}")
+                logger.info("    Total spend: EUR%.2f", summary["total_spend"])
+                logger.info("    Total revenue: EUR%.2f", summary["total_revenue"])
+                logger.info("    Profit: EUR%.2f", summary["profit"])
 
-        except Exception as exc:
-            results["errors"].append({"phase": "content_plan", "error": str(exc)})
-            logger.error("Content plan generation failed: %s", exc)
+            except Exception as exc:
+                results["errors"].append({"phase": "monthly_report", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Monthly report generation failed for client %s: %s", client.name, exc)
 
-        # ------------------------------------------------------------------
-        # Phase 3: Market Score Update
-        # ------------------------------------------------------------------
-        logger.info("--- Phase 3: Market Score Update ---")
-        try:
-            scores = _update_market_scores()
-            results["market_scores"] = scores
-            results["market_scores_updated"] = True
+            # ------------------------------------------------------------------
+            # Phase 2: Next Month Content Plan
+            # ------------------------------------------------------------------
+            logger.info("  --- Phase 2: Next Month Content Plan [%s] ---", client.name)
+            try:
+                content_plan = _generate_next_month_content_plan()
+                content_plan["client_id"] = str(client.id)
+                client_result["content_plan_generated"] = True
+                results["content_plans_generated"] += 1
 
-            logger.info("Market scores updated:")
-            logger.info("  Engagement index: %.2f", scores["engagement_index"])
-            logger.info("  Follower share: %.1f%%", scores["follower_share_pct"])
-            logger.info("  Brand mention share: %.1f%%", scores["brand_mention_share"])
-            logger.info("  Sentiment advantage: +%.1f pts", scores["sentiment_advantage"])
-            logger.info("  Content quality: %.1f/10", scores["content_quality_score"])
-            logger.info("  Ad efficiency: %.1f/10", scores["ad_efficiency_score"])
-            logger.info("  Overall market score: %.2f/10", scores["overall_market_score"])
-            logger.info("  League rank: #%d | Regional rank: #%d",
-                         scores["league_rank"], scores["regional_rank"])
+                logger.info("  Content plan generated for %d-%02d",
+                             content_plan["plan_year"], content_plan["plan_month"])
+                logger.info("    Total posts planned: %d", content_plan["total_posts_planned"])
 
-            # In production: update market_scores table
-            # db.execute(
-            #     update(MarketScore)
-            #     .where(MarketScore.club == "demo_brand")
-            #     .values(**scores)
-            # )
+                # In production: insert plan into content_calendar table with client_id
+                # for week in content_plan["weekly_plans"]:
+                #     for post in week["posts"]:
+                #         post["client_id"] = client.id
+                #         db.execute(insert(ContentSlot).values(**post))
 
-        except Exception as exc:
-            results["errors"].append({"phase": "market_scores", "error": str(exc)})
-            logger.error("Market score update failed: %s", exc)
+            except Exception as exc:
+                results["errors"].append({"phase": "content_plan", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Content plan generation failed for client %s: %s", client.name, exc)
+
+            # ------------------------------------------------------------------
+            # Phase 3: Market Score Update
+            # ------------------------------------------------------------------
+            logger.info("  --- Phase 3: Market Score Update [%s] ---", client.name)
+            try:
+                scores = _update_market_scores()
+                scores["client_id"] = str(client.id)
+                client_result["market_scores_updated"] = True
+                results["market_scores_updated"] += 1
+
+                logger.info("  Market scores updated for %s:", client.name)
+                logger.info("    Overall market score: %.2f/10", scores["overall_market_score"])
+
+                # In production: update market_scores table with client_id filter
+                # db.execute(
+                #     update(MarketScore)
+                #     .where(MarketScore.client_id == client.id)
+                #     .values(**scores)
+                # )
+
+            except Exception as exc:
+                results["errors"].append({"phase": "market_scores", "client_id": str(client.id), "error": str(exc)})
+                logger.error("  Market score update failed for client %s: %s", client.name, exc)
+
+            results["client_results"].append(client_result)
 
         # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
-        phases_ok = sum([
-            results["monthly_report_generated"],
-            results["content_plan_generated"],
-            results["market_scores_updated"],
-        ])
-
         logger.info("=== Monthly Cycle Complete ===")
-        logger.info("  Phases completed: %d/3", phases_ok)
-        logger.info("  Report: %s", "OK" if results["monthly_report_generated"] else "FAILED")
-        logger.info("  Content plan: %s", "OK" if results["content_plan_generated"] else "FAILED")
-        logger.info("  Market scores: %s", "OK" if results["market_scores_updated"] else "FAILED")
+        logger.info("  Clients processed: %d", results["clients_processed"])
+        logger.info("  Reports generated: %d", results["monthly_reports_generated"])
+        logger.info("  Content plans generated: %d", results["content_plans_generated"])
+        logger.info("  Market scores updated: %d", results["market_scores_updated"])
 
         if results["errors"]:
             logger.warning("  Errors: %d", len(results["errors"]))

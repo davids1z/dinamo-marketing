@@ -4,7 +4,7 @@ from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies import get_claude_client, get_buffer_client
+from app.dependencies import get_claude_client, get_buffer_client, get_current_client
 from app.services.diaspora_manager import DiasporaManagerService
 from app.models.market import DiasporaData, Country
 
@@ -27,16 +27,24 @@ def _get_service():
 
 
 @router.get("/map")
-async def get_diaspora_map(db: AsyncSession = Depends(get_db)):
+async def get_diaspora_map(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
+    user, client, role = ctx
     service = _get_service()
-    result = await service.get_diaspora_map(db)
+    result = await service.get_diaspora_map(db, client_id=client.id)
     return result
 
 
 @router.get("/events")
-async def get_community_events(db: AsyncSession = Depends(get_db)):
+async def get_community_events(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
+    user, client, role = ctx
     service = _get_service()
-    result = await service.get_community_events(db)
+    result = await service.get_community_events(db, client_id=client.id)
     return result
 
 
@@ -45,18 +53,25 @@ async def adapt_content_for_market(
     post_id: UUID,
     target_lang: str = Query(...),
     db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
 ):
+    user, client, role = ctx
     service = _get_service()
-    result = await service.adapt_content_for_market(db, post_id, target_lang)
+    result = await service.adapt_content_for_market(db, post_id, target_lang, client_id=client.id)
     return result
 
 
 @router.get("/populations")
-async def get_populations(db: AsyncSession = Depends(get_db)):
+async def get_populations(
+    db: AsyncSession = Depends(get_db),
+    ctx: tuple = Depends(get_current_client),
+):
     """BFF endpoint: returns {communities, contentPipeline} for the Diaspora page."""
+    user, client, role = ctx
     result = await db.execute(
         select(DiasporaData, Country)
         .join(Country, DiasporaData.country_id == Country.id)
+        .where(DiasporaData.client_id == client.id)
         .order_by(DiasporaData.croatian_population.desc())
     )
     rows = result.all()

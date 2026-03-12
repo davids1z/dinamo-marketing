@@ -22,6 +22,12 @@ class Poll(BaseModel):
     starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     total_votes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
 
 class PollVote(BaseModel):
@@ -37,6 +43,9 @@ class PollVote(BaseModel):
     voted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class Prediction(BaseModel):
@@ -49,6 +58,12 @@ class Prediction(BaseModel):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="open"
     )  # open, closed, resolved
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
 
 class UGCSubmission(BaseModel):
@@ -64,6 +79,12 @@ class UGCSubmission(BaseModel):
     submitted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )
 
 
 class FanSpotlight(BaseModel):
@@ -78,3 +99,9 @@ class FanSpotlight(BaseModel):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     platform: Mapped[str] = mapped_column(String(20), nullable=False, default="instagram")
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True
+    )

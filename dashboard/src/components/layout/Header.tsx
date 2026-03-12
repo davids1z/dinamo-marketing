@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Bell, Search, Menu, TrendingUp, AlertTriangle, Zap, ChevronRight } from 'lucide-react'
 import { useSidebar } from './Layout'
 import { useNotifications, type Notification } from '../../hooks/useNotifications'
+import ClientSwitcher from './ClientSwitcher'
+import ProjectSwitcher from './ProjectSwitcher'
 
 interface HeaderProps {
   title: string
@@ -67,6 +69,8 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
           <h2 className="font-headline text-lg sm:text-xl tracking-wider text-studio-text-primary font-bold truncate">{title}</h2>
           {subtitle && <p className="text-xs text-studio-text-tertiary truncate -mt-0.5">{subtitle}</p>}
         </div>
+        <ClientSwitcher />
+        <ProjectSwitcher />
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">

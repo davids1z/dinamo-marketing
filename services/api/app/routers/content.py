@@ -8,7 +8,7 @@ from sqlalchemy import select
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies import get_claude_client, get_image_gen_client, get_publisher
+from app.dependencies import get_current_client, get_current_project, get_claude_client, get_image_gen_client, get_publisher
 from app.services.content_engine import ContentEngineService
 from app.config import settings
 
@@ -55,8 +55,10 @@ async def _run_ai_generation(task_id: str, month: int, year: int):
 async def generate_ai_plan(
     month: int = Body(...),
     year: int = Body(...),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Start async AI content plan generation. Returns task_id to poll."""
+    user, client, project, role = ctx
     api_key = settings.OPENROUTER_API_KEY
     if not api_key:
         return {"error": "OPENROUTER_API_KEY not configured", "posts": []}
@@ -69,8 +71,12 @@ async def generate_ai_plan(
 
 
 @router.get("/generate-ai-plan/{task_id}")
-async def get_ai_plan_result(task_id: str):
+async def get_ai_plan_result(
+    task_id: str,
+    ctx: tuple = Depends(get_current_project),
+):
     """Poll for AI generation result."""
+    user, client, project, role = ctx
     task = _ai_tasks.get(task_id)
     if not task:
         return {"status": "not_found", "error": "Task not found"}
@@ -82,28 +88,39 @@ async def generate_monthly_plan(
     month: int = Body(...),
     year: int = Body(...),
     context: dict = Body(default={}),
+    ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.generate_monthly_plan(db, month, year, context)
     return result
 
 
 @router.get("/plans")
-async def list_plans(db: AsyncSession = Depends(get_db)):
+async def list_plans(
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, project, role = ctx
     from app.models import ContentPlan
 
-    query = select(ContentPlan).order_by(ContentPlan.created_at.desc())
+    query = select(ContentPlan).where(ContentPlan.client_id == client.id, ContentPlan.project_id == project.id).order_by(ContentPlan.created_at.desc())
     res = await db.execute(query)
     plans = res.scalars().all()
     return plans
 
 
 @router.get("/plans/{plan_id}")
-async def get_plan(plan_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_plan(
+    plan_id: UUID,
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, project, role = ctx
     from app.models import ContentPlan
 
-    query = select(ContentPlan).where(ContentPlan.id == plan_id)
+    query = select(ContentPlan).where(ContentPlan.id == plan_id, ContentPlan.client_id == client.id, ContentPlan.project_id == project.id)
     res = await db.execute(query)
     plan = res.scalar_one_or_none()
     if not plan:
@@ -117,22 +134,33 @@ async def get_plan(plan_id: UUID, db: AsyncSession = Depends(get_db)):
 async def get_calendar(
     month: int = Query(...),
     year: int = Query(...),
+    ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.get_calendar(db, month, year)
     return result
 
 
 @router.get("/queue")
-async def get_approval_queue(db: AsyncSession = Depends(get_db)):
+async def get_approval_queue(
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.get_approval_queue(db)
     return result
 
 
 @router.patch("/posts/{post_id}/approve")
-async def approve_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def approve_post(
+    post_id: UUID,
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.approve_post(db, post_id)
     # Trigger async visual generation via Celery
@@ -148,8 +176,10 @@ async def approve_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
 async def reject_post(
     post_id: UUID,
     reason: str = Body(..., embed=True),
+    ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.reject_post(db, post_id, reason)
     return result
@@ -159,11 +189,13 @@ async def reject_post(
 async def update_post(
     post_id: UUID,
     updates: dict = Body(...),
+    ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, project, role = ctx
     from app.models import ContentPost
 
-    query = select(ContentPost).where(ContentPost.id == post_id)
+    query = select(ContentPost).where(ContentPost.id == post_id, ContentPost.client_id == client.id, ContentPost.project_id == project.id)
     res = await db.execute(query)
     post = res.scalar_one_or_none()
     if not post:
@@ -179,13 +211,18 @@ async def update_post(
 
 
 @router.post("/posts/{post_id}/publish")
-async def publish_post_now(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def publish_post_now(
+    post_id: UUID,
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
     """Manually trigger publishing for an approved post."""
+    user, client, project, role = ctx
     from fastapi import HTTPException
     from app.models.content import ContentPost
     from datetime import datetime, timezone
 
-    query = select(ContentPost).where(ContentPost.id == post_id)
+    query = select(ContentPost).where(ContentPost.id == post_id, ContentPost.client_id == client.id, ContentPost.project_id == project.id)
     res = await db.execute(query)
     post = res.scalar_one_or_none()
     if not post:
@@ -226,13 +263,18 @@ async def publish_post_now(post_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/posts/{post_id}/generate-visual")
-async def generate_visual(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def generate_visual(
+    post_id: UUID,
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
     """Manually trigger visual generation for a post."""
+    user, client, project, role = ctx
     from fastapi import HTTPException
     from app.models.content import ContentPost
     from app.dependencies import get_content_creator
 
-    query = select(ContentPost).where(ContentPost.id == post_id)
+    query = select(ContentPost).where(ContentPost.id == post_id, ContentPost.client_id == client.id, ContentPost.project_id == project.id)
     res = await db.execute(query)
     post = res.scalar_one_or_none()
     if not post:
@@ -254,8 +296,12 @@ async def generate_visual(post_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/plans/{plan_id}/generate-visuals")
-async def generate_plan_visuals_endpoint(plan_id: UUID):
+async def generate_plan_visuals_endpoint(
+    plan_id: UUID,
+    ctx: tuple = Depends(get_current_project),
+):
     """Generate visuals for all posts in a plan (async Celery task)."""
+    user, client, project, role = ctx
     from app.tasks.content_visual import generate_plan_visuals
     task = generate_plan_visuals.delay(str(plan_id))
     return {"task_id": task.id, "plan_id": str(plan_id), "status": "started"}
@@ -285,8 +331,10 @@ async def generate_strategy(
     start_month: int = Body(...),
     start_year: int = Body(...),
     context: dict = Body(default={}),
+    ctx: tuple = Depends(get_current_project),
 ):
     """Start async 6-month content strategy generation. Returns task_id to poll."""
+    user, client, project, role = ctx
     task_id = str(uuid_mod.uuid4())
     _strategy_tasks[task_id] = {"status": "running", "start_month": start_month, "start_year": start_year}
     asyncio.create_task(_run_strategy_generation(task_id, start_month, start_year, context))
@@ -294,8 +342,12 @@ async def generate_strategy(
 
 
 @router.get("/strategy/task/{task_id}")
-async def get_strategy_task(task_id: str):
+async def get_strategy_task(
+    task_id: str,
+    ctx: tuple = Depends(get_current_project),
+):
     """Poll for strategy generation result."""
+    user, client, project, role = ctx
     task = _strategy_tasks.get(task_id)
     if not task:
         return {"status": "not_found", "error": "Task not found"}
@@ -310,19 +362,25 @@ async def get_strategy_task(task_id: str):
 async def get_strategy_overview(
     start_month: int = Query(...),
     start_year: int = Query(...),
+    ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
     """Get overview of all plans in a 6-month window."""
+    user, client, project, role = ctx
     service = _get_service()
     result = await service.get_strategy_overview(db, start_month, start_year)
     return result
 
 
 @router.get("/templates")
-async def list_templates(db: AsyncSession = Depends(get_db)):
+async def list_templates(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     from app.models import ContentTemplate
 
-    query = select(ContentTemplate).order_by(ContentTemplate.created_at.desc())
+    query = select(ContentTemplate).where(ContentTemplate.client_id == client.id).order_by(ContentTemplate.created_at.desc())
     res = await db.execute(query)
     templates = res.scalars().all()
     return templates

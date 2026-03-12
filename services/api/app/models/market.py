@@ -21,6 +21,9 @@ class Country(BaseModel):
     population: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     internet_penetration: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     football_popularity_index: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     # Relationships
     sports_events: Mapped[list["SportEvent"]] = relationship(back_populates="country")
@@ -41,6 +44,9 @@ class SportEvent(BaseModel):
     events_per_year: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     avg_attendance: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     media_coverage_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     country: Mapped["Country"] = relationship(back_populates="sports_events")
 
@@ -58,6 +64,9 @@ class MarketAudience(BaseModel):
     age_45_plus: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     mobile_pct: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     desktop_pct: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     country: Mapped["Country"] = relationship(back_populates="market_audiences")
 
@@ -72,6 +81,9 @@ class DiasporaData(BaseModel):
     city_concentrations: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     source: Mapped[str] = mapped_column(String(200), nullable=False, default="")
     year: Mapped[int] = mapped_column(Integer, nullable=False, default=2024)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     country: Mapped["Country"] = relationship(back_populates="diaspora_data")
 
@@ -86,6 +98,9 @@ class SearchTrend(BaseModel):
     score_normalized: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     period_start: Mapped[date] = mapped_column(Date, nullable=False)
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     country: Mapped["Country"] = relationship(back_populates="search_trends")
 
@@ -105,6 +120,9 @@ class MarketScore(BaseModel):
     rank: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     scan_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )
 
     country: Mapped["Country"] = relationship(back_populates="market_scores")

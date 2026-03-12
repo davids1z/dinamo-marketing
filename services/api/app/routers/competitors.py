@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from datetime import date, timedelta
 
 from app.database import get_db
-from app.dependencies import get_meta_client, get_youtube_client
+from app.dependencies import get_current_client, get_meta_client, get_youtube_client
 from app.services.competitor_intel import CompetitorIntelService
 from app.models.competitor import Competitor, CompetitorMetric
 from app.models.channel import SocialChannel, ChannelMetric
@@ -26,15 +26,23 @@ def _get_service():
 
 
 @router.post("/scan")
-async def scan_all_competitors(db: AsyncSession = Depends(get_db)):
+async def scan_all_competitors(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.scan_all_competitors(db)
     return result
 
 
 @router.get("/")
-async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
+async def get_competitor_page_data(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
     """BFF endpoint: returns {competitors, ownIg, summary} for the Competitors page."""
+    user, client, role = ctx
 
     # Get own brand's IG followers
     own_ig_result = await db.execute(
@@ -43,6 +51,7 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
         .where(
             SocialChannel.owner_type == "own",
             SocialChannel.platform == "instagram",
+            SocialChannel.client_id == client.id,
         )
         .order_by(ChannelMetric.date.desc())
         .limit(1)
@@ -58,6 +67,8 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
             CompetitorMetric.platform,
             func.max(CompetitorMetric.date).label("max_date"),
         )
+        .join(Competitor, CompetitorMetric.competitor_id == Competitor.id)
+        .where(Competitor.client_id == client.id)
         .group_by(CompetitorMetric.competitor_id, CompetitorMetric.platform)
         .subquery()
     )
@@ -65,6 +76,7 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(CompetitorMetric, Competitor)
         .join(Competitor, CompetitorMetric.competitor_id == Competitor.id)
+        .where(Competitor.client_id == client.id)
         .join(
             latest_subq,
             (CompetitorMetric.competitor_id == latest_subq.c.competitor_id)
@@ -142,7 +154,11 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/alerts")
-async def check_competitor_alerts(db: AsyncSession = Depends(get_db)):
+async def check_competitor_alerts(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.check_competitor_alerts(db)
     return result

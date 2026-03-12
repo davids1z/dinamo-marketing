@@ -1,8 +1,11 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useClient } from '../../contexts/ClientContext'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
+  const { currentClient } = useClient()
+  const location = useLocation()
 
   if (loading) {
     return (
@@ -14,6 +17,15 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  // Redirect to onboarding if not completed (unless already on /onboarding)
+  if (
+    currentClient &&
+    currentClient.onboarding_completed === false &&
+    location.pathname !== '/onboarding'
+  ) {
+    return <Navigate to="/onboarding" replace />
   }
 
   return <>{children}</>

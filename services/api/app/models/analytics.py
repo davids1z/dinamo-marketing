@@ -33,6 +33,9 @@ class PostMetric(BaseModel):
     clicks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     engagement_rate: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     new_followers_attributed: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     post = relationship(
         "ContentPost", back_populates="metrics", foreign_keys=[post_id]
@@ -65,6 +68,9 @@ class AdMetric(BaseModel):
     frequency: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     video_views: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     video_completion_rate: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     ad = relationship("Ad", back_populates="metrics", foreign_keys=[ad_id])
 
@@ -86,4 +92,7 @@ class AttributionEvent(BaseModel):
     conversion_value: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )

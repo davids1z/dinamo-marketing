@@ -6,12 +6,15 @@ import hashlib
 
 import httpx
 
+from app.integrations.openrouter import build_system_prompt
+
 logger = logging.getLogger(__name__)
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "google/gemini-2.5-pro"
 
-SYSTEM_PROMPT = """Ti si AI analitičar za ShiftOneZero marketing platformu.
+# Fallback system prompt used when no client context is available
+_FALLBACK_INSIGHTS_PROMPT = """Ti si AI analitičar za marketing platformu.
 
 Tvoj zadatak je analizirati podatke s različitih stranica dashboarda i pružiti:
 1. **Trendovi** — uočeni uzorci u podacima (rast, pad, sezonski efekti)
@@ -41,6 +44,46 @@ Odgovori ISKLJUČIVO u JSON formatu:
 }
 
 Generiraj 3-5 uvida. SAMO JSON, bez dodatnog teksta."""
+
+_INSIGHTS_SUFFIX = """
+
+ANALITIČKE UPUTE:
+Tvoj zadatak je analizirati podatke s različitih stranica dashboarda i pružiti:
+1. **Trendovi** — uočeni uzorci u podacima (rast, pad, sezonski efekti)
+2. **Anomalije** — neočekivane vrijednosti ili odstupanja
+3. **Preporuke** — konkretne, provedive akcije za poboljšanje
+
+PRAVILA:
+- Sav tekst MORA biti na HRVATSKOM jeziku
+- Budi KRATAK i konkretan — svaki opis max 1-2 kratke rečenice, izbjegavaj općenite savjete
+- Fokusiraj se na podatke koji su dostupni, ne pretpostavljaj
+- Svaka preporuka mora biti provediva i specifična
+- Koristi terminologiju relevantnu za industriju brenda
+- Ton: profesionalan, analitičan, ali pristupačan
+
+Odgovori ISKLJUČIVO u JSON formatu:
+{
+  "summary": "2-3 rečenice sažetka najvažnijih uvida",
+  "insights": [
+    {
+      "type": "trend|anomaly|recommendation",
+      "title": "Kratak naslov",
+      "description": "Detaljan opis uvida (1-2 rečenice)",
+      "impact": "high|medium|low",
+      "action": "Konkretna preporučena akcija (1 rečenica)"
+    }
+  ]
+}
+
+Generiraj 3-5 uvida. SAMO JSON, bez dodatnog teksta."""
+
+
+def _build_insights_system_prompt(client=None) -> str:
+    """Build insights system prompt, incorporating client brand context when available."""
+    if client is None:
+        return _FALLBACK_INSIGHTS_PROMPT
+    # Combine brand context with insights-specific instructions
+    return build_system_prompt(client) + _INSIGHTS_SUFFIX
 
 
 # --- Page-specific prompt builders ---
@@ -163,13 +206,14 @@ def compute_data_hash(page_key: str, page_data: dict) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
-async def generate_insights(api_key: str, page_key: str, page_data: dict) -> dict:
+async def generate_insights(api_key: str, page_key: str, page_data: dict, client=None) -> dict:
     """Call OpenRouter (Gemini 2.5 Pro) to generate insights for a dashboard page."""
     builder = PROMPT_BUILDERS.get(page_key)
     if not builder:
         raise ValueError(f"Unknown page_key: {page_key}")
 
     user_prompt = builder(page_data)
+    system_prompt = _build_insights_system_prompt(client)
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -181,15 +225,15 @@ async def generate_insights(api_key: str, page_key: str, page_data: dict) -> dic
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.5,
         "max_tokens": 4096,
     }
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(OPENROUTER_URL, json=payload, headers=headers)
+    async with httpx.AsyncClient(timeout=120.0) as http_client:
+        response = await http_client.post(OPENROUTER_URL, json=payload, headers=headers)
         response.raise_for_status()
 
     data = response.json()

@@ -8,11 +8,19 @@ const api = axios.create({
   },
 })
 
-// Attach JWT token to every request
+// Attach JWT token and client ID to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  const clientId = localStorage.getItem('current_client_id')
+  if (clientId) {
+    config.headers['X-Client-ID'] = clientId
+  }
+  const projectId = localStorage.getItem('current_project_id')
+  if (projectId) {
+    config.headers['X-Project-ID'] = projectId
   }
   return config
 })

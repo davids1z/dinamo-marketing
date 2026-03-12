@@ -5,7 +5,7 @@ from uuid import UUID
 from datetime import date, timedelta
 
 from app.database import get_db
-from app.dependencies import get_meta_client, get_tiktok_client, get_youtube_client, get_ga4_client
+from app.dependencies import get_current_client, get_meta_client, get_tiktok_client, get_youtube_client, get_ga4_client
 from app.services.channel_audit import ChannelAuditService
 from app.models.channel import SocialChannel, ChannelMetric, ChannelHealthScore
 
@@ -22,21 +22,29 @@ def _get_service():
 
 
 @router.post("/audit")
-async def run_full_audit(db: AsyncSession = Depends(get_db)):
+async def run_full_audit(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.run_full_audit(db)
     return result
 
 
 @router.get("/")
-async def get_channel_page_data(db: AsyncSession = Depends(get_db)):
+async def get_channel_page_data(
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
     """BFF endpoint: returns {platformStats, engagementData30, formatBreakdown} for ChannelAudit page."""
+    user, client, role = ctx
     today = date.today()
     thirty_days_ago = today - timedelta(days=30)
 
     # Get all own brand channels
     channels_result = await db.execute(
-        select(SocialChannel).where(SocialChannel.owner_type == "own")
+        select(SocialChannel).where(SocialChannel.owner_type == "own", SocialChannel.client_id == client.id)
     )
     channels = channels_result.scalars().all()
 
@@ -122,7 +130,12 @@ async def get_channel_page_data(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{channel_id}")
-async def audit_channel(channel_id: UUID, db: AsyncSession = Depends(get_db)):
+async def audit_channel(
+    channel_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    user, client, role = ctx
     service = _get_service()
     result = await service.audit_channel(db, channel_id)
     return result

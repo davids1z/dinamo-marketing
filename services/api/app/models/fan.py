@@ -30,6 +30,9 @@ class FanProfile(BaseModel):
         String(30), nullable=False, default="new"
     )  # new, casual, engaged, superfan, ambassador
     clv_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
     lifecycle_events: Mapped[list["FanLifecycleEvent"]] = relationship(back_populates="fan")
 
@@ -45,6 +48,9 @@ class FanSegment(BaseModel):
     growth_trend: Mapped[float] = mapped_column(
         Float, nullable=False, default=0.0
     )  # % change month over month
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
+    )
 
 
 class FanLifecycleEvent(BaseModel):
@@ -60,6 +66,9 @@ class FanLifecycleEvent(BaseModel):
     )  # e.g., "ticket_purchase", "engagement_increase"
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )
 
     fan: Mapped["FanProfile"] = relationship(back_populates="lifecycle_events")

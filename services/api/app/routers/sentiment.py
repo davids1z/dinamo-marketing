@@ -5,7 +5,7 @@ from typing import List
 from datetime import datetime, timedelta
 
 from app.database import get_db
-from app.dependencies import get_claude_client
+from app.dependencies import get_current_client, get_claude_client
 from app.services.sentiment_analyzer import SentimentAnalyzerService
 from app.models.sentiment import SentimentRecord, SentimentAlert
 
@@ -19,8 +19,10 @@ def _get_service():
 @router.post("/analyze")
 async def analyze_comments(
     comments: List[str] = Body(...),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     service = _get_service()
     result = await service.analyze_comments(db, comments)
     return result
@@ -29,9 +31,11 @@ async def analyze_comments(
 @router.get("/overview")
 async def get_sentiment_overview(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     """BFF endpoint: returns full SentimentOverview for the SentimentAnalysis page."""
+    user, client, role = ctx
     service = _get_service()
 
     # Get basic overview
@@ -109,7 +113,7 @@ async def get_sentiment_overview(
     cutoff = datetime.utcnow() - timedelta(days=7)
     alerts_result = await db.execute(
         select(SentimentAlert)
-        .where(SentimentAlert.triggered_at >= cutoff)
+        .where(SentimentAlert.triggered_at >= cutoff, SentimentAlert.client_id == client.id)
         .order_by(SentimentAlert.triggered_at.desc())
         .limit(5)
     )
@@ -159,8 +163,10 @@ async def get_sentiment_overview(
 @router.get("/topics")
 async def get_top_topics(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     service = _get_service()
     result = await service.get_top_topics(db, days)
     return result
@@ -169,8 +175,10 @@ async def get_top_topics(
 @router.get("/timeline")
 async def get_sentiment_timeline(
     days: int = Query(default=30),
+    ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
+    user, client, role = ctx
     service = _get_service()
     result = await service.get_sentiment_timeline(db, days)
     return result

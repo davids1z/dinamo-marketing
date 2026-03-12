@@ -5,10 +5,11 @@ import logging
 import uuid as uuid_mod
 from datetime import datetime
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.config import settings
+from app.dependencies import get_current_client
 from app.integrations.openrouter_insights import (
     compute_data_hash,
     generate_insights,
@@ -54,8 +55,12 @@ async def _run_insight_generation(task_id: str, api_key: str, page_key: str, pag
 
 
 @router.post("/generate")
-async def generate_page_insights(request: InsightRequest):
+async def generate_page_insights(
+    request: InsightRequest,
+    ctx: tuple = Depends(get_current_client),
+):
     """Generate AI insights for a dashboard page. Returns cached or starts async task."""
+    user, client, role = ctx
     if request.page_key not in PROMPT_BUILDERS:
         raise HTTPException(
             status_code=400,
@@ -69,9 +74,9 @@ async def generate_page_insights(request: InsightRequest):
             detail="OPENROUTER_API_KEY nije konfiguriran",
         )
 
-    # Check cache
+    # Check cache (scoped to client)
     data_hash = compute_data_hash(request.page_key, request.page_data)
-    cache_key = f"ai-insights:{request.page_key}:{data_hash}"
+    cache_key = f"ai-insights:{client.id}:{request.page_key}:{data_hash}"
 
     cached = await cache_get(cache_key)
     if cached:
@@ -89,7 +94,10 @@ async def generate_page_insights(request: InsightRequest):
 
 
 @router.get("/task/{task_id}")
-async def get_insight_task(task_id: str):
+async def get_insight_task(
+    task_id: str,
+    ctx: tuple = Depends(get_current_client),
+):
     """Poll for AI insight generation result."""
     task = _insight_tasks.get(task_id)
     if not task:
