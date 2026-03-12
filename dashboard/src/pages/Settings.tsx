@@ -5,7 +5,7 @@ import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner
 import { useApi } from '../hooks/useApi'
 import { useToast } from '../hooks/useToast'
 import { settingsApi } from '../api/settings'
-import { Plug, Palette, Bell, Shield, ToggleLeft, ToggleRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Plug, Palette, Bell, Shield, ToggleLeft, ToggleRight, CheckCircle, AlertCircle, Loader2, CreditCard, Sparkles } from 'lucide-react'
 import SystemHealth from '../components/settings/SystemHealth'
 import QuotaDisplay from '../components/settings/QuotaDisplay'
 
@@ -326,6 +326,53 @@ export default function Settings() {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Plan & Billing */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-6">
+            <CreditCard size={20} className="text-brand-accent" />
+            <h2 className="section-title">Plan i naplata</h2>
+          </div>
+          <div className="flex items-center justify-between p-5 bg-gradient-to-r from-brand-accent/5 to-transparent border border-brand-accent/20 rounded-xl">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-brand-accent/15 flex items-center justify-center">
+                <Sparkles size={20} className="text-brand-accent" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-studio-text-primary">Free Beta</h3>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-accent/10 text-brand-accent ring-1 ring-brand-accent/20">
+                    Aktivan
+                  </span>
+                </div>
+                <p className="text-sm text-studio-text-secondary mt-0.5">
+                  Svi moduli uključeni tijekom beta perioda.
+                </p>
+              </div>
+            </div>
+            <button
+              disabled
+              className="btn-secondary opacity-50 cursor-not-allowed flex items-center gap-2 text-sm"
+            >
+              Nadogradi plan
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-studio-surface-3 text-studio-text-tertiary font-medium">Uskoro</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="p-4 bg-studio-surface-0 rounded-lg border border-studio-border text-center">
+              <p className="text-2xl font-bold text-studio-text-primary font-headline">∞</p>
+              <p className="text-xs text-studio-text-tertiary mt-1">Korisnici</p>
+            </div>
+            <div className="p-4 bg-studio-surface-0 rounded-lg border border-studio-border text-center">
+              <p className="text-2xl font-bold text-studio-text-primary font-headline">∞</p>
+              <p className="text-xs text-studio-text-tertiary mt-1">Projekti</p>
+            </div>
+            <div className="p-4 bg-studio-surface-0 rounded-lg border border-studio-border text-center">
+              <p className="text-2xl font-bold text-studio-text-primary font-headline">∞</p>
+              <p className="text-xs text-studio-text-tertiary mt-1">AI generiranja</p>
+            </div>
           </div>
         </div>
 

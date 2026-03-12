@@ -90,7 +90,7 @@ const sections: NavSection[] = [
     label: 'Administracija',
     items: [
       { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'admin' },
-      { name: 'Korisnici', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
+      { name: 'Superadmin Panel', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
     ],
   },
 ]

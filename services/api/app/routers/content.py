@@ -27,12 +27,27 @@ def _get_service():
     )
 
 
-async def _run_ai_generation(task_id: str, month: int, year: int):
-    """Background coroutine for AI content generation."""
+async def _run_ai_generation(task_id: str, month: int, year: int, client_id: str | None = None):
+    """Background coroutine for AI content generation with client brand context."""
     try:
         from app.integrations.openrouter import generate_content_plan
         api_key = settings.OPENROUTER_API_KEY
-        posts = await generate_content_plan(api_key, month, year)
+
+        # Load client for brand context if client_id provided
+        client_obj = None
+        if client_id:
+            try:
+                from app.database import async_session_factory
+                from app.models.client import Client
+                async with async_session_factory() as db:
+                    result = await db.execute(
+                        select(Client).where(Client.id == client_id)
+                    )
+                    client_obj = result.scalar_one_or_none()
+            except Exception as e:
+                logger.warning(f"Could not load client {client_id} for AI context: {e}")
+
+        posts = await generate_content_plan(api_key, month, year, client=client_obj)
         _ai_tasks[task_id] = {
             "status": "done",
             "posts": posts,
@@ -65,7 +80,8 @@ async def generate_ai_plan(
 
     task_id = str(uuid_mod.uuid4())
     _ai_tasks[task_id] = {"status": "running", "month": month, "year": year}
-    asyncio.create_task(_run_ai_generation(task_id, month, year))
+    # Pass client_id so AI generation uses brand context
+    asyncio.create_task(_run_ai_generation(task_id, month, year, client_id=str(client.id)))
 
     return {"task_id": task_id, "status": "running"}
 

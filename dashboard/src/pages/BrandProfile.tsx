@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Building2, Palette, Globe, Hash, MessageSquare, Sparkles, Save, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Building2, Palette, Globe, Hash, MessageSquare, Sparkles, Save, Loader2, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react'
 // import { Link } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import { useClient } from '../contexts/ClientContext'
+import { useAuth } from '../contexts/AuthContext'
 import api from '../api/client'
 
 interface BrandData {
@@ -26,6 +27,8 @@ interface BrandData {
 
 export default function BrandProfile() {
   const { currentClient, isClientAdmin } = useClient()
+  const { user } = useAuth()
+  const canSeeAiOverride = isClientAdmin || user?.is_superadmin
   const [data, setData] = useState<BrandData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -297,28 +300,34 @@ export default function BrandProfile() {
           </div>
         </div>
 
-        {/* AI Override */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-brand-accent" />
+        {/* AI Override — only visible to admin+ */}
+        {canSeeAiOverride ? (
+          <div className={cardCls}>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-brand-accent" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-studio-text-primary">AI System Prompt Override</h3>
+                <p className="text-xs text-studio-text-tertiary">Opcionalno: potpuno custom AI prompt za ovog klijenta</p>
+              </div>
+              <span className="ml-auto text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20 flex items-center gap-1">
+                <ShieldAlert size={10} />
+                Samo admin
+              </span>
             </div>
             <div>
-              <h3 className="text-base font-bold text-studio-text-primary">AI System Prompt Override</h3>
-              <p className="text-xs text-studio-text-tertiary">Opcionalno: potpuno custom AI prompt za ovog klijenta</p>
+              <label className={labelCls}>Custom system prompt (ostavi prazno za automatski)</label>
+              <textarea
+                className={`${inputCls} min-h-[150px] font-mono text-xs`}
+                value={data.ai_system_prompt_override}
+                onChange={e => update('ai_system_prompt_override', e.target.value)}
+                disabled={!isClientAdmin}
+                placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
+              />
             </div>
           </div>
-          <div>
-            <label className={labelCls}>Custom system prompt (ostavi prazno za automatski)</label>
-            <textarea
-              className={`${inputCls} min-h-[150px] font-mono text-xs`}
-              value={data.ai_system_prompt_override}
-              onChange={e => update('ai_system_prompt_override', e.target.value)}
-              disabled={!isClientAdmin}
-              placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
-            />
-          </div>
-        </div>
+        ) : null}
       </div>
     </>
   )

@@ -1,8 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Shield, Plus, Edit2, UserX, Check, X, Users } from 'lucide-react'
+import {
+  Shield, Plus, Edit2, UserX, Check, X, Users,
+  BarChart3, Building2, FolderKanban, Activity,
+} from 'lucide-react'
 import { clsx } from 'clsx'
 import api from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface UserRecord {
   id: string
@@ -13,6 +20,31 @@ interface UserRecord {
   last_login: string | null
   created_at: string
 }
+
+interface PlatformStats {
+  total_users: number
+  active_users: number
+  total_clients: number
+  total_projects: number
+  active_today: number
+}
+
+interface ClientRecord {
+  id: string
+  name: string
+  slug: string
+  is_active: boolean
+  onboarding_completed: boolean
+  member_count: number
+  project_count: number
+  created_at: string
+}
+
+type TabKey = 'overview' | 'users' | 'clients'
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
 const ROLES = ['superadmin', 'admin', 'moderator', 'viewer'] as const
 const ROLE_LABELS: Record<string, string> = {
@@ -28,7 +60,165 @@ const ROLE_COLORS: Record<string, string> = {
   viewer: 'bg-white/5 text-studio-text-tertiary',
 }
 
-export default function Admin() {
+const TABS: { key: TabKey; label: string; icon: typeof Shield }[] = [
+  { key: 'overview', label: 'Pregled', icon: BarChart3 },
+  { key: 'users', label: 'Korisnici', icon: Users },
+  { key: 'clients', label: 'Klijenti', icon: Building2 },
+]
+
+// ---------------------------------------------------------------------------
+// Overview Tab
+// ---------------------------------------------------------------------------
+
+function OverviewTab() {
+  const [stats, setStats] = useState<PlatformStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/admin/stats')
+      .then(res => setStats(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading || !stats) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="card">
+            <div className="skeleton h-3 w-20 mb-3" />
+            <div className="skeleton h-8 w-16 mb-2" />
+            <div className="skeleton h-3 w-24" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const cards = [
+    { label: 'Ukupno korisnika', value: stats.total_users, sub: `${stats.active_users} aktivnih`, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { label: 'Klijenti', value: stats.total_clients, sub: 'registriranih organizacija', icon: Building2, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Projekti', value: stats.total_projects, sub: 'ukupno projekata', icon: FolderKanban, color: 'text-violet-400', bg: 'bg-violet-500/10' },
+    { label: 'Aktivni danas', value: stats.active_today, sub: 'korisnika zadnjih 24h', icon: Activity, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+  ]
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {cards.map(c => {
+        const Icon = c.icon
+        return (
+          <div key={c.label} className="card">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-studio-text-tertiary uppercase tracking-wider">{c.label}</span>
+              <div className={`w-9 h-9 rounded-xl ${c.bg} flex items-center justify-center`}>
+                <Icon size={16} className={c.color} />
+              </div>
+            </div>
+            <div className="stat-number">{c.value}</div>
+            <p className="text-xs text-studio-text-tertiary mt-1">{c.sub}</p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Clients Tab
+// ---------------------------------------------------------------------------
+
+function ClientsTab() {
+  const [clients, setClients] = useState<ClientRecord[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/admin/clients')
+      .then(res => { setClients(res.data.clients); setTotal(res.data.total) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="card">
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <div key={i} className="skeleton h-12 w-full rounded-lg" />)}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card overflow-x-auto">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
+          {total} klijenata ukupno
+        </span>
+      </div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-studio-text-tertiary border-b border-studio-border">
+            <th className="pb-3 font-medium">Klijent</th>
+            <th className="pb-3 font-medium hidden sm:table-cell">Slug</th>
+            <th className="pb-3 font-medium">Članovi</th>
+            <th className="pb-3 font-medium hidden md:table-cell">Projekti</th>
+            <th className="pb-3 font-medium hidden lg:table-cell">Onboarding</th>
+            <th className="pb-3 font-medium hidden lg:table-cell">Kreiran</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-studio-border">
+          {clients.map(c => (
+            <tr key={c.id} className="hover:bg-studio-surface-1">
+              <td className="py-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-brand-accent/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-brand-accent">{c.name?.[0]?.toUpperCase() || 'K'}</span>
+                  </div>
+                  <span className={clsx('font-medium text-studio-text-primary', !c.is_active && 'text-studio-text-disabled line-through')}>
+                    {c.name}
+                  </span>
+                </div>
+              </td>
+              <td className="py-3 text-studio-text-tertiary text-xs hidden sm:table-cell">{c.slug}</td>
+              <td className="py-3">
+                <span className="text-sm text-studio-text-primary">{c.member_count}</span>
+              </td>
+              <td className="py-3 hidden md:table-cell">
+                <span className="text-sm text-studio-text-primary">{c.project_count}</span>
+              </td>
+              <td className="py-3 hidden lg:table-cell">
+                <span className={clsx(
+                  'text-xs font-medium',
+                  c.onboarding_completed ? 'text-emerald-400' : 'text-amber-400'
+                )}>
+                  {c.onboarding_completed ? 'Da' : 'Ne'}
+                </span>
+              </td>
+              <td className="py-3 text-studio-text-tertiary text-xs hidden lg:table-cell">
+                {new Date(c.created_at).toLocaleDateString('hr-HR')}
+              </td>
+            </tr>
+          ))}
+          {clients.length === 0 && (
+            <tr>
+              <td colSpan={6} className="py-12 text-center text-studio-text-tertiary">
+                <Building2 className="w-8 h-8 mx-auto mb-2 text-studio-text-disabled" />
+                Nema klijenata
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Users Tab (refactored from original)
+// ---------------------------------------------------------------------------
+
+function UsersTab() {
   const { user: currentUser } = useAuth()
   const [users, setUsers] = useState<UserRecord[]>([])
   const [total, setTotal] = useState(0)
@@ -92,31 +282,14 @@ export default function Admin() {
     setEditForm({ full_name: u.full_name, role: u.role, is_active: u.is_active })
   }
 
-  if (!currentUser?.is_superadmin) {
-    return (
-      <div className="page-wrapper">
-        <div className="card flex flex-col items-center justify-center py-16">
-          <Shield className="w-12 h-12 text-studio-text-disabled mb-4" />
-          <p className="text-studio-text-tertiary text-lg">Nemate pristup ovoj stranici</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="page-wrapper space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
+      {/* Actions bar */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-red-400" />
-          </div>
-          <div>
-            <h1 className="section-title">Administracija</h1>
-            <p className="text-sm text-studio-text-tertiary">{total} korisnika</p>
-          </div>
-        </div>
-        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
+        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
+          {total} korisnika ukupno
+        </span>
+        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Novi korisnik</span>
         </button>
@@ -129,41 +302,15 @@ export default function Admin() {
         </div>
       )}
 
-      {/* Create Modal */}
+      {/* Create form */}
       {showCreate && (
         <div className="card border-brand-accent/30">
           <h3 className="font-headline text-sm tracking-wider text-studio-text-primary mb-4">NOVI KORISNIK</h3>
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="email"
-              placeholder="Email adresa"
-              required
-              value={createForm.email}
-              onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
-            />
-            <input
-              type="password"
-              placeholder="Lozinka"
-              required
-              minLength={6}
-              value={createForm.password}
-              onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
-            />
-            <input
-              type="text"
-              placeholder="Ime i prezime"
-              required
-              value={createForm.full_name}
-              onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
-            />
-            <select
-              value={createForm.role}
-              onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
-            >
+            <input type="email" placeholder="Email adresa" required value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none" />
+            <input type="password" placeholder="Lozinka" required minLength={6} value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none" />
+            <input type="text" placeholder="Ime i prezime" required value={createForm.full_name} onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })} className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none" />
+            <select value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })} className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none">
               {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
             </select>
             <div className="sm:col-span-2 flex gap-2 justify-end">
@@ -174,11 +321,11 @@ export default function Admin() {
         </div>
       )}
 
-      {/* Users Table */}
+      {/* Users table */}
       <div className="card overflow-x-auto">
         {loading ? (
           <div className="space-y-3">
-            {[1,2,3].map((i) => <div key={i} className="skeleton h-12 w-full rounded-lg" />)}
+            {[1, 2, 3].map((i) => <div key={i} className="skeleton h-12 w-full rounded-lg" />)}
           </div>
         ) : (
           <table className="w-full text-sm">
@@ -197,11 +344,7 @@ export default function Admin() {
                 <tr key={u.id} className="hover:bg-studio-surface-1">
                   <td className="py-3">
                     {editingId === u.id ? (
-                      <input
-                        value={editForm.full_name}
-                        onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                        className="px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-sm w-full max-w-[180px]"
-                      />
+                      <input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} className="px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-sm w-full max-w-[180px]" />
                     ) : (
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
@@ -214,11 +357,7 @@ export default function Admin() {
                   <td className="py-3 text-studio-text-tertiary hidden sm:table-cell">{u.email}</td>
                   <td className="py-3">
                     {editingId === u.id ? (
-                      <select
-                        value={editForm.role}
-                        onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                        className="px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs"
-                      >
+                      <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs">
                         {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
                       </select>
                     ) : (
@@ -230,12 +369,7 @@ export default function Admin() {
                   <td className="py-3 hidden md:table-cell">
                     {editingId === u.id ? (
                       <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={editForm.is_active}
-                          onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
-                          className="rounded border-studio-border"
-                        />
+                        <input type="checkbox" checked={editForm.is_active} onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })} className="rounded border-studio-border" />
                         Aktivan
                       </label>
                     ) : (
@@ -250,22 +384,14 @@ export default function Admin() {
                   <td className="py-3 text-right">
                     {editingId === u.id ? (
                       <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => handleEdit(u.id)} className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10" title="Spremi">
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-white/5" title="Odustani">
-                          <X className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => handleEdit(u.id)} className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10" title="Spremi"><Check className="w-4 h-4" /></button>
+                        <button onClick={() => setEditingId(null)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-white/5" title="Odustani"><X className="w-4 h-4" /></button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => startEdit(u)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-white/5 hover:text-studio-text-secondary" title="Uredi">
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
+                        <button onClick={() => startEdit(u)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-white/5 hover:text-studio-text-secondary" title="Uredi"><Edit2 className="w-3.5 h-3.5" /></button>
                         {u.id !== currentUser?.id && u.is_active && (
-                          <button onClick={() => handleDeactivate(u.id)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-red-500/10 hover:text-red-400" title="Deaktiviraj">
-                            <UserX className="w-3.5 h-3.5" />
-                          </button>
+                          <button onClick={() => handleDeactivate(u.id)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-red-500/10 hover:text-red-400" title="Deaktiviraj"><UserX className="w-3.5 h-3.5" /></button>
                         )}
                       </div>
                     )}
@@ -283,6 +409,70 @@ export default function Admin() {
             </tbody>
           </table>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main Admin Page
+// ---------------------------------------------------------------------------
+
+export default function Admin() {
+  const { user: currentUser } = useAuth()
+  const [activeTab, setActiveTab] = useState<TabKey>('overview')
+
+  if (!currentUser?.is_superadmin) {
+    return (
+      <div className="page-wrapper">
+        <div className="card flex flex-col items-center justify-center py-16">
+          <Shield className="w-12 h-12 text-studio-text-disabled mb-4" />
+          <p className="text-studio-text-tertiary text-lg">Nemate pristup ovoj stranici</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="page-wrapper space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+          <Shield className="w-5 h-5 text-red-400" />
+        </div>
+        <div>
+          <h1 className="section-title">Superadmin Panel</h1>
+          <p className="text-sm text-studio-text-tertiary">Upravljanje platformom</p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 bg-studio-surface-0 border border-studio-border rounded-xl p-1">
+        {TABS.map(tab => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all flex-1 justify-center',
+                activeTab === tab.key
+                  ? 'bg-brand-accent/10 text-brand-accent shadow-sm'
+                  : 'text-studio-text-tertiary hover:text-studio-text-secondary hover:bg-studio-surface-2'
+              )}
+            >
+              <Icon size={15} />
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Tab content */}
+      <div className="animate-fade-in">
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'users' && <UsersTab />}
+        {activeTab === 'clients' && <ClientsTab />}
       </div>
     </div>
   )

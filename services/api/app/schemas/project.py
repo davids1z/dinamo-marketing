@@ -13,6 +13,7 @@ class ProjectUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
     is_active: bool | None = None
+    ai_context: str | None = None
 
 
 class ProjectResponse(BaseModel):
@@ -22,3 +23,4 @@ class ProjectResponse(BaseModel):
     slug: str
     description: str
     is_active: bool
+    ai_context: str = ""

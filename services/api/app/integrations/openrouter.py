@@ -20,14 +20,18 @@ MODEL = "google/gemini-2.5-pro"
 _FALLBACK_SYSTEM_PROMPT = "Ti si AI content strateg za marketinšku platformu. Kreiraj sadržaj prema zadanim parametrima."
 
 
-def build_system_prompt(client=None) -> str:
-    """Build AI system prompt from client's brand profile."""
+def build_system_prompt(client=None, project=None) -> str:
+    """Build AI system prompt from client's brand profile + optional project context."""
     if client is None:
         # Fallback for when no client context is available
         return _FALLBACK_SYSTEM_PROMPT
 
     if hasattr(client, 'ai_system_prompt_override') and client.ai_system_prompt_override:
-        return client.ai_system_prompt_override
+        base = client.ai_system_prompt_override
+        # Append project context if available
+        if project and hasattr(project, 'ai_context') and project.ai_context:
+            base += f"\n\nKONTEKST PROJEKTA ({project.name}):\n{project.ai_context}"
+        return base
 
     languages = ", ".join(client.languages or ["hr"])
     colors = _json.dumps(client.brand_colors or {})
@@ -39,7 +43,7 @@ def build_system_prompt(client=None) -> str:
     handles = client.social_handles or {}
     handles_text = "\n".join(f"  - {k}: {v}" for k, v in handles.items()) or "  (nije definirano)"
 
-    return f"""Ti si AI content strateg za marketinšku platformu brenda "{client.name}".
+    prompt = f"""Ti si AI content strateg za marketinšku platformu brenda "{client.name}".
 
 KONTEKST BRENDA:
 - Opis: {client.business_description or 'Nije definirano'}
@@ -70,6 +74,11 @@ PRAVILA:
 4. Svaki post mora imati jasnu poruku i CTA
 5. Odgovori ISKLJUČIVO u JSON formatu kada je zatraženo
 """
+    # Append project-level AI context if available
+    if project and hasattr(project, 'ai_context') and project.ai_context:
+        prompt += f"\nKONTEKST PROJEKTA ({project.name}):\n{project.ai_context}\n"
+
+    return prompt
 
 USER_PROMPT_TEMPLATE = """Generiraj content plan za {month_name} {year}. za brend.
 

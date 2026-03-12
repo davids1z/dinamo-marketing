@@ -11,9 +11,11 @@ import {
   MessageCircle, UserPlus, AlertTriangle, CheckCircle, Zap,
   Plus, Rocket, FileText, ChevronDown,
   ExternalLink, Calendar, Clock, ArrowRight, Sparkles, TrendingDown,
+  LayoutDashboard, Link2, PenTool, Building2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import AiInsightsPanel from '../components/common/AiInsightsPanel'
+import { useClient } from '../contexts/ClientContext'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -540,12 +542,132 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
 }
 
 // ---------------------------------------------------------------------------
+// Welcome / Empty State Hero — shown to new clients without data
+// ---------------------------------------------------------------------------
+
+function WelcomeHero() {
+  const navigate = useNavigate()
+  const { currentClient } = useClient()
+
+  const steps = [
+    {
+      icon: Building2,
+      title: 'Završi profil klijenta',
+      desc: 'Dodaj opis poslovanja, ton komunikacije i ciljnu publiku za AI kontekst.',
+      to: '/brand-profile',
+      done: !!(currentClient?.onboarding_completed),
+    },
+    {
+      icon: Link2,
+      title: 'Poveži kanale',
+      desc: 'Poveži Instagram, TikTok, YouTube ili Facebook račune.',
+      to: '/channels',
+      done: false,
+    },
+    {
+      icon: PenTool,
+      title: 'Kreiraj prvi sadržaj',
+      desc: 'Koristi AI za generiranje content plana ili kreiraj objavu ručno.',
+      to: '/content',
+      done: false,
+    },
+  ]
+
+  return (
+    <div className="animate-fade-in">
+      <Header title="NADZORNA PLOČA" subtitle="Dobrodošli! Postavite svoj prostor." />
+      <div className="page-wrapper space-y-8">
+        {/* Hero */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-brand-accent/5 via-studio-surface-1 to-blue-500/5 border border-studio-border rounded-2xl p-8 sm:p-10">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-brand-accent/15 flex items-center justify-center">
+                <LayoutDashboard size={24} className="text-brand-accent" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-studio-text-primary font-headline uppercase tracking-wide">
+                  Započnite s platformom
+                </h2>
+                <p className="text-sm text-studio-text-secondary">
+                  Dovršite korake ispod za aktivaciju svih funkcionalnosti.
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Decorative gradient blob */}
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none" />
+        </div>
+
+        {/* Setup steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {steps.map((step) => {
+            const Icon = step.icon
+            return (
+              <button
+                key={step.title}
+                onClick={() => navigate(step.to)}
+                className={`text-left bg-studio-surface-1 border rounded-2xl p-6 transition-all duration-300 group ${
+                  step.done
+                    ? 'border-brand-accent/30 bg-brand-accent/5'
+                    : 'border-studio-border hover:border-brand-accent/30 hover:shadow-card-hover hover:-translate-y-0.5'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    step.done ? 'bg-brand-accent/15' : 'bg-studio-surface-3'
+                  }`}>
+                    {step.done ? (
+                      <CheckCircle size={18} className="text-brand-accent" />
+                    ) : (
+                      <Icon size={18} className="text-studio-text-tertiary group-hover:text-brand-accent transition-colors" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-studio-text-primary mb-1">{step.title}</h3>
+                    <p className="text-xs text-studio-text-tertiary leading-relaxed">{step.desc}</p>
+                  </div>
+                  <ArrowRight size={14} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors mt-1 flex-shrink-0" />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Empty metric cards showing zeros */}
+        <div>
+          <h2 className="section-title mb-4">Metrike</h2>
+          <div className="metric-grid">
+            <MetricCard label="Ukupno pratitelja" value={0} format="number" icon={Users} />
+            <MetricCard label="Mjesečni doseg" value={0} format="number" icon={Eye} />
+            <MetricCard label="Stopa angažmana" value={0} format="percent" icon={TrendingUp} />
+            <MetricCard label="Potrošnja na oglase" value={0} format="currency" icon={CreditCard} />
+          </div>
+        </div>
+
+        {/* Empty activity */}
+        <div className="card">
+          <h2 className="section-title mb-4">Nedavna aktivnost</h2>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-studio-surface-3 flex items-center justify-center mb-3">
+              <Zap size={20} className="text-studio-text-disabled" />
+            </div>
+            <p className="text-sm text-studio-text-secondary font-medium mb-1">Još nema aktivnosti</p>
+            <p className="text-xs text-studio-text-tertiary">Aktivnosti će se pojaviti kada povežete kanale i počnete objavljivati sadržaj.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main Dashboard
 // ---------------------------------------------------------------------------
 
 export default function Dashboard() {
   const [period, setPeriod] = useState<PeriodKey>('7d')
   const navigate = useNavigate()
+  const { currentClient } = useClient()
 
   // Period maps to days for the API
   const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
@@ -565,6 +687,11 @@ export default function Dashboard() {
 
   if (loading && !rawApi) {
     return <DashboardLoadingSkeleton />
+  }
+
+  // Show welcome/empty state for new clients with no real data
+  if (!hasRealData && currentClient && !currentClient.onboarding_completed) {
+    return <WelcomeHero />
   }
 
   const sentiment = d.sentiment_breakdown || { positive: 65, neutral: 25, negative: 10 }

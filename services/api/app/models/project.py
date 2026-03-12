@@ -24,5 +24,8 @@ class Project(BaseModel):
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    # AI context override for project-specific AI behaviour
+    ai_context: Mapped[str] = mapped_column(Text, nullable=False, default="")
+
     # Relationships
     client = relationship("Client", back_populates="projects")

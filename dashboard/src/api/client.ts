@@ -25,12 +25,14 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+const PUBLIC_PATHS = ['/login', '/register', '/invite']
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token')
-      if (window.location.pathname !== '/login') {
+      if (!PUBLIC_PATHS.includes(window.location.pathname)) {
         window.location.href = '/login'
       }
     }

@@ -36,6 +36,7 @@ async def list_projects(
             slug=p.slug,
             description=p.description,
             is_active=p.is_active,
+            ai_context=p.ai_context or "",
         )
         for p in result.scalars().all()
     ]
@@ -77,6 +78,7 @@ async def create_project(
         slug=project.slug,
         description=project.description,
         is_active=project.is_active,
+        ai_context=project.ai_context or "",
     )
 
 

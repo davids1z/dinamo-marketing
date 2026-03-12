@@ -80,7 +80,7 @@ export default function ContextSwitcher() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setPanel('closed')} />
 
-          <div className="absolute top-full left-0 mt-2 w-80 bg-studio-surface-1 border border-studio-border rounded-2xl shadow-studio-dropdown z-50 overflow-hidden animate-fade-in">
+          <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-studio-surface-1 border border-studio-border rounded-2xl shadow-studio-dropdown z-50 overflow-hidden animate-fade-in">
             {/* Tab header */}
             <div className="flex border-b border-studio-border">
               <button
@@ -108,7 +108,7 @@ export default function ContextSwitcher() {
             </div>
 
             {/* List */}
-            <div className="max-h-72 overflow-y-auto py-1">
+            <div className="max-h-[60vh] sm:max-h-72 overflow-y-auto py-1">
               {panel === 'client' && (
                 <>
                   <div className="px-4 py-2">

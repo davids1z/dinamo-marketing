@@ -95,13 +95,18 @@ export default function Login() {
         </div>
 
         {/* Register link */}
-        <p className="text-center text-sm text-studio-text-tertiary mt-6">
-          {'Nemate račun? '}
-          <Link to="/register" className="text-brand-accent hover:underline font-medium">Registrirajte se</Link>
-        </p>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-studio-text-secondary mb-2">Nemate račun?</p>
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-semibold text-brand-accent hover:bg-studio-surface-2 hover:border-brand-accent/30 transition-all"
+          >
+            Registrirajte se
+          </Link>
+        </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-studio-text-tertiary mt-4">ShiftOneZero</p>
+        <p className="text-center text-xs text-studio-text-tertiary mt-6">ShiftOneZero</p>
       </div>
     </div>
   )
