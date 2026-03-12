@@ -108,6 +108,17 @@
   .content-grid {
     @apply grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6;
   }
+
+  /* Sidebar scroll: hidden scrollbar + isolated scroll */
+  .sidebar-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sidebar-scroll::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Animations */
