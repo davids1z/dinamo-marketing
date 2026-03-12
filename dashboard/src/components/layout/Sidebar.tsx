@@ -19,6 +19,7 @@ import {
   Building2,
   X,
   LogOut,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react'
 import { clsx } from 'clsx'
@@ -89,6 +90,7 @@ const sections: NavSection[] = [
   {
     label: 'Administracija',
     items: [
+      { name: 'Tim', href: '/team', icon: UsersRound, requiredRole: 'admin' },
       { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'admin' },
       { name: 'Superadmin Panel', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
     ],

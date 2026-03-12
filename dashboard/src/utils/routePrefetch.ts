@@ -27,6 +27,7 @@ const routeImports: Record<string, () => Promise<unknown>> = {
   '/reports':           () => import('../pages/Reports'),
   '/settings':          () => import('../pages/Settings'),
   '/admin':             () => import('../pages/Admin'),
+  '/team':              () => import('../pages/Team'),
   '/campaign-research': () => import('../pages/CampaignResearch'),
 }
 

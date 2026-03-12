@@ -33,6 +33,7 @@ const Admin = lazy(() => import('./pages/Admin'))
 const ContentStudio = lazy(() => import('./pages/ContentStudio'))
 const CampaignResearch = lazy(() => import('./pages/CampaignResearch'))
 const BrandProfile = lazy(() => import('./pages/BrandProfile'))
+const Team = lazy(() => import('./pages/Team'))
 const Register = lazy(() => import('./pages/Register'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 const InviteAccept = lazy(() => import('./pages/InviteAccept'))
@@ -83,6 +84,7 @@ export default function App() {
             {/* Admin+ routes */}
             <Route path="academy" element={<RoleGuard requiredRole="admin"><Suspense fallback={<TablePageSkeleton />}><Academy /></Suspense></RoleGuard>} />
             <Route path="campaign-research" element={<RoleGuard requiredRole="admin"><Suspense fallback={<GenericPageSkeleton />}><CampaignResearch /></Suspense></RoleGuard>} />
+            <Route path="team" element={<RoleGuard requiredRole="admin"><Suspense fallback={<TablePageSkeleton />}><Team /></Suspense></RoleGuard>} />
             <Route path="settings" element={<RoleGuard requiredRole="admin"><Suspense fallback={<FormPageSkeleton />}><Settings /></Suspense></RoleGuard>} />
 
             {/* Superadmin only */}
