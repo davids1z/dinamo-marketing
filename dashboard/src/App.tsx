@@ -6,7 +6,13 @@ import { ProjectProvider } from './contexts/ProjectContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import RoleGuard from './components/auth/RoleGuard'
 import Layout from './components/layout/Layout'
-import { prefetchAllRoutes } from './utils/routePrefetch'
+import { prefetchAllRoutes, warmAllCaches } from './utils/routePrefetch'
+import {
+  DashboardSkeleton,
+  TablePageSkeleton,
+  FormPageSkeleton,
+  GenericPageSkeleton,
+} from './components/skeletons/PageSkeletons'
 
 const Login = lazy(() => import('./pages/Login'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -31,6 +37,7 @@ const Register = lazy(() => import('./pages/Register'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 const InviteAccept = lazy(() => import('./pages/InviteAccept'))
 
+/** Minimal spinner for auth pages (Login, Register, Invite) */
 function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -40,40 +47,46 @@ function PageLoader() {
 }
 
 export default function App() {
-  // Prefetch all route chunks during idle time after initial load
-  useEffect(() => { prefetchAllRoutes() }, [])
+  // Prefetch all route chunks + warm API caches during idle time
+  useEffect(() => { prefetchAllRoutes(); warmAllCaches() }, [])
 
   return (
     <AuthProvider>
       <ClientProvider>
         <ProjectProvider>
         <Routes>
+          {/* Public pages — simple spinner fallback */}
           <Route path="/login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
           <Route path="/register" element={<Suspense fallback={<PageLoader />}><Register /></Suspense>} />
           <Route path="/invite" element={<Suspense fallback={<PageLoader />}><InviteAccept /></Suspense>} />
           <Route path="/onboarding" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><Onboarding /></Suspense></ProtectedRoute>} />
           <Route path="/studio/:postId" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><ContentStudio /></Suspense></ProtectedRoute>} />
+
+          {/* App shell — page-specific skeleton fallbacks */}
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
-            <Route path="market-research" element={<Suspense fallback={<PageLoader />}><MarketResearch /></Suspense>} />
+            <Route index element={<Suspense fallback={<DashboardSkeleton />}><Dashboard /></Suspense>} />
+            <Route path="market-research" element={<Suspense fallback={<TablePageSkeleton />}><MarketResearch /></Suspense>} />
+            <Route path="analytics" element={<Suspense fallback={<DashboardSkeleton />}><Analytics /></Suspense>} />
+            <Route path="reports" element={<Suspense fallback={<TablePageSkeleton />}><Reports /></Suspense>} />
+            <Route path="brand-profile" element={<Suspense fallback={<FormPageSkeleton />}><BrandProfile /></Suspense>} />
+
             {/* Moderator+ routes */}
-            <Route path="channels" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><ChannelAudit /></Suspense></RoleGuard>} />
-            <Route path="competitors" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><Competitors /></Suspense></RoleGuard>} />
-            <Route path="fans" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><FanInsights /></Suspense></RoleGuard>} />
-            <Route path="content" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><ContentCalendar /></Suspense></RoleGuard>} />
-            <Route path="campaigns" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><Campaigns /></Suspense></RoleGuard>} />
-            <Route path="analytics" element={<Suspense fallback={<PageLoader />}><Analytics /></Suspense>} />
-            <Route path="sentiment" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><SentimentAnalysis /></Suspense></RoleGuard>} />
-            <Route path="social-listening" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><SocialListening /></Suspense></RoleGuard>} />
-            <Route path="diaspora" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<PageLoader />}><Diaspora /></Suspense></RoleGuard>} />
-            <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
-            <Route path="brand-profile" element={<Suspense fallback={<PageLoader />}><BrandProfile /></Suspense>} />
+            <Route path="channels" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<TablePageSkeleton />}><ChannelAudit /></Suspense></RoleGuard>} />
+            <Route path="competitors" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<TablePageSkeleton />}><Competitors /></Suspense></RoleGuard>} />
+            <Route path="fans" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<TablePageSkeleton />}><FanInsights /></Suspense></RoleGuard>} />
+            <Route path="content" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<GenericPageSkeleton />}><ContentCalendar /></Suspense></RoleGuard>} />
+            <Route path="campaigns" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<TablePageSkeleton />}><Campaigns /></Suspense></RoleGuard>} />
+            <Route path="sentiment" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<DashboardSkeleton />}><SentimentAnalysis /></Suspense></RoleGuard>} />
+            <Route path="social-listening" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<TablePageSkeleton />}><SocialListening /></Suspense></RoleGuard>} />
+            <Route path="diaspora" element={<RoleGuard requiredRole="moderator"><Suspense fallback={<GenericPageSkeleton />}><Diaspora /></Suspense></RoleGuard>} />
+
             {/* Admin+ routes */}
-            <Route path="academy" element={<RoleGuard requiredRole="admin"><Suspense fallback={<PageLoader />}><Academy /></Suspense></RoleGuard>} />
-            <Route path="campaign-research" element={<RoleGuard requiredRole="admin"><Suspense fallback={<PageLoader />}><CampaignResearch /></Suspense></RoleGuard>} />
-            <Route path="settings" element={<RoleGuard requiredRole="admin"><Suspense fallback={<PageLoader />}><Settings /></Suspense></RoleGuard>} />
+            <Route path="academy" element={<RoleGuard requiredRole="admin"><Suspense fallback={<TablePageSkeleton />}><Academy /></Suspense></RoleGuard>} />
+            <Route path="campaign-research" element={<RoleGuard requiredRole="admin"><Suspense fallback={<GenericPageSkeleton />}><CampaignResearch /></Suspense></RoleGuard>} />
+            <Route path="settings" element={<RoleGuard requiredRole="admin"><Suspense fallback={<FormPageSkeleton />}><Settings /></Suspense></RoleGuard>} />
+
             {/* Superadmin only */}
-            <Route path="admin" element={<RoleGuard requiredRole="superadmin"><Suspense fallback={<PageLoader />}><Admin /></Suspense></RoleGuard>} />
+            <Route path="admin" element={<RoleGuard requiredRole="superadmin"><Suspense fallback={<TablePageSkeleton />}><Admin /></Suspense></RoleGuard>} />
           </Route>
         </Routes>
         </ProjectProvider>

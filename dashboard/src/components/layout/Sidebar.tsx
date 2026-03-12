@@ -186,6 +186,9 @@ export default function Sidebar() {
                         end={item.href === '/'}
                         onClick={handleNavClick}
                         onMouseEnter={() => prefetchRoute(item.href)}
+                        onFocus={() => prefetchRoute(item.href)}
+                        onTouchStart={() => prefetchRoute(item.href)}
+                        viewTransition
                         title={collapsed ? item.name : undefined}
                         className={clsx(
                           'flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 relative group',

@@ -1,14 +1,15 @@
 /**
- * Route chunk prefetching utility.
+ * Route chunk + API data prefetching utility.
  *
- * 1. prefetchAllRoutes() — call once after login; uses requestIdleCallback
- *    to preload every page chunk in the background so subsequent navigation
- *    is instant (no spinner, no network wait for JS).
- *
- * 2. prefetchRoute(path) — call on hover/focus of a nav link to eagerly
- *    load that single chunk before the user clicks.
+ * - prefetchRoute(path)     — preload JS chunk + warm API cache on hover
+ * - prefetchAllRoutes()     — idle-time preload of all page chunks
+ * - warmAllCaches()         — idle-time preload of all primary API endpoints
  */
+import { prefetchApi } from '../hooks/useApi'
 
+// ---------------------------------------------------------------------------
+// Route chunk imports (mirrors App.tsx lazy() imports)
+// ---------------------------------------------------------------------------
 const routeImports: Record<string, () => Promise<unknown>> = {
   '/':                  () => import('../pages/Dashboard'),
   '/brand-profile':     () => import('../pages/BrandProfile'),
@@ -29,25 +30,48 @@ const routeImports: Record<string, () => Promise<unknown>> = {
   '/campaign-research': () => import('../pages/CampaignResearch'),
 }
 
+// ---------------------------------------------------------------------------
+// Primary API endpoints per page (warmed on hover + login)
+// ---------------------------------------------------------------------------
+const PAGE_APIS: Record<string, string[]> = {
+  '/':                  ['/analytics/overview?days=30'],
+  '/analytics':         ['/analytics/overview'],
+  '/market-research':   ['/market-research/countries'],
+  '/channels':          ['/channels'],
+  '/competitors':       ['/competitors'],
+  '/sentiment':         ['/sentiment/overview'],
+  '/social-listening':  ['/social-listening/trending'],
+  '/academy':           ['/academy/players'],
+  '/diaspora':          ['/diaspora/populations'],
+  '/reports':           ['/reports/weekly', '/reports/monthly'],
+  '/campaigns':         ['/campaigns'],
+  '/settings':          ['/settings/api-status'],
+}
+
+// ---------------------------------------------------------------------------
+// Chunk prefetching
+// ---------------------------------------------------------------------------
 const prefetched = new Set<string>()
 
-/** Prefetch a single route chunk (idempotent — safe to call multiple times) */
+/** Prefetch a single route: JS chunk + its primary API data */
 export function prefetchRoute(path: string) {
-  if (prefetched.has(path)) return
-  const loader = routeImports[path]
-  if (loader) {
-    prefetched.add(path)
-    loader().catch(() => {
-      // If the fetch fails (e.g. offline), allow retry next time
-      prefetched.delete(path)
-    })
+  // 1. JS chunk
+  if (!prefetched.has(path)) {
+    const loader = routeImports[path]
+    if (loader) {
+      prefetched.add(path)
+      loader().catch(() => prefetched.delete(path))
+    }
   }
+
+  // 2. API data
+  const apis = PAGE_APIS[path]
+  if (apis) apis.forEach(prefetchApi)
 }
 
 /**
  * Prefetch all route chunks during idle time.
- * Critical routes (Dashboard, BrandProfile, Analytics) load first,
- * then everything else staggers with 200ms gaps to avoid network contention.
+ * Critical routes first, then staggered.
  */
 export function prefetchAllRoutes() {
   const ric = window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb, 200))
@@ -56,12 +80,37 @@ export function prefetchAllRoutes() {
   const rest = Object.keys(routeImports).filter(p => !critical.includes(p))
 
   ric(() => {
-    // Load critical routes immediately
-    critical.forEach(p => prefetchRoute(p))
-
-    // Stagger the rest to avoid saturating the network
+    critical.forEach(p => {
+      if (!prefetched.has(p)) {
+        const loader = routeImports[p]
+        if (loader) { prefetched.add(p); loader().catch(() => prefetched.delete(p)) }
+      }
+    })
     rest.forEach((p, i) => {
-      setTimeout(() => prefetchRoute(p), (i + 1) * 200)
+      setTimeout(() => {
+        if (!prefetched.has(p)) {
+          const loader = routeImports[p]
+          if (loader) { prefetched.add(p); loader().catch(() => prefetched.delete(p)) }
+        }
+      }, (i + 1) * 200)
+    })
+  })
+}
+
+/**
+ * Warm all primary API caches during idle time.
+ * Called once after login — ensures every major endpoint is cached
+ * so first navigation shows data instantly.
+ */
+export function warmAllCaches() {
+  const ric = window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb, 300))
+
+  // Flatten all unique API URLs
+  const allUrls = [...new Set(Object.values(PAGE_APIS).flat())]
+
+  ric(() => {
+    allUrls.forEach((url, i) => {
+      setTimeout(() => prefetchApi(url), i * 250)
     })
   })
 }

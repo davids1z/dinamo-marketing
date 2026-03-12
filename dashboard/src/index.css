@@ -165,3 +165,34 @@
 .empty-state-desc {
   @apply text-xs text-studio-text-tertiary max-w-xs;
 }
+
+/* ---------------------------------------------------------------------------
+   View Transitions API — smooth crossfade between route changes
+   Works in Chrome 111+, Edge 111+, Firefox 133+, Safari 18+
+   Falls back to instant swap in older browsers (no-op).
+   --------------------------------------------------------------------------- */
+::view-transition-old(root) {
+  animation: vt-fade-out 120ms ease-in forwards;
+}
+
+::view-transition-new(root) {
+  animation: vt-fade-in 120ms ease-out forwards;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

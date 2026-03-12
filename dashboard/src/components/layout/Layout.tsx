@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext } from 'react'
 import Sidebar from './Sidebar'
+import NavigationProgress from './NavigationProgress'
 
 interface SidebarContextType {
   collapsed: boolean
@@ -59,6 +60,7 @@ export default function Layout() {
   return (
     <SidebarContext.Provider value={{ collapsed, mobileOpen, setCollapsed, setMobileOpen, toggleSidebar }}>
       <div className="min-h-screen bg-studio-bg">
+        <NavigationProgress />
         <Sidebar />
         {/* Mobile overlay */}
         {isMobile && mobileOpen && (

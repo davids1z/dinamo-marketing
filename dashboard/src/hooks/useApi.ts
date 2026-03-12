@@ -188,6 +188,26 @@ export function useApi<T>(url: string, immediate = true, ttl = DEFAULT_TTL): Use
 }
 
 // ---------------------------------------------------------------------------
+// Standalone prefetch (no hook — safe to call from event handlers)
+// Pre-warms the cache so subsequent useApi() calls resolve instantly.
+// ---------------------------------------------------------------------------
+export function prefetchApi(url: string) {
+  const key = cacheKey(url)
+  const entry = resolveCache(key)
+  if (entry && Date.now() - entry.timestamp < DEFAULT_TTL) return // still fresh
+  if (inflight.has(key)) return // already fetching
+
+  const promise = api.get(url).then(r => {
+    const ts = Date.now()
+    cache.set(key, { data: r.data, timestamp: ts })
+    persistToStorage(key, r.data, ts)
+    return r.data
+  }).catch(() => { /* silent — prefetch failure is not critical */ })
+  inflight.set(key, promise)
+  promise.finally(() => inflight.delete(key))
+}
+
+// ---------------------------------------------------------------------------
 // Polling variant
 // ---------------------------------------------------------------------------
 export function usePolling<T>(url: string, intervalMs: number): UseApiResult<T> {
