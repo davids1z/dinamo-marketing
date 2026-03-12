@@ -25,6 +25,7 @@ import { clsx } from 'clsx'
 import { useSidebar } from './Layout'
 import { useAuth } from '../../contexts/AuthContext'
 import { useClient } from '../../contexts/ClientContext'
+import { prefetchRoute } from '../../utils/routePrefetch'
 
 // --- Role hierarchy ---
 type NavRole = 'viewer' | 'moderator' | 'admin' | 'superadmin'
@@ -184,6 +185,7 @@ export default function Sidebar() {
                         to={item.href}
                         end={item.href === '/'}
                         onClick={handleNavClick}
+                        onMouseEnter={() => prefetchRoute(item.href)}
                         title={collapsed ? item.name : undefined}
                         className={clsx(
                           'flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 relative group',

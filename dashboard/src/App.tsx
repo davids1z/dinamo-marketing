@@ -1,11 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import { ClientProvider } from './contexts/ClientContext'
 import { ProjectProvider } from './contexts/ProjectContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import RoleGuard from './components/auth/RoleGuard'
 import Layout from './components/layout/Layout'
+import { prefetchAllRoutes } from './utils/routePrefetch'
 
 const Login = lazy(() => import('./pages/Login'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -39,6 +40,9 @@ function PageLoader() {
 }
 
 export default function App() {
+  // Prefetch all route chunks during idle time after initial load
+  useEffect(() => { prefetchAllRoutes() }, [])
+
   return (
     <AuthProvider>
       <ClientProvider>
