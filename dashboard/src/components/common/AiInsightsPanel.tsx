@@ -46,7 +46,7 @@ function InsightCard({ insight }: { insight: AiInsight }) {
           </div>
           <p className="text-xs text-studio-text-tertiary mb-2">{insight.description}</p>
           {insight.action && (
-            <p className="text-xs text-[#B8FF00]">
+            <p className="text-xs text-[#0EA5E9]">
               → {insight.action}
             </p>
           )}
@@ -68,7 +68,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Sparkles size={18} className="text-[#B8FF00]" />
+          <Sparkles size={18} className="text-[#0EA5E9]" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">AI Uvidi</h3>
         </div>
         <div className="flex items-center gap-2">
@@ -97,14 +97,14 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
           onClick={handleGenerate}
           className="w-full py-3 px-4 bg-[#1a3a5c] hover:bg-[#234d73] border border-[#2a5a8c] rounded-lg text-sm text-white flex items-center justify-center gap-2 transition-colors"
         >
-          <Sparkles size={16} className="text-[#B8FF00]" />
+          <Sparkles size={16} className="text-[#0EA5E9]" />
           Generiraj uvide
         </button>
       )}
 
       {loading && (
         <div className="flex items-center justify-center gap-3 py-6">
-          <div className="w-5 h-5 border-2 border-[#B8FF00] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#0EA5E9] border-t-transparent rounded-full animate-spin" />
           <span className="text-sm text-studio-text-tertiary">AI analizira podatke...</span>
         </div>
       )}
@@ -114,7 +114,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
           <p className="text-sm text-red-400 mb-2">{error}</p>
           <button
             onClick={handleGenerate}
-            className="text-xs text-[#B8FF00] hover:underline"
+            className="text-xs text-[#0EA5E9] hover:underline"
           >
             Pokušaj ponovo
           </button>

@@ -47,7 +47,7 @@ const fallbackData: SettingsData = {
     { name: 'Primarna plava', hex: '#0057A8', usage: 'Primarna boja brenda' },
     { name: 'Sidebar tamna', hex: '#0A1A28', usage: 'Navigacija sidebar' },
     { name: 'Bijela', hex: '#FFFFFF', usage: 'Pozadina kartica' },
-    { name: 'Accent zelena', hex: '#B8FF00', usage: 'Naglasci i CTA' },
+    { name: 'Accent plava', hex: '#0EA5E9', usage: 'Naglasci i CTA' },
     { name: 'Siva pozadina', hex: '#F9FAFB', usage: 'Pozadina stranice' },
     { name: 'Tekst tamni', hex: '#111827', usage: 'Naslovi i tekst' },
   ],

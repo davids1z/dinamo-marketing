@@ -5,7 +5,7 @@ export const SHIFTONEZERO_BRAND = {
     dark: '#0A1A28',
     darkLight: '#112233',
     darkCard: '#112233',
-    accent: '#B8FF00',
+    accent: '#0EA5E9',
     accentHover: '#9FDB00',
     accentDark: '#4D7C0F',
     muted: '#64748B',
@@ -54,7 +54,7 @@ export const LIFECYCLE_STAGES = [
 ] as const
 
 export const CHART_COLORS = [
-  '#B8FF00', '#64748B', '#22C55E', '#F59E0B',
+  '#0EA5E9', '#64748B', '#22C55E', '#F59E0B',
   '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6',
 ] as const
 

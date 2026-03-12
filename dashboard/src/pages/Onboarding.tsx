@@ -59,7 +59,7 @@ export default function Onboarding() {
     target_audience: '',
     tone_of_voice: '',
     website_url: '',
-    brand_colors: ['#0A1A28', '#B8FF00', '#0057A8'],
+    brand_colors: ['#0A1A28', '#0EA5E9', '#0057A8'],
     logo_url: '',
     social_handles: { instagram: '', facebook: '', twitter: '', linkedin: '' },
     hashtags: [],
@@ -184,7 +184,7 @@ export default function Onboarding() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center">
-                <span className="font-headline text-xs text-brand-primary font-bold">
+                <span className="font-headline text-xs text-white font-bold">
                   {currentClient?.client_name?.charAt(0)?.toUpperCase() || 'S'}
                 </span>
               </div>
@@ -208,7 +208,7 @@ export default function Onboarding() {
                   onClick={() => i < step && setStep(i)}
                   className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     i === step
-                      ? 'bg-brand-accent text-brand-primary'
+                      ? 'bg-brand-accent text-white'
                       : i < step
                         ? 'bg-brand-accent/20 text-brand-accent cursor-pointer'
                         : 'bg-studio-surface-2 text-studio-text-tertiary'
@@ -312,7 +312,7 @@ export default function Onboarding() {
                         onClick={() => updateField('tone_of_voice', t.value)}
                         className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
                           form.tone_of_voice === t.value
-                            ? 'bg-brand-accent text-brand-primary ring-2 ring-brand-accent/30'
+                            ? 'bg-brand-accent text-white ring-2 ring-brand-accent/30'
                             : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                         }`}
                       >
@@ -398,7 +398,7 @@ export default function Onboarding() {
                           }}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                             form.languages.includes(lang.code)
-                              ? 'bg-brand-accent text-brand-primary'
+                              ? 'bg-brand-accent text-white'
                               : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                           }`}
                         >
@@ -549,7 +549,7 @@ export default function Onboarding() {
               <button
                 onClick={() => setStep(s => s + 1)}
                 disabled={!canProceed()}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-brand-primary hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
               >
                 Dalje
                 <ChevronRight size={16} />
@@ -558,7 +558,7 @@ export default function Onboarding() {
               <button
                 onClick={handleFinish}
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-brand-primary hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
               >
                 {loading ? (
                   <>

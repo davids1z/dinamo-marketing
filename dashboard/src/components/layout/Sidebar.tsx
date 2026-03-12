@@ -133,7 +133,7 @@ export default function Sidebar() {
         <div className="h-16 flex items-center px-4 border-b border-[#1E293B] justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-brand-accent flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="font-headline text-sm text-brand-primary font-bold">S1Z</span>
+              <span className="font-headline text-sm text-white font-bold">S1Z</span>
             </div>
             {!collapsed && (
               <div className="min-w-0">
@@ -248,7 +248,7 @@ export default function Sidebar() {
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-[#1E293B] border border-[#334155] shadow-md flex items-center justify-center hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary text-slate-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-[#1E293B] border border-[#334155] shadow-md flex items-center justify-center hover:border-brand-accent hover:bg-brand-accent hover:text-white text-slate-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
           style={{ left: collapsed ? 72 - 12 : 256 - 12 }}
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>

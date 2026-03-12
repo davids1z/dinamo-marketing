@@ -458,7 +458,7 @@ export default function Campaigns() {
                   onClick={() => setStatusFilter(f)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                     statusFilter === f
-                      ? 'bg-brand-accent text-brand-primary shadow-sm'
+                      ? 'bg-brand-accent text-white shadow-sm'
                       : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                   }`}
                 >
@@ -587,7 +587,7 @@ export default function Campaigns() {
                 <div key={s} className="flex items-center gap-2 flex-1">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     s < wizardStep ? 'bg-green-100 text-green-600'
-                    : s === wizardStep ? 'bg-brand-accent text-brand-primary'
+                    : s === wizardStep ? 'bg-brand-accent text-white'
                     : 'bg-studio-surface-2 text-studio-text-tertiary'
                   }`}>
                     {s < wizardStep ? <Check size={14} /> : s}

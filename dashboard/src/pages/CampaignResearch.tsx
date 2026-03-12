@@ -454,7 +454,7 @@ export default function CampaignResearch() {
               <button
                 onClick={handleTextSubmit}
                 disabled={!textInput.trim() || uploading}
-                className="mt-2 w-full py-2.5 bg-brand-accent hover:bg-brand-accent-hover text-brand-primary text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="mt-2 w-full py-2.5 bg-brand-accent hover:bg-brand-accent-hover text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 Istraži kampanju

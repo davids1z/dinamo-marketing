@@ -805,7 +805,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setPlatformFilter(value)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       platformFilter === value
-                        ? 'bg-brand-accent text-brand-primary shadow-sm'
+                        ? 'bg-brand-accent text-white shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {Icon && <Icon size={12} />}
@@ -822,7 +822,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setStatusFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       statusFilter === value
-                        ? 'bg-brand-accent text-brand-primary shadow-sm'
+                        ? 'bg-brand-accent text-white shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
@@ -838,7 +838,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setTypeFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       typeFilter === value
-                        ? 'bg-brand-accent text-brand-primary shadow-sm'
+                        ? 'bg-brand-accent text-white shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
@@ -906,7 +906,7 @@ export default function ContentCalendar() {
                         onClick={() => valid && setSelectedDay(isSel ? null : dn)}
                         className={`w-full aspect-square flex items-center justify-center text-[10px] rounded transition-colors relative ${
                           !valid ? 'text-transparent cursor-default'
-                          : isSel ? 'bg-brand-accent text-brand-primary font-bold'
+                          : isSel ? 'bg-brand-accent text-white font-bold'
                           : isFoc ? 'bg-brand-accent/10 text-brand-accent font-bold ring-1 ring-brand-accent/40'
                           : isTd ? 'bg-blue-500/20 text-blue-400 font-bold'
                           : 'text-studio-text-secondary hover:bg-studio-surface-2'
@@ -925,7 +925,7 @@ export default function ContentCalendar() {
                       <button key={i}
                         onClick={() => { setCurrentMonth(i); setSelectedDay(null); setGeneratedData(null) }}
                         className={`text-[10px] py-1 rounded transition-colors ${
-                          currentMonth === i ? 'bg-brand-accent text-brand-primary font-bold' : 'text-studio-text-secondary hover:bg-studio-surface-2'
+                          currentMonth === i ? 'bg-brand-accent text-white font-bold' : 'text-studio-text-secondary hover:bg-studio-surface-2'
                         }`}>
                         {monthNames[i]!.slice(0, 3)}
                       </button>
@@ -1173,7 +1173,7 @@ export default function ContentCalendar() {
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-bold text-studio-text-primary">{monthNames[m]}</p>
                         {isCurrentMonthCard && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-accent text-brand-primary font-medium">Trenutni</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-accent text-white font-medium">Trenutni</span>
                         )}
                       </div>
                       <p className="text-xs text-studio-text-secondary mb-3">{y}</p>

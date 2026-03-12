@@ -127,7 +127,7 @@ export default function BrandProfile() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-brand-primary rounded-xl text-sm font-bold hover:bg-brand-accent/90 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-white rounded-xl text-sm font-bold hover:bg-brand-accent/90 transition-all disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saved ? 'Spremljeno!' : 'Spremi'}

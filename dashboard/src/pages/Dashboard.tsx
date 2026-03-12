@@ -455,7 +455,7 @@ function PeriodSelector({
 function QuickActions() {
   const navigate = useNavigate()
   const actions = [
-    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover' },
+    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-brand-accent text-white hover:bg-brand-accent-hover' },
     { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-brand-accent/30 hover:bg-studio-surface-2' },
     { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-brand-accent/30 hover:bg-studio-surface-2' },
   ]

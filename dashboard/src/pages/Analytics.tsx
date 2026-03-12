@@ -234,7 +234,7 @@ export default function Analytics() {
             <div className="card">
               <div className="flex items-center justify-between mb-2">
                 <span />
-                <button onClick={refetch} className="text-xs text-studio-text-secondary hover:text-brand-primary flex items-center gap-1">
+                <button onClick={refetch} className="text-xs text-studio-text-secondary hover:text-white flex items-center gap-1">
                   <RefreshCw size={12} /> Osvježi
                 </button>
               </div>
@@ -340,7 +340,7 @@ export default function Analytics() {
                       onClick={() => setPlatformFilter(p)}
                       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                         platformFilter === p
-                          ? 'bg-brand-accent text-brand-primary shadow-sm'
+                          ? 'bg-brand-accent text-white shadow-sm'
                           : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                       }`}
                     >

@@ -13,9 +13,9 @@ export default {
           'blue-dark': '#004080',
           'blue-light': '#E8F1FA',
           'blue-hover': '#0068C8',
-          accent: '#B8FF00',
-          'accent-hover': '#9FDB00',
-          'accent-dark': '#4D7C0F',
+          accent: '#0EA5E9',
+          'accent-hover': '#0284C7',
+          'accent-dark': '#0369A1',
           muted: '#64748B',
           // Sidebar dark surfaces
           'sidebar': '#0A1A28',

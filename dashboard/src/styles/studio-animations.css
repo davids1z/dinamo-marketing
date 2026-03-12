@@ -509,7 +509,7 @@
 }
 
 .scene-timeline-thumb.active {
-  border-color: #B8FF00;
+  border-color: #0EA5E9;
   box-shadow: 0 0 14px rgba(184, 255, 0, 0.2), 0 0 4px rgba(184, 255, 0, 0.15);
 }
 
@@ -559,12 +559,12 @@
 }
 
 .scene-timeline-add:hover {
-  border-color: #B8FF00;
+  border-color: #0EA5E9;
   background: rgba(184, 255, 0, 0.04);
 }
 
 .scene-timeline-add:hover svg {
-  color: #B8FF00 !important;
+  color: #0EA5E9 !important;
 }
 
 /* ---- Progress bar (bottom row) ---- */
@@ -582,7 +582,7 @@
 }
 
 .scene-timeline-progress-seg.current {
-  background-color: #B8FF00;
+  background-color: #0EA5E9;
 }
 
 .scene-timeline-progress-seg.past {
