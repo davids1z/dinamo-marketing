@@ -1,6 +1,6 @@
 {
-  "name": "Champions League Result",
-  "description": "Full-time result graphic for Champions League matches with CL-specific branding and enhanced visual treatment.",
+  "name": "Major Campaign Result",
+  "description": "Full-time result graphic for Major Campaign matches with CL-specific branding and enhanced visual treatment.",
   "platforms": ["instagram", "facebook", "tiktok", "twitter"],
   "format_type": "image",
   "aspect_ratio": "1:1",
@@ -27,7 +27,7 @@
     "goal_scorers": {"max_chars": 150, "example": "Petković 34', Oršić 71'"},
     "opponent_name": {"max_chars": 30, "example": "AC Milan"},
     "group_stage": {"max_chars": 25, "example": "League Phase, MD 6"},
-    "venue": {"max_chars": 40, "example": "Stadion Maksimir, Zagreb"}
+    "venue": {"max_chars": 40, "example": "Main Venue, Zagreb"}
   },
   "guidelines": "Use the CL deep navy background. Starball element positioned in the upper area. Match action hero image with CL overlay treatment. Score display must be large and clear. Include CL competition badge. Same data as standard full-time template but with elevated CL visual identity. Must comply with UEFA social media branding guidelines."
 }

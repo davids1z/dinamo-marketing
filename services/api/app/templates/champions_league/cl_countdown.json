@@ -1,6 +1,6 @@
 {
-  "name": "Champions League Match Countdown",
-  "description": "Daily countdown content for upcoming Champions League matches. Builds excitement with decreasing day count and CL-specific branding.",
+  "name": "Major Campaign Match Countdown",
+  "description": "Daily countdown content for upcoming Major Campaign matches. Builds excitement with decreasing day count and CL-specific branding.",
   "platforms": ["instagram", "facebook"],
   "format_type": "story",
   "aspect_ratio": "9:16",

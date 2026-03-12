@@ -14,7 +14,7 @@
       "top_platforms": {"instagram": 3600000, "facebook": 3900000, "tiktok": 2200000, "youtube": 6200000},
       "language_notes": "German primary; Croatian community maintains language through Kulturvereine",
       "key_media": ["ORF Sport", "Laola1", "Kurier Sport"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 28000,
         "engagement_index": 1.4,
         "growth_potential": "high",
@@ -39,7 +39,7 @@
       "top_platforms": {"instagram": 32000000, "facebook": 28000000, "tiktok": 20000000, "youtube": 58000000},
       "language_notes": "German primary; large Croatian community (Gastarbeiter legacy + recent EU migration)",
       "key_media": ["Kicker", "Sport1", "Bild Sport", "Sky Sport DE"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 42000,
         "engagement_index": 1.6,
         "growth_potential": "very_high",
@@ -65,7 +65,7 @@
       "top_platforms": {"instagram": 3200000, "facebook": 3400000, "tiktok": 1800000, "youtube": 5800000},
       "language_notes": "German/French/Italian; Croatian community primarily in German-speaking cantons",
       "key_media": ["SRF Sport", "Blick Sport"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 18000,
         "engagement_index": 1.3,
         "growth_potential": "medium",
@@ -89,7 +89,7 @@
       "top_platforms": {"instagram": 2200000, "facebook": 2400000, "tiktok": 1500000, "youtube": 3200000},
       "language_notes": "English primary; young Croatian migrant workers post-EU accession",
       "key_media": ["RTÉ Sport", "The42.ie"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 4200,
         "engagement_index": 1.1,
         "growth_potential": "medium",
@@ -113,7 +113,7 @@
       "top_platforms": {"instagram": 5200000, "facebook": 4800000, "tiktok": 3200000, "youtube": 7800000},
       "language_notes": "Swedish primary; Croatian community from 1990s refugee wave + recent EU migration",
       "key_media": ["SVT Sport", "Aftonbladet Sport", "Fotbollskanalen"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 12000,
         "engagement_index": 1.3,
         "growth_potential": "medium",
@@ -137,7 +137,7 @@
       "top_platforms": {"instagram": 2800000, "facebook": 3100000, "tiktok": 1600000, "youtube": 4200000},
       "language_notes": "Norwegian primary; small but engaged Croatian community",
       "key_media": ["NRK Sport", "VG Sport", "TV2 Sport"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 2800,
         "engagement_index": 1.0,
         "growth_potential": "low",
@@ -160,7 +160,7 @@
       "top_platforms": {"instagram": 160000000, "facebook": 175000000, "tiktok": 115000000, "youtube": 230000000},
       "language_notes": "English primary; Croatian communities maintain heritage through cultural organizations, especially in Chicago/Pittsburgh",
       "key_media": ["ESPN", "CBS Sports", "Paramount+", "Fox Sports"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 14000,
         "engagement_index": 0.8,
         "growth_potential": "high",
@@ -186,7 +186,7 @@
       "top_platforms": {"instagram": 18000000, "facebook": 20000000, "tiktok": 12000000, "youtube": 26000000},
       "language_notes": "English/French primary; Croatian community concentrated in Ontario",
       "key_media": ["TSN", "Sportsnet"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 5200,
         "engagement_index": 0.9,
         "growth_potential": "medium",
@@ -210,7 +210,7 @@
       "top_platforms": {"instagram": 12000000, "facebook": 14000000, "tiktok": 8000000, "youtube": 18000000},
       "language_notes": "English primary; strong Croatian community maintains cultural identity through football clubs",
       "key_media": ["Fox Sports AU", "Optus Sport", "SBS Sport"],
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 7800,
         "engagement_index": 1.0,
         "growth_potential": "medium",

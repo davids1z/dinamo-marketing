@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Weekly Report Task
+ShiftOneZero Marketing Platform - Weekly Report Task
 Generates a comprehensive weekly summary including top posts, best ads,
 total spend, sentiment overview, and 3 AI-generated recommendations.
 Pulls real data from PostMetric and AdMetric tables.
@@ -220,7 +220,7 @@ def _generate_weekly_summary():
         },
         "ai_recommendations": selected_recs,
         "generated_at": now.isoformat(),
-        "generated_by": "dinamo_marketing_platform_v1",
+        "generated_by": "shiftonezero_platform_v1",
     }
 
 

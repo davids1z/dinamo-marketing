@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Campaign Optimization Task
+ShiftOneZero Marketing Platform - Campaign Optimization Task
 Implements the 5 core optimization rules that run automatically
 to manage ad performance, budgets, and creative freshness.
 """

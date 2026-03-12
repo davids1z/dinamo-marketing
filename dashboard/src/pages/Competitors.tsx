@@ -434,7 +434,7 @@ export default function Competitors() {
           <div className="card">
             <p className="text-sm text-studio-text-secondary">Naši IG pratitelji</p>
             <p className="text-3xl font-bold text-studio-text-primary mt-1">{summary.ourIgFormatted}</p>
-            <p className="text-xs text-dinamo-accent mt-1">Rangirani {summary.ourRank}</p>
+            <p className="text-xs text-brand-accent mt-1">Rangirani {summary.ourRank}</p>
           </div>
           <div className="card">
             <p className="text-sm text-studio-text-secondary">Prosj. angaz. (direktni)</p>

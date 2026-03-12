@@ -16,16 +16,15 @@ from app.integrations.base import ClaudeClientBase
 
 logger = logging.getLogger(__name__)
 
-DINAMO_SYSTEM = (
-    "You are an expert sports marketing strategist for GNK Dinamo Zagreb, "
-    "the biggest football club in Croatia. The club competes in the Croatian "
-    "HNL and regularly in European competitions (Champions League / Europa League).\n\n"
+BRAND_SYSTEM = (
+    "You are an expert marketing strategist for a brand's marketing platform. "
+    "You help create compelling content, analyze performance data, and generate "
+    "strategic recommendations for social media marketing.\n\n"
     "Key brand context:\n"
-    "- Primary markets: HR (domestic), DE, AT, CH (diaspora)\n"
     "- Brand colours: navy #0A1A28, accent lime #B8FF00, blue #0057A8\n"
-    "- Content pillars: match_day, player_spotlight, behind_scenes, fan_engagement, "
-    "academy, lifestyle, commercial, ucl/uel\n"
-    "- Tone: passionate, proud, modern, fan-first\n"
+    "- Content pillars: product, team_spotlight, behind_scenes, community_engagement, "
+    "education, lifestyle, campaigns, values\n"
+    "- Tone: professional, modern, community-first\n"
     "- Languages: Croatian (primary), English, German\n\n"
     "Always respond with valid JSON unless instructed otherwise."
 )
@@ -104,7 +103,7 @@ class ClaudeClient(ClaudeClientBase):
 
     async def generate_content_plan(self, context: dict) -> dict:
         prompt = (
-            "Generate a weekly content plan for Dinamo Zagreb social media.\n\n"
+            "Generate a weekly content plan for the brand social media.\n\n"
             f"Context: {json.dumps(context, default=str)}\n\n"
             "Return a JSON object with keys:\n"
             "- plan_id (string)\n"
@@ -114,17 +113,17 @@ class ClaudeClient(ClaudeClientBase):
             "topic, caption, hashtags, best_time_to_post, visual_direction)\n"
             "- strategy_notes (string paragraph)"
         )
-        text = await self._call(DINAMO_SYSTEM, prompt)
+        text = await self._call(BRAND_SYSTEM, prompt)
         return _parse_json(text)
 
     async def generate_post_copy(self, brief: dict) -> dict:
         prompt = (
-            "Generate social media post copy for Dinamo Zagreb.\n\n"
+            "Generate social media post copy for the brand.\n\n"
             f"Brief: {json.dumps(brief, default=str)}\n\n"
             "Return JSON with keys: headline, body, call_to_action, hashtags (array), "
             "platform, tone, estimated_engagement"
         )
-        text = await self._call(DINAMO_SYSTEM, prompt, max_tokens=1024)
+        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=1024)
         return _parse_json(text)
 
     async def generate_ab_variants(self, base_copy: str, num_variants: int = 3) -> list[dict]:
@@ -134,7 +133,7 @@ class ClaudeClient(ClaudeClientBase):
             "Return a JSON array. Each element has: variant_id (var_A, var_B, ...), "
             "label, copy, rationale, predicted_ctr (float)"
         )
-        text = await self._call(DINAMO_SYSTEM, prompt, max_tokens=2048)
+        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
         result = _parse_json(text)
         return result if isinstance(result, list) else result.get("variants", [result])
 
@@ -145,22 +144,22 @@ class ClaudeClient(ClaudeClientBase):
             "confidence (0-1 float), key_phrases (array), emotion (string)\n\n"
             "Texts:\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
         )
-        text = await self._call(DINAMO_SYSTEM, prompt, max_tokens=2048)
+        text = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
         result = _parse_json(text)
         return result if isinstance(result, list) else [result]
 
     async def generate_report_summary(self, data: dict) -> str:
         prompt = (
-            "Write a concise weekly performance summary for Dinamo Zagreb's "
+            "Write a concise weekly performance summary for the brand's "
             "marketing team based on this data. Use plain text (not JSON). "
             "Include: overall performance, channel insights, key actions.\n\n"
             f"Data: {json.dumps(data, default=str)}"
         )
-        return await self._call(DINAMO_SYSTEM, prompt, max_tokens=2048)
+        return await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
 
     async def generate_strategy_recommendation(self, performance_data: dict) -> dict:
         prompt = (
-            "Generate a strategic marketing recommendation for Dinamo Zagreb.\n\n"
+            "Generate a strategic marketing recommendation for the brand.\n\n"
             f"Performance data: {json.dumps(performance_data, default=str)}\n\n"
             "Return JSON with keys:\n"
             "- summary (string paragraph)\n"
@@ -173,7 +172,7 @@ class ClaudeClient(ClaudeClientBase):
             "engagement_rate_change, website_traffic_change, merch_revenue_change, "
             "estimated_roi)"
         )
-        text = await self._call(DINAMO_SYSTEM, prompt)
+        text = await self._call(BRAND_SYSTEM, prompt)
         return _parse_json(text)
 
     async def translate_content(
@@ -187,5 +186,5 @@ class ClaudeClient(ClaudeClientBase):
             f"Return JSON object with keys: {langs_str}. "
             "Each value is the translated string."
         )
-        text_resp = await self._call(DINAMO_SYSTEM, prompt, max_tokens=2048)
+        text_resp = await self._call(BRAND_SYSTEM, prompt, max_tokens=2048)
         return _parse_json(text_resp)

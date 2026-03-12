@@ -29,5 +29,5 @@
     "pass_accuracy": {"max_chars": 15, "example": "87% - 74%"},
     "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"}
   },
-  "guidelines": "Use horizontal comparison bars with Dinamo stats in blue and opponent stats in a neutral gray. Each stat should be clearly labeled with values. Slide 1 shows the result and main stats (possession, shots, corners). Slide 2 shows detailed stats (passes, tackles, xG). Clean data visualization is paramount."
+  "guidelines": "Use horizontal comparison bars with Demo Brand stats in blue and opponent stats in a neutral gray. Each stat should be clearly labeled with values. Slide 1 shows the result and main stats (possession, shots, corners). Slide 2 shows detailed stats (passes, tackles, xG). Clean data visualization is paramount."
 }

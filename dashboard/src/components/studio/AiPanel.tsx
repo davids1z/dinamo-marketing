@@ -255,9 +255,9 @@ export default function AiPanel({
                 key={preset.id}
                 onClick={() => applyPreset(preset)}
                 disabled={generating}
-                className="group flex flex-col items-center gap-1 py-2 px-1.5 rounded-lg bg-studio-surface-1 border border-studio-border hover:border-dinamo-accent/40 hover:bg-studio-surface-2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="group flex flex-col items-center gap-1 py-2 px-1.5 rounded-lg bg-studio-surface-1 border border-studio-border hover:border-brand-accent/40 hover:bg-studio-surface-2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Icon className="w-3.5 h-3.5 text-studio-text-secondary group-hover:text-dinamo-accent transition-colors" />
+                <Icon className="w-3.5 h-3.5 text-studio-text-secondary group-hover:text-brand-accent transition-colors" />
                 <span className="text-[9px] font-medium text-studio-text-secondary group-hover:text-studio-text-primary transition-colors leading-tight text-center">
                   {preset.label}
                 </span>
@@ -284,7 +284,7 @@ export default function AiPanel({
               const SIcon = style.icon
               return (
                 <>
-                  <SIcon className="w-3.5 h-3.5 text-dinamo-accent" />
+                  <SIcon className="w-3.5 h-3.5 text-brand-accent" />
                   <span className="text-studio-text-primary font-medium">{style.label}</span>
                 </>
               )
@@ -307,18 +307,18 @@ export default function AiPanel({
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all duration-150 ${
                     isSelected
-                      ? 'bg-dinamo-accent/10 border border-dinamo-accent/30'
+                      ? 'bg-brand-accent/10 border border-brand-accent/30'
                       : 'bg-studio-surface-1 border border-transparent hover:bg-studio-surface-2'
                   }`}
                 >
-                  <SIcon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-dinamo-accent' : 'text-studio-text-secondary'}`} />
+                  <SIcon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-brand-accent' : 'text-studio-text-secondary'}`} />
                   <div className="min-w-0">
-                    <div className={`text-[11px] font-medium ${isSelected ? 'text-dinamo-accent' : 'text-studio-text-primary'}`}>
+                    <div className={`text-[11px] font-medium ${isSelected ? 'text-brand-accent' : 'text-studio-text-primary'}`}>
                       {style.label}
                     </div>
                     <div className="text-[9px] text-studio-text-tertiary">{style.desc}</div>
                   </div>
-                  {isSelected && <Check className="w-3 h-3 text-dinamo-accent ml-auto flex-shrink-0" />}
+                  {isSelected && <Check className="w-3 h-3 text-brand-accent ml-auto flex-shrink-0" />}
                 </button>
               )
             })}
@@ -342,7 +342,7 @@ export default function AiPanel({
           disabled={generating}
           rows={4}
           placeholder="Opiši što želiš kreirati... Npr: Matchday najava za utakmicu protiv Hajduka, fokus na atmosferi na Maksimiru..."
-          className="w-full text-xs bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-dinamo-accent/50 focus:ring-1 focus:ring-dinamo-accent/20 resize-none transition-colors disabled:opacity-60"
+          className="w-full text-xs bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-brand-accent/50 focus:ring-1 focus:ring-brand-accent/20 resize-none transition-colors disabled:opacity-60"
         />
       </div>
 
@@ -517,13 +517,13 @@ export default function AiPanel({
               onChange={(e) => onCaptionChange(e.target.value)}
               rows={4}
               placeholder="Opis objave..."
-              className="w-full text-xs bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-dinamo-accent/50 focus:ring-1 focus:ring-dinamo-accent/20 resize-none transition-colors"
+              className="w-full text-xs bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-brand-accent/50 focus:ring-1 focus:ring-brand-accent/20 resize-none transition-colors"
             />
             {/* Character progress bar */}
             <div className="mt-1 h-0.5 bg-studio-surface-3 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-300 ${
-                  captionPercent > 90 ? 'bg-red-500' : captionPercent > 70 ? 'bg-amber-500' : 'bg-dinamo-accent'
+                  captionPercent > 90 ? 'bg-red-500' : captionPercent > 70 ? 'bg-amber-500' : 'bg-brand-accent'
                 }`}
                 style={{ width: `${captionPercent}%` }}
               />
@@ -558,7 +558,7 @@ export default function AiPanel({
                     key={`${tag}-${i}`}
                     className="inline-flex items-center gap-1 px-2 py-1 bg-studio-surface-1 border border-studio-border rounded-md text-[10px] font-medium text-studio-text-primary hover:border-studio-border-hover transition-colors group"
                   >
-                    <Hash className="w-2.5 h-2.5 text-dinamo-accent" />
+                    <Hash className="w-2.5 h-2.5 text-brand-accent" />
                     {tag.replace(/^#/, '')}
                     <button
                       onClick={() => removeHashtag(i)}
@@ -585,7 +585,7 @@ export default function AiPanel({
                   }
                 }}
                 placeholder="Dodaj hashtag..."
-                className="flex-1 text-[11px] bg-studio-surface-1 border border-studio-border rounded-lg px-2.5 py-1.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-dinamo-accent/50 transition-colors"
+                className="flex-1 text-[11px] bg-studio-surface-1 border border-studio-border rounded-lg px-2.5 py-1.5 text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-brand-accent/50 transition-colors"
               />
               <button
                 onClick={addHashtag}

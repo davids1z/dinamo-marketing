@@ -489,7 +489,7 @@ export default function SocialListening() {
           <div className="lg:col-span-2 card">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Globe size={20} className="text-dinamo-accent" />
+                <Globe size={20} className="text-brand-accent" />
                 <h2 className="section-title">Nedavna spominjanja</h2>
               </div>
               {/* Filters */}
@@ -499,7 +499,7 @@ export default function SocialListening() {
                   <select
                     value={sentimentFilter}
                     onChange={(e) => setSentimentFilter(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent/40 appearance-none cursor-pointer"
+                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent/40 appearance-none cursor-pointer"
                   >
                     {SENTIMENT_FILTER_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -511,7 +511,7 @@ export default function SocialListening() {
                   <select
                     value={platformFilter}
                     onChange={(e) => setPlatformFilter(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent/40 appearance-none cursor-pointer"
+                    className="pl-8 pr-3 py-1.5 text-xs border border-studio-border rounded-lg bg-studio-surface-1 text-studio-text-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent/40 appearance-none cursor-pointer"
                   >
                     {PLATFORM_FILTER_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -532,12 +532,12 @@ export default function SocialListening() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
                           <PlatformIcon platform={mention.platform} size="sm" />
-                          <span className="text-sm font-medium text-dinamo-accent">{mention.author}</span>
+                          <span className="text-sm font-medium text-brand-accent">{mention.author}</span>
                           {sentimentIcon(mention.sentiment)}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-studio-text-secondary">{mention.time}</span>
-                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-dinamo-accent bg-dinamo-accent/10 rounded-lg hover:bg-dinamo-accent/20 transition-colors">
+                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-brand-accent bg-brand-accent/10 rounded-lg hover:bg-brand-accent/20 transition-colors">
                             <Reply size={12} />
                             Odgovori
                           </button>

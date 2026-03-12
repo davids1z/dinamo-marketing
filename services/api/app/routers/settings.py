@@ -193,7 +193,7 @@ async def get_api_status(db: AsyncSession = Depends(get_db)):
 
     # Brand colors
     brand_colors = [
-        {"name": "Dinamo plava", "hex": "#0057A8", "usage": "Primarna boja brenda"},
+        {"name": "Brand Primary", "hex": "#0057A8", "usage": "Primarna boja brenda"},
         {"name": "Sidebar tamna", "hex": "#0A1A28", "usage": "Navigacija sidebar"},
         {"name": "Bijela", "hex": "#FFFFFF", "usage": "Pozadina kartica"},
         {"name": "Accent zelena", "hex": "#B8FF00", "usage": "Naglasci i CTA"},
@@ -312,9 +312,9 @@ async def get_brand_guidelines():
         "headline_font": "Bebas Neue",
         "body_font": "Barlow Condensed",
         "stats_font": "Oswald",
-        "club_name": "GNK Dinamo Zagreb",
+        "club_name": "Demo Brand",
         "founded": 1945,
-        "stadium": "Stadion Maksimir, Zagreb",
+        "stadium": "Home Stadium, Zagreb",
     }
 
 

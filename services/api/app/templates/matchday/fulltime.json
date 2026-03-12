@@ -24,7 +24,7 @@
     "away_score": {"max_chars": 2, "example": "1"},
     "goal_scorers": {"max_chars": 150, "example": "⚽ Petković 12', Oršić 38', Ademi 67'"},
     "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"},
-    "competition": {"max_chars": 30, "example": "HNL Round 24"}
+    "competition": {"max_chars": 30, "example": "Industry League Round 24"}
   },
   "guidelines": "Use a dramatic action photo from the match as the hero image. Score displayed prominently with club crests. All goal scorers listed with minute stamps. The tone should be neutral — the result/victory/defeat templates handle the emotional tone. Always include competition and round info."
 }

@@ -17,13 +17,13 @@ class TikTokMockClient(TikTokClientBase):
         return {
             "open_id": "tiktok_mock_user_001",
             "union_id": "tiktok_union_001",
-            "display_name": "DinamoOfficial",
+            "display_name": "SOZOfficial",
             "avatar_url": "https://p16-sign.tiktokcdn.com/mock-avatar.jpg",
             "follower_count": 89_000,
             "following_count": 215,
             "likes_count": 2_100_000,
             "video_count": 342,
-            "bio_description": "Official TikTok of Dinamo | Match highlights, behind the scenes & more",
+            "bio_description": "Official TikTok of ShiftOneZero | Match highlights, behind the scenes & more",
             "is_verified": True,
         }
 
@@ -32,9 +32,9 @@ class TikTokMockClient(TikTokClientBase):
             {
                 "id": "7321098765432100001",
                 "title": "INCREDIBLE goal from last night! ⚽🔥",
-                "description": "What a strike! Our top scorer does it again #Dinamo #Goal #Football",
+                "description": "What a strike! Our top scorer does it again #SOZ #Goal #Football",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-001.jpg",
-                "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100001",
+                "share_url": "https://www.tiktok.com/@sozofficial/video/7321098765432100001",
                 "create_time": 1709571600,
                 "duration": 15,
                 "like_count": 145_200,
@@ -45,9 +45,9 @@ class TikTokMockClient(TikTokClientBase):
             {
                 "id": "7321098765432100002",
                 "title": "POV: You're in the tunnel before the derby",
-                "description": "The atmosphere is ELECTRIC ⚡ #DerbyDay #Dinamo #Matchday",
+                "description": "The energy is ELECTRIC ⚡ #DerbyDay #SOZ #Matchday",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-002.jpg",
-                "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100002",
+                "share_url": "https://www.tiktok.com/@sozofficial/video/7321098765432100002",
                 "create_time": 1709485200,
                 "duration": 22,
                 "like_count": 98_700,
@@ -60,7 +60,7 @@ class TikTokMockClient(TikTokClientBase):
                 "title": "Players try to pronounce Croatian words 😂",
                 "description": "This is TOO FUNNY! Wait for the last one #Funny #Football #Croatian",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-003.jpg",
-                "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100003",
+                "share_url": "https://www.tiktok.com/@sozofficial/video/7321098765432100003",
                 "create_time": 1709398800,
                 "duration": 45,
                 "like_count": 234_500,
@@ -71,9 +71,9 @@ class TikTokMockClient(TikTokClientBase):
             {
                 "id": "7321098765432100004",
                 "title": "Training day with the squad 💪",
-                "description": "Hard work pays off #Training #Dinamo #BehindTheScenes",
+                "description": "Hard work pays off #Training #SOZ #BehindTheScenes",
                 "cover_image_url": "https://p16-sign.tiktokcdn.com/mock-cover-004.jpg",
-                "share_url": "https://www.tiktok.com/@dinamoofficial/video/7321098765432100004",
+                "share_url": "https://www.tiktok.com/@sozofficial/video/7321098765432100004",
                 "create_time": 1709312400,
                 "duration": 30,
                 "like_count": 67_300,
@@ -107,7 +107,7 @@ class TikTokMockClient(TikTokClientBase):
         return {
             "publish_id": "tt_pub_mock_7400000000000000001",
             "status": "PUBLISH_COMPLETE",
-            "share_url": "https://www.tiktok.com/@dinamoofficial/video/7400000000000000001",
+            "share_url": "https://www.tiktok.com/@sozofficial/video/7400000000000000001",
             "success": True,
         }
 

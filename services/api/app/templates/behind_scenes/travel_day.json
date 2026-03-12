@@ -24,7 +24,7 @@
     "match_info": {"max_chars": 40, "example": "Away at Hajduk | Sunday 17:30"},
     "travel_mode": {"max_chars": 15, "example": "Team Bus"},
     "music_track": {"max_chars": 40, "example": "Trending travel audio"},
-    "hashtags": {"max_chars": 60, "example": "#AwayDay #OnTheRoad #DinamoTravels"}
+    "hashtags": {"max_chars": 60, "example": "#AwayDay #OnTheRoad #DemoBrandTravels"}
   },
   "guidelines": "Sequence: departure from training ground, boarding bus/plane, candid player moments during travel, arrival at destination, hotel check-in. 30-45 seconds. Use trending travel audio or a laid-back track. Location tags for departure and destination. Show player personalities — music choices, card games, sleeping. Light and fun tone. Post during the journey for real-time engagement."
 }

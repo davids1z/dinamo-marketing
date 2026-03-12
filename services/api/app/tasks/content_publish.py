@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Content Publishing Task
+ShiftOneZero Marketing Platform - Content Publishing Task
 
 Checks the database for approved content scheduled for publishing and
 pushes it to the appropriate platforms via the UnifiedPublisher service.

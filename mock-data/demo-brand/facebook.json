@@ -1,7 +1,7 @@
 {
-  "account_id": "gnkdinamo",
+  "account_id": "demo_brand",
   "platform": "facebook",
-  "page_name": "GNK Dinamo Zagreb",
+  "page_name": "Demo Brand",
   "verified": true,
   "followers": 320000,
   "page_likes": 315000,
@@ -19,31 +19,31 @@
       "65+": 4
     },
     "gender": {
-      "male": 78,
-      "female": 22
+      "male": 48,
+      "female": 52
     },
     "top_countries": {
-      "HR": 62,
-      "BA": 9,
+      "US": 42,
+      "GB": 12,
+      "CA": 8,
       "DE": 6,
-      "AT": 4,
-      "SI": 3,
-      "RS": 2,
-      "CH": 2,
-      "SE": 2,
-      "US": 1,
-      "other": 9
+      "AU": 5,
+      "FR": 4,
+      "NL": 3,
+      "BR": 3,
+      "IN": 2,
+      "other": 15
     },
     "top_cities": {
-      "Zagreb": 35,
-      "Osijek": 4,
-      "Split": 3,
-      "Rijeka": 2,
-      "Varaždin": 2,
-      "Sarajevo": 2,
-      "Wien": 2,
-      "München": 1,
-      "other": 49
+      "New York": 14,
+      "Los Angeles": 7,
+      "London": 6,
+      "Chicago": 4,
+      "Toronto": 3,
+      "Berlin": 3,
+      "Sydney": 2,
+      "Paris": 2,
+      "other": 59
     }
   },
   "format_breakdown": {
@@ -57,7 +57,7 @@
     {
       "id": "fb_p1",
       "type": "video",
-      "caption": "Relive the magic! Dinamo 3-1 u europskoj noći na Maksimiru! Svi golovi i najbolji trenuci.",
+      "caption": "Relive the excitement! Our Spring Collection launch event highlights. All the best moments captured.",
       "date": "2026-02-18",
       "likes": 12000,
       "comments": 1800,
@@ -68,7 +68,7 @@
     {
       "id": "fb_p2",
       "type": "photo",
-      "caption": "SLUŽBENO: Dinamo potpisao ugovor s novim pojačanjem! Dobrodošao u Zagreb! 🔵⚪",
+      "caption": "OFFICIAL: Demo Brand partners with a leading sustainability initiative! Welcome to the team!",
       "date": "2026-01-28",
       "likes": 9800,
       "comments": 1450,
@@ -79,7 +79,7 @@
     {
       "id": "fb_p3",
       "type": "video",
-      "caption": "Trener Bjelica nakon pobjede: 'Ovo je tek početak naše europske priče'",
+      "caption": "CEO Interview: 'This is just the beginning of our brand story'",
       "date": "2026-02-12",
       "likes": 8200,
       "comments": 920,
@@ -90,7 +90,7 @@
     {
       "id": "fb_p4",
       "type": "link",
-      "caption": "Ulaznice za sljedeću utakmicu Lige prvaka sada u prodaji! Ne propustite europsku noć na Maksimiru.",
+      "caption": "Exclusive early access to our new product drop. Sign up now and be the first to know!",
       "date": "2026-02-08",
       "likes": 6500,
       "comments": 780,
@@ -101,7 +101,7 @@
     {
       "id": "fb_p5",
       "type": "photo",
-      "caption": "Dinamo U19 prvaci turnira u Beču! Budućnost je sjajna 💙",
+      "caption": "Demo Brand interns win top prize at industry innovation challenge! The future is bright.",
       "date": "2026-01-20",
       "likes": 5200,
       "comments": 340,
@@ -122,7 +122,7 @@
   },
   "group_stats": {
     "official_fan_group": {
-      "name": "Dinamo Zagreb - Navijači",
+      "name": "Demo Brand - Community Hub",
       "members": 48000,
       "monthly_active": 12000,
       "posts_per_day": 35
@@ -131,7 +131,7 @@
   "events_performance": {
     "avg_event_responses": 4200,
     "avg_event_reach": 85000,
-    "matchday_event_attendance_rate": 62
+    "launch_event_attendance_rate": 62
   },
   "monthly_metrics": [
     {"month": "2025-09", "followers": 312000, "engagement_rate": 1.4, "reach": 780000, "impressions": 2400000},

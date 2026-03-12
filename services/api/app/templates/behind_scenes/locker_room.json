@@ -20,10 +20,10 @@
   },
   "placeholders": {
     "headline": {"max_chars": 25, "example": "IN THE ROOM"},
-    "context": {"max_chars": 40, "example": "Pre-match scenes | Dinamo vs Hajduk"},
+    "context": {"max_chars": 40, "example": "Pre-match scenes | Demo Brand vs Hajduk"},
     "moment_type": {"max_chars": 25, "example": "Pre-Match"},
     "music_track": {"max_chars": 40, "example": "Ambient/natural audio preferred"},
-    "hashtags": {"max_chars": 60, "example": "#LockerRoom #Matchday #DinamoZagreb"}
+    "hashtags": {"max_chars": 60, "example": "#LockerRoom #Matchday #DemoBrand"}
   },
   "guidelines": "Raw, authentic footage with minimal editing. Natural audio preferred over music — the sounds of preparation, team talks, and camaraderie. 15-30 seconds. No tactical or sensitive content. Focus on atmosphere: shirt hanging, boot lacing, team huddle, handshakes. Slightly desaturated grade for a documentary feel. Must be approved by the manager before posting."
 }

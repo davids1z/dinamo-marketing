@@ -148,8 +148,8 @@ class AcademyContentService:
         except Exception as exc:
             logger.error(f"Match report generation failed: {exc}")
             report = {
-                "headline_hr": f"Dinamo {match.team_level}: {match.result} vs {match.opponent}",
-                "headline_en": f"Dinamo {match.team_level}: {match.result} vs {match.opponent}",
+                "headline_hr": f"Academy {match.team_level}: {match.result} vs {match.opponent}",
+                "headline_en": f"Academy {match.team_level}: {match.result} vs {match.opponent}",
                 "summary_hr": "",
                 "summary_en": "",
                 "social_posts": [],

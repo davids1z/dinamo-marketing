@@ -20,7 +20,7 @@
   },
   "placeholders": {
     "headline": {"max_chars": 25, "example": "MATCHDAY VIBES"},
-    "subheadline": {"max_chars": 50, "example": "Behind the scenes at Maksimir"},
+    "subheadline": {"max_chars": 50, "example": "Behind the scenes at Main Venue"},
     "series_label": {"max_chars": 20, "example": "Episode 12"},
     "cta": {"example": "Tap to begin"}
   },

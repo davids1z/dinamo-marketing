@@ -37,14 +37,14 @@ class ChannelAuditService:
         self.ga4_client = ga4_client
 
     async def run_full_audit(self, db: AsyncSession) -> dict:
-        """Audit all Dinamo-owned channels across platforms."""
+        """Audit all own brand channels across platforms."""
         result = await db.execute(
-            select(SocialChannel).where(SocialChannel.owner_type == "dinamo")
+            select(SocialChannel).where(SocialChannel.owner_type == "own")
         )
         channels = result.scalars().all()
 
         if not channels:
-            logger.warning("No Dinamo channels found in database")
+            logger.warning("No own brand channels found in database")
             return {
                 "status": "no_channels",
                 "channels_audited": 0,
@@ -205,7 +205,7 @@ class ChannelAuditService:
             }
 
     async def get_health_scores(self, db: AsyncSession) -> list[dict]:
-        """Get the latest health scores for all Dinamo channels."""
+        """Get the latest health scores for all own brand channels."""
         # Subquery: latest date per channel
         latest_date_subq = (
             select(
@@ -224,7 +224,7 @@ class ChannelAuditService:
                 (ChannelHealthScore.channel_id == latest_date_subq.c.channel_id)
                 & (ChannelHealthScore.date == latest_date_subq.c.max_date),
             )
-            .where(SocialChannel.owner_type == "dinamo")
+            .where(SocialChannel.owner_type == "own")
             .order_by(ChannelHealthScore.overall_score.desc())
         )
         rows = result.all()
@@ -234,7 +234,7 @@ class ChannelAuditService:
             return [
                 {
                     "platform": "instagram",
-                    "handle": "@gnkdinamo",
+                    "handle": "@demo_brand",
                     "overall_score": 0.0,
                     "growth_score": 0.0,
                     "engagement_score": 0.0,

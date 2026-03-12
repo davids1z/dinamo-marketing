@@ -34,22 +34,22 @@ async def scan_all_competitors(db: AsyncSession = Depends(get_db)):
 
 @router.get("/")
 async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
-    """BFF endpoint: returns {competitors, dinamoIg, summary} for the Competitors page."""
+    """BFF endpoint: returns {competitors, ownIg, summary} for the Competitors page."""
 
-    # Get Dinamo's own IG followers
-    dinamo_ig_result = await db.execute(
+    # Get own brand's IG followers
+    own_ig_result = await db.execute(
         select(ChannelMetric)
         .join(SocialChannel, ChannelMetric.channel_id == SocialChannel.id)
         .where(
-            SocialChannel.owner_type == "dinamo",
+            SocialChannel.owner_type == "own",
             SocialChannel.platform == "instagram",
         )
         .order_by(ChannelMetric.date.desc())
         .limit(1)
     )
-    dinamo_ig_metric = dinamo_ig_result.scalar_one_or_none()
-    dinamo_ig = dinamo_ig_metric.followers if dinamo_ig_metric else 567000
-    dinamo_engagement = dinamo_ig_metric.engagement_rate if dinamo_ig_metric else 3.2
+    own_ig_metric = own_ig_result.scalar_one_or_none()
+    own_ig = own_ig_metric.followers if own_ig_metric else 567000
+    own_engagement = own_ig_metric.engagement_rate if own_ig_metric else 3.2
 
     # Get latest competitor metrics (grouped by competitor + platform)
     latest_subq = (
@@ -105,7 +105,7 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
             c["tier"] = "stretch"
         else:
             c["tier"] = "direct"
-        c["gapVsDinamo"] = ig - dinamo_ig
+        c["gapVsOwn"] = ig - own_ig
         competitors.append(c)
 
     # Sort: aspirational first (desc by followers), then stretch, then direct
@@ -115,7 +115,7 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
     # Calculate summary
     direct_comps = [c for c in competitors if c["tier"] == "direct"]
     direct_count = len(direct_comps)
-    dinamo_leads_in = sum(1 for c in direct_comps if c["igFollowers"] < dinamo_ig)
+    own_leads_in = sum(1 for c in direct_comps if c["igFollowers"] < own_ig)
     avg_engagement_direct = round(
         sum(c["igEngagement"] for c in direct_comps) / max(direct_count, 1), 1
     )
@@ -127,16 +127,16 @@ async def get_competitor_page_data(db: AsyncSession = Depends(get_db)):
 
     summary = {
         "directCount": direct_count,
-        "dinamoLeadsIn": dinamo_leads_in,
-        "dinamoIgFormatted": format_followers(dinamo_ig),
-        "dinamoRank": f"#1 u direktnoj skupini" if dinamo_leads_in == direct_count else f"#{direct_count - dinamo_leads_in + 1} u direktnoj skupini",
+        "ownLeadsIn": own_leads_in,
+        "ownIgFormatted": format_followers(own_ig),
+        "ownRank": f"#1 u direktnoj skupini" if own_leads_in == direct_count else f"#{direct_count - own_leads_in + 1} u direktnoj skupini",
         "avgEngagementDirect": avg_engagement_direct,
-        "dinamoEngagement": round(dinamo_engagement, 1),
+        "ownEngagement": round(own_engagement, 1),
     }
 
     return {
         "competitors": competitors,
-        "dinamoIg": dinamo_ig,
+        "ownIg": own_ig,
         "summary": summary,
     }
 

@@ -28,7 +28,7 @@
     "stat_2_value": {"max_chars": 5, "example": "4"},
     "stat_3_label": {"max_chars": 15, "example": "Rating"},
     "stat_3_value": {"max_chars": 5, "example": "8.7"},
-    "match_result": {"max_chars": 30, "example": "Dinamo 3-1 Hajduk"}
+    "match_result": {"max_chars": 30, "example": "Demo Brand 3-1 Hajduk"}
   },
   "guidelines": "Use a high-quality player cutout image with a dynamic pose. The gold accent color replaces the standard blue accent for MOTM to signify the award. Include 3 standout stats in card format. The MOTM badge should be a star/shield icon. Sponsor logo for MOTM award can be placed in the badge area."
 }

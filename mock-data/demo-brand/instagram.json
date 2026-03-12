@@ -1,5 +1,5 @@
 {
-  "account_id": "gnkdinamo",
+  "account_id": "demo_brand",
   "platform": "instagram",
   "verified": true,
   "followers": 567000,
@@ -18,32 +18,32 @@
       "55+": 5
     },
     "gender": {
-      "male": 72,
-      "female": 28
+      "male": 52,
+      "female": 48
     },
     "top_countries": {
-      "HR": 58,
-      "BA": 8,
-      "DE": 7,
-      "AT": 5,
-      "SI": 4,
-      "RS": 3,
-      "CH": 3,
-      "US": 2,
+      "US": 38,
+      "GB": 12,
+      "DE": 10,
+      "CA": 8,
+      "AU": 6,
+      "FR": 5,
+      "NL": 4,
+      "BR": 3,
       "SE": 2,
-      "other": 8
+      "other": 12
     },
     "top_cities": {
-      "Zagreb": 32,
-      "Split": 4,
-      "Osijek": 3,
-      "Rijeka": 2,
-      "Wien": 2,
-      "München": 2,
-      "Sarajevo": 2,
-      "Ljubljana": 1,
-      "Zürich": 1,
-      "other": 51
+      "New York": 12,
+      "London": 8,
+      "Los Angeles": 7,
+      "Berlin": 5,
+      "Toronto": 4,
+      "Sydney": 3,
+      "Amsterdam": 3,
+      "Paris": 2,
+      "Chicago": 2,
+      "other": 54
     }
   },
   "format_breakdown": {
@@ -56,7 +56,7 @@
     {
       "id": "p1",
       "type": "reel",
-      "caption": "GOOOL! Petković zabija za 2:0!",
+      "caption": "Our new product line just dropped! See what everyone is talking about.",
       "date": "2026-02-18",
       "likes": 45000,
       "comments": 1200,
@@ -68,7 +68,7 @@
     {
       "id": "p2",
       "type": "carousel",
-      "caption": "Champions League - We are ready! 💙🏆",
+      "caption": "Spring Campaign Launch - The future of style is here! #DemoBrand #NewCollection",
       "date": "2026-02-10",
       "likes": 38000,
       "comments": 980,
@@ -80,7 +80,7 @@
     {
       "id": "p3",
       "type": "reel",
-      "caption": "Maksimir pod svjetlima 🔵 Atmosfera za pamćenje!",
+      "caption": "Behind the scenes at our HQ - where the magic happens!",
       "date": "2026-02-05",
       "likes": 34500,
       "comments": 870,
@@ -92,7 +92,7 @@
     {
       "id": "p4",
       "type": "static_image",
-      "caption": "Novo pojačanje! Dobrodošao u obitelj 💙 #DobrodošaoUDinamo",
+      "caption": "Welcoming our newest team member! Excited to have you on board. #WelcomeToDemoBrand",
       "date": "2026-01-28",
       "likes": 31200,
       "comments": 1450,
@@ -104,7 +104,7 @@
     {
       "id": "p5",
       "type": "reel",
-      "caption": "Trening iz prvog lica 👀 Behind the scenes sa Dinamom",
+      "caption": "A day at the office from a first-person perspective. Behind the scenes with Demo Brand.",
       "date": "2026-01-22",
       "likes": 28700,
       "comments": 640,
@@ -116,7 +116,7 @@
     {
       "id": "p6",
       "type": "carousel",
-      "caption": "Dinamo Academy - Budućnost je plava! 💙 Naši mladi igrači na turniru u Salzburgu",
+      "caption": "Demo Brand Academy - Investing in the next generation! Our interns at the industry summit.",
       "date": "2026-01-18",
       "likes": 25400,
       "comments": 580,
@@ -128,7 +128,7 @@
     {
       "id": "p7",
       "type": "reel",
-      "caption": "Sučić ➡️ Baturina ➡️ GOL! Kombinacija sezone! 🔥",
+      "caption": "From concept to creation - watch how our design team brought this to life!",
       "date": "2026-01-14",
       "likes": 22800,
       "comments": 520,
@@ -140,7 +140,7 @@
     {
       "id": "p8",
       "type": "static_image",
-      "caption": "Matchday! 🏟️ Dinamo vs Rijeka | HNL | 20:00 #SamoDinamo",
+      "caption": "Launch Day! Our Spring Collection is LIVE. Shop now at demo-brand.com #DemoBrand #SpringLaunch",
       "date": "2026-01-10",
       "likes": 19500,
       "comments": 430,
@@ -152,7 +152,7 @@
     {
       "id": "p9",
       "type": "carousel",
-      "caption": "📊 Sezona u brojevima - Dinamo dominira HNL! #DynamoStats",
+      "caption": "2025 in numbers - Demo Brand year in review! #DemoBrandStats",
       "date": "2026-01-06",
       "likes": 17200,
       "comments": 380,
@@ -164,7 +164,7 @@
     {
       "id": "p10",
       "type": "reel",
-      "caption": "Happy New Year od Dinama! 🎆💙 Što nam donosi 2026?",
+      "caption": "Happy New Year from Demo Brand! What does 2026 hold for us?",
       "date": "2026-01-01",
       "likes": 15800,
       "comments": 620,
@@ -185,13 +185,13 @@
     "sunday": "20:00"
   },
   "hashtag_performance": {
-    "#SamoDinamo": {"avg_reach": 52000, "usage_count": 820},
-    "#DynamoZagreb": {"avg_reach": 48000, "usage_count": 690},
-    "#GNKDinamo": {"avg_reach": 44000, "usage_count": 1200},
-    "#Maksimir": {"avg_reach": 36000, "usage_count": 340},
-    "#PlavaObitelj": {"avg_reach": 31000, "usage_count": 210},
-    "#HNL": {"avg_reach": 29000, "usage_count": 580},
-    "#ChampionsLeague": {"avg_reach": 85000, "usage_count": 45}
+    "#DemoBrand": {"avg_reach": 52000, "usage_count": 820},
+    "#OurBrand": {"avg_reach": 48000, "usage_count": 690},
+    "#DemoBrandLife": {"avg_reach": 44000, "usage_count": 1200},
+    "#BrandCommunity": {"avg_reach": 36000, "usage_count": 340},
+    "#OurStory": {"avg_reach": 31000, "usage_count": 210},
+    "#Innovation": {"avg_reach": 29000, "usage_count": 580},
+    "#SpringCollection": {"avg_reach": 85000, "usage_count": 45}
   },
   "story_metrics": {
     "avg_daily_stories": 6,

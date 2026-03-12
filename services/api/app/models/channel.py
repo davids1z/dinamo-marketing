@@ -15,7 +15,7 @@ class SocialChannel(BaseModel):
 
     owner_type: Mapped[str] = mapped_column(
         String(20), nullable=False
-    )  # dinamo, competitor
+    )  # own, competitor
     owner_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     platform: Mapped[str] = mapped_column(
         String(20), nullable=False

@@ -349,7 +349,7 @@ export default function SceneEditor({
         action={
           <button
             onClick={(e) => { e.stopPropagation(); addTextLayer() }}
-            className="p-1 rounded-md text-studio-text-tertiary hover:text-dinamo-accent hover:bg-dinamo-accent/10 transition-colors"
+            className="p-1 rounded-md text-studio-text-tertiary hover:text-brand-accent hover:bg-brand-accent/10 transition-colors"
             title="Dodaj tekst"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -371,7 +371,7 @@ export default function SceneEditor({
           {scene.text_layers.length === 0 && (
             <button
               onClick={addTextLayer}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-dashed border-studio-border text-studio-text-tertiary hover:border-dinamo-accent hover:text-dinamo-accent transition-colors text-[10px]"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-dashed border-studio-border text-studio-text-tertiary hover:border-brand-accent hover:text-brand-accent transition-colors text-[10px]"
             >
               <Plus className="w-3 h-3" /> Dodaj tekst
             </button>
@@ -389,7 +389,7 @@ export default function SceneEditor({
         action={
           <button
             onClick={(e) => { e.stopPropagation(); addOverlay() }}
-            className="p-1 rounded-md text-studio-text-tertiary hover:text-dinamo-accent hover:bg-dinamo-accent/10 transition-colors"
+            className="p-1 rounded-md text-studio-text-tertiary hover:text-brand-accent hover:bg-brand-accent/10 transition-colors"
             title="Dodaj sloj"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -408,7 +408,7 @@ export default function SceneEditor({
           {scene.overlay_layers.length === 0 && (
             <button
               onClick={addOverlay}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-dashed border-studio-border text-studio-text-tertiary hover:border-dinamo-accent hover:text-dinamo-accent transition-colors text-[10px]"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-dashed border-studio-border text-studio-text-tertiary hover:border-brand-accent hover:text-brand-accent transition-colors text-[10px]"
             >
               <Plus className="w-3 h-3" /> Dodaj sloj
             </button>
@@ -539,7 +539,7 @@ function TextLayerCard({
         value={layer.text}
         onChange={(e) => onUpdate({ text: e.target.value })}
         rows={2}
-        className="w-full bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1.5 text-xs text-studio-text-primary placeholder:text-studio-text-disabled resize-none focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors"
+        className="w-full bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1.5 text-xs text-studio-text-primary placeholder:text-studio-text-disabled resize-none focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 transition-colors"
         placeholder="Tekst..."
       />
 
@@ -818,7 +818,7 @@ function ColorFieldRow({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1 text-[10px] font-mono text-studio-text-primary placeholder:text-studio-text-disabled focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors uppercase"
+          className="flex-1 bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1 text-[10px] font-mono text-studio-text-primary placeholder:text-studio-text-disabled focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 transition-colors uppercase"
         />
       </div>
     </FieldRow>
@@ -853,7 +853,7 @@ function NumberInput({
           const v = parseFloat(e.target.value)
           if (!isNaN(v)) onChange(Math.min(max, Math.max(min, v)))
         }}
-        className={`w-14 bg-studio-surface-1 border border-studio-border rounded-md py-1 text-xs font-mono text-center text-studio-text-primary focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors appearance-none
+        className={`w-14 bg-studio-surface-1 border border-studio-border rounded-md py-1 text-xs font-mono text-center text-studio-text-primary focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 transition-colors appearance-none
           [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none
           ${suffix ? 'pr-4 pl-1.5' : 'px-1.5'}`}
       />
@@ -881,7 +881,7 @@ function StudioSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1 text-xs text-studio-text-primary appearance-none cursor-pointer focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors pr-6"
+        className="w-full bg-studio-surface-1 border border-studio-border rounded-md px-2 py-1 text-xs text-studio-text-primary appearance-none cursor-pointer focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 transition-colors pr-6"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

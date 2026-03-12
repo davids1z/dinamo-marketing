@@ -165,7 +165,7 @@ class FanEngagementService:
     async def submit_ugc(self, db: AsyncSession, data: dict) -> dict:
         """Submit user-generated content for review."""
         submission = UGCSubmission(
-            campaign_hashtag=data.get("campaign_hashtag", "#DinamoFans"),
+            campaign_hashtag=data.get("campaign_hashtag", "#OurBrand"),
             platform=data.get("platform", "instagram"),
             author=data.get("author", ""),
             content_url=data["content_url"],

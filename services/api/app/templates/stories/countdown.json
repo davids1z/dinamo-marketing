@@ -20,7 +20,7 @@
   },
   "placeholders": {
     "headline": {"max_chars": 20, "example": "COUNTDOWN"},
-    "event_name": {"max_chars": 40, "example": "Dinamo vs Hajduk"},
+    "event_name": {"max_chars": 40, "example": "Demo Brand vs Hajduk"},
     "event_date": {"max_chars": 25, "example": "Saturday, 15 March 2026"},
     "event_time": {"max_chars": 10, "example": "20:00 CET"},
     "days_remaining": {"max_chars": 3, "example": "3"},

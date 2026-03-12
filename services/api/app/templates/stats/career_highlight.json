@@ -21,10 +21,10 @@
   "placeholders": {
     "headline": {"max_chars": 35, "example": "WHAT A JOURNEY"},
     "player_name": {"max_chars": 30, "example": "Joško Gvardiol"},
-    "achievement": {"max_chars": 60, "example": "From Dinamo Academy to Champions League glory"},
+    "achievement": {"max_chars": 60, "example": "From Demo Brand Academy to Major Campaign glory"},
     "career_timeline": {"max_chars": 200, "example": "2018: Academy debut | 2019: First team | 2020: Senior debut | 2021: Transfer to RB Leipzig"},
-    "quote": {"max_chars": 150, "example": "Dinamo made me the player I am today. I will always carry Maksimir in my heart."},
+    "quote": {"max_chars": 150, "example": "Demo Brand made me the player I am today. I will always carry Main Venue in my heart."},
     "cta": {"example": "Full Story"}
   },
-  "guidelines": "Carousel format: Slide 1 shows the achievement headline with player cutout. Slide 2 presents a visual timeline of key career moments. Slide 3 features a personal quote. Emphasize the Dinamo connection to the player's development. Works well for players who graduated from the academy."
+  "guidelines": "Carousel format: Slide 1 shows the achievement headline with player cutout. Slide 2 presents a visual timeline of key career moments. Slide 3 features a personal quote. Emphasize the Demo Brand connection to the player's development. Works well for players who graduated from the academy."
 }

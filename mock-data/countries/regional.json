@@ -1,5 +1,5 @@
 {
-  "description": "Regional markets - core Balkan/ex-Yugoslav countries for Dinamo marketing",
+  "description": "Regional markets - core Balkan/ex-Yugoslav countries for Demo Brand marketing",
   "last_updated": "2026-03-01",
   "countries": {
     "HR": {
@@ -13,7 +13,7 @@
         "interest_score": 92,
         "domestic_league_interest": 68,
         "national_team_interest": 95,
-        "top_clubs": ["Dinamo Zagreb", "Hajduk Split", "Rijeka", "Osijek"]
+        "top_clubs": ["Demo Brand", "Hajduk Split", "Rijeka", "Osijek"]
       },
       "top_platforms": {
         "facebook": {"users": 1900000, "penetration": 49},
@@ -28,7 +28,7 @@
         "currency": "EUR",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 35,
         "estimated_fans_total": 1350000,
         "social_media_followers_pct": 22,
@@ -65,7 +65,7 @@
         "currency": "BAM",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 8,
         "estimated_fans_total": 260000,
         "social_media_followers_pct": 12,
@@ -98,7 +98,7 @@
         "currency": "EUR",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 4,
         "estimated_fans_total": 85000,
         "social_media_followers_pct": 5,
@@ -131,7 +131,7 @@
         "currency": "RSD",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 2,
         "estimated_fans_total": 130000,
         "social_media_followers_pct": 3,
@@ -164,7 +164,7 @@
         "currency": "MKD",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 3,
         "estimated_fans_total": 55000,
         "social_media_followers_pct": 2,
@@ -197,7 +197,7 @@
         "currency": "EUR",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 2,
         "estimated_fans_total": 37000,
         "social_media_followers_pct": 1,
@@ -230,7 +230,7 @@
         "currency": "EUR",
         "timezone": "CET"
       },
-      "dinamo_market_share": {
+      "brand_market_share": {
         "estimated_fans_pct": 5,
         "estimated_fans_total": 31000,
         "social_media_followers_pct": 3,

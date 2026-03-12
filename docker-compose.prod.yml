@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: dinamo
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dinamo_prod_2026}
-      POSTGRES_DB: dinamo_marketing
+      POSTGRES_USER: shiftonezero
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-soz_prod_2026}
+      POSTGRES_DB: shiftonezero
     volumes:
       - pgdata:/var/lib/postgresql/data
     command: >
@@ -14,7 +14,7 @@ services:
       -c work_mem=4MB
       -c maintenance_work_mem=64MB
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dinamo -d dinamo_marketing"]
+      test: ["CMD-SHELL", "pg_isready -U shiftonezero -d shiftonezero"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,12 +47,12 @@ services:
     ports:
       - "127.0.0.1:3301:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      DM_USE_MOCK_APIS: "true"
+      SOZ_USE_MOCK_APIS: "true"
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHANNEL_ID: ${TELEGRAM_CHANNEL_ID:-}
@@ -86,12 +86,12 @@ services:
       context: ./services/api
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      DM_USE_MOCK_APIS: "true"
+      SOZ_USE_MOCK_APIS: "true"
       LOG_FORMAT: "json"
       LOG_LEVEL: "INFO"
       SENTRY_DSN: ${SENTRY_DSN:-}
@@ -122,12 +122,12 @@ services:
       context: ./services/api
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:${DB_PASSWORD:-dinamo_prod_2026}@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      DM_USE_MOCK_APIS: "true"
+      SOZ_USE_MOCK_APIS: "true"
       LOG_FORMAT: "json"
       LOG_LEVEL: "INFO"
     depends_on:

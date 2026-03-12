@@ -206,8 +206,8 @@ export default function CustomerSegmentation() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg">
-              <Users size={16} className="text-dinamo-accent" />
-              <span className="text-sm font-medium text-dinamo-accent">
+              <Users size={16} className="text-brand-accent" />
+              <span className="text-sm font-medium text-brand-accent">
                 {totalCustomers >= 1000 ? `${(totalCustomers / 1000).toFixed(0)}K` : totalCustomers} ukupno korisnika
               </span>
             </div>
@@ -281,7 +281,7 @@ export default function CustomerSegmentation() {
           {/* Segment Distribution Donut */}
           <div className="card">
             <h2 className="section-title mb-4 flex items-center gap-2">
-              <Target size={18} className="text-dinamo-accent" />
+              <Target size={18} className="text-brand-accent" />
               Raspodjela segmenata
             </h2>
             <div className="flex justify-center">
@@ -411,7 +411,7 @@ export default function CustomerSegmentation() {
           {/* Churn Risk Distribution */}
           <div className="card">
             <h2 className="section-title mb-4 flex items-center gap-2">
-              <ShieldCheck size={18} className="text-dinamo-accent" />
+              <ShieldCheck size={18} className="text-brand-accent" />
               Distribucija rizika odljeva
             </h2>
             <div className="flex justify-center">
@@ -454,7 +454,7 @@ export default function CustomerSegmentation() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {churnPredictions.map((item) => (
-                <div key={item.metric} className="bg-studio-surface-0 rounded-xl p-4 space-y-2 border border-studio-border hover:border-dinamo-accent/30 transition-colors">
+                <div key={item.metric} className="bg-studio-surface-0 rounded-xl p-4 space-y-2 border border-studio-border hover:border-brand-accent/30 transition-colors">
                   <p className="text-sm text-studio-text-secondary">{item.metric}</p>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-studio-text-primary">{item.value}</span>

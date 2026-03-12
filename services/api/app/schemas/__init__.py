@@ -1,4 +1,4 @@
-"""Pydantic schemas for the Dinamo Zagreb Marketing Platform API."""
+"""Pydantic schemas for the ShiftOneZero Marketing Platform API."""
 
 # Common / shared
 from .common import (

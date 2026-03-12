@@ -27,8 +27,8 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
       <div className="flex items-start justify-between mb-3">
         <p className="text-xs uppercase tracking-wider text-studio-text-secondary font-medium">{label}</p>
         {Icon && (
-          <div className="w-9 h-9 rounded-xl bg-dinamo-accent/10 flex items-center justify-center group-hover:bg-dinamo-accent/15 transition-colors">
-            <Icon size={17} className="text-dinamo-accent" />
+          <div className="w-9 h-9 rounded-xl bg-brand-accent/10 flex items-center justify-center group-hover:bg-brand-accent/15 transition-colors">
+            <Icon size={17} className="text-brand-accent" />
           </div>
         )}
       </div>

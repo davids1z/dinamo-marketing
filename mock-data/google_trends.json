@@ -1,9 +1,9 @@
 {
-  "description": "Google Trends search interest data for key Dinamo-related terms by country (0-100 scale)",
+  "description": "Google Trends search interest data for key brand-related terms by country (0-100 scale)",
   "last_updated": "2026-03-01",
   "data_period": "2025-03 to 2026-03",
   "search_terms": {
-    "Dinamo Zagreb": {
+    "Demo Brand": {
       "global_interest": 28,
       "by_country": {
         "HR": 100,
@@ -27,24 +27,24 @@
         "IE": 2
       },
       "seasonal_peaks": [
-        {"period": "2025-09", "interest": 65, "reason": "Champions League group stage start"},
-        {"period": "2025-10", "interest": 48, "reason": "CL matchdays"},
-        {"period": "2025-11", "interest": 52, "reason": "CL matchdays"},
-        {"period": "2025-12", "interest": 42, "reason": "CL final matchday + winter break"},
-        {"period": "2026-01", "interest": 55, "reason": "Transfer window + CL knockout draw"},
-        {"period": "2026-02", "interest": 72, "reason": "CL playoff round"},
-        {"period": "2026-03", "interest": 58, "reason": "CL Round of 16"}
+        {"period": "2025-09", "interest": 65, "reason": "Spring Campaign launch"},
+        {"period": "2025-10", "interest": 48, "reason": "Campaign milestones"},
+        {"period": "2025-11", "interest": 52, "reason": "Campaign milestones"},
+        {"period": "2025-12", "interest": 42, "reason": "Year-end campaigns + holiday break"},
+        {"period": "2026-01", "interest": 55, "reason": "New partnerships + Campaign expansion"},
+        {"period": "2026-02", "interest": 72, "reason": "Campaign award season"},
+        {"period": "2026-03", "interest": 58, "reason": "Major brand collaboration"}
       ],
       "related_queries": [
-        {"query": "dinamo zagreb results", "type": "top", "interest": 85},
-        {"query": "dinamo zagreb champions league", "type": "rising", "interest": 320},
-        {"query": "dinamo zagreb transfers", "type": "top", "interest": 62},
-        {"query": "dinamo zagreb tickets", "type": "top", "interest": 58},
-        {"query": "dinamo zagreb lineup", "type": "top", "interest": 45},
-        {"query": "dinamo zagreb vs", "type": "top", "interest": 72}
+        {"query": "demo brand results", "type": "top", "interest": 85},
+        {"query": "demo brand spring campaign", "type": "rising", "interest": 320},
+        {"query": "demo brand transfers", "type": "top", "interest": 62},
+        {"query": "demo brand tickets", "type": "top", "interest": 58},
+        {"query": "demo brand lineup", "type": "top", "interest": 45},
+        {"query": "demo brand vs", "type": "top", "interest": 72}
       ]
     },
-    "Croatia football": {
+    "Croatia marketing": {
       "global_interest": 35,
       "by_country": {
         "HR": 88,
@@ -66,19 +66,19 @@
         "CZ": 5
       },
       "seasonal_peaks": [
-        {"period": "2025-09", "interest": 42, "reason": "European competition"},
-        {"period": "2025-10", "interest": 55, "reason": "Nations League + European club competitions"},
-        {"period": "2025-11", "interest": 48, "reason": "Nations League + club competitions"},
-        {"period": "2026-03", "interest": 65, "reason": "World Cup qualifiers"}
+        {"period": "2025-09", "interest": 42, "reason": "Campaign season"},
+        {"period": "2025-10", "interest": 55, "reason": "Industry Summit + European club competitions"},
+        {"period": "2025-11", "interest": 48, "reason": "Industry Summit + club competitions"},
+        {"period": "2026-03", "interest": 65, "reason": "Industry awards season"}
       ],
       "related_queries": [
-        {"query": "croatia national team", "type": "top", "interest": 92},
-        {"query": "croatia world cup 2026", "type": "rising", "interest": 450},
-        {"query": "HNL standings", "type": "top", "interest": 68},
-        {"query": "croatia football players", "type": "top", "interest": 55}
+        {"query": "brand national team", "type": "top", "interest": 92},
+        {"query": "brand world cup 2026", "type": "rising", "interest": 450},
+        {"query": "Industry standings", "type": "top", "interest": 68},
+        {"query": "brand marketing players", "type": "top", "interest": 55}
       ]
     },
-    "HNL": {
+    "Industry": {
       "global_interest": 12,
       "by_country": {
         "HR": 100,
@@ -92,14 +92,14 @@
         "XK": 3
       },
       "seasonal_peaks": [
-        {"period": "2025-08", "interest": 72, "reason": "Season start"},
-        {"period": "2025-10", "interest": 58, "reason": "Mid-season form"},
-        {"period": "2025-12", "interest": 45, "reason": "Winter break approach"},
-        {"period": "2026-02", "interest": 62, "reason": "Spring restart"},
-        {"period": "2026-05", "interest": 85, "reason": "Title race finale"}
+        {"period": "2025-08", "interest": 72, "reason": "Campaign kickoff"},
+        {"period": "2025-10", "interest": 58, "reason": "Mid-campaign performance"},
+        {"period": "2025-12", "interest": 45, "reason": "Year-end wrap-up"},
+        {"period": "2026-02", "interest": 62, "reason": "Spring campaign launch"},
+        {"period": "2026-05", "interest": 85, "reason": "Campaign results"}
       ]
     },
-    "Maksimir stadium": {
+    "Demo Brand store": {
       "global_interest": 8,
       "by_country": {
         "HR": 100,
@@ -109,7 +109,7 @@
         "DE": 3
       }
     },
-    "GNK Dinamo": {
+    "Demo Brand": {
       "global_interest": 22,
       "by_country": {
         "HR": 100,
@@ -126,8 +126,8 @@
   },
   "competitor_comparison": {
     "search_interest_comparison": {
-      "Dinamo Zagreb": 28,
-      "Hajduk Split": 22,
+      "Demo Brand": 28,
+      "Competitor A": 22,
       "Red Bull Salzburg": 32,
       "Slavia Praha": 25,
       "Ferencváros": 20,

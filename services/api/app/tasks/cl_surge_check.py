@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Champions League Surge Check Task
+ShiftOneZero Marketing Platform - Champions League Surge Check Task
 Monitors the Champions League schedule. When a match is within 7 days,
 activates "surge mode" -- increasing posting frequency and boosting ad budgets
 to capitalize on heightened fan engagement.
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 SURGE_WINDOW_DAYS = 7  # Activate surge when match is within 7 days
 POST_FREQUENCY_MULTIPLIER = 2.0  # Double posting frequency during surge
 AD_BUDGET_BOOST_PCT = 50  # Boost ad budgets by 50%
-SURGE_HASHTAGS = ["#UCL", "#ChampionsLeague", "#DinamoUCL", "#GNKD"]
+SURGE_HASHTAGS = ["#UCL", "#ChampionsLeague", "#DemoBrandUCL", "#DemoBrand"]
 
 # ---------------------------------------------------------------------------
 # Mock Champions League schedule (2025/26 season)
@@ -32,9 +32,9 @@ MOCK_CL_SCHEDULE = [
         "competition": "UEFA Champions League",
         "phase": "League Phase",
         "matchday": 1,
-        "home_team": "GNK Dinamo Zagreb",
+        "home_team": "Demo Brand",
         "away_team": "Bayern Munchen",
-        "venue": "Stadion Maksimir",
+        "venue": "Home Stadium",
         "kickoff": "2026-03-10T21:00:00+01:00",
         "is_home": True,
         "broadcast": ["Arena Sport", "DAZN"],
@@ -45,7 +45,7 @@ MOCK_CL_SCHEDULE = [
         "phase": "League Phase",
         "matchday": 2,
         "home_team": "AC Milan",
-        "away_team": "GNK Dinamo Zagreb",
+        "away_team": "Demo Brand",
         "venue": "San Siro",
         "kickoff": "2026-03-24T21:00:00+01:00",
         "is_home": False,
@@ -56,9 +56,9 @@ MOCK_CL_SCHEDULE = [
         "competition": "UEFA Champions League",
         "phase": "League Phase",
         "matchday": 3,
-        "home_team": "GNK Dinamo Zagreb",
+        "home_team": "Demo Brand",
         "away_team": "Arsenal FC",
-        "venue": "Stadion Maksimir",
+        "venue": "Home Stadium",
         "kickoff": "2026-04-15T21:00:00+02:00",
         "is_home": True,
         "broadcast": ["Arena Sport", "DAZN"],
@@ -69,7 +69,7 @@ MOCK_CL_SCHEDULE = [
         "phase": "League Phase",
         "matchday": 4,
         "home_team": "Real Madrid",
-        "away_team": "GNK Dinamo Zagreb",
+        "away_team": "Demo Brand",
         "venue": "Santiago Bernabeu",
         "kickoff": "2026-05-06T21:00:00+02:00",
         "is_home": False,
@@ -134,7 +134,7 @@ def _generate_surge_content_plan(match: dict) -> list:
         "type": "image_post",
         "platforms": ["facebook", "instagram", "twitter_x"],
         "title": f"UCL Countdown: 7 Days to {opponent}!",
-        "description": f"Matchday countdown begins. {opponent} {'comes to Maksimir' if is_home else f'awaits us at {venue}'}.",
+        "description": f"Matchday countdown begins. {opponent} {'comes to our home' if is_home else f'awaits us at {venue}'}.",
         "hashtags": SURGE_HASHTAGS,
         "priority": "high",
     })
@@ -145,7 +145,7 @@ def _generate_surge_content_plan(match: dict) -> list:
         "scheduled_for": (kickoff - timedelta(days=5)).isoformat(),
         "type": "video_post",
         "platforms": ["youtube", "tiktok", "instagram"],
-        "title": f"Dinamo vs {opponent} -- Our UCL History",
+        "title": f"Demo Brand vs {opponent} -- Our UCL History",
         "description": f"A look back at our European battles against {opponent}.",
         "hashtags": SURGE_HASHTAGS + ["#UCLHistory"],
         "priority": "medium",
@@ -169,8 +169,8 @@ def _generate_surge_content_plan(match: dict) -> list:
         "scheduled_for": (kickoff - timedelta(days=1)).isoformat(),
         "type": "carousel_post",
         "platforms": ["facebook", "instagram", "twitter_x"],
-        "title": f"Tomorrow! Dinamo {'vs' if is_home else '@'} {opponent}",
-        "description": f"Matchday minus 1. {'Maksimir is ready.' if is_home else f'The Blues head to {venue}.'}",
+        "title": f"Tomorrow! Demo Brand {'vs' if is_home else '@'} {opponent}",
+        "description": f"Matchday minus 1. {'Home stadium is ready.' if is_home else f'The team heads to {venue}.'}",
         "hashtags": SURGE_HASHTAGS + ["#MatchdayMinus1"],
         "priority": "critical",
     })
@@ -181,7 +181,7 @@ def _generate_surge_content_plan(match: dict) -> list:
         "scheduled_for": (kickoff - timedelta(hours=4)).isoformat(),
         "type": "multi_post",
         "platforms": ["facebook", "instagram", "twitter_x", "tiktok"],
-        "title": f"MATCHDAY! Dinamo {'vs' if is_home else '@'} {opponent}",
+        "title": f"MATCHDAY! Demo Brand {'vs' if is_home else '@'} {opponent}",
         "description": "Pre-match content series: lineup, warmup, stadium atmosphere.",
         "hashtags": SURGE_HASHTAGS + ["#Matchday", "#UCLMatchday"],
         "priority": "critical",
@@ -193,7 +193,7 @@ def _generate_surge_content_plan(match: dict) -> list:
         "scheduled_for": (kickoff + timedelta(days=1)).isoformat(),
         "type": "video_post",
         "platforms": ["youtube", "tiktok", "instagram"],
-        "title": f"Match Recap: Dinamo {'vs' if is_home else '@'} {opponent}",
+        "title": f"Match Recap: Demo Brand {'vs' if is_home else '@'} {opponent}",
         "description": "Full highlights, best moments, and fan reactions.",
         "hashtags": SURGE_HASHTAGS + ["#Highlights"],
         "priority": "high",
@@ -301,7 +301,7 @@ def check_cl_schedule(self):
 
         opponent = nearest["away_team"] if nearest["is_home"] else nearest["home_team"]
         logger.info(
-            "CL MATCH DETECTED: Dinamo %s %s in %.1f days at %s",
+            "CL MATCH DETECTED: Demo Brand %s %s in %.1f days at %s",
             "vs" if nearest["is_home"] else "@",
             opponent,
             nearest["days_until"],

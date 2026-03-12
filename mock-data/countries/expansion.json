@@ -1,5 +1,5 @@
 {
-  "description": "Expansion markets - target countries for growing Dinamo's international brand",
+  "description": "Expansion markets - target countries for growing Demo Brand's international brand",
   "last_updated": "2026-03-01",
   "countries": {
     "UK": {
@@ -17,7 +17,7 @@
         "key_media_partners": ["BT Sport", "Sky Sports", "BBC Sport", "The Athletic"],
         "content_approach": "English-language CL content, PL transfer stories, Modrić legacy"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 8500,
         "growth_potential": "high",
         "pl_alumni_connection": ["Luka Modrić (Tottenham)", "Eduardo (Arsenal)", "Dejan Lovren (Liverpool)"],
@@ -45,13 +45,13 @@
         "key_media_partners": ["NOS Sport", "Voetbal International", "ESPN NL"],
         "content_approach": "Youth development parallels, tactical content, Eredivisie connections"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 3200,
         "growth_potential": "medium",
-        "notes": "Dutch football culture appreciates academy development. Dinamo's player development parallels Ajax model. Good market for tactical/analytical content."
+        "notes": "Dutch football culture appreciates academy development. Demo Brand's player development parallels Ajax model. Good market for tactical/analytical content."
       },
       "opportunities": [
-        "Academy comparison content (Dinamo Academy vs De Toekomst)",
+        "Academy comparison content (Demo Brand Academy vs De Toekomst)",
         "Dutch-language tactical analysis partnerships",
         "Transfer market content for Dutch audience"
       ]
@@ -71,7 +71,7 @@
         "key_media_partners": ["Sporza", "HLN Sport"],
         "content_approach": "Belgian Pro League alumni stories, transfer pipeline content"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 2100,
         "growth_potential": "medium",
         "notes": "Belgian league is also a 'selling league' - shared identity. Turkish/Croatian diaspora overlap in Belgium."
@@ -98,7 +98,7 @@
         "key_media_partners": ["beIN Sports TR", "TRT Spor", "A Spor"],
         "content_approach": "European night content when facing Turkish teams, transfer stories"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 4800,
         "growth_potential": "medium",
         "notes": "Massive football market. Interest peaks during CL/EL encounters. Transfer market connections. Turkish fans are highly engaged on social media."
@@ -125,7 +125,7 @@
         "key_media_partners": ["ČT Sport", "iSport.cz"],
         "content_approach": "Central European football identity, league quality comparisons, shared UEFA coefficient battles"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 2400,
         "growth_potential": "medium",
         "notes": "Similar league profile. Czech fans follow regional European football. Shared interest in UEFA coefficient."
@@ -152,7 +152,7 @@
         "key_media_partners": ["M4 Sport", "Nemzeti Sport"],
         "content_approach": "Derby Alpe-Adria narratives, regional football rivalry content"
       },
-      "dinamo_relevance": {
+      "brand_relevance": {
         "estimated_followers": 3100,
         "growth_potential": "medium",
         "notes": "Geographic neighbor. Hungarian football fans follow Croatian football through regional interest. Croatian minority in Hungary."

@@ -423,7 +423,7 @@ function PeriodSelector({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-medium text-studio-text-secondary hover:border-dinamo-accent/30 hover:bg-studio-surface-2 transition-all shadow-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-medium text-studio-text-secondary hover:border-brand-accent/30 hover:bg-studio-surface-2 transition-all shadow-sm"
       >
         <Clock size={15} className="text-studio-text-tertiary" />
         {selectedOption.label}
@@ -437,7 +437,7 @@ function PeriodSelector({
               onClick={() => { onChange(opt.key); setOpen(false) }}
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                 opt.key === selected
-                  ? 'bg-dinamo-accent/10 text-dinamo-accent font-medium'
+                  ? 'bg-brand-accent/10 text-brand-accent font-medium'
                   : 'text-studio-text-secondary hover:bg-studio-surface-3'
               }`}
             >
@@ -453,9 +453,9 @@ function PeriodSelector({
 function QuickActions() {
   const navigate = useNavigate()
   const actions = [
-    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-dinamo-accent text-dinamo-primary hover:bg-dinamo-accent-hover' },
-    { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-dinamo-accent/30 hover:bg-studio-surface-2' },
-    { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-dinamo-accent/30 hover:bg-studio-surface-2' },
+    { label: 'Kreiraj objavu', icon: Plus, to: '/content', color: 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover' },
+    { label: 'Pokreni kampanju', icon: Rocket, to: '/campaigns', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-brand-accent/30 hover:bg-studio-surface-2' },
+    { label: 'Generiraj izvještaj', icon: FileText, to: '/reports', color: 'bg-studio-surface-1 text-studio-text-secondary border border-studio-border hover:border-brand-accent/30 hover:bg-studio-surface-2' },
   ]
 
   return (
@@ -529,7 +529,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
       <div className="mt-auto pt-3">
         <button
           onClick={() => navigate(rec.actionLink)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-dinamo-accent hover:text-dinamo-accent/80 transition-colors group"
+          className="flex items-center gap-1.5 text-xs font-semibold text-brand-accent hover:text-brand-accent/80 transition-colors group"
         >
           {rec.action}
           <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
@@ -625,8 +625,8 @@ export default function Dashboard() {
                   Prijenos uzivo
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-xs text-dinamo-muted">
-                  <Zap className="w-3 h-3 text-dinamo-accent" />
+                <div className="flex items-center gap-1.5 text-xs text-brand-muted">
+                  <Zap className="w-3 h-3 text-brand-accent" />
                   Ažuriranje u realnom vremenu
                 </div>
               )}
@@ -651,7 +651,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-[11px] text-studio-text-tertiary">{relativeTime}</p>
                       {item.link && (
-                        <ExternalLink size={10} className="text-studio-text-disabled group-hover:text-dinamo-accent transition-colors" />
+                        <ExternalLink size={10} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors" />
                       )}
                     </div>
                   </div>

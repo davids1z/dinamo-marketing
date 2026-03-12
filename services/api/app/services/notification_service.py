@@ -44,9 +44,9 @@ def create_notification_sync(type: str, title: str, body: str, severity: str = "
 def _send_email(subject: str, body: str):
     """Send notification email via SMTP."""
     msg = MIMEMultipart()
-    msg["From"] = settings.SMTP_USER or "noreply@dinamo-marketing.hr"
+    msg["From"] = settings.SMTP_USER or "noreply@shiftonezero.com"
     msg["To"] = settings.NOTIFICATION_EMAIL
-    msg["Subject"] = f"[Dinamo Marketing] {subject}"
+    msg["Subject"] = f"[ShiftOneZero] {subject}"
 
     html = f"""
     <html><body style="font-family: Arial, sans-serif; color: #333;">
@@ -54,7 +54,7 @@ def _send_email(subject: str, body: str):
         <h2 style="color: #0A1A28;">{subject}</h2>
         <p>{body}</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="color: #999; font-size: 12px;">Dinamo Marketing Platform</p>
+        <p style="color: #999; font-size: 12px;">ShiftOneZero Marketing Platform</p>
     </div>
     </body></html>
     """

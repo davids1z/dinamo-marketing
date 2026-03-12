@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Creative Refresh Task
+ShiftOneZero Marketing Platform - Creative Refresh Task
 Monitors all active ads for frequency fatigue (>4) and generates
 new creative variants using Claude AI (mock) to keep ads fresh.
 """
@@ -36,10 +36,10 @@ MOCK_ACTIVE_ADS = [
         "ctr": 3.8,
         "creative": {
             "type": "image",
-            "headline": "Get your Dinamo matchday tickets now!",
-            "body": "Don't miss the action at Maksimir. Book your seats today.",
+            "headline": "Get your Demo Brand event tickets now!",
+            "body": "Don't miss the action. Book your seats today.",
             "cta": "Buy Tickets",
-            "image_url": "https://cdn.dinamo.hr/ads/matchday_tickets_v1.jpg",
+            "image_url": "https://cdn.demo-brand.com/ads/matchday_tickets_v1.jpg",
         },
     },
     {
@@ -56,7 +56,7 @@ MOCK_ACTIVE_ADS = [
             "headline": "Last chance for matchday tickets!",
             "body": "Only a few seats left for this Saturday's match. Act fast!",
             "cta": "Get Tickets",
-            "image_url": "https://cdn.dinamo.hr/ads/matchday_last_chance_v1.jpg",
+            "image_url": "https://cdn.demo-brand.com/ads/matchday_last_chance_v1.jpg",
         },
     },
     {
@@ -70,10 +70,10 @@ MOCK_ACTIVE_ADS = [
         "ctr": 1.1,
         "creative": {
             "type": "video",
-            "headline": "Join the Dinamo family",
+            "headline": "Join the Demo Brand family",
             "body": "Become a member and get exclusive perks, discounts, and early access.",
             "cta": "Join Now",
-            "video_url": "https://cdn.dinamo.hr/ads/membership_drive_v1.mp4",
+            "video_url": "https://cdn.demo-brand.com/ads/membership_drive_v1.mp4",
         },
     },
     {
@@ -88,9 +88,9 @@ MOCK_ACTIVE_ADS = [
         "creative": {
             "type": "video",
             "headline": "Shape the future of Croatian football",
-            "body": "Dinamo Youth Academy -- where champions are made.",
+            "body": "Demo Brand Academy -- where champions are made.",
             "cta": "Learn More",
-            "video_url": "https://cdn.dinamo.hr/ads/youth_academy_v1.mp4",
+            "video_url": "https://cdn.demo-brand.com/ads/youth_academy_v1.mp4",
         },
     },
     {
@@ -104,13 +104,13 @@ MOCK_ACTIVE_ADS = [
         "ctr": 3.1,
         "creative": {
             "type": "carousel",
-            "headline": "New Dinamo spring collection",
-            "body": "Represent the Blues with the freshest gear.",
+            "headline": "New Demo Brand spring collection",
+            "body": "Represent the brand with the freshest gear.",
             "cta": "Shop Now",
             "images": [
-                "https://cdn.dinamo.hr/ads/merch_spring_1.jpg",
-                "https://cdn.dinamo.hr/ads/merch_spring_2.jpg",
-                "https://cdn.dinamo.hr/ads/merch_spring_3.jpg",
+                "https://cdn.demo-brand.com/ads/merch_spring_1.jpg",
+                "https://cdn.demo-brand.com/ads/merch_spring_2.jpg",
+                "https://cdn.demo-brand.com/ads/merch_spring_3.jpg",
             ],
         },
     },
@@ -125,10 +125,10 @@ MOCK_ACTIVE_ADS = [
         "ctr": 4.2,
         "creative": {
             "type": "image",
-            "headline": "Travel with Dinamo to the Champions League!",
+            "headline": "Travel with Demo Brand to the Champions League!",
             "body": "All-inclusive away trip packages. Flights, hotel, and match ticket.",
             "cta": "Book Trip",
-            "image_url": "https://cdn.dinamo.hr/ads/ucl_away_trip_v1.jpg",
+            "image_url": "https://cdn.demo-brand.com/ads/ucl_away_trip_v1.jpg",
         },
     },
 ]
@@ -146,11 +146,11 @@ HEADLINE_VARIATIONS = {
     "social_proof": [
         "Join {count}+ fans who already {action}",
         "Thousands of fans can't be wrong -- {original_topic}",
-        "The Dinamo community is buzzing about this",
+        "The Demo Brand community is buzzing about this",
     ],
     "emotion": [
         "Feel the blue heartbeat -- {original_topic}",
-        "This is what being a Dinamo fan is all about",
+        "This is what being a Demo Brand fan is all about",
         "Make memories that last a lifetime",
     ],
 }

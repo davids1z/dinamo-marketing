@@ -160,7 +160,7 @@ class ReportGeneratorService:
             year=year,
             data=report_data,
             competitor_comparison={
-                "dinamo_growth": 2.3,
+                "brand_growth": 2.3,
                 "hajduk_growth": 1.8,
                 "salzburg_growth": 3.1,
             },

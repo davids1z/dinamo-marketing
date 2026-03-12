@@ -21,10 +21,10 @@
   "placeholders": {
     "headline": {"max_chars": 25, "example": "WORK IN PROGRESS"},
     "date": {"max_chars": 15, "example": "Monday Session"},
-    "location": {"max_chars": 30, "example": "Maksimir Training Ground"},
+    "location": {"max_chars": 30, "example": "Main Venue Training Ground"},
     "focus": {"max_chars": 40, "example": "Tactical preparation for Saturday"},
     "music_track": {"max_chars": 40, "example": "Trending audio — motivational"},
-    "hashtags": {"max_chars": 60, "example": "#DinamoTraining #BehindTheScenes #BBB"}
+    "hashtags": {"max_chars": 60, "example": "#DemoBrandTraining #BehindTheScenes #BBB"}
   },
   "guidelines": "30-60 second Reel mixing wide training shots with close-up skill moments. Include rondo circles, shooting drills, tactical exercises, and casual moments. Use trending music. Minimal text overlay — let the footage speak. Slow-motion for spectacular goals or skills. Show the intensity and professionalism. Avoid filming tactical board sessions or sensitive tactical information."
 }

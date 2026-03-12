@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 # Engagement spike threshold: 2x the 30-day average
 SPIKE_THRESHOLD = 2.0
 
-# Default competitors for Dinamo Zagreb benchmark group
+# Default competitors for benchmark group
 DEFAULT_COMPETITORS = [
     "Red Star Belgrade",
     "Olympiacos",
@@ -104,7 +104,7 @@ class CompetitorIntelService:
         return scan_results
 
     async def get_competitor_comparison(self, db: AsyncSession) -> dict:
-        """Generate a gap analysis comparing Dinamo vs all competitors."""
+        """Generate a gap analysis comparing the brand vs all competitors."""
         today = date.today()
         thirty_days_ago = today - timedelta(days=30)
 

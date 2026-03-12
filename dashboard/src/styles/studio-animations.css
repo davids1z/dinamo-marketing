@@ -509,7 +509,7 @@
 }
 
 .scene-timeline-thumb.active {
-  border-color: #B8FF00;            /* dinamo-accent */
+  border-color: #B8FF00;            /* brand-accent */
   box-shadow: 0 0 14px rgba(184, 255, 0, 0.2), 0 0 4px rgba(184, 255, 0, 0.15);
 }
 
@@ -582,7 +582,7 @@
 }
 
 .scene-timeline-progress-seg.current {
-  background-color: #B8FF00;        /* dinamo-accent */
+  background-color: #B8FF00;        /* brand-accent */
 }
 
 .scene-timeline-progress-seg.past {

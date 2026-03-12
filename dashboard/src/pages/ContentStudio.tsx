@@ -673,7 +673,7 @@ export default function ContentStudio() {
     return (
       <div className="fixed inset-0 z-[100] bg-studio-base flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-dinamo-accent border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
           <span className="text-xs text-studio-text-secondary font-medium tracking-wide">
             Ucitavanje studija...
           </span>
@@ -727,7 +727,7 @@ export default function ContentStudio() {
               onClick={() => dispatch({ type: 'SET_ASPECT_RATIO', ratio: ar })}
               className={`text-[10px] font-medium px-2 py-1 rounded transition-colors ${
                 aspectRatio === ar
-                  ? 'bg-dinamo-accent/15 text-dinamo-accent'
+                  ? 'bg-brand-accent/15 text-brand-accent'
                   : 'text-studio-text-secondary hover:text-studio-text-primary'
               }`}
             >
@@ -778,7 +778,7 @@ export default function ContentStudio() {
         <button
           onClick={() => dispatch({ type: 'SET_SHOW_PUBLISH', show: true })}
           disabled={!project?.output_url && scenes.length === 0}
-          className="flex items-center gap-1.5 bg-dinamo-accent text-black font-semibold rounded-lg px-4 py-2 text-xs hover:bg-dinamo-accent-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 bg-brand-accent text-black font-semibold rounded-lg px-4 py-2 text-xs hover:bg-brand-accent-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Send className="w-3.5 h-3.5" />
           Objavi
@@ -805,7 +805,7 @@ export default function ContentStudio() {
                   onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', tab: tab.id })}
                   className={`w-10 h-10 rounded-md flex flex-col items-center justify-center gap-0.5 transition-colors ${
                     isActive
-                      ? 'bg-dinamo-accent/10 text-dinamo-accent'
+                      ? 'bg-brand-accent/10 text-brand-accent'
                       : 'text-studio-text-secondary hover:bg-studio-surface-3 hover:text-studio-text-primary'
                   }`}
                   title={tab.label}
@@ -966,7 +966,7 @@ export default function ContentStudio() {
               <button
                 onClick={() => dispatch({ type: 'SET_PLAYING', playing: !isPlaying })}
                 disabled={scenes.length === 0}
-                className="w-8 h-8 rounded-md flex items-center justify-center bg-dinamo-accent/10 text-dinamo-accent hover:bg-dinamo-accent/20 disabled:opacity-30 transition-colors"
+                className="w-8 h-8 rounded-md flex items-center justify-center bg-brand-accent/10 text-brand-accent hover:bg-brand-accent/20 disabled:opacity-30 transition-colors"
               >
                 {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               </button>

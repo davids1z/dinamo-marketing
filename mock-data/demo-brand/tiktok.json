@@ -1,5 +1,5 @@
 {
-  "account_id": "gnkdinamo",
+  "account_id": "demo_brand",
   "platform": "tiktok",
   "verified": true,
   "followers": 89000,
@@ -17,34 +17,35 @@
       "45+": 4
     },
     "gender": {
-      "male": 68,
-      "female": 32
+      "male": 48,
+      "female": 52
     },
     "top_countries": {
-      "HR": 48,
-      "BA": 10,
+      "US": 38,
+      "GB": 14,
+      "CA": 10,
       "DE": 8,
-      "AT": 6,
-      "SI": 5,
-      "RS": 4,
-      "CH": 3,
+      "AU": 6,
+      "FR": 5,
+      "NL": 3,
+      "BR": 3,
       "SE": 2,
-      "US": 3,
       "other": 11
     }
   },
   "format_breakdown": {
-    "matchday_highlights": 25,
+    "product_showcases": 25,
     "behind_the_scenes": 22,
-    "player_challenges": 18,
+    "team_challenges": 18,
     "trending_audio": 15,
-    "fan_content": 10,
-    "tutorials_skills": 10
+    "community_content": 10,
+    "tutorials_tips": 10
   },
   "top_videos": [
     {
       "id": "tt_v1",
-      "caption": "Petković hat-trick celebration 🎩⚽⚽⚽ #SamoDinamo #football",
+      "type": "reel",
+      "caption": "Our best-selling product reveal! #DemoBrand #NewDrop #Trending",
       "date": "2026-02-18",
       "views": 890000,
       "likes": 78000,
@@ -55,7 +56,7 @@
     },
     {
       "id": "tt_v2",
-      "caption": "POV: Ulazak na Maksimir na Champions League noć 🏟️🔵 #UCL #Dinamo",
+      "caption": "POV: Walking into our Spring Campaign launch event #DemoBrand #LaunchDay",
       "date": "2026-02-10",
       "views": 640000,
       "likes": 52000,
@@ -66,7 +67,7 @@
     },
     {
       "id": "tt_v3",
-      "caption": "Igrači reagiraju na svoje FIFA ocjene 😂 #FIFA #Dinamo #reaction",
+      "caption": "Team members react to customer reviews #Reaction #DemoBrand",
       "date": "2026-01-25",
       "views": 520000,
       "likes": 45000,
@@ -77,7 +78,7 @@
     },
     {
       "id": "tt_v4",
-      "caption": "Tko je najbrži u momčadi? 💨 Sprint challenge! #speedtest #football",
+      "caption": "Who packs orders the fastest? Speed challenge! #TeamChallenge #BehindTheScenes",
       "date": "2026-01-18",
       "views": 410000,
       "likes": 38000,
@@ -88,7 +89,7 @@
     },
     {
       "id": "tt_v5",
-      "caption": "Dan u životu profesionalnog footballera 🌅➡️🏟️ #dayinthelife #footballer",
+      "caption": "A day in the life at Demo Brand HQ #DayInTheLife #OfficeTour",
       "date": "2026-01-12",
       "views": 380000,
       "likes": 34000,
@@ -99,7 +100,7 @@
     },
     {
       "id": "tt_v6",
-      "caption": "Locker room vibes after the W ✌️💙 #winning #dinamozagreb",
+      "caption": "Celebrating our best sales month ever! #Winning #DemoBrand",
       "date": "2026-01-08",
       "views": 290000,
       "likes": 28000,
@@ -110,7 +111,7 @@
     },
     {
       "id": "tt_v7",
-      "caption": "Crossbar challenge s Dinamovcima ⚽🎯 Tko pogađa? #crossbarchallenge",
+      "caption": "Unboxing challenge with the team - guess the product! #UnboxingChallenge",
       "date": "2026-01-02",
       "views": 245000,
       "likes": 22000,
@@ -121,7 +122,7 @@
     },
     {
       "id": "tt_v8",
-      "caption": "Freestyle session 🔥 Koji trik je najbolji? #football #skills #freestyle",
+      "caption": "Creative design session - which concept is best? #Design #Creative #Process",
       "date": "2025-12-28",
       "views": 210000,
       "likes": 19500,

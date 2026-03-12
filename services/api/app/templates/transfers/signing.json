@@ -19,7 +19,7 @@
     "elements": ["player_reveal_animation", "player_cutout", "shirt_number", "headline", "player_name", "contract_details", "welcome_text", "logo"]
   },
   "placeholders": {
-    "headline": {"max_chars": 25, "example": "WELCOME TO DINAMO"},
+    "headline": {"max_chars": 25, "example": "WELCOME TO DEMO BRAND"},
     "player_name": {"max_chars": 30, "example": "Marko Horvat"},
     "player_number": {"max_chars": 3, "example": "14"},
     "position": {"max_chars": 20, "example": "Central Midfielder"},
@@ -29,5 +29,5 @@
     "subheadline": {"max_chars": 80, "example": "The Croatian international joins on a four-year contract"},
     "cta": {"example": "Read More"}
   },
-  "guidelines": "Use a cinematic reveal video with the player in the new Dinamo kit. Include dramatic lighting effects and the club anthem. The shirt number should animate in. For Reels/TikTok, use a trending reveal transition. Include the player holding up the shirt or signing the contract. Hashtag #WelcomeToMaximir."
+  "guidelines": "Use a cinematic reveal video with the player in the new Demo Brand kit. Include dramatic lighting effects and the club anthem. The shirt number should animate in. For Reels/TikTok, use a trending reveal transition. Include the player holding up the shirt or signing the contract. Hashtag #WelcomeToMaximir."
 }

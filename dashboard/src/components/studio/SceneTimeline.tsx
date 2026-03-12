@@ -166,7 +166,7 @@ export default function SceneTimeline({
 
         {/* Add scene button at end of strip */}
         <button onClick={onAddScene} className="scene-timeline-add">
-          <Plus className="w-4 h-4 text-studio-text-tertiary group-hover:text-dinamo-accent transition-colors" />
+          <Plus className="w-4 h-4 text-studio-text-tertiary group-hover:text-brand-accent transition-colors" />
         </button>
       </div>
 

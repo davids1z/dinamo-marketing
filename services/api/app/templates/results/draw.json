@@ -20,12 +20,12 @@
   },
   "placeholders": {
     "headline": {"max_chars": 25, "example": "HONOURS EVEN"},
-    "subheadline": {"max_chars": 80, "example": "A hard-fought point at Maksimir"},
+    "subheadline": {"max_chars": 80, "example": "A hard-fought point at Main Venue"},
     "home_score": {"max_chars": 2, "example": "2"},
     "away_score": {"max_chars": 2, "example": "2"},
     "goal_scorers": {"max_chars": 100, "example": "Petković 23', Oršić 78'"},
     "opponent_name": {"max_chars": 30, "example": "NK Osijek"},
     "cta": {"example": "Match Report"}
   },
-  "guidelines": "Use a match action photo. The tone should be neutral and balanced — highlight the effort and any comeback moments. If Dinamo came from behind, the messaging can be slightly more positive. Avoid overly negative language. Score display should be symmetrical."
+  "guidelines": "Use a match action photo. The tone should be neutral and balanced — highlight the effort and any comeback moments. If Demo Brand came from behind, the messaging can be slightly more positive. Avoid overly negative language. Score display should be symmetrical."
 }

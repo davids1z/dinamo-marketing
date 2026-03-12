@@ -1,5 +1,5 @@
 {
-  "name": "Champions League Win Celebration",
+  "name": "Major Campaign Win Celebration",
   "description": "Premium celebration content for CL victories. Maximum energy, elevated production, and CL-specific visual effects to mark a European night triumph.",
   "platforms": ["instagram", "facebook", "tiktok", "twitter"],
   "format_type": "video",
@@ -22,7 +22,7 @@
   },
   "placeholders": {
     "headline": {"max_chars": 30, "example": "EUROPEAN GLORY!"},
-    "subheadline": {"max_chars": 60, "example": "A magical night under the Maksimir lights"},
+    "subheadline": {"max_chars": 60, "example": "A magical night under the Main Venue lights"},
     "home_score": {"max_chars": 2, "example": "3"},
     "away_score": {"max_chars": 2, "example": "1"},
     "goal_scorers": {"max_chars": 150, "example": "Petković 15', Oršić 52', 78'"},

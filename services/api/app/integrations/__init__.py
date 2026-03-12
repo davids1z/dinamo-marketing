@@ -1,4 +1,4 @@
-# Dinamo Marketing Platform - Integration Layer
+# ShiftOneZero Marketing Platform - Integration Layer
 # All third-party API integrations are organized by service.
 
 from .base import (

@@ -24,7 +24,7 @@
     "players": {"max_chars": 500, "example": "1. Livaković; 2. Ristovski, 6. Theophile, 5. Perić, 3. Mišić; 8. Ademi, 10. Ivanušec, 7. Oršić; 11. Petković, 9. Drmić, 20. Majer"},
     "substitutes": {"max_chars": 200, "example": "12. Zagorac, 4. Lauritsen, 14. Gojak, 15. Jakić"},
     "opponent_name": {"max_chars": 30, "example": "vs HNK Rijeka"},
-    "match_info": {"max_chars": 40, "example": "HNL | Maksimir | 20:00"}
+    "match_info": {"max_chars": 40, "example": "Industry League | Main Venue | 20:00"}
   },
   "guidelines": "Use a top-down pitch graphic with player positions arranged in the announced formation. Player names should be in white on blue badges. Include shirt numbers next to names. Substitutes listed below the pitch. Keep the design clean and tactical."
 }

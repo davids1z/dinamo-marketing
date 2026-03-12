@@ -1,6 +1,6 @@
 {
   "name": "Merchandise Promotion",
-  "description": "Promotional post for Dinamo branded merchandise including apparel, accessories, and collectibles from the official club shop.",
+  "description": "Promotional post for Demo Brand branded merchandise including apparel, accessories, and collectibles from the official club shop.",
   "platforms": ["instagram", "facebook"],
   "format_type": "carousel",
   "aspect_ratio": "1:1",
@@ -20,11 +20,11 @@
   },
   "placeholders": {
     "headline": {"max_chars": 25, "example": "GEAR UP IN BLUE"},
-    "product_name": {"max_chars": 40, "example": "Dinamo Zagreb Training Collection"},
+    "product_name": {"max_chars": 40, "example": "Demo Brand Training Collection"},
     "price": {"max_chars": 15, "example": "From €34.99"},
     "discount": {"max_chars": 15, "example": "20% OFF"},
-    "promo_code": {"max_chars": 15, "example": "DINAMO20"},
-    "shop_url": {"max_chars": 40, "example": "shop.gnkdinamo.hr"},
+    "promo_code": {"max_chars": 15, "example": "DEMO BRAND20"},
+    "shop_url": {"max_chars": 40, "example": "shop.demo-brand.com"},
     "cta": {"example": "Shop Now"}
   },
   "guidelines": "High-quality product photography on a clean background. Carousel format with each slide featuring a different product or angle. Include pricing and any discount information prominently. If running a promotion, the discount badge should be eye-catching but not overwhelming. Link to the official shop. Lifestyle shots of fans wearing the merchandise are encouraged."

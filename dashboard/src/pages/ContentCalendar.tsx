@@ -345,7 +345,7 @@ function DroppableDay({ dayNum, children, isOver }: { dayNum: number; children: 
   const active = isOver || dropping
 
   return (
-    <div ref={setNodeRef} className={active ? 'ring-2 ring-dinamo-accent ring-inset rounded-lg' : ''}>
+    <div ref={setNodeRef} className={active ? 'ring-2 ring-brand-accent ring-inset rounded-lg' : ''}>
       {children}
     </div>
   )
@@ -760,11 +760,11 @@ export default function ContentCalendar() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-1 border-b border-studio-border pb-1">
             <button onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-dinamo-accent text-dinamo-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
               <Calendar size={16} className="inline mr-2" />Kalendar
             </button>
             <button onClick={() => setActiveTab('approvals')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-dinamo-accent text-dinamo-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
               <Clock size={16} className="inline mr-2" />Red za odobrenje
               <span className="ml-2 text-xs bg-yellow-500 text-white px-1.5 py-0.5 rounded-full">{queue.length}</span>
             </button>
@@ -805,7 +805,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setPlatformFilter(value)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       platformFilter === value
-                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        ? 'bg-brand-accent text-brand-primary shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {Icon && <Icon size={12} />}
@@ -822,7 +822,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setStatusFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       statusFilter === value
-                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        ? 'bg-brand-accent text-brand-primary shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
@@ -838,7 +838,7 @@ export default function ContentCalendar() {
                   <button key={value} onClick={() => setTypeFilter(value)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       typeFilter === value
-                        ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                        ? 'bg-brand-accent text-brand-primary shadow-sm'
                         : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
                     }`}>
                     {label}
@@ -864,7 +864,7 @@ export default function ContentCalendar() {
         {(generating || generatingWeek) && (
           <div className="card flex items-center justify-center py-12">
             <div className="text-center space-y-3">
-              <Loader2 size={40} className="animate-spin text-dinamo-accent mx-auto" />
+              <Loader2 size={40} className="animate-spin text-brand-accent mx-auto" />
               <p className="text-lg font-medium text-studio-text-primary">
                 {generatingWeek ? 'Generiranje tjednog plana...' : 'Gemini AI generira plan...'}
               </p>
@@ -906,13 +906,13 @@ export default function ContentCalendar() {
                         onClick={() => valid && setSelectedDay(isSel ? null : dn)}
                         className={`w-full aspect-square flex items-center justify-center text-[10px] rounded transition-colors relative ${
                           !valid ? 'text-transparent cursor-default'
-                          : isSel ? 'bg-dinamo-accent text-dinamo-primary font-bold'
-                          : isFoc ? 'bg-dinamo-accent/10 text-dinamo-accent font-bold ring-1 ring-dinamo-accent/40'
+                          : isSel ? 'bg-brand-accent text-brand-primary font-bold'
+                          : isFoc ? 'bg-brand-accent/10 text-brand-accent font-bold ring-1 ring-brand-accent/40'
                           : isTd ? 'bg-blue-500/20 text-blue-400 font-bold'
                           : 'text-studio-text-secondary hover:bg-studio-surface-2'
                         }`}>
                         {valid ? dn : ''}
-                        {hasPosts && !isSel && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-dinamo-accent" />}
+                        {hasPosts && !isSel && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-accent" />}
                       </button>
                     )
                   })}
@@ -925,7 +925,7 @@ export default function ContentCalendar() {
                       <button key={i}
                         onClick={() => { setCurrentMonth(i); setSelectedDay(null); setGeneratedData(null) }}
                         className={`text-[10px] py-1 rounded transition-colors ${
-                          currentMonth === i ? 'bg-dinamo-accent text-dinamo-primary font-bold' : 'text-studio-text-secondary hover:bg-studio-surface-2'
+                          currentMonth === i ? 'bg-brand-accent text-brand-primary font-bold' : 'text-studio-text-secondary hover:bg-studio-surface-2'
                         }`}>
                         {monthNames[i]!.slice(0, 3)}
                       </button>
@@ -972,8 +972,8 @@ export default function ContentCalendar() {
                     <div key={i} onClick={() => { if (isValid) { setSelectedDay(isSelected ? null : dayNum); setFocusedDay(dayNum) } }}
                       className={`min-h-[72px] sm:min-h-[90px] p-2 rounded-lg border transition-all ${
                         !isValid ? 'border-transparent bg-transparent pointer-events-none'
-                        : isSelected ? 'border-dinamo-accent bg-dinamo-accent/5 ring-1 ring-dinamo-accent/20 cursor-pointer'
-                        : isFocused ? 'border-dinamo-accent/50 bg-dinamo-accent/[0.02] cursor-pointer ring-1 ring-dinamo-accent/10'
+                        : isSelected ? 'border-brand-accent bg-brand-accent/5 ring-1 ring-brand-accent/20 cursor-pointer'
+                        : isFocused ? 'border-brand-accent/50 bg-brand-accent/[0.02] cursor-pointer ring-1 ring-brand-accent/10'
                         : isToday ? 'border-blue-400 bg-blue-500/10 cursor-pointer'
                         : isPast ? 'border-studio-border bg-studio-surface-0/50 cursor-pointer'
                         : 'border-studio-border bg-studio-surface-1 hover:bg-studio-surface-0 hover:border-studio-border cursor-pointer'
@@ -981,7 +981,7 @@ export default function ContentCalendar() {
                       {isValid && (
                         <>
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-dinamo-accent font-bold' : isPast ? 'text-studio-text-tertiary' : 'text-studio-text-secondary'}`}>
+                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-brand-accent font-bold' : isPast ? 'text-studio-text-tertiary' : 'text-studio-text-secondary'}`}>
                               {dayNum}
                             </span>
                             {posts.length > 0 && (
@@ -1101,7 +1101,7 @@ export default function ContentCalendar() {
           </div>
           <DragOverlay>
             {draggedPost && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio-surface-1 rounded-lg border-2 border-dinamo-accent shadow-lg text-xs">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio-surface-1 rounded-lg border-2 border-brand-accent shadow-lg text-xs">
                 <div className={`w-3 h-3 rounded-full ${platformColors[draggedPost.platform] || 'bg-gray-400'}`} />
                 <span className="font-medium text-studio-text-primary truncate max-w-[150px]">{draggedPost.title}</span>
               </div>
@@ -1165,15 +1165,15 @@ export default function ContentCalendar() {
                     <div key={i}
                       className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
                         isCurrentMonthCard
-                          ? 'border-dinamo-accent bg-blue-500/10 shadow-sm'
-                          : 'border-studio-border bg-studio-surface-0 hover:border-dinamo-accent/30 hover:bg-studio-surface-1'
+                          ? 'border-brand-accent bg-blue-500/10 shadow-sm'
+                          : 'border-studio-border bg-studio-surface-0 hover:border-brand-accent/30 hover:bg-studio-surface-1'
                       }`}
                       onClick={() => { setCurrentMonth(m); setCurrentYear(y); setViewMode('month') }}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-bold text-studio-text-primary">{monthNames[m]}</p>
                         {isCurrentMonthCard && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-dinamo-accent text-dinamo-primary font-medium">Trenutni</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-accent text-brand-primary font-medium">Trenutni</span>
                         )}
                       </div>
                       <p className="text-xs text-studio-text-secondary mb-3">{y}</p>
@@ -1192,7 +1192,7 @@ export default function ContentCalendar() {
                             </div>
                             <div className="w-full bg-studio-surface-3 rounded-full h-1.5 mt-1">
                               <div
-                                className="bg-dinamo-accent h-1.5 rounded-full transition-all"
+                                className="bg-brand-accent h-1.5 rounded-full transition-all"
                                 style={{ width: `${Math.min((daysWithContent / daysInMonth) * 100, 100)}%` }}
                               />
                             </div>

@@ -189,26 +189,26 @@ async def seed_competitors(session: AsyncSession):
     logger.info(f"Seeded {count} competitors")
 
 
-async def seed_dinamo_channels(session: AsyncSession):
-    """Seed Dinamo's social channels."""
+async def seed_brand_channels(session: AsyncSession):
+    """Seed own brand social channels."""
     existing = (await session.execute(
-        select(SocialChannel).where(SocialChannel.owner_type == "dinamo")
+        select(SocialChannel).where(SocialChannel.owner_type == "own")
     )).scalars().all()
     if existing:
-        logger.info(f"Dinamo channels already seeded ({len(existing)} rows), skipping")
+        logger.info(f"Brand channels already seeded ({len(existing)} rows), skipping")
         return
 
     platforms = {
-        "instagram": {"handle": "@gnkdinamo", "url": "https://instagram.com/gnkdinamo"},
-        "facebook": {"handle": "GNK Dinamo Zagreb", "url": "https://facebook.com/gnkdinamo"},
-        "tiktok": {"handle": "@gnkdinamo", "url": "https://tiktok.com/@gnkdinamo"},
-        "youtube": {"handle": "GNK Dinamo", "url": "https://youtube.com/@gnkdinamo"},
+        "instagram": {"handle": "@demo_brand", "url": "https://instagram.com/demo_brand"},
+        "facebook": {"handle": "Demo Brand", "url": "https://facebook.com/demo_brand"},
+        "tiktok": {"handle": "@demo_brand", "url": "https://tiktok.com/@demo_brand"},
+        "youtube": {"handle": "Demo Brand", "url": "https://youtube.com/@demo_brand"},
     }
 
     count = 0
     for platform, info in platforms.items():
         channel = SocialChannel(
-            owner_type="dinamo",
+            owner_type="own",
             owner_id=None,
             platform=platform,
             handle=info["handle"],
@@ -219,7 +219,7 @@ async def seed_dinamo_channels(session: AsyncSession):
         count += 1
 
     await session.flush()
-    logger.info(f"Seeded {count} Dinamo channels")
+    logger.info(f"Seeded {count} brand channels")
 
 
 async def seed_academy_players(session: AsyncSession):
@@ -316,7 +316,7 @@ async def main():
             await seed_countries(session)
             await seed_diaspora(session)
             await seed_competitors(session)
-            await seed_dinamo_channels(session)
+            await seed_brand_channels(session)
             await seed_academy_players(session)
 
         await session.commit()

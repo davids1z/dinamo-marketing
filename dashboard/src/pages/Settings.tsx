@@ -367,7 +367,7 @@ export default function Settings() {
                   ? 'bg-emerald-600 text-white'
                   : toast.type === 'error'
                   ? 'bg-red-600 text-white'
-                  : 'bg-dinamo-blue text-white'
+                  : 'bg-brand-blue text-white'
               }`}
             >
               {toast.type === 'success' && <CheckCircle size={16} />}

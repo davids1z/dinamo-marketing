@@ -23,9 +23,9 @@
     "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"},
     "match_date": {"max_chars": 25, "example": "Saturday, 15 March 2026"},
     "match_time": {"max_chars": 10, "example": "20:00 CET"},
-    "venue": {"max_chars": 40, "example": "Stadion Maksimir, Zagreb"},
-    "competition": {"max_chars": 30, "example": "HNL Round 24"},
+    "venue": {"max_chars": 40, "example": "Main Venue, Zagreb"},
+    "competition": {"max_chars": 30, "example": "Industry League Round 24"},
     "cta": {"example": "Get Tickets"}
   },
-  "guidelines": "Use a dramatic stadium or player action shot as the hero image. Both club crests should be prominently displayed with a VS divider. Match date and venue must be clearly readable. Always include competition branding. Ensure Dinamo crest is on the left side."
+  "guidelines": "Use a dramatic stadium or player action shot as the hero image. Both club crests should be prominently displayed with a VS divider. Match date and venue must be clearly readable. Always include competition branding. Ensure Demo Brand crest is on the left side."
 }

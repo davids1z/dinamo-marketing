@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: dinamo
-      POSTGRES_PASSWORD: dinamo
-      POSTGRES_DB: dinamo_marketing
+      POSTGRES_USER: shiftonezero
+      POSTGRES_PASSWORD: shiftonezero
+      POSTGRES_DB: shiftonezero
     ports:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dinamo -d dinamo_marketing"]
+      test: ["CMD-SHELL", "pg_isready -U shiftonezero -d shiftonezero"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -34,8 +34,8 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:dinamo@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:dinamo@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:shiftonezero@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:shiftonezero@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -56,8 +56,8 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:dinamo@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:dinamo@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:shiftonezero@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:shiftonezero@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -78,8 +78,8 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://dinamo:dinamo@db:5432/dinamo_marketing
-      DATABASE_URL_SYNC: postgresql://dinamo:dinamo@db:5432/dinamo_marketing
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:shiftonezero@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:shiftonezero@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2

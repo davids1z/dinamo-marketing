@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "google/gemini-2.5-pro"
 
-SYSTEM_PROMPT = """Ti si AI analitičar za GNK Dinamo Zagreb marketing platformu.
+SYSTEM_PROMPT = """Ti si AI analitičar za ShiftOneZero marketing platformu.
 
 Tvoj zadatak je analizirati podatke s različitih stranica dashboarda i pružiti:
 1. **Trendovi** — uočeni uzorci u podacima (rast, pad, sezonski efekti)
@@ -23,7 +23,7 @@ PRAVILA:
 - Budi KRATAK i konkretan — svaki opis max 1-2 kratke rečenice, izbjegavaj općenite savjete
 - Fokusiraj se na podatke koji su dostupni, ne pretpostavljaj
 - Svaka preporuka mora biti provediva i specifična
-- Koristi nogometnu terminologiju gdje je primjenjivo
+- Koristi terminologiju relevantnu za industriju brenda
 - Ton: profesionalan, analitičan, ali pristupačan
 
 Odgovori ISKLJUČIVO u JSON formatu:
@@ -46,7 +46,7 @@ Generiraj 3-5 uvida. SAMO JSON, bez dodatnog teksta."""
 # --- Page-specific prompt builders ---
 
 def _build_dashboard_prompt(data: dict) -> str:
-    return f"""Analiziraj glavne metrike dashboarda za GNK Dinamo Zagreb:
+    return f"""Analiziraj glavne metrike dashboarda za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -54,7 +54,7 @@ Fokusiraj se na: ukupni pregled performansi, ključne KPI-ove, nedavne aktivnost
 
 
 def _build_analytics_prompt(data: dict) -> str:
-    return f"""Analiziraj analitičke podatke društvenih mreža za GNK Dinamo Zagreb:
+    return f"""Analiziraj analitičke podatke društvenih mreža za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -62,7 +62,7 @@ Fokusiraj se na: top objave po engagementu, doseg, konverzijski lijevak, perform
 
 
 def _build_sentiment_prompt(data: dict) -> str:
-    return f"""Analiziraj sentiment podatke za GNK Dinamo Zagreb:
+    return f"""Analiziraj sentiment podatke za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -70,7 +70,7 @@ Fokusiraj se na: omjer pozitivnog/negativnog sentimenta, ključne teme, sentimen
 
 
 def _build_competitors_prompt(data: dict) -> str:
-    return f"""Analiziraj konkurentske podatke za GNK Dinamo Zagreb:
+    return f"""Analiziraj konkurentske podatke za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -78,7 +78,7 @@ Fokusiraj se na: usporedbu s konkurentima, praznine u sadržaju, engagement uspo
 
 
 def _build_fan_insights_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke o navijačima GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke o navijačima brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -86,7 +86,7 @@ Fokusiraj se na: segmente navijača, konverzijski lijevak, životnu vrijednost n
 
 
 def _build_channel_audit_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke o kanalima GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke o kanalima brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -94,7 +94,7 @@ Fokusiraj se na: performanse po platformi, format breakdown, optimalne formate s
 
 
 def _build_social_listening_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke socijalnog slušanja za GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke socijalnog slušanja za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -102,7 +102,7 @@ Fokusiraj se na: ukupne spominjanja, udio glasa (share of voice), trending teme,
 
 
 def _build_campaigns_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke o kampanjama GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke o kampanjama brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -110,7 +110,7 @@ Fokusiraj se na: performanse kampanja, budžet vs. rezultati, ROAS, preporuke za
 
 
 def _build_reports_prompt(data: dict) -> str:
-    return f"""Analiziraj izvještajne podatke za GNK Dinamo Zagreb:
+    return f"""Analiziraj izvještajne podatke za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -118,7 +118,7 @@ Fokusiraj se na: trendove u izvještajima, ključne metrike kroz vrijeme, prepor
 
 
 def _build_academy_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke o akademiji GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke o akademiji brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -126,7 +126,7 @@ Fokusiraj se na: igrače akademije, transferne prihode, content pipeline, prilik
 
 
 def _build_diaspora_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke o dijaspori GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke o dijaspori brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -134,7 +134,7 @@ Fokusiraj se na: zajednice po zemljama, engagement dijaspore, prilike za rast, s
 
 
 def _build_market_research_prompt(data: dict) -> str:
-    return f"""Analiziraj podatke istraživanja tržišta za GNK Dinamo Zagreb:
+    return f"""Analiziraj podatke istraživanja tržišta za brend:
 
 Podaci: {json.dumps(data, ensure_ascii=False, default=str)}
 
@@ -174,8 +174,8 @@ async def generate_insights(api_key: str, page_key: str, page_data: dict) -> dic
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://dinamo.xyler.ai",
-        "X-Title": "Dinamo Marketing Platform",
+        "HTTP-Referer": "https://shiftonezero.xyler.ai",
+        "X-Title": "ShiftOneZero Marketing Platform",
     }
 
     payload = {

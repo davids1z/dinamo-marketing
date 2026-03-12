@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Competitor Scanning Task
+ShiftOneZero Marketing Platform - Competitor Scanning Task
 Scans all 8 competitor clubs for updated social media metrics.
 Detects engagement spikes and generates competitive intelligence alerts.
 """

@@ -24,7 +24,7 @@
     "speaker_role": {"max_chars": 20, "example": "Head Coach"},
     "conference_type": {"max_chars": 20, "example": "Pre-Match"},
     "key_quote": {"max_chars": 150, "example": "We are focused and ready. The players have shown incredible commitment this week in training."},
-    "match_context": {"max_chars": 40, "example": "Ahead of Dinamo vs Hajduk"}
+    "match_context": {"max_chars": 40, "example": "Ahead of Demo Brand vs Hajduk"}
   },
-  "guidelines": "30-90 second edited clip of the press conference. Lower third identifies the speaker with name and role. Subtitles are mandatory for accessibility and silent viewing. 16:9 for landscape (YouTube/Twitter) but also provide a 9:16 crop for Stories/Reels. Focus on the most quotable and newsworthy statements. Include the Dinamo press backdrop in frame. Post within 2 hours of the press conference."
+  "guidelines": "30-90 second edited clip of the press conference. Lower third identifies the speaker with name and role. Subtitles are mandatory for accessibility and silent viewing. 16:9 for landscape (YouTube/Twitter) but also provide a 9:16 crop for Stories/Reels. Focus on the most quotable and newsworthy statements. Include the Demo Brand press backdrop in frame. Post within 2 hours of the press conference."
 }

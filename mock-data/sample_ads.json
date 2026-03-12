@@ -1,10 +1,10 @@
 {
-  "description": "Sample advertising campaigns with performance metrics for Dinamo marketing",
+  "description": "Sample advertising campaigns with performance metrics for Demo Brand marketing",
   "last_updated": "2026-03-01",
   "campaigns": [
     {
       "id": "ad_001",
-      "name": "Champions League Ticket Sales - Dinamo vs AC Milan",
+      "name": "Spring Campaign - Product Launch Event",
       "objective": "conversions",
       "platform": "meta_ads",
       "placements": ["instagram_feed", "instagram_stories", "facebook_feed"],
@@ -26,14 +26,14 @@
       "targeting": {
         "locations": ["Croatia", "Bosnia", "Slovenia", "Austria", "Germany"],
         "age_range": "18-55",
-        "interests": ["football", "Champions League", "sports events", "Dinamo Zagreb"],
+        "interests": ["lifestyle", "Spring Campaign", "sports events", "Demo Brand"],
         "custom_audiences": ["website_visitors_30d", "past_ticket_buyers", "email_subscribers"],
         "lookalike": "1% lookalike of ticket buyers"
       },
       "creative": {
         "format": "carousel",
-        "headline": "Ne propustite europsku noć na Maksimiru!",
-        "description": "Dinamo vs AC Milan | UEFA Champions League | Ulaznice od 15 EUR",
+        "headline": "Ne propustite europsku noć na Flagship Storeu!",
+        "description": "Demo Brand Spring Launch | UEFA Spring Campaign | Ulaznice od 15 EUR",
         "cta": "Buy Tickets"
       },
       "top_performing_demographic": "Males 25-34, Croatia",
@@ -63,14 +63,14 @@
       "targeting": {
         "locations": ["Croatia", "Bosnia", "Slovenia", "Germany", "Austria", "Switzerland", "Sweden", "USA", "Australia"],
         "age_range": "16-45",
-        "interests": ["football jerseys", "sports apparel", "Dinamo Zagreb", "HNL"],
+        "interests": ["lifestyle jerseys", "sports apparel", "Demo Brand", "HNL"],
         "custom_audiences": ["past_shop_buyers", "website_visitors_60d", "high_engagement_followers"],
         "lookalike": "2% lookalike of shop buyers"
       },
       "creative": {
         "format": "video",
         "headline": "Novi dres za novu sezonu! 🔵⚪",
-        "description": "adidas x Dinamo Zagreb 2025/26 | Naruči sada uz besplatnu dostavu",
+        "description": "adidas x Demo Brand 2025/26 | Naruči sada uz besplatnu dostavu",
         "cta": "Shop Now"
       },
       "top_performing_demographic": "Males 18-34, Croatia",
@@ -78,7 +78,7 @@
     },
     {
       "id": "ad_003",
-      "name": "Dinamo Academy Open Day",
+      "name": "Demo Brand Academy Open Day",
       "objective": "leads",
       "platform": "meta_ads",
       "placements": ["facebook_feed", "instagram_feed", "instagram_stories"],
@@ -100,14 +100,14 @@
       "targeting": {
         "locations": ["Zagreb + 50km radius"],
         "age_range": "28-50",
-        "interests": ["youth football", "children sports", "parenting", "football training"],
+        "interests": ["youth lifestyle", "children sports", "parenting", "lifestyle training"],
         "custom_audiences": ["website_academy_page_visitors"],
         "lookalike": null
       },
       "creative": {
         "format": "video",
-        "headline": "Vaše dijete u plavom dresu? 🔵",
-        "description": "Dinamo Academy Open Day | 1. veljače 2026 | Registracija besplatna",
+        "headline": "Your future starts here\! 🔵",
+        "description": "Demo Brand Academy Open Day | 1. veljače 2026 | Registracija besplatna",
         "cta": "Sign Up"
       },
       "top_performing_demographic": "Males 35-44 and Females 30-40, Zagreb",
@@ -115,7 +115,7 @@
     },
     {
       "id": "ad_004",
-      "name": "Brand Awareness - Diaspora Campaign DE/AT/CH",
+      "name": "Brand Awareness - International Campaign US/UK/CA",
       "objective": "awareness",
       "platform": "meta_ads",
       "placements": ["instagram_feed", "instagram_stories", "instagram_reels"],
@@ -137,15 +137,15 @@
       "targeting": {
         "locations": ["Germany", "Austria", "Switzerland"],
         "age_range": "18-45",
-        "interests": ["Croatian culture", "Croatia", "football", "Bundesliga", "Croatian diaspora"],
+        "interests": ["Croatian culture", "Croatia", "lifestyle", "Bundesliga", "Croatian diaspora"],
         "languages": ["Croatian", "German"],
         "custom_audiences": ["DACH_region_followers"],
         "lookalike": "3% lookalike of DACH followers"
       },
       "creative": {
         "format": "reels",
-        "headline": "Dinamo je svugdje. Dinamo je doma. 💙",
-        "description": "Pratite Dinamo iz Njemačke, Austrije i Švicarske. Vaša plava obitelj vas čeka.",
+        "headline": "Demo Brand is everywhere. Demo Brand is home. 💙",
+        "description": "Follow Demo Brand from anywhere in the world. Your community awaits.",
         "cta": "Follow"
       },
       "top_performing_demographic": "Males 25-34, Germany (Croatian language preference)",
@@ -153,7 +153,7 @@
     },
     {
       "id": "ad_005",
-      "name": "HNL Season Ticket Early Bird",
+      "name": "Loyalty Program Early Bird",
       "objective": "conversions",
       "platform": "meta_ads",
       "placements": ["facebook_feed", "instagram_feed"],
@@ -175,13 +175,13 @@
       "targeting": {
         "locations": ["Zagreb", "Croatia"],
         "age_range": "18-60",
-        "interests": ["Dinamo Zagreb", "HNL", "football season tickets"],
+        "interests": ["Demo Brand", "HNL", "lifestyle season tickets"],
         "custom_audiences": ["previous_season_ticket_holders", "multi_match_ticket_buyers"]
       },
       "creative": {
         "format": "static_image",
         "headline": "Sezonska ulaznica 2025/26 - Early Bird popust 20%!",
-        "description": "Osigurajte svoje mjesto na Maksimiru. Popust samo do 15.7.",
+        "description": "Secure your membership today. Discount only until July 15.",
         "cta": "Buy Now"
       },
       "top_performing_demographic": "Males 25-44, Zagreb",
@@ -211,7 +211,7 @@
       "targeting": {
         "locations": ["Croatia", "Bosnia", "Serbia", "Slovenia", "Germany", "Austria"],
         "age_range": "16-30",
-        "interests": ["football", "sports highlights", "soccer skills", "Champions League"],
+        "interests": ["lifestyle", "sports highlights", "soccer skills", "Spring Campaign"],
         "behavior": "engaged with sports content in last 30 days"
       },
       "creative": {
@@ -244,17 +244,17 @@
       "targeting": {
         "locations": ["Croatia", "Bosnia", "Germany", "Austria", "Slovenia", "Switzerland"],
         "age_range": "18-45",
-        "interests": ["football highlights", "Champions League", "UEFA", "football"],
-        "keywords": ["champions league highlights", "football goals", "HNL highlights", "dinamo zagreb"]
+        "interests": ["lifestyle highlights", "Spring Campaign", "UEFA", "lifestyle"],
+        "keywords": ["champions league highlights", "lifestyle goals", "HNL highlights", "demo brand zagreb"]
       },
       "creative": {
         "format": "15s_pre_roll",
-        "headline": "Watch Dinamo in the Champions League",
+        "headline": "Watch Demo Brand Spring Campaign",
         "description": "Subscribe for exclusive highlights, interviews, and behind-the-scenes content",
         "cta": "Subscribe"
       },
       "top_performing_demographic": "Males 25-34, Croatia",
-      "notes": "YouTube discovery ads had better subscriber conversion than in-stream. CL matchday content had 3x view rate vs general content."
+      "notes": "YouTube discovery ads had better subscriber conversion than in-stream. campaign content had 3x view rate vs general content."
     },
     {
       "id": "ad_008",
@@ -278,23 +278,23 @@
       "roas": 34.79,
       "targeting": {
         "keywords": [
-          "dinamo zagreb ulaznice",
-          "dinamo tickets",
-          "dinamo zagreb karte",
-          "hnl ulaznice",
-          "champions league zagreb tickets",
-          "maksimir tickets"
+          "demo brand products",
+          "demo brand shop",
+          "demo brand buy",
+          "premium products",
+          "sustainable brand collection",
+          "demo brand events"
         ],
         "locations": ["Croatia", "Europe"],
         "languages": ["Croatian", "English"]
       },
       "creative": {
         "format": "search_ads",
-        "headline": "Dinamo Zagreb Ulaznice | Službena Prodaja",
-        "description": "Kupite ulaznice online za sve utakmice na Maksimiru. HNL i Champions League.",
+        "headline": "Demo Brand Ulaznice | Službena Prodaja",
+        "description": "Shop all products online. Premium quality and fast delivery worldwide.",
         "cta": "Buy Tickets"
       },
-      "notes": "Highest overall ROAS. Branded search terms convert at 25%+. Non-branded terms like 'hnl ulaznice' have lower conversion but good awareness."
+      "notes": "Highest overall ROAS. Branded search terms convert at 25%+. Non-branded terms like 'premium products' have lower conversion but good awareness."
     },
     {
       "id": "ad_009",
@@ -320,14 +320,14 @@
       "targeting": {
         "locations": ["Croatia", "Germany", "Austria", "Switzerland", "Sweden", "USA", "Australia"],
         "age_range": "18-45",
-        "interests": ["football merchandise", "sports apparel", "Dinamo Zagreb"],
+        "interests": ["lifestyle merchandise", "sports apparel", "Demo Brand"],
         "custom_audiences": ["website_shop_visitors", "add_to_cart_no_purchase"],
         "dynamic_retargeting": true
       },
       "creative": {
         "format": "dynamic_product_ads",
-        "headline": "Dinamo Zagreb Official Shop",
-        "description": "Službeni proizvodi GNK Dinamo Zagreb - dostava diljem svijeta",
+        "headline": "Demo Brand Official Shop",
+        "description": "Službeni proizvodi Demo Brand - dostava diljem svijeta",
         "cta": "Shop Now"
       },
       "top_products": [
@@ -362,13 +362,13 @@
       "targeting": {
         "locations": ["Croatia", "Bosnia", "Serbia", "Slovenia", "Montenegro", "North Macedonia"],
         "age_range": "18-50",
-        "interests": ["football streaming", "live sports", "HNL", "Champions League"],
+        "interests": ["lifestyle streaming", "live sports", "HNL", "Spring Campaign"],
         "exclusions": ["existing Arena Sport subscribers"]
       },
       "creative": {
         "format": "video",
-        "headline": "Gledajte Dinamo UŽIVO na Arena Sport!",
-        "description": "Sve utakmice HNL-a i Lige prvaka. Pretplata od 7.99 EUR/mj.",
+        "headline": "Gledajte Demo Brand UŽIVO na Arena Sport!",
+        "description": "All content and exclusives. Subscription from 7.99 EUR/mo.",
         "cta": "Learn More"
       },
       "notes": "Partnership campaign with Arena Sport. Revenue shared through affiliate model. Stories format outperformed feed by 1.5x for this campaign."
@@ -401,7 +401,7 @@
       "creative": {
         "format": "dynamic_product_ads",
         "headline": "Zaboravili ste nešto? 👀",
-        "description": "Vaši Dinamo proizvodi čekaju u košarici. Završite narudžbu danas!",
+        "description": "Vaši Demo Brand proizvodi čekaju u košarici. Završite narudžbu danas!",
         "cta": "Complete Purchase"
       },
       "notes": "Highest ROAS campaign overall. Small audience but very high intent. Discount code in ad copy increases conversion by 25%."
@@ -414,12 +414,12 @@
     "best_performing_platform": "google_ads_search",
     "best_roas_campaign": "ad_011_retargeting",
     "most_efficient_cpc": "tiktok_ads",
-    "top_audience_segment": "Males 25-34, Croatia, football interest",
+    "top_audience_segment": "Males 25-34, Croatia, lifestyle interest",
     "key_learnings": [
       "Retargeting campaigns consistently deliver 5-10x higher ROAS than prospecting",
       "Croatian-language creative outperforms German by 1.8x for diaspora",
       "Video/Reels ads have 2.3x better engagement than static",
-      "CL matchday content creates 3-5x engagement spike - capitalize with higher ad spend",
+      "campaign content creates 3-5x engagement spike - capitalize with higher ad spend",
       "TikTok Spark Ads (boosted organic) outperform branded content 3x",
       "Urgency messaging in final days before match boosts ticket conversion by 40%"
     ]

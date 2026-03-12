@@ -348,7 +348,7 @@ export default function Reports() {
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-4 py-2.5 bg-dinamo-blue hover:bg-dinamo-blue-hover text-white text-sm font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue-hover text-white text-sm font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
             {isGenerating ? 'Generira se...' : 'Generiraj izvještaj'}
@@ -521,8 +521,8 @@ export default function Reports() {
                           title="Usporedi s prošlim periodom"
                           className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all ${
                             comparisonId === report.id
-                              ? 'bg-dinamo-blue text-white shadow-sm'
-                              : 'bg-studio-surface-2 hover:bg-dinamo-blue/10 text-studio-text-secondary hover:text-blue-400'
+                              ? 'bg-brand-blue text-white shadow-sm'
+                              : 'bg-studio-surface-2 hover:bg-brand-blue/10 text-studio-text-secondary hover:text-blue-400'
                           }`}
                         >
                           <GitCompareArrows size={13} />
@@ -544,7 +544,7 @@ export default function Reports() {
                         <button
                           onClick={() => handleDownload(report.id)}
                           disabled={downloadingId === report.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-dinamo-blue hover:bg-dinamo-blue-hover text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 shadow-sm"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue hover:bg-brand-blue-hover text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 shadow-sm"
                         >
                           {downloadingId === report.id ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
                           Preuzmi PDF
@@ -645,7 +645,7 @@ export default function Reports() {
                   ? 'bg-emerald-600 text-white'
                   : toast.type === 'error'
                   ? 'bg-red-600 text-white'
-                  : 'bg-dinamo-blue text-white'
+                  : 'bg-brand-blue text-white'
               }`}
             >
               {toast.type === 'success' && <CheckCircle size={16} />}

@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Social Listening Task
+ShiftOneZero Marketing Platform - Social Listening Task
 Scans for brand mentions across platforms, detects trending topics,
 and flags spikes in mention volume for rapid response.
 """
@@ -18,13 +18,11 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 BRAND_KEYWORDS = [
-    "Dinamo Zagreb",
-    "GNK Dinamo",
-    "#GNKD",
-    "#Dinamo",
-    "Dinamo",
-    "Maksimir",
-    "Plavi",  # "The Blues" -- common fan nickname
+    "Demo Brand",
+    "@demo_brand",
+    "#DemoBrand",
+    "#OurBrand",
+    "DemoBrand",
 ]
 
 COMPETITOR_KEYWORDS = [
@@ -45,32 +43,32 @@ SPIKE_THRESHOLD_MULTIPLIER = 2.0  # 2x baseline = spike
 # ---------------------------------------------------------------------------
 
 MOCK_MENTION_TEMPLATES = [
-    {"author": "@dinamofan92", "platform": "twitter_x", "text": "Dinamo Zagreb going all the way in UCL this season! #GNKD #UCL", "sentiment": "positive"},
-    {"author": "@sportske_novosti", "platform": "twitter_x", "text": "GNK Dinamo announces new signing -- fans react", "sentiment": "neutral"},
-    {"author": "dinamoultra", "platform": "instagram", "text": "Maksimir atmosphere was INSANE tonight #Dinamo", "sentiment": "positive"},
-    {"author": "haters_gonna_hate", "platform": "twitter_x", "text": "Dinamo Zagreb defence was awful today, embarrassing", "sentiment": "negative"},
-    {"author": "fan_zone_zg", "platform": "facebook", "text": "Who's coming to the Dinamo fan zone this Saturday?", "sentiment": "positive"},
-    {"author": "index.hr", "platform": "news_rss", "text": "Dinamo Zagreb financial report shows record revenue", "sentiment": "neutral"},
-    {"author": "@balkan_futbol", "platform": "twitter_x", "text": "Dinamo Zagreb vs Hajduk Split -- the eternal derby preview", "sentiment": "neutral"},
-    {"author": "tiktok_footy", "platform": "tiktok", "text": "This Dinamo Zagreb goal is absolutely filthy #GNKD", "sentiment": "positive"},
-    {"author": "r/croatianfootball", "platform": "reddit", "text": "Match thread: Dinamo vs Rijeka. Expecting a tough game.", "sentiment": "neutral"},
-    {"author": "@angry_plavi", "platform": "twitter_x", "text": "Board needs to go. Dinamo Zagreb deserves better management #GNKD", "sentiment": "negative"},
-    {"author": "youtube_sports_hr", "platform": "youtube", "text": "Dinamo Zagreb -- Season Review 2025/26 | All Goals & Assists", "sentiment": "positive"},
-    {"author": "@dinamolive", "platform": "twitter_x", "text": "Petkovic scores again! Dinamo 2-0 up! #Dinamo #HNL", "sentiment": "positive"},
-    {"author": "news_portal_24sata", "platform": "news_rss", "text": "GNK Dinamo stadium renovation plans unveiled", "sentiment": "neutral"},
-    {"author": "@disappointed_fan", "platform": "instagram", "text": "Ticket prices are a joke. Dinamo Zagreb pricing out real fans.", "sentiment": "negative"},
-    {"author": "merch_reviewer", "platform": "tiktok", "text": "New Dinamo Zagreb 2026 kit review -- is it worth it? #Dinamo", "sentiment": "neutral"},
+    {"author": "@brandfan92", "platform": "twitter_x", "text": "Demo Brand going strong this season! #DemoBrand #OurBrand", "sentiment": "positive"},
+    {"author": "@news_portal", "platform": "twitter_x", "text": "Demo Brand announces new product -- fans react", "sentiment": "neutral"},
+    {"author": "brandultra", "platform": "instagram", "text": "Event atmosphere was INSANE tonight #DemoBrand", "sentiment": "positive"},
+    {"author": "haters_gonna_hate", "platform": "twitter_x", "text": "Demo Brand service was awful today, embarrassing", "sentiment": "negative"},
+    {"author": "fan_zone", "platform": "facebook", "text": "Who's coming to the Demo Brand fan zone this Saturday?", "sentiment": "positive"},
+    {"author": "news_site", "platform": "news_rss", "text": "Demo Brand financial report shows record revenue", "sentiment": "neutral"},
+    {"author": "@industry_watch", "platform": "twitter_x", "text": "Demo Brand vs competitors -- the market preview", "sentiment": "neutral"},
+    {"author": "tiktok_reviewer", "platform": "tiktok", "text": "This Demo Brand product is absolutely amazing #DemoBrand", "sentiment": "positive"},
+    {"author": "r/industry", "platform": "reddit", "text": "Discussion thread: Demo Brand new launch. Expecting big things.", "sentiment": "neutral"},
+    {"author": "@angry_customer", "platform": "twitter_x", "text": "Management needs to go. Demo Brand deserves better leadership #DemoBrand", "sentiment": "negative"},
+    {"author": "youtube_reviews", "platform": "youtube", "text": "Demo Brand -- Year Review 2025/26 | All Highlights", "sentiment": "positive"},
+    {"author": "@brandlive", "platform": "twitter_x", "text": "Another milestone! Demo Brand leading the way! #DemoBrand", "sentiment": "positive"},
+    {"author": "news_portal_24", "platform": "news_rss", "text": "Demo Brand expansion plans unveiled", "sentiment": "neutral"},
+    {"author": "@disappointed_customer", "platform": "instagram", "text": "Prices are a joke. Demo Brand pricing out real customers.", "sentiment": "negative"},
+    {"author": "merch_reviewer", "platform": "tiktok", "text": "New Demo Brand 2026 collection review -- is it worth it? #DemoBrand", "sentiment": "neutral"},
 ]
 
 TRENDING_TOPIC_POOL = [
-    {"topic": "#DinamoZagreb", "category": "brand"},
-    {"topic": "#GNKD", "category": "brand"},
-    {"topic": "#UCLDinamo", "category": "competition"},
-    {"topic": "#EternalDerby", "category": "rivalry"},
-    {"topic": "#DinamoTransfers", "category": "transfers"},
-    {"topic": "#Maksimir", "category": "venue"},
-    {"topic": "#PlaviArmy", "category": "fans"},
-    {"topic": "#HNL", "category": "league"},
+    {"topic": "#DemoBrand", "category": "brand"},
+    {"topic": "#OurBrand", "category": "brand"},
+    {"topic": "#BrandLaunch", "category": "campaign"},
+    {"topic": "#BrandVsCompetitor", "category": "competition"},
+    {"topic": "#BrandNews", "category": "news"},
+    {"topic": "#BrandCommunity", "category": "community"},
+    {"topic": "#BrandFans", "category": "fans"},
+    {"topic": "#Industry", "category": "industry"},
 ]
 
 
@@ -163,7 +161,7 @@ def _check_for_spikes(platform_counts: dict) -> list:
 )
 def scan_brand_mentions(self):
     """
-    Scan all platforms for brand mentions of Dinamo Zagreb.
+    Scan all platforms for brand mentions.
 
     Detects trending topics and alerts on mention volume spikes.
     Runs every 30 minutes via Celery Beat.

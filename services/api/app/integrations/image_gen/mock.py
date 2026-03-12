@@ -31,7 +31,7 @@ class ImageGenMockClient(ImageGenClientBase):
 
         # Encode a short snippet of the prompt for the placeholder text
         short_prompt = prompt[:40].replace(" ", "+")
-        text = quote(f"Dinamo+{size_label}")
+        text = quote(f"SOZ+{size_label}")
 
         return {
             "image_id": f"img_mock_{prompt_hash}",
@@ -42,7 +42,7 @@ class ImageGenMockClient(ImageGenClientBase):
             "created_at": "2026-03-06T10:00:00Z",
             "revised_prompt": (
                 f"A {style} style image: {prompt}. "
-                "Featuring Dinamo Zagreb's iconic blue color scheme with modern design elements."
+                "Featuring SOZ Zagreb's iconic blue color scheme with modern design elements."
             ),
             "model": "mock-image-gen-v1",
             "placeholder_alternatives": [

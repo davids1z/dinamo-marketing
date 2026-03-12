@@ -371,7 +371,7 @@ export default function Campaigns() {
       <div>
         <span className="text-studio-text-primary font-mono">EUR{row.spend.toLocaleString()}</span>
         <div className="w-full bg-studio-surface-3 rounded-full h-1 mt-1">
-          <div className="bg-dinamo-accent h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
+          <div className="bg-brand-accent h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
         </div>
       </div>
     ), align: 'right' as const },
@@ -458,7 +458,7 @@ export default function Campaigns() {
                   onClick={() => setStatusFilter(f)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                     statusFilter === f
-                      ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                      ? 'bg-brand-accent text-brand-primary shadow-sm'
                       : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                   }`}
                 >
@@ -587,7 +587,7 @@ export default function Campaigns() {
                 <div key={s} className="flex items-center gap-2 flex-1">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     s < wizardStep ? 'bg-green-100 text-green-600'
-                    : s === wizardStep ? 'bg-dinamo-accent text-dinamo-primary'
+                    : s === wizardStep ? 'bg-brand-accent text-brand-primary'
                     : 'bg-studio-surface-2 text-studio-text-tertiary'
                   }`}>
                     {s < wizardStep ? <Check size={14} /> : s}
@@ -611,7 +611,7 @@ export default function Campaigns() {
                       value={wizardForm.name}
                       onChange={e => setWizardForm(f => ({ ...f, name: e.target.value }))}
                       placeholder="npr. Proljetna promocija"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
                     />
                   </div>
 
@@ -627,7 +627,7 @@ export default function Campaigns() {
                           key={key}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-all ${
                             wizardForm.platforms[key]
-                              ? 'border-dinamo-accent bg-dinamo-accent/5 text-dinamo-accent'
+                              ? 'border-brand-accent bg-brand-accent/5 text-brand-accent'
                               : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
                           }`}
                         >
@@ -642,7 +642,7 @@ export default function Campaigns() {
                           />
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                             wizardForm.platforms[key]
-                              ? 'bg-dinamo-accent border-dinamo-accent'
+                              ? 'bg-brand-accent border-brand-accent'
                               : 'border-studio-border bg-studio-surface-1'
                           }`}>
                             {wizardForm.platforms[key] && <Check size={10} className="text-white" />}
@@ -660,7 +660,7 @@ export default function Campaigns() {
                       value={wizardForm.market}
                       onChange={e => setWizardForm(f => ({ ...f, market: e.target.value }))}
                       placeholder="npr. HR, BA, DE"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
                     />
                   </div>
                 </>
@@ -677,7 +677,7 @@ export default function Campaigns() {
                       value={wizardForm.budget || ''}
                       onChange={e => setWizardForm(f => ({ ...f, budget: Number(e.target.value) }))}
                       placeholder="npr. 3000"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all font-mono"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all font-mono"
                     />
                   </div>
 
@@ -691,7 +691,7 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.startDate}
                         onChange={e => setWizardForm(f => ({ ...f, startDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -703,7 +703,7 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.endDate}
                         onChange={e => setWizardForm(f => ({ ...f, endDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-dinamo-accent/30 focus:border-dinamo-accent outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -722,7 +722,7 @@ export default function Campaigns() {
                           onClick={() => setWizardForm(f => ({ ...f, objective: value }))}
                           className={`flex flex-col items-center gap-2 p-4 rounded-xl border text-sm font-medium transition-all ${
                             wizardForm.objective === value
-                              ? 'border-dinamo-accent bg-dinamo-accent/5 text-dinamo-accent'
+                              ? 'border-brand-accent bg-brand-accent/5 text-brand-accent'
                               : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
                           }`}
                         >
@@ -878,7 +878,7 @@ export default function Campaigns() {
                         ? 'bg-red-500'
                         : detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.7
                           ? 'bg-yellow-500'
-                          : 'bg-dinamo-accent'
+                          : 'bg-brand-accent'
                     }`}
                     style={{ width: `${detailCampaign.budget > 0 ? Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100) : 0}%` }}
                   />
@@ -986,7 +986,7 @@ export default function Campaigns() {
                       <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
                         <span className="text-[10px] font-mono text-studio-text-secondary">EUR{d.spend}</span>
                         <div
-                          className="w-full bg-dinamo-accent/80 rounded-t-md transition-all hover:bg-dinamo-accent"
+                          className="w-full bg-brand-accent/80 rounded-t-md transition-all hover:bg-brand-accent"
                           style={{ height: `${(d.spend / maxSpend) * 80}px` }}
                         />
                         <span className="text-[10px] text-studio-text-tertiary">{d.day}</span>

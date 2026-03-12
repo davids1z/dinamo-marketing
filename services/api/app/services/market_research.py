@@ -125,7 +125,7 @@ class MarketResearchService:
 
         # Get search trends
         trends = await self.trends_client.get_interest_by_region(
-            ["Dinamo Zagreb"], geo=country.code
+            ["Demo Brand"], geo=country.code
         )
         search_score = trends.get("score", 0)
 

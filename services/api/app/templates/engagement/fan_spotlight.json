@@ -21,9 +21,9 @@
   "placeholders": {
     "headline": {"max_chars": 25, "example": "FAN OF THE WEEK"},
     "fan_name": {"max_chars": 30, "example": "Marko K., Zagreb"},
-    "fan_story": {"max_chars": 150, "example": "A lifelong Blue who has attended every home match since 2003. Marko's passion is the heartbeat of Maksimir."},
+    "fan_story": {"max_chars": 150, "example": "A lifelong Blue who has attended every home match since 2003. Marko's passion is the heartbeat of Main Venue."},
     "fan_location": {"max_chars": 30, "example": "Zagreb, Croatia"},
-    "hashtag": {"max_chars": 25, "example": "#DinamoFamily"},
+    "hashtag": {"max_chars": 25, "example": "#DemoBrandFamily"},
     "cta": {"example": "Share Your Story"}
   },
   "guidelines": "Use the fan's submitted photo as the hero image with a branded frame overlay. The fan spotlight badge distinguishes this as a series. Include the fan's first name and city. The story excerpt should be warm and celebratory. Always credit the fan. Encourage submissions with the CTA. Obtain photo permissions before publishing."

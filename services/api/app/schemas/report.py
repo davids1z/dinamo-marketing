@@ -1,4 +1,4 @@
-"""Reporting schemas for the Dinamo Zagreb Marketing Platform API."""
+"""Reporting schemas for the ShiftOneZero Marketing Platform API."""
 
 from __future__ import annotations
 

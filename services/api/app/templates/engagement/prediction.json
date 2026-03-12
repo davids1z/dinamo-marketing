@@ -24,7 +24,7 @@
     "match_date": {"max_chars": 25, "example": "Saturday, 15 March"},
     "match_time": {"max_chars": 10, "example": "20:00"},
     "prediction_prompt": {"max_chars": 60, "example": "Drop your score prediction in the comments!"},
-    "hashtag": {"max_chars": 25, "example": "#DinamoPrediction"}
+    "hashtag": {"max_chars": 25, "example": "#DemoBrandPrediction"}
   },
   "guidelines": "Both crests displayed with blank score boxes (__ - __) between them. The question/prompt should be bold and inviting. Match details below. Dark background with blue glow effects around the score area. Published 24 hours before kickoff. Pin the post and engage with predictions in comments."
 }

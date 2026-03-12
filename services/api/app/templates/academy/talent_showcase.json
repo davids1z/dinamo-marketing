@@ -25,7 +25,7 @@
     "position": {"max_chars": 20, "example": "Right Winger"},
     "highlight_description": {"max_chars": 60, "example": "Dribbling masterclass in the U-17 derby"},
     "music_track": {"max_chars": 40, "example": "Trending audio — high energy"},
-    "hashtags": {"max_chars": 60, "example": "#DinamoAcademy #FutureStar #YoungTalent"}
+    "hashtags": {"max_chars": 60, "example": "#DemoBrandAcademy #FutureStar #YoungTalent"}
   },
   "guidelines": "15-30 second Reel/TikTok showcasing 3-5 skill clips with smooth transitions. Use trending audio for maximum reach. Lower third shows player name and position. Stat pop-ups can appear during key moments. Green accent distinguishes academy content. End with the academy badge and a 'follow for more' CTA. Vertical format optimized for mobile."
 }

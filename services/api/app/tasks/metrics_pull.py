@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Metrics Pull Task
+ShiftOneZero Marketing Platform - Metrics Pull Task
 
 Pulls metrics from all connected platforms (Meta, TikTok, YouTube) for
 published posts, stores results in PostMetric table. Runs every hour
@@ -264,7 +264,7 @@ def pull_all_metrics(self):
         logger.info("  Found %d published posts", len(posts))
 
         # 2. Pull metrics (async)
-        use_mock = settings.DM_USE_MOCK_APIS
+        use_mock = settings.SOZ_USE_MOCK_APIS
         loop = asyncio.new_event_loop()
         try:
             pull_results = loop.run_until_complete(

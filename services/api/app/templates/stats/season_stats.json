@@ -31,5 +31,5 @@
     "top_scorer": {"max_chars": 30, "example": "Petković (18)"},
     "top_assister": {"max_chars": 30, "example": "Ivanušec (12)"}
   },
-  "guidelines": "Multi-slide carousel: Slide 1 is the overview (W/D/L record, goals). Slide 2 covers top scorers and assisters. Slide 3 breaks down by competition (HNL, Cup, Europe). Slide 4 shows notable records. Use clean data visualization with bar charts, pie charts, and stat cards. All data must be verified before posting."
+  "guidelines": "Multi-slide carousel: Slide 1 is the overview (W/D/L record, goals). Slide 2 covers top scorers and assisters. Slide 3 breaks down by competition (Industry League, Cup, Europe). Slide 4 shows notable records. Use clean data visualization with bar charts, pie charts, and stat cards. All data must be verified before posting."
 }

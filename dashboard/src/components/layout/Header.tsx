@@ -76,7 +76,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
           <input
             type="text"
             placeholder="Pretraži..."
-            className="bg-studio-surface-1 border border-studio-border rounded-xl pl-9 pr-4 py-2 text-sm text-studio-text-primary placeholder-studio-text-tertiary focus:outline-none focus:border-dinamo-accent/50 focus:ring-2 focus:ring-dinamo-accent/10 w-52 transition-all"
+            className="bg-studio-surface-1 border border-studio-border rounded-xl pl-9 pr-4 py-2 text-sm text-studio-text-primary placeholder-studio-text-tertiary focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 w-52 transition-all"
           />
         </div>
 
@@ -105,8 +105,8 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
               {/* Header */}
               <div className="px-5 py-4 bg-studio-surface-1 border-b border-studio-border flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-dinamo-accent flex items-center justify-center">
-                    <Bell className="w-4 h-4 text-dinamo-primary" />
+                  <div className="w-8 h-8 rounded-xl bg-brand-accent flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-brand-primary" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-studio-text-primary">Obavijesti</h3>
@@ -144,7 +144,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-[13px] font-semibold text-studio-text-primary leading-tight truncate">{n.title}</p>
-                              {!n.is_read && <div className="w-2 h-2 rounded-full bg-dinamo-accent flex-shrink-0" />}
+                              {!n.is_read && <div className="w-2 h-2 rounded-full bg-brand-accent flex-shrink-0" />}
                             </div>
                             <p className="text-[12px] text-studio-text-secondary mt-0.5 leading-snug">{n.body}</p>
                             <p className="text-[11px] text-studio-text-tertiary mt-1">{timeAgo(n.created_at)}</p>
@@ -158,7 +158,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
                         {isExpanded && (
                           <div className="px-4 pb-3.5 ml-12 mr-4 animate-fade-in">
                             {n.link && (
-                              <a href={n.link} className="text-[12px] text-dinamo-accent hover:underline block mb-2">
+                              <a href={n.link} className="text-[12px] text-brand-accent hover:underline block mb-2">
                                 Pogledaj detalje →
                               </a>
                             )}

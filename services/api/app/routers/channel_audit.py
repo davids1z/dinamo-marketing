@@ -34,9 +34,9 @@ async def get_channel_page_data(db: AsyncSession = Depends(get_db)):
     today = date.today()
     thirty_days_ago = today - timedelta(days=30)
 
-    # Get all Dinamo channels
+    # Get all own brand channels
     channels_result = await db.execute(
-        select(SocialChannel).where(SocialChannel.owner_type == "dinamo")
+        select(SocialChannel).where(SocialChannel.owner_type == "own")
     )
     channels = channels_result.scalars().all()
 

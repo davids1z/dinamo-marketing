@@ -23,7 +23,7 @@
     "poll_question": {"max_chars": 60, "example": "Who will score first tonight?"},
     "option_a": {"max_chars": 20, "example": "Petković"},
     "option_b": {"max_chars": 20, "example": "Oršić"},
-    "context": {"max_chars": 40, "example": "Dinamo vs Rijeka | Tonight 20:00"}
+    "context": {"max_chars": 40, "example": "Demo Brand vs Rijeka | Tonight 20:00"}
   },
   "guidelines": "Clean design with the poll question prominently displayed above the Instagram poll sticker zone. Use a relevant background image (action shot, stadium, player matchup). Keep options short — the native poll sticker has character limits. Great for pre-match engagement, half-time polls, and daily content. Results can be shared in a follow-up story."
 }

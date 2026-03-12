@@ -20,11 +20,11 @@
   },
   "placeholders": {
     "headline": {"max_chars": 25, "example": "SECURE YOUR SEAT"},
-    "match_info": {"max_chars": 50, "example": "Dinamo vs Hajduk | Saturday 15 March | 20:00"},
+    "match_info": {"max_chars": 50, "example": "Demo Brand vs Hajduk | Saturday 15 March | 20:00"},
     "ticket_type": {"max_chars": 25, "example": "General Admission"},
     "price_from": {"max_chars": 15, "example": "From €15"},
     "availability": {"max_chars": 30, "example": "Limited availability — North Stand sold out"},
-    "purchase_url": {"max_chars": 40, "example": "tickets.gnkdinamo.hr"},
+    "purchase_url": {"max_chars": 40, "example": "tickets.demo-brand.com"},
     "cta": {"example": "Buy Tickets"}
   },
   "guidelines": "Stadium atmosphere as the hero image — full stands, floodlights, or tifo display. Include a stylized ticket graphic element. Urgency messaging if availability is limited. Price clearly visible. CTA button should be prominent and link to the ticket platform. For big matches, add 'selling fast' or 'limited availability' urgency markers. Season ticket promos use a different headline."

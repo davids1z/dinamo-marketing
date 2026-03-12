@@ -16,7 +16,7 @@ export default function LoadingSpinner({ size = 'md', className }: LoadingSpinne
     <div className={clsx('flex items-center justify-center', className)}>
       <div
         className={clsx(
-          'animate-spin rounded-full border-2 border-dinamo-accent/20 border-t-dinamo-accent',
+          'animate-spin rounded-full border-2 border-brand-accent/20 border-t-brand-accent',
           sizes[size]
         )}
       />
@@ -29,7 +29,7 @@ export function PageLoader() {
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="text-sm text-dinamo-muted mt-4">Ucitavanje...</p>
+        <p className="text-sm text-brand-muted mt-4">Ucitavanje...</p>
       </div>
     </div>
   )

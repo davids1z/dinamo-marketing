@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Sentiment Analysis Task
+ShiftOneZero Marketing Platform - Sentiment Analysis Task
 Analyzes new comments across all platforms using Claude AI (mock).
 Generates alerts when negative sentiment spikes above threshold.
 """
@@ -27,18 +27,18 @@ SENTIMENT_LABELS = ["positive", "neutral", "negative"]
 # ---------------------------------------------------------------------------
 
 MOCK_COMMENTS = [
-    {"id": "cmt_001", "post_id": "post_001", "platform": "meta", "author": "marko_zg", "text": "Ajmo Dinamo! Najbolji klub u Hrvatskoj!", "language": "hr"},
-    {"id": "cmt_002", "post_id": "post_001", "platform": "meta", "author": "fansplit99", "text": "Dinamo is playing great football this season", "language": "en"},
+    {"id": "cmt_001", "post_id": "post_001", "platform": "meta", "author": "marko_zg", "text": "Ajmo Demo Brand! Najbolji brend!", "language": "hr"},
+    {"id": "cmt_002", "post_id": "post_001", "platform": "meta", "author": "fansplit99", "text": "Demo Brand is doing great this season", "language": "en"},
     {"id": "cmt_003", "post_id": "post_002", "platform": "meta", "author": "nikola_r", "text": "Preskupo za obitelj od 4, nemoguce priustiti", "language": "hr"},
     {"id": "cmt_004", "post_id": "post_003", "platform": "tiktok", "author": "futbol_addict", "text": "This training drill is insane", "language": "en"},
     {"id": "cmt_005", "post_id": "post_003", "platform": "tiktok", "author": "hater_2000", "text": "Worst team in Europe, only good in Croatian league", "language": "en"},
     {"id": "cmt_006", "post_id": "post_005", "platform": "youtube", "author": "footyreviewer", "text": "Great highlights! That second goal was world class", "language": "en"},
-    {"id": "cmt_007", "post_id": "post_005", "platform": "youtube", "author": "hnl_critic", "text": "Referee was terrible, Dinamo gets all the calls", "language": "en"},
+    {"id": "cmt_007", "post_id": "post_005", "platform": "youtube", "author": "critic_99", "text": "Quality was terrible, Demo Brand needs to do better", "language": "en"},
     {"id": "cmt_008", "post_id": "post_001", "platform": "meta", "author": "ana_zagreb", "text": "Kad je sljedeca utakmica? Jedva cekam!", "language": "hr"},
     {"id": "cmt_009", "post_id": "post_004", "platform": "tiktok", "author": "merch_fan", "text": "Just ordered the new jersey, looks amazing", "language": "en"},
     {"id": "cmt_010", "post_id": "post_004", "platform": "tiktok", "author": "cheapskate42", "text": "80 EUR for a shirt? Robbery. I'm done supporting", "language": "en"},
-    {"id": "cmt_011", "post_id": "post_002", "platform": "meta", "author": "split_troll", "text": "Hajduk je bolji, Dinamo kupuje suce", "language": "hr"},
-    {"id": "cmt_012", "post_id": "post_006", "platform": "youtube", "author": "ucl_dreamer", "text": "Champions League nights at Maksimir are magical", "language": "en"},
+    {"id": "cmt_011", "post_id": "post_002", "platform": "meta", "author": "competitor_fan", "text": "Konkurencija je bolja, Demo Brand pada", "language": "hr"},
+    {"id": "cmt_012", "post_id": "post_006", "platform": "youtube", "author": "ucl_dreamer", "text": "Champions League nights at the home stadium are magical", "language": "en"},
     {"id": "cmt_013", "post_id": "post_007", "platform": "meta", "author": "petkovic_fan", "text": "Petkovic is the best striker in HNL history", "language": "en"},
     {"id": "cmt_014", "post_id": "post_007", "platform": "meta", "author": "realist_99", "text": "Interview is boring, ask harder questions", "language": "en"},
     {"id": "cmt_015", "post_id": "post_001", "platform": "meta", "author": "neutral_guy", "text": "Interesting game, could go either way", "language": "en"},

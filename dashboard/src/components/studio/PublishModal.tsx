@@ -104,11 +104,11 @@ export default function PublishModal({
         {/* ── Header ─────────────────────────────────────── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-studio-border-subtle">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-dinamo-accent/15 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-brand-accent/15 flex items-center justify-center">
               {result?.success ? (
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
               ) : (
-                <Send className="w-4 h-4 text-dinamo-accent" />
+                <Send className="w-4 h-4 text-brand-accent" />
               )}
             </div>
             <div>
@@ -150,7 +150,7 @@ export default function PublishModal({
                       href={result.platform_post_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 mt-5 px-4 py-2 bg-dinamo-accent/10 text-dinamo-accent rounded-lg text-sm font-medium hover:bg-dinamo-accent/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 mt-5 px-4 py-2 bg-brand-accent/10 text-brand-accent rounded-lg text-sm font-medium hover:bg-brand-accent/20 transition-colors"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       Pogledaj objavu
@@ -186,7 +186,7 @@ export default function PublishModal({
                         onClick={() => setSelectedPlatform(p.value)}
                         className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-2 transition-all text-left group ${
                           isSelected
-                            ? 'border-dinamo-accent bg-dinamo-accent/8'
+                            ? 'border-brand-accent bg-brand-accent/8'
                             : 'border-studio-border hover:border-studio-border-hover bg-studio-surface-1'
                         }`}
                       >
@@ -205,7 +205,7 @@ export default function PublishModal({
                           </span>
                         )}
                         {isSelected && (
-                          <div className="absolute -top-px -right-px w-5 h-5 bg-dinamo-accent rounded-bl-lg rounded-tr-[10px] flex items-center justify-center">
+                          <div className="absolute -top-px -right-px w-5 h-5 bg-brand-accent rounded-bl-lg rounded-tr-[10px] flex items-center justify-center">
                             <Check className="w-3 h-3 text-black" />
                           </div>
                         )}
@@ -276,7 +276,7 @@ export default function PublishModal({
                     value={editCaption}
                     onChange={(e) => setEditCaption(e.target.value)}
                     rows={3}
-                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 resize-none transition-colors placeholder:text-studio-text-disabled"
+                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 resize-none transition-colors placeholder:text-studio-text-disabled"
                     placeholder="Opis objave..."
                   />
                 </div>
@@ -290,7 +290,7 @@ export default function PublishModal({
                     type="text"
                     value={editHashtags}
                     onChange={(e) => setEditHashtags(e.target.value)}
-                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-dinamo-accent focus:ring-1 focus:ring-dinamo-accent/20 transition-colors placeholder:text-studio-text-disabled"
+                    className="w-full text-xs text-studio-text-primary bg-studio-surface-1 border border-studio-border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20 transition-colors placeholder:text-studio-text-disabled"
                     placeholder="#ShiftOneZero #Marketing ..."
                   />
                   {editHashtags.trim() && (
@@ -324,7 +324,7 @@ export default function PublishModal({
             <button
               onClick={handlePublish}
               disabled={publishing || charCount > platformLimit}
-              className="flex items-center gap-2 px-5 py-2.5 bg-dinamo-accent text-black rounded-xl text-xs font-bold hover:bg-dinamo-accent-hover transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(184,255,0,0.15)]"
+              className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-black rounded-xl text-xs font-bold hover:bg-brand-accent-hover transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(184,255,0,0.15)]"
             >
               {publishing ? (
                 <>

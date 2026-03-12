@@ -18,10 +18,10 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_prof_ig_001",
                 "service": "instagram",
-                "service_username": "dinamo_official",
+                "service_username": "soz_official",
                 "service_id": "ig_17841400001",
-                "formatted_username": "@dinamo_official",
-                "avatar_url": "https://buffer-media.com/avatars/dinamo_ig.jpg",
+                "formatted_username": "@soz_official",
+                "avatar_url": "https://buffer-media.com/avatars/soz_ig.jpg",
                 "default": True,
                 "schedules": [
                     {"day": "mon", "times": ["09:00", "12:00", "18:00"]},
@@ -36,10 +36,10 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_prof_fb_001",
                 "service": "facebook",
-                "service_username": "DinamoOfficialPage",
+                "service_username": "SOZOfficialPage",
                 "service_id": "fb_page_00123",
-                "formatted_username": "Dinamo Official",
-                "avatar_url": "https://buffer-media.com/avatars/dinamo_fb.jpg",
+                "formatted_username": "ShiftOneZero Official",
+                "avatar_url": "https://buffer-media.com/avatars/soz_fb.jpg",
                 "default": False,
                 "schedules": [
                     {"day": "mon", "times": ["10:00", "17:00"]},
@@ -50,10 +50,10 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_prof_tw_001",
                 "service": "twitter",
-                "service_username": "DinamoZagreb",
+                "service_username": "ShiftOneZero",
                 "service_id": "tw_928374650",
-                "formatted_username": "@DinamoZagreb",
-                "avatar_url": "https://buffer-media.com/avatars/dinamo_tw.jpg",
+                "formatted_username": "@ShiftOneZero",
+                "avatar_url": "https://buffer-media.com/avatars/soz_tw.jpg",
                 "default": False,
                 "schedules": [
                     {"day": "mon", "times": ["08:00", "12:00", "17:00", "20:00"]},
@@ -68,10 +68,10 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_prof_li_001",
                 "service": "linkedin",
-                "service_username": "GNK Dinamo Zagreb",
+                "service_username": "ShiftOneZero",
                 "service_id": "li_company_12345",
-                "formatted_username": "GNK Dinamo Zagreb",
-                "avatar_url": "https://buffer-media.com/avatars/dinamo_li.jpg",
+                "formatted_username": "ShiftOneZero",
+                "avatar_url": "https://buffer-media.com/avatars/soz_li.jpg",
                 "default": False,
                 "schedules": [
                     {"day": "tue", "times": ["09:00"]},
@@ -102,14 +102,14 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_001",
                 "profile_id": profile_id,
-                "text": "3 goals, 1 unforgettable night. Relive every moment from the derby victory ⚽🔥\n\n#Dinamo #DerbyDay #HNL",
+                "text": "3 products, 1 unforgettable launch. Relive every moment from our spring reveal ⚽🔥\n\n#SOZ #DerbyDay #HNL",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-05T17:00:00Z",
                 "sent_at": None,
                 "media": [
                     {
-                        "photo": "https://buffer-media.com/uploads/derby_carousel_1.jpg",
-                        "thumbnail": "https://buffer-media.com/uploads/derby_carousel_1_thumb.jpg",
+                        "photo": "https://buffer-media.com/uploads/launch_carousel_1.jpg",
+                        "thumbnail": "https://buffer-media.com/uploads/launch_carousel_1_thumb.jpg",
                         "link": None,
                     }
                 ],
@@ -120,14 +120,14 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_002",
                 "profile_id": profile_id,
-                "text": "5 days until we write the next chapter in Europe 🌟\n\nDinamo vs AS Roma | Europa League Quarter-Final\n\n#Dinamo #EuropaLeague #UEL",
+                "text": "5 days until we write the next chapter in our brand story 🌟\n\nSOZ vs AS Roma | Spring Campaign Launch Event\n\n#SOZ #EuropaLeague #UEL",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-07T09:00:00Z",
                 "sent_at": None,
                 "media": [
                     {
-                        "photo": "https://buffer-media.com/uploads/uel_countdown_5.jpg",
-                        "thumbnail": "https://buffer-media.com/uploads/uel_countdown_5_thumb.jpg",
+                        "photo": "https://buffer-media.com/uploads/campaign_countdown_5.jpg",
+                        "thumbnail": "https://buffer-media.com/uploads/campaign_countdown_5_thumb.jpg",
                         "link": None,
                     }
                 ],
@@ -138,7 +138,7 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_003",
                 "profile_id": profile_id,
-                "text": "Locked in 🔒 Training is INTENSE ahead of Thursday's European clash 💪\n\n#Dinamo #Training #EuropaLeague #Roma",
+                "text": "Locked in. Preparation is INTENSE ahead of next week's big launch event.\n\n#SOZ #Training #EuropaLeague #Roma",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-09T16:00:00Z",
                 "sent_at": None,
@@ -150,14 +150,14 @@ class BufferMockClient(BufferClientBase):
             {
                 "id": "buf_post_004",
                 "profile_id": profile_id,
-                "text": "MATCHDAY 🔵⚪\n\nDINAMO vs AS ROMA\nEuropa League Quarter-Final\n21:00 CET | Stadion Maksimir\n\nWho's coming? 🙋‍♂️\n\n#Dinamo #Roma #UEL #Matchday #Zagreb",
+                "text": "LAUNCH DAY 🔵⚪\n\nSOZ vs AS ROMA\nSpring Campaign Launch Event\n18:00 CET | Flagship Store\n\nWho is joining us? 🙋‍♂️\n\n#SOZ #Roma #UEL #Matchday #Zagreb",
                 "status": "scheduled",
                 "scheduled_at": "2026-03-12T08:00:00Z",
                 "sent_at": None,
                 "media": [
                     {
-                        "photo": "https://buffer-media.com/uploads/matchday_roma.jpg",
-                        "thumbnail": "https://buffer-media.com/uploads/matchday_roma_thumb.jpg",
+                        "photo": "https://buffer-media.com/uploads/launchday_spring.jpg",
+                        "thumbnail": "https://buffer-media.com/uploads/launchday_spring_thumb.jpg",
                         "link": None,
                     }
                 ],

@@ -13,13 +13,13 @@ from app.services.media_storage import MediaStorageService
 
 logger = logging.getLogger(__name__)
 
-# Dinamo Zagreb brand context injected into every prompt
+# Brand context injected into every prompt
 BRAND_CONTEXT = (
-    "GNK Dinamo Zagreb football club. "
-    "Brand colors: deep navy (#0A1A28), electric lime (#B8FF00), Dinamo blue (#0057A8). "
-    "Maksimir Stadium setting. Blue and white kit. "
-    "Professional sports marketing visual, modern and dynamic. "
-    "Croatian football culture. No text overlays unless specified."
+    "Professional brand marketing visual. "
+    "Brand colors: deep navy (#0A1A28), electric lime (#B8FF00), brand blue (#0057A8). "
+    "Modern and dynamic professional setting. "
+    "Clean, premium marketing visual. "
+    "No text overlays unless specified."
 )
 
 # Map content pillars to style hints
@@ -45,7 +45,7 @@ AD_PLATFORM_SIZES: dict[str, str] = {
 
 # Platform-specific ad creative style guides
 AD_PLATFORM_STYLES: dict[str, str] = {
-    "instagram": "Clean, bold typography feel, eye-catching, Instagram feed optimized, square composition, vibrant Dinamo blue and lime accent",
+    "instagram": "Clean, bold typography feel, eye-catching, Instagram feed optimized, square composition, vibrant brand blue and lime accent",
     "facebook": "Informative layout, landscape friendly, professional look, clear messaging hierarchy, suitable for news feed",
     "tiktok": "Trendy vertical format, dynamic and energetic, youth-oriented, fast-paced aesthetic, bold colors and contrast",
     "youtube": "Cinematic wide format, high production value, dramatic lighting, thumbnail-worthy composition",

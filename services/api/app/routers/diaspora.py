@@ -105,7 +105,7 @@ async def get_populations(db: AsyncSession = Depends(get_db)):
         },
         {
             "id": 3,
-            "title": "Dinamo bilten dijaspore",
+            "title": "Brand bilten dijaspore",
             "languages": ["HR", "EN"],
             "platform": "Email",
             "date": "Mar 10, 2026",
@@ -119,7 +119,7 @@ async def get_populations(db: AsyncSession = Depends(get_db)):
             "platform": "Website + Social",
             "date": "Mar 6, 2026",
             "status": "Spremno",
-            "description": "Ažurirani vodič za navijače dijaspore o gledanju Dinamovih utakmica",
+            "description": "Ažurirani vodič za dijasporu o praćenju sadržaja brenda",
         },
         {
             "id": 5,

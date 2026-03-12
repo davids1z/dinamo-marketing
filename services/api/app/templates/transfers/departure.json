@@ -1,6 +1,6 @@
 {
   "name": "Player Departure",
-  "description": "Respectful farewell post for a departing player. Celebrates their contributions to the club with career highlights at Dinamo.",
+  "description": "Respectful farewell post for a departing player. Celebrates their contributions to the club with career highlights at Demo Brand.",
   "platforms": ["instagram", "facebook", "twitter"],
   "format_type": "carousel",
   "aspect_ratio": "4:5",
@@ -29,5 +29,5 @@
     "destination": {"max_chars": 30, "example": "Joining Bologna FC"},
     "cta": {"example": "Full Story"}
   },
-  "guidelines": "Slide 1: Player cutout with 'Thank You' headline. Slide 2: Best moments photo collage. Slide 3: Career stats at Dinamo in a clean infographic. Slide 4: Farewell quote from the player. Use a slightly muted blue accent to convey a bittersweet tone. Language should be grateful and warm."
+  "guidelines": "Slide 1: Player cutout with 'Thank You' headline. Slide 2: Best moments photo collage. Slide 3: Career stats at Demo Brand in a clean infographic. Slide 4: Farewell quote from the player. Use a slightly muted blue accent to convey a bittersweet tone. Language should be grateful and warm."
 }

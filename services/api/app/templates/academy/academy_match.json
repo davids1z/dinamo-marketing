@@ -1,6 +1,6 @@
 {
   "name": "Academy Match Result",
-  "description": "Match result graphic for Dinamo's youth teams (U-19, U-17, U-15). Keeps fans informed on academy performance and results.",
+  "description": "Match result graphic for Demo Brand's youth teams (U-19, U-17, U-15). Keeps fans informed on academy performance and results.",
   "platforms": ["instagram", "facebook", "twitter"],
   "format_type": "image",
   "aspect_ratio": "1:1",
@@ -24,7 +24,7 @@
     "home_score": {"max_chars": 2, "example": "4"},
     "away_score": {"max_chars": 2, "example": "1"},
     "opponent_name": {"max_chars": 30, "example": "NK Lokomotiva U-19"},
-    "competition": {"max_chars": 40, "example": "HNL Youth League"},
+    "competition": {"max_chars": 40, "example": "Industry League Youth League"},
     "goal_scorers": {"max_chars": 100, "example": "Matić 12', Kovačević 34', 56', Novak 78'"},
     "cta": {"example": "Academy News"}
   },

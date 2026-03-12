@@ -12,13 +12,10 @@ logger = logging.getLogger(__name__)
 
 # Brand keywords to monitor
 BRAND_KEYWORDS = [
-    "Dinamo Zagreb",
-    "GNK Dinamo",
-    "#Dinamo",
-    "#DynamoZagreb",
-    "#BBB",
-    "Bad Blue Boys",
-    "Maksimir",
+    "Demo Brand",
+    "@demo_brand",
+    "#DemoBrand",
+    "#OurBrand",
 ]
 
 # Crisis detection thresholds
@@ -96,7 +93,7 @@ class SocialListenerService:
         return persisted
 
     async def get_trending_topics(self, db: AsyncSession, days: int = 7) -> list[dict]:
-        """Get trending topics related to Dinamo Zagreb."""
+        """Get trending topics related to the brand."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
         result = await db.execute(
@@ -155,7 +152,7 @@ class SocialListenerService:
         ]
 
     async def get_share_of_voice(self, db: AsyncSession) -> dict:
-        """Calculate Dinamo's share of voice vs competitors in mentions."""
+        """Calculate brand's share of voice vs competitors in mentions."""
         thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
         # Total brand mentions

@@ -23,7 +23,7 @@
     "activity": {"max_chars": 30, "example": "Team Dinner in Zagreb"},
     "context": {"max_chars": 40, "example": "End of season celebration"},
     "music_track": {"max_chars": 40, "example": "Fun/trending audio"},
-    "hashtags": {"max_chars": 60, "example": "#TeamSpirit #DinamoFamily #SquadGoals"}
+    "hashtags": {"max_chars": 60, "example": "#TeamSpirit #DemoBrandFamily #SquadGoals"}
   },
   "guidelines": "Fun, candid, and unscripted. Show the genuine relationships between players — laughter, jokes, friendly competitions, team dinners. 15-45 seconds. Use trending fun/viral audio. Minimal branding — the content should feel organic and personal. Great for humanizing the squad and showing team chemistry. These posts typically generate high engagement. Ensure all players consent to appearing."
 }

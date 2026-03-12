@@ -418,7 +418,7 @@ export default function CampaignResearch() {
               onClick={() => fileRef.current?.click()}
               className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
                 dragOver
-                  ? 'border-dinamo-accent bg-dinamo-accent/5'
+                  ? 'border-brand-accent bg-brand-accent/5'
                   : 'border-studio-border hover:border-studio-text-tertiary hover:bg-studio-surface-1'
               }`}
             >
@@ -430,7 +430,7 @@ export default function CampaignResearch() {
                 onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
               />
               {uploading ? (
-                <Loader2 className="w-8 h-8 text-dinamo-accent mx-auto animate-spin" />
+                <Loader2 className="w-8 h-8 text-brand-accent mx-auto animate-spin" />
               ) : (
                 <>
                   <Upload className="w-8 h-8 text-studio-text-tertiary mx-auto mb-2" />
@@ -449,12 +449,12 @@ export default function CampaignResearch() {
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="Opiši kampanju koju želiš istražiti..."
-                className="w-full h-24 bg-studio-surface-1 border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text-primary placeholder-studio-text-disabled focus:outline-none focus:border-dinamo-accent focus:ring-2 focus:ring-dinamo-accent/20 resize-none"
+                className="w-full h-24 bg-studio-surface-1 border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text-primary placeholder-studio-text-disabled focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 resize-none"
               />
               <button
                 onClick={handleTextSubmit}
                 disabled={!textInput.trim() || uploading}
-                className="mt-2 w-full py-2.5 bg-dinamo-accent hover:bg-dinamo-accent-hover text-dinamo-primary text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="mt-2 w-full py-2.5 bg-brand-accent hover:bg-brand-accent-hover text-brand-primary text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 Istraži kampanju
@@ -489,7 +489,7 @@ export default function CampaignResearch() {
                         onClick={() => setSelectedId(c.id)}
                         className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all group ${
                           isActive
-                            ? 'bg-dinamo-accent/10 border border-dinamo-accent/30'
+                            ? 'bg-brand-accent/10 border border-brand-accent/30'
                             : 'bg-studio-surface-0 border border-studio-border hover:bg-studio-surface-1'
                         }`}
                       >

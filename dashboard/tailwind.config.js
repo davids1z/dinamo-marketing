@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        dinamo: {
+        brand: {
           primary: '#0A1A28',
           blue: '#0057A8',
           'blue-dark': '#004080',

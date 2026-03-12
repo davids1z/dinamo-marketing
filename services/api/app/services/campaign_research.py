@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "google/gemini-2.5-pro"
 
-BRIEF_EXTRACTION_PROMPT = """Ti si marketing strucnjak za GNK Dinamo Zagreb. Analiziraj sljedeci tekst kampanje i izvuci strukturirane podatke.
+BRIEF_EXTRACTION_PROMPT = """Ti si marketing strucnjak za Demo Brand. Analiziraj sljedeci tekst kampanje i izvuci strukturirane podatke.
 
 Vrati ISKLJUCIVO validan JSON objekt (bez markdown, bez ```):
 {
@@ -31,7 +31,7 @@ Vrati ISKLJUCIVO validan JSON objekt (bez markdown, bez ```):
 TEKST KAMPANJE:
 """
 
-PLAN_GENERATION_PROMPT = """Ti si vrhunski marketing strateg za GNK Dinamo Zagreb, hrvatski nogometni klub koji se natjece u HNL-u i europskim natjecanjima.
+PLAN_GENERATION_PROMPT = """Ti si vrhunski marketing strateg za Demo Brand, hrvatski nogometni klub koji se natjece u HNL-u i europskim natjecanjima.
 
 Na temelju briefinga kampanje i rezultata istrazivanja, napravi detaljan marketing plan.
 
@@ -60,7 +60,7 @@ Vrati ISKLJUCIVO validan JSON objekt (bez markdown, bez ```):
           "format": "reel",
           "title": "Naslov objave",
           "description": "Opis sadrzaja",
-          "hashtags": ["#dinamo", "#hashtag"],
+          "hashtags": ["#DemoBrand", "#hashtag"],
           "best_time": "18:00",
           "day": "ponedjeljak"
         }}
@@ -104,8 +104,8 @@ class CampaignResearchService:
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://dinamo.xyler.ai",
-            "X-Title": "Dinamo Marketing Platform",
+            "HTTP-Referer": "https://shiftonezero.xyler.ai",
+            "X-Title": "ShiftOneZero Marketing Platform",
         }
 
         payload = {
@@ -152,7 +152,7 @@ class CampaignResearchService:
         search_queries = [
             f"football club {campaign_type} campaign best practices 2025 2026",
             f"social media marketing {campaign_type} sports club case study",
-            f"Dinamo Zagreb {campaign_type} fan engagement",
+            f"Demo Brand {campaign_type} fan engagement",
             f"European football club {campaign_type} benchmark engagement rates",
         ]
 
@@ -173,8 +173,8 @@ class CampaignResearchService:
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://dinamo.xyler.ai",
-            "X-Title": "Dinamo Marketing Platform",
+            "HTTP-Referer": "https://shiftonezero.xyler.ai",
+            "X-Title": "ShiftOneZero Marketing Platform",
         }
 
         prompt = PLAN_GENERATION_PROMPT.format(
@@ -218,7 +218,7 @@ class CampaignResearchService:
         return {
             "plan_title": f"Marketing plan: {title}",
             "executive_summary": (
-                f"Sveobuhvatni marketing plan za kampanju '{title}' GNK Dinamo Zagreb. "
+                f"Sveobuhvatni marketing plan za kampanju '{title}' Demo Brand. "
                 f"Plan ukljucuje multi-platformski pristup s fokusom na Instagram i TikTok "
                 f"sadrzaj."
             ),
@@ -251,7 +251,7 @@ class CampaignResearchService:
                             "format": "reel",
                             "title": f"Reel tjedan {w}",
                             "description": "Video sadrzaj za Instagram",
-                            "hashtags": ["#dinamo", "#gnkdinamo"],
+                            "hashtags": ["#DemoBrand", "#OurBrand"],
                             "best_time": "18:00",
                             "day": "ponedjeljak",
                         },
@@ -260,7 +260,7 @@ class CampaignResearchService:
                             "format": "video",
                             "title": f"TikTok tjedan {w}",
                             "description": "Kratki video za TikTok",
-                            "hashtags": ["#dinamo", "#football"],
+                            "hashtags": ["#DemoBrand", "#football"],
                             "best_time": "19:00",
                             "day": "srijeda",
                         },
@@ -269,7 +269,7 @@ class CampaignResearchService:
                             "format": "post",
                             "title": f"FB post tjedan {w}",
                             "description": "Facebook objava s fotografijom",
-                            "hashtags": ["#GNKDinamo"],
+                            "hashtags": ["#OurBrand"],
                             "best_time": "12:00",
                             "day": "petak",
                         },

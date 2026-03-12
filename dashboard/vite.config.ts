@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['dinamo-icon.svg', 'icons/*.png'],
+      includeAssets: ['soz-icon.svg', 'icons/*.png'],
       manifest: {
         id: '/',
         name: 'ShiftOneZero Marketing Platforma',

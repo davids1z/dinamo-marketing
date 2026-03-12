@@ -286,8 +286,8 @@ export default function CanvasPreview({
                 />
               )}
               {ol.type === 'badge' && (
-                <div className="w-full h-full rounded-full bg-dinamo-accent/20 border-2 border-dinamo-accent flex items-center justify-center">
-                  <span className="text-dinamo-accent font-bold text-[24px]">
+                <div className="w-full h-full rounded-full bg-brand-accent/20 border-2 border-brand-accent flex items-center justify-center">
+                  <span className="text-brand-accent font-bold text-[24px]">
                     D
                   </span>
                 </div>
@@ -320,7 +320,7 @@ export default function CanvasPreview({
                   key={i}
                   className={`rounded-full transition-all duration-300 ${
                     i === currentSceneIndex
-                      ? 'bg-dinamo-accent'
+                      ? 'bg-brand-accent'
                       : 'bg-white/20'
                   }`}
                   style={{

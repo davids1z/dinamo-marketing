@@ -119,7 +119,7 @@ class DiasporaManagerService:
             hashtags = post.hashtags or {}
             hashtag_list = hashtags if isinstance(hashtags, list) else list(hashtags.keys())
             is_diaspora = any(
-                tag.lower() in ["#dinamoworld", "#dinamodijaspora", "#bbbaroundtheworld"]
+                tag.lower() in ["#brandworld", "#branddijaspora", "#brandaroundtheworld"]
                 for tag in hashtag_list
             )
 

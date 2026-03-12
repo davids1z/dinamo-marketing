@@ -1,4 +1,4 @@
-"""Competitor-intelligence schemas for the Dinamo Zagreb Marketing Platform API."""
+"""Competitor-intelligence schemas for the Marketing Platform API."""
 
 from __future__ import annotations
 
@@ -50,12 +50,12 @@ class CompetitorAlertOut(BaseModel):
 
 
 class ComparisonResponse(BaseModel):
-    """Side-by-side comparison of Dinamo vs competitors."""
+    """Side-by-side comparison of own brand vs competitors."""
 
     model_config = ConfigDict(from_attributes=True)
 
-    dinamo: list[CompetitorMetricOut] = Field(
-        description="Dinamo Zagreb metrics across platforms"
+    own_brand: list[CompetitorMetricOut] = Field(
+        description="Own brand metrics across platforms"
     )
     competitors: list[CompetitorMetricOut] = Field(
         description="Competitor metrics across platforms"

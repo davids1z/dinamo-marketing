@@ -68,7 +68,7 @@ class MetaMockClient(MetaClientBase):
         return [
             {
                 "id": "17895695012345678",
-                "caption": "Game day vibes! Who's ready for tonight? ⚽️ #Dinamo #MatchDay",
+                "caption": "Game day vibes! Who's ready for tonight? ⚽️ #SOZ #MatchDay",
                 "media_type": "IMAGE",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/img_001.jpg",
                 "timestamp": "2026-03-04T14:30:00+0000",
@@ -88,7 +88,7 @@ class MetaMockClient(MetaClientBase):
             },
             {
                 "id": "17895695012345680",
-                "caption": "New merch drop 🔥 Link in bio! #DinamoStyle",
+                "caption": "New merch drop 🔥 Link in bio! #SOZStyle",
                 "media_type": "VIDEO",
                 "media_url": "https://scontent.example.com/v/t51.2885-15/vid_003.mp4",
                 "timestamp": "2026-03-02T16:45:00+0000",

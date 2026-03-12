@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Fan Lifecycle Task
+ShiftOneZero Marketing Platform - Fan Lifecycle Task
 Updates fan lifecycle stages based on recent activity, calculates
 churn risk scores, and estimates Customer Lifetime Value (CLV).
 """
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Lifecycle stages (ordered by progression)
 LIFECYCLE_STAGES = [
-    "prospect",       # Discovered Dinamo online, no engagement yet
+    "prospect",       # Discovered the club online, no engagement yet
     "casual_fan",     # Occasional engagement (likes, views)
     "engaged_fan",    # Regular engagement, follows on multiple platforms
     "ticket_buyer",   # Has purchased at least one match ticket

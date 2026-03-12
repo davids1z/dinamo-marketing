@@ -23,14 +23,14 @@ def _get_service():
 
 def _generate_placeholder_pdf(report_type: str, report_id: str) -> bytes:
     """Generate a minimal valid PDF as placeholder when real PDF doesn't exist."""
-    title = f"Dinamo Marketing - {report_type} Report"
+    title = f"ShiftOneZero Marketing - {report_type} Report"
     date_str = datetime.now().strftime("%d.%m.%Y")
     # Minimal valid PDF structure
     content_stream = (
         f"BT /F1 24 Tf 50 750 Td ({title}) Tj ET\n"
         f"BT /F1 14 Tf 50 700 Td (Report ID: {report_id}) Tj ET\n"
         f"BT /F1 14 Tf 50 670 Td (Generirano: {date_str}) Tj ET\n"
-        f"BT /F1 12 Tf 50 620 Td (Dinamo Zagreb - Marketing Performance Report) Tj ET\n"
+        f"BT /F1 12 Tf 50 620 Td (Demo Brand - Marketing Performance Report) Tj ET\n"
         f"BT /F1 12 Tf 50 590 Td (Engagement Rate: 4.2% (+0.3%)) Tj ET\n"
         f"BT /F1 12 Tf 50 560 Td (Follower Growth: +1,247 novih pratitelja) Tj ET\n"
         f"BT /F1 12 Tf 50 530 Td (Top Post: Match Highlights - 12,456 interakcija) Tj ET\n"
@@ -141,7 +141,7 @@ async def download_weekly_pdf(report_id: str):
         return FileResponse(
             path=str(pdf_path),
             media_type="application/pdf",
-            filename=f"dinamo_weekly_{report_id}.pdf",
+            filename=f"shiftonezero_weekly_{report_id}.pdf",
         )
     # Generate placeholder PDF on the fly
     pdf_bytes = _generate_placeholder_pdf("Tjedni", str(report_id))
@@ -149,7 +149,7 @@ async def download_weekly_pdf(report_id: str):
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="dinamo_tjedni_izvjestaj_{report_id}.pdf"',
+            "Content-Disposition": f'attachment; filename="shiftonezero_tjedni_izvjestaj_{report_id}.pdf"',
             "Content-Length": str(len(pdf_bytes)),
         },
     )
@@ -163,7 +163,7 @@ async def download_monthly_pdf(report_id: str):
         return FileResponse(
             path=str(pdf_path),
             media_type="application/pdf",
-            filename=f"dinamo_monthly_{report_id}.pdf",
+            filename=f"shiftonezero_monthly_{report_id}.pdf",
         )
     # Generate placeholder PDF on the fly
     pdf_bytes = _generate_placeholder_pdf("Mjesecni", str(report_id))
@@ -171,7 +171,7 @@ async def download_monthly_pdf(report_id: str):
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="dinamo_mjesecni_izvjestaj_{report_id}.pdf"',
+            "Content-Disposition": f'attachment; filename="shiftonezero_mjesecni_izvjestaj_{report_id}.pdf"',
             "Content-Length": str(len(pdf_bytes)),
         },
     )
@@ -190,7 +190,7 @@ async def email_report(request: EmailReportRequest):
     # For now, return success mock response
     return {
         "success": True,
-        "message": f"Izvještaj uspješno poslan na {request.email or settings.NOTIFICATION_EMAIL or 'admin@dinamo.hr'}",
+        "message": f"Izvještaj uspješno poslan na {request.email or settings.NOTIFICATION_EMAIL or 'admin@shiftonezero.com'}",
         "report_id": request.report_id,
         "report_type": request.report_type,
     }

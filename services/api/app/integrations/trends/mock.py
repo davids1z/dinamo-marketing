@@ -17,7 +17,7 @@ class TrendsMockClient(TrendsClientBase):
         # Build region interest for each keyword
         regions_data: dict[str, list[dict]] = {}
         keyword_base_values = {
-            "dinamo zagreb": [
+            "shiftonezero": [
                 {"geo_name": "Croatia", "geo_code": "HR", "value": 100},
                 {"geo_name": "Bosnia and Herzegovina", "geo_code": "BA", "value": 42},
                 {"geo_name": "Slovenia", "geo_code": "SI", "value": 28},
@@ -59,9 +59,9 @@ class TrendsMockClient(TrendsClientBase):
 
         # Base interest patterns - football has seasonal peaks
         base_patterns = {
-            "dinamo zagreb": [35, 22, 15, 18, 42, 55, 62, 58, 48, 52, 68, 100],
-            "hnl":           [30, 18, 10, 12, 38, 50, 55, 52, 42, 48, 60, 85],
-            "europa league": [20, 15, 8,  5,  12, 45, 52, 48, 38, 42, 55, 95],
+            "shiftonezero": [35, 22, 15, 18, 42, 55, 62, 58, 48, 52, 68, 100],
+            "brand marketing":           [30, 18, 10, 12, 38, 50, 55, 52, 42, 48, 60, 85],
+            "spring campaign": [20, 15, 8,  5,  12, 45, 52, 48, 38, 42, 55, 95],
         }
 
         time_series: list[dict] = []

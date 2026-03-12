@@ -1,6 +1,6 @@
 {
-  "account_id": "UCGNKDinamoZagreb",
-  "channel_name": "GNK Dinamo Zagreb",
+  "account_id": "UCDemoBrandOfficial",
+  "channel_name": "Demo Brand",
   "platform": "youtube",
   "verified": true,
   "subscribers": 145000,
@@ -20,35 +20,35 @@
       "55+": 5
     },
     "gender": {
-      "male": 82,
-      "female": 18
+      "male": 52,
+      "female": 48
     },
     "top_countries": {
-      "HR": 52,
-      "BA": 9,
+      "US": 38,
+      "GB": 14,
+      "CA": 9,
       "DE": 7,
-      "AT": 5,
-      "SI": 4,
-      "RS": 3,
-      "CH": 3,
-      "SE": 2,
-      "US": 2,
-      "other": 13
+      "AU": 6,
+      "FR": 5,
+      "NL": 4,
+      "BR": 3,
+      "IN": 2,
+      "other": 12
     }
   },
   "content_categories": {
-    "match_highlights": {"percentage": 30, "avg_views": 42000, "avg_watch_time": 5.8},
-    "press_conferences": {"percentage": 18, "avg_views": 12000, "avg_watch_time": 8.2},
+    "product_showcases": {"percentage": 30, "avg_views": 42000, "avg_watch_time": 5.8},
+    "brand_updates": {"percentage": 18, "avg_views": 12000, "avg_watch_time": 8.2},
     "behind_the_scenes": {"percentage": 15, "avg_views": 28000, "avg_watch_time": 4.5},
-    "player_interviews": {"percentage": 12, "avg_views": 18000, "avg_watch_time": 6.1},
-    "academy_content": {"percentage": 8, "avg_views": 9000, "avg_watch_time": 3.8},
-    "matchday_vlogs": {"percentage": 7, "avg_views": 35000, "avg_watch_time": 7.2},
+    "team_interviews": {"percentage": 12, "avg_views": 18000, "avg_watch_time": 6.1},
+    "tutorials": {"percentage": 8, "avg_views": 9000, "avg_watch_time": 3.8},
+    "event_vlogs": {"percentage": 7, "avg_views": 35000, "avg_watch_time": 7.2},
     "shorts": {"percentage": 10, "avg_views": 55000, "avg_watch_time": 0.4}
   },
   "top_videos": [
     {
       "id": "yt_v1",
-      "title": "DINAMO 3-1 | Svi golovi i highlights | UEFA Champions League 2025/26",
+      "title": "DEMO BRAND Spring Collection | Full Reveal | Behind the Design",
       "date": "2026-02-18",
       "views": 620000,
       "likes": 18000,
@@ -59,7 +59,7 @@
     },
     {
       "id": "yt_v2",
-      "title": "Matchday Vlog: Europska noć na Maksimiru | Fan Perspective 🔵",
+      "title": "Event Vlog: Launch Night at our Flagship Store | Customer Reactions",
       "date": "2026-02-18",
       "views": 280000,
       "likes": 12000,
@@ -70,7 +70,7 @@
     },
     {
       "id": "yt_v3",
-      "title": "Petković Exclusive Interview: 'Zagreb je moj dom' | Dinamo TV",
+      "title": "CEO Exclusive Interview: 'Our vision for the future' | Demo Brand TV",
       "date": "2026-02-08",
       "views": 185000,
       "likes": 8500,
@@ -81,7 +81,7 @@
     },
     {
       "id": "yt_v4",
-      "title": "DINAMO 2-0 HAJDUK | Derby highlights | SuperSport HNL 2025/26",
+      "title": "DEMO BRAND vs THE COMPETITION | Head-to-head product comparison 2025/26",
       "date": "2026-01-25",
       "views": 420000,
       "likes": 15000,
@@ -92,7 +92,7 @@
     },
     {
       "id": "yt_v5",
-      "title": "Inside Training | Priprema za Champions League | Dinamo TV",
+      "title": "Inside the Workshop | Preparing for the Spring Campaign | Demo Brand TV",
       "date": "2026-02-15",
       "views": 95000,
       "likes": 4200,

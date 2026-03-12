@@ -140,7 +140,7 @@ export default function Analytics() {
 
   const SortIcon = ({ col }: { col: SortKey }) => {
     if (sortKey !== col) return <ArrowUpDown size={12} className="text-studio-text-disabled" />
-    return sortDir === 'desc' ? <ChevronDown size={12} className="text-dinamo-accent" /> : <ChevronUp size={12} className="text-dinamo-accent" />
+    return sortDir === 'desc' ? <ChevronDown size={12} className="text-brand-accent" /> : <ChevronUp size={12} className="text-brand-accent" />
   }
 
   // CSV export
@@ -185,7 +185,7 @@ export default function Analytics() {
           <button
             onClick={() => setTab('pregled')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
-              tab === 'pregled' ? 'bg-studio-surface-1 text-dinamo-accent shadow-sm' : 'text-studio-text-secondary hover:text-studio-text-primary'
+              tab === 'pregled' ? 'bg-studio-surface-1 text-brand-accent shadow-sm' : 'text-studio-text-secondary hover:text-studio-text-primary'
             }`}
           >
             <BarChart3 size={14} className="inline mr-1.5" />
@@ -194,7 +194,7 @@ export default function Analytics() {
           <button
             onClick={() => setTab('reklame')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
-              tab === 'reklame' ? 'bg-studio-surface-1 text-dinamo-accent shadow-sm' : 'text-studio-text-secondary hover:text-studio-text-primary'
+              tab === 'reklame' ? 'bg-studio-surface-1 text-brand-accent shadow-sm' : 'text-studio-text-secondary hover:text-studio-text-primary'
             }`}
           >
             <Megaphone size={14} className="inline mr-1.5" />
@@ -234,7 +234,7 @@ export default function Analytics() {
             <div className="card">
               <div className="flex items-center justify-between mb-2">
                 <span />
-                <button onClick={refetch} className="text-xs text-studio-text-secondary hover:text-dinamo-primary flex items-center gap-1">
+                <button onClick={refetch} className="text-xs text-studio-text-secondary hover:text-brand-primary flex items-center gap-1">
                   <RefreshCw size={12} /> Osvježi
                 </button>
               </div>
@@ -340,7 +340,7 @@ export default function Analytics() {
                       onClick={() => setPlatformFilter(p)}
                       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                         platformFilter === p
-                          ? 'bg-dinamo-accent text-dinamo-primary shadow-sm'
+                          ? 'bg-brand-accent text-brand-primary shadow-sm'
                           : 'bg-studio-surface-2 text-studio-text-secondary hover:bg-studio-surface-3'
                       }`}
                     >

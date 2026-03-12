@@ -71,7 +71,7 @@ export default function AnimationPicker({
               onClick={() => setActiveCategory('all')}
               className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-medium transition-colors ${
                 activeCategory === 'all'
-                  ? 'bg-dinamo-accent/15 text-dinamo-accent'
+                  ? 'bg-brand-accent/15 text-brand-accent'
                   : 'text-studio-text-tertiary hover:text-studio-text-secondary'
               }`}
             >
@@ -83,7 +83,7 @@ export default function AnimationPicker({
                 onClick={() => setActiveCategory(cat.value)}
                 className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-medium transition-colors ${
                   activeCategory === cat.value
-                    ? 'bg-dinamo-accent/15 text-dinamo-accent'
+                    ? 'bg-brand-accent/15 text-brand-accent'
                     : 'text-studio-text-tertiary hover:text-studio-text-secondary'
                 }`}
               >
@@ -106,7 +106,7 @@ export default function AnimationPicker({
                   onMouseEnter={() => setPreviewAnim(anim.value)}
                   className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-left transition-colors ${
                     value === anim.value
-                      ? 'bg-dinamo-accent/15 text-dinamo-accent'
+                      ? 'bg-brand-accent/15 text-brand-accent'
                       : 'text-studio-text-secondary hover:bg-studio-surface-2 hover:text-studio-text-primary'
                   }`}
                 >
@@ -196,7 +196,7 @@ export function TransitionPicker({
                 onMouseEnter={() => setPreviewTransition(opt.value)}
                 className={`w-full flex items-center px-2 py-1.5 rounded-md text-left transition-colors ${
                   value === opt.value
-                    ? 'bg-dinamo-accent/15 text-dinamo-accent'
+                    ? 'bg-brand-accent/15 text-brand-accent'
                     : 'text-studio-text-secondary hover:bg-studio-surface-2 hover:text-studio-text-primary'
                 }`}
               >

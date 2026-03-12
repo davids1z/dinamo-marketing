@@ -26,7 +26,7 @@ export default function DataTable<T extends object>({
   if (data.length === 0) {
     return (
       <div className="card text-center py-12">
-        <p className="text-dinamo-muted">{emptyMessage}</p>
+        <p className="text-brand-muted">{emptyMessage}</p>
       </div>
     )
   }
@@ -40,7 +40,7 @@ export default function DataTable<T extends object>({
               <th
                 key={col.key}
                 className={clsx(
-                  'px-4 py-3 text-xs uppercase tracking-wider text-dinamo-muted font-medium',
+                  'px-4 py-3 text-xs uppercase tracking-wider text-brand-muted font-medium',
                   col.align === 'right' ? 'text-right' :
                   col.align === 'center' ? 'text-center' : 'text-left'
                 )}

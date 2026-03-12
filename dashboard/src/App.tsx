@@ -26,7 +26,7 @@ const CampaignResearch = lazy(() => import('./pages/CampaignResearch'))
 function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-8 h-8 border-2 border-dinamo-accent border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
     </div>
   )
 }

@@ -78,7 +78,7 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
         onClick={() => fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
           isDragging
-            ? 'border-dinamo-accent bg-dinamo-accent/5'
+            ? 'border-brand-accent bg-brand-accent/5'
             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
         }`}
       >
@@ -92,7 +92,7 @@ export default function MediaUploader({ postId, assets, onUploadComplete, onDele
         />
         {uploading ? (
           <div className="flex flex-col items-center gap-2 py-2">
-            <div className="w-6 h-6 border-2 border-dinamo-accent border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
             <span className="text-xs text-gray-500">Učitavanje...</span>
           </div>
         ) : (

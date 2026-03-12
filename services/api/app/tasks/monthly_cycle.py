@@ -1,5 +1,5 @@
 """
-Dinamo Marketing Platform - Monthly Cycle Task
+ShiftOneZero Marketing Platform - Monthly Cycle Task
 Full monthly cycle: generate monthly report PDF, create new content plan
 for next month, and update market position scores.
 """
@@ -72,11 +72,11 @@ MOCK_MONTHLY_SENTIMENT = {
 }
 
 MOCK_MARKET_POSITION = {
-    "dinamo_engagement_rate": 7.3,
+    "brand_engagement_rate": 7.3,
     "league_avg_engagement_rate": 3.8,
     "position_in_league": 1,
     "regional_position": 3,
-    "engagement_index": 1.92,  # dinamo / league avg
+    "engagement_index": 1.92,  # brand / league avg
     "follower_share_pct": 38.5,  # % of total HNL followers
     "brand_mention_share": 42.1,  # share of voice
 }
@@ -526,7 +526,7 @@ def run_monthly_cycle(self):
             # In production: update market_scores table
             # db.execute(
             #     update(MarketScore)
-            #     .where(MarketScore.club == "dinamo_zagreb")
+            #     .where(MarketScore.club == "demo_brand")
             #     .values(**scores)
             # )
 

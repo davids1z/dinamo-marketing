@@ -113,9 +113,9 @@ class AnalyticsAggregatorService:
         """Get performance breakdown by platform."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
-        # Get Dinamo channels
+        # Get own brand channels
         channels_result = await db.execute(
-            select(SocialChannel).where(SocialChannel.owner_type == "dinamo")
+            select(SocialChannel).where(SocialChannel.owner_type == "own")
         )
         channels = channels_result.scalars().all()
         channel_map = {str(ch.id): ch for ch in channels}

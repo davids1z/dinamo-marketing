@@ -63,9 +63,9 @@ async def admin_user() -> User:
     """Seed an admin user into the test DB."""
     async with test_session_factory() as session:
         user = User(
-            email="admin@dinamo.hr",
-            hashed_password=hash_password("dinamo2026"),
-            full_name="Dinamo Admin",
+            email="admin@shiftonezero.com",
+            hashed_password=hash_password("shiftonezero2026"),
+            full_name="ShiftOneZero Admin",
             role="admin",
             is_active=True,
         )

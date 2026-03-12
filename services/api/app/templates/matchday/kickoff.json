@@ -20,9 +20,9 @@
   },
   "placeholders": {
     "headline": {"max_chars": 20, "example": "WE ARE LIVE!"},
-    "subheadline": {"max_chars": 40, "example": "Dinamo vs Hajduk — Follow live"},
+    "subheadline": {"max_chars": 40, "example": "Demo Brand vs Hajduk — Follow live"},
     "opponent_name": {"max_chars": 30, "example": "HNK Hajduk Split"},
-    "competition": {"max_chars": 30, "example": "HNL Round 24"},
+    "competition": {"max_chars": 30, "example": "Industry League Round 24"},
     "cta": {"example": "Follow Live"}
   },
   "guidelines": "Use a short looping video (3-5 seconds) of the stadium atmosphere or crowd. The whistle icon should animate in. Keep text minimal and impactful. The energy must be electric. Suitable for Stories and Reels auto-posting at kickoff."

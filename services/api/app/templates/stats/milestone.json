@@ -21,9 +21,9 @@
   "placeholders": {
     "headline": {"max_chars": 30, "example": "CENTURY OF GOALS"},
     "milestone_number": {"max_chars": 5, "example": "100"},
-    "milestone_type": {"max_chars": 30, "example": "Goals for Dinamo"},
+    "milestone_type": {"max_chars": 30, "example": "Goals for Demo Brand"},
     "player_name": {"max_chars": 30, "example": "Bruno Petković"},
-    "subheadline": {"max_chars": 80, "example": "Petković becomes only the fifth player to score 100 goals for Dinamo Zagreb"},
+    "subheadline": {"max_chars": 80, "example": "Petković becomes only the fifth player to score 100 goals for Demo Brand"},
     "cta": {"example": "Watch Highlights"}
   },
   "guidelines": "The milestone number should be the dominant visual, animated with gold particle effects. Use gold accent color for milestones to distinguish them from regular stats. Include a brief montage of key moments if video. The tone is celebratory and historic. Contextualize the achievement within club history."

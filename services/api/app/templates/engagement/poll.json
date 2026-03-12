@@ -23,7 +23,7 @@
     "option_a": {"max_chars": 25, "example": "Marko Horvat"},
     "option_b": {"max_chars": 25, "example": "Ivan Šimić"},
     "voting_instructions": {"max_chars": 40, "example": "Like for A, Comment for B"},
-    "hashtag": {"max_chars": 25, "example": "#DinamoPoll"}
+    "hashtag": {"max_chars": 25, "example": "#DemoBrandPoll"}
   },
   "guidelines": "Split-screen design with Option A on the left and Option B on the right, separated by a VS divider. Question text at the top in bold. Each option should have a player photo or relevant image. Voting instructions must be clear. Blue tint on left option, lighter accent on right. Drives comments and engagement metrics."
 }

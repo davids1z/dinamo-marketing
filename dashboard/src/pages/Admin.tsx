@@ -129,7 +129,7 @@ export default function Admin() {
 
       {/* Create Modal */}
       {showCreate && (
-        <div className="card border-dinamo-accent/30">
+        <div className="card border-brand-accent/30">
           <h3 className="font-headline text-sm tracking-wider text-studio-text-primary mb-4">NOVI KORISNIK</h3>
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
@@ -138,7 +138,7 @@ export default function Admin() {
               required
               value={createForm.email}
               onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/20 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
             />
             <input
               type="password"
@@ -147,7 +147,7 @@ export default function Admin() {
               minLength={6}
               value={createForm.password}
               onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/20 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
             />
             <input
               type="text"
@@ -155,12 +155,12 @@ export default function Admin() {
               required
               value={createForm.full_name}
               onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/20 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
             />
             <select
               value={createForm.role}
               onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
-              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-dinamo-accent/20 focus:border-dinamo-accent outline-none"
+              className="px-3 py-2 border bg-studio-surface-1 border-studio-border text-studio-text-primary rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent outline-none"
             >
               {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
             </select>
@@ -202,8 +202,8 @@ export default function Admin() {
                       />
                     ) : (
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-dinamo-blue/10 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-bold text-dinamo-blue">{u.full_name?.[0] || '?'}</span>
+                        <div className="w-7 h-7 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-bold text-brand-blue">{u.full_name?.[0] || '?'}</span>
                         </div>
                         <span className={clsx('font-medium text-studio-text-primary', !u.is_active && 'text-studio-text-disabled line-through')}>{u.full_name}</span>
                       </div>

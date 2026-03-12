@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive database seeder for Dinamo Marketing Platform.
+Comprehensive database seeder for Demo Brand Marketing Platform.
 Populates all tables with realistic demo data so every page works.
 Run: python seed_database.py
 """
@@ -122,20 +122,20 @@ def seed():
                 session.add(ca)
 
         # ═══════════════════════════════════════════
-        # 2. SOCIAL CHANNELS (Dinamo's own)
+        # 2. SOCIAL CHANNELS (own brand)
         # ═══════════════════════════════════════════
         print("  📱 Seeding social channels...")
         channels_data = [
-            ("instagram", "@gnkdinamo", "https://instagram.com/gnkdinamo", True),
-            ("facebook", "GNK Dinamo Zagreb", "https://facebook.com/gnkdinamo", True),
-            ("tiktok", "@gnkdinamo", "https://tiktok.com/@gnkdinamo", True),
-            ("youtube", "GNK Dinamo Zagreb", "https://youtube.com/@gnkdinamo", True),
-            ("web", "dinamo.hr", "https://dinamo.hr", True),
+            ("instagram", "@demo_brand", "https://instagram.com/demo_brand", True),
+            ("facebook", "Demo Brand", "https://facebook.com/demo_brand", True),
+            ("tiktok", "@demo_brand", "https://tiktok.com/@demo_brand", True),
+            ("youtube", "Demo Brand", "https://youtube.com/@demo_brand", True),
+            ("web", "demo-brand.com", "https://demo-brand.com", True),
         ]
         channels = []
         for platform, handle, url, primary in channels_data:
             ch = SocialChannel(
-                owner_type="dinamo",
+                owner_type="own",
                 platform=platform,
                 handle=handle,
                 url=url,
@@ -282,36 +282,36 @@ def seed():
 
         # Content posts
         post_titles = [
-            ("Najava utakmice: Dinamo vs Hajduk", "instagram", "matchday"),
-            ("Highlights: UCL grupna faza", "youtube", "matchday"),
-            ("Novi dres 2026/27 - otkrivanje", "tiktok", "brand"),
-            ("Akademija: Perisic hat-trick", "instagram", "academy"),
-            ("Navijacka koreografija Maksimir", "instagram", "fan_engagement"),
-            ("Intervju: Trener o sezoni", "youtube", "behind_the_scenes"),
-            ("Statistike tjedna", "instagram", "analytics"),
-            ("Dijaspora watch party Bec", "facebook", "diaspora"),
-            ("Pregled sezone - infografika", "instagram", "brand"),
-            ("Live Q&A s igracima", "tiktok", "fan_engagement"),
-            ("Transfer vijesti", "instagram", "news"),
-            ("Academy U19 finale", "youtube", "academy"),
-            ("Matchday atmosfera - Reel", "instagram", "matchday"),
-            ("Fan spotlight: Najvjerniji navijac", "instagram", "fan_engagement"),
-            ("Analiza protivnika", "youtube", "matchday"),
-            ("Trening iza kulisa", "tiktok", "behind_the_scenes"),
-            ("Sezonska pretplata - promocija", "facebook", "commercial"),
-            ("Petkovic gol kompilacija", "tiktok", "matchday"),
-            ("Dinamo quiz", "instagram", "fan_engagement"),
-            ("Konferencija za medije", "youtube", "news"),
-            ("Story poll: MOTM glasanje", "instagram", "fan_engagement"),
-            ("Academy bilten", "facebook", "academy"),
-            ("UCL putovanje navijaca", "tiktok", "diaspora"),
-            ("Pozadina utakmice - vlog", "youtube", "behind_the_scenes"),
-            ("Promocija fan shopa", "instagram", "commercial"),
-            ("Povratak ozlijedjenog igraca", "instagram", "news"),
-            ("Derby dan - countdown", "tiktok", "matchday"),
-            ("Mjesecni pregled statistika", "instagram", "analytics"),
-            ("Fan art natjecanje", "instagram", "fan_engagement"),
-            ("Press konferencija highlights", "youtube", "news"),
+            ("Product launch announcement: Spring Collection", "instagram", "matchday"),
+            ("Highlights: Campaign phase 1", "youtube", "matchday"),
+            ("New collection 2026/27 - reveal", "tiktok", "brand"),
+            ("Academy: Intern team wins 3 awards", "instagram", "academy"),
+            ("Customer appreciation event", "instagram", "fan_engagement"),
+            ("Interview: CEO on the year ahead", "youtube", "behind_the_scenes"),
+            ("Weekly analytics", "instagram", "analytics"),
+            ("International meetup Vienna", "facebook", "diaspora"),
+            ("Year in review - infographic", "instagram", "brand"),
+            ("Live Q&A with the team", "tiktok", "fan_engagement"),
+            ("Partnership news", "instagram", "news"),
+            ("Academy intern showcase", "youtube", "academy"),
+            ("Launch day atmosphere - Reel", "instagram", "matchday"),
+            ("Customer spotlight: Most loyal customer", "instagram", "fan_engagement"),
+            ("Competitor analysis", "youtube", "matchday"),
+            ("Workshop behind the scenes", "tiktok", "behind_the_scenes"),
+            ("Annual membership - promotion", "facebook", "commercial"),
+            ("Best products compilation", "tiktok", "matchday"),
+            ("Demo Brand quiz", "instagram", "fan_engagement"),
+            ("Press conference", "youtube", "news"),
+            ("Story poll: Product of the month", "instagram", "fan_engagement"),
+            ("Academy newsletter", "facebook", "academy"),
+            ("Campaign journey vlog", "tiktok", "diaspora"),
+            ("Behind the launch - vlog", "youtube", "behind_the_scenes"),
+            ("Fan shop promotion", "instagram", "commercial"),
+            ("Return of team member", "instagram", "news"),
+            ("Launch day - countdown", "tiktok", "matchday"),
+            ("Monthly statistics review", "instagram", "analytics"),
+            ("Creative contest", "instagram", "fan_engagement"),
+            ("Press conference highlights", "youtube", "news"),
         ]
 
         posts = []
@@ -330,10 +330,10 @@ def seed():
                 scheduled_at=sched,
                 published_at=published_at,
                 status=status,
-                caption_hr=f"🔵⚪ {title} #Dinamo #GNKDinamo #Zagreb",
-                caption_en=f"🔵⚪ {title} #Dinamo #GNKDinamo #Zagreb",
-                hashtags=["Dinamo", "GNKDinamo", "Zagreb", "HNL", pillar],
-                cta_text="Saznaj vise na dinamo.hr",
+                caption_hr=f"🔵⚪ {title} #DemoBrand #OurBrand #Innovation",
+                caption_en=f"🔵⚪ {title} #DemoBrand #OurBrand #Innovation",
+                hashtags=["Demo Brand", "DemoBrand", "Zagreb", "HNL", pillar],
+                cta_text="Learn more na demo-brand.com",
                 visual_brief=f"Visual za: {title}",
                 is_champions_league="UCL" in title or "Champions" in title,
                 is_academy="Academy" in title or "Akademija" in title or "academy" in pillar,
@@ -380,13 +380,13 @@ def seed():
         # ═══════════════════════════════════════════
         print("  🎯 Seeding campaigns & ads...")
         campaigns_data = [
-            ("UCL Matchday kampanja", "meta", "awareness", "active", 500, 15000, 8200),
-            ("Lansiranje novog dresa", "meta", "conversions", "active", 300, 9000, 4500),
+            ("Spring Campaign launch", "meta", "awareness", "active", 500, 15000, 8200),
+            ("New collection launch", "meta", "conversions", "active", 300, 9000, 4500),
             ("Academy Talent Pipeline", "tiktok", "awareness", "active", 200, 6000, 3100),
-            ("Sezonska pretplata 2026", "meta", "conversions", "paused", 400, 12000, 7800),
-            ("Dijaspora engagement", "meta", "traffic", "active", 150, 4500, 2200),
-            ("Fan Shop promocija", "meta", "conversions", "completed", 250, 7500, 7500),
-            ("UCL Away Day paket", "tiktok", "awareness", "active", 180, 5400, 1800),
+            ("Annual membership 2026", "meta", "conversions", "paused", 400, 12000, 7800),
+            ("International engagement", "meta", "traffic", "active", 150, 4500, 2200),
+            ("Brand Shop promotion", "meta", "conversions", "completed", 250, 7500, 7500),
+            ("Campaign event package", "tiktok", "awareness", "active", 180, 5400, 1800),
         ]
 
         campaigns = []
@@ -428,8 +428,8 @@ def seed():
                         ad_set_id=adset.id,
                         variant_label=v,
                         headline=f"{camp.name} - Varijanta {v}",
-                        description=f"Dinamova kampanja - kreativa {v}",
-                        cta="Saznaj vise" if camp.objective == "awareness" else "Kupi sada",
+                        description=f"Demo Brandva kampanja - kreativa {v}",
+                        cta="Learn more" if camp.objective == "awareness" else "Shop now",
                         status="active",
                     )
                     session.add(ad)
@@ -478,21 +478,21 @@ def seed():
         # ═══════════════════════════════════════════
         print("  💬 Seeding sentiment & social listening...")
         sentiment_texts = [
-            ("Dinamo je najbolji klub u Hrvatskoj!", "positive", "instagram"),
-            ("Fantasticna utakmica, bravo momci!", "positive", "facebook"),
-            ("Petkovic je nevjerojatan igrac", "positive", "twitter"),
-            ("Lose sudjenje opet, ovo je sramota", "negative", "twitter"),
-            ("Kad je sljedeca utakmica?", "neutral", "instagram"),
-            ("Novi dres izgleda sjajno!", "positive", "tiktok"),
-            ("Cijena karata je previsoka", "negative", "facebook"),
-            ("Akademija proizvodi vrhunske igrace", "positive", "youtube"),
-            ("Dinamo zasluzuje vise podrske od grada", "neutral", "facebook"),
-            ("Atmosfera na Maksimiru je magicna", "positive", "instagram"),
-            ("Taktika danas bila katastrofa", "negative", "twitter"),
-            ("Ponosan na nas klub! Ajmo Dinamo!", "positive", "instagram"),
-            ("Sramotna igra, bez ideje", "negative", "twitter"),
-            ("Super organizacija eventa za navijace", "positive", "facebook"),
-            ("Treba nam novi stadion", "neutral", "facebook"),
+            ("Demo Brand is the best in the industry!", "positive", "instagram"),
+            ("Fantastic product launch, great work team!", "positive", "facebook"),
+            ("The design team is incredible", "positive", "twitter"),
+            ("Poor customer service again, this is unacceptable", "negative", "twitter"),
+            ("When is the next product drop?", "neutral", "instagram"),
+            ("The new collection looks amazing!", "positive", "tiktok"),
+            ("The prices are too high", "negative", "facebook"),
+            ("The academy produces top talent", "positive", "youtube"),
+            ("Demo Brand deserves more industry recognition", "neutral", "facebook"),
+            ("The brand community is magical", "positive", "instagram"),
+            ("The strategy today was a disaster", "negative", "twitter"),
+            ("Proud of our brand! Go Demo Brand!", "positive", "instagram"),
+            ("Embarrassing launch, no creativity", "negative", "twitter"),
+            ("Great event organization for customers", "positive", "facebook"),
+            ("We need a better online store", "neutral", "facebook"),
         ]
 
         for i in range(60):
@@ -513,18 +513,18 @@ def seed():
         mention_authors = [
             ("@FootballCroatia", "twitter", "positive", 12400),
             ("@balkan_football_daily", "instagram", "positive", 8900),
-            ("Dinamo Fan Club Vienna", "facebook", "positive", 3200),
+            ("Demo Brand Fan Club Vienna", "facebook", "positive", 3200),
             ("@hrvatski_sport", "tiktok", "negative", 45000),
             ("Balkan Sports TV", "youtube", "neutral", 18500),
-            ("@dinamofanpage", "instagram", "positive", 6700),
+            ("@demobrandfanpage", "instagram", "positive", 6700),
             ("Croatian Football News", "facebook", "neutral", 4100),
-            ("@ucl_fan_zone", "twitter", "positive", 22000),
+            ("@brand_fan_zone", "twitter", "positive", 22000),
         ]
         for author, platform, sentiment, reach in mention_authors:
             bm = BrandMention(
                 platform=platform,
                 author=author,
-                text=f"Comment about Dinamo Zagreb - {sentiment} sentiment",
+                text=f"Comment about Demo Brand - {sentiment} sentiment",
                 url=f"https://{platform}.com/post/{random.randint(1000,9999)}",
                 sentiment=sentiment,
                 reach_estimate=reach,
@@ -535,16 +535,16 @@ def seed():
 
         # Trending topics
         topics_data = [
-            ("#DinamoZagreb", 4250, 32.0, "raste"),
-            ("#UCL", 3800, 28.0, "raste"),
-            ("Petkovic", 2100, 65.0, "u porastu"),
-            ("#Maksimir", 1450, 12.0, "stabilno"),
-            ("#HNL", 1200, 8.0, "stabilno"),
-            ("#DynamoAcademy", 890, 45.0, "raste"),
+            ("#Demo BrandZagreb", 4250, 32.0, "raste"),
+            ("#SpringCampaign", 3800, 28.0, "raste"),
+            ("Lead Designer", 2100, 65.0, "u porastu"),
+            ("#FlagshipStore", 1450, 12.0, "stabilno"),
+            ("#Industry", 1200, 8.0, "stabilno"),
+            ("#DemoBrandAcademy", 890, 45.0, "raste"),
             ("Transfer Rumors", 760, 120.0, "u porastu"),
-            ("#NovaDres", 650, 200.0, "u porastu"),
-            ("#AjmoDinamo", 1800, 15.0, "stabilno"),
-            ("Bjelica taktika", 420, 35.0, "raste"),
+            ("#NewCollection", 650, 200.0, "u porastu"),
+            ("#AjmoDemo Brand", 1800, 15.0, "stabilno"),
+            ("Brand strategy", 420, 35.0, "raste"),
         ]
         for topic, vol, growth, _ in topics_data:
             tt = TrendingTopic(
@@ -561,7 +561,7 @@ def seed():
         sa = SentimentAlert(
             alert_type="spike_negative",
             severity="medium",
-            description="Porast negativnog sentimenta oko sudjenja na posljednjoj utakmici",
+            description="Rise in negative sentiment about product quality in latest release",
             triggered_at=now - timedelta(hours=12),
             is_resolved=False,
         )
@@ -572,9 +572,9 @@ def seed():
         # ═══════════════════════════════════════════
         print("  🎓 Seeding academy...")
         players_data = [
-            ("Luka Stojkovic", 2005, "CM", "U21", True, {"appearances": 18, "goals": 5, "assists": 7}),
-            ("Mateo Horvat", 2007, "CB", "U19", True, {"appearances": 22, "goals": 1, "assists": 2}),
-            ("Ivan Juric", 2005, "RW", "U21", True, {"appearances": 15, "goals": 8, "assists": 3}),
+            ("Luka Designer A", 2005, "CM", "U21", True, {"appearances": 18, "goals": 5, "assists": 7}),
+            ("Mateo Designer C", 2007, "CB", "U19", True, {"appearances": 22, "goals": 1, "assists": 2}),
+            ("Ivan Designer B", 2005, "RW", "U21", True, {"appearances": 15, "goals": 8, "assists": 3}),
             ("Ante Radovic", 2007, "GK", "U19", False, {"appearances": 20, "goals": 0, "assists": 0}),
             ("Filip Bozic", 2005, "LB", "U21", False, {"appearances": 16, "goals": 0, "assists": 4}),
             ("Marko Perisic", 2009, "ST", "U17", True, {"appearances": 12, "goals": 11, "assists": 2}),
@@ -600,10 +600,10 @@ def seed():
         # Academy matches
         matches_data = [
             ("NK Lokomotiva U19", "U19", "3-1", {"scorers": ["Kovacevic 2x", "Maric"]}),
-            ("Hajduk Split U19", "U19", "2-2", {"scorers": ["Kovacevic", "Horvat"]}),
-            ("Red Bull Salzburg U19", "U19", "1-0", {"scorers": ["Juric"]}),
+            ("Hajduk Split U19", "U19", "2-2", {"scorers": ["Kovacevic", "Designer C"]}),
+            ("Red Bull Salzburg U19", "U19", "1-0", {"scorers": ["Designer B"]}),
             ("NK Osijek U17", "U17", "4-0", {"scorers": ["Perisic 3x", "Babic"]}),
-            ("Ferencvaros U19", "U19", "2-1", {"scorers": ["Stojkovic", "Juric"]}),
+            ("Ferencvaros U19", "U19", "2-1", {"scorers": ["Designer A", "Designer B"]}),
         ]
         for opp, level, result, scorers in matches_data:
             am = AcademyMatch(
@@ -651,17 +651,17 @@ def seed():
                     "roas": round(random.uniform(2.5, 6.0), 1),
                 },
                 top_posts=[
-                    {"title": "UCL highlights reel", "reach": random.randint(100000, 500000), "engagement": random.randint(5000, 30000)},
-                    {"title": "Novi dres reveal", "reach": random.randint(80000, 300000), "engagement": random.randint(4000, 20000)},
+                    {"title": "Campaign highlights reel", "reach": random.randint(100000, 500000), "engagement": random.randint(5000, 30000)},
+                    {"title": "New collection reveal", "reach": random.randint(80000, 300000), "engagement": random.randint(4000, 20000)},
                     {"title": "Academy talent spotlight", "reach": random.randint(50000, 200000), "engagement": random.randint(3000, 15000)},
                 ],
                 top_ads=[
-                    {"name": "UCL kampanja", "roas": round(random.uniform(3.0, 7.0), 1), "spend": round(random.uniform(500, 2000), 2)},
+                    {"name": "Spring Campaign", "roas": round(random.uniform(3.0, 7.0), 1), "spend": round(random.uniform(500, 2000), 2)},
                 ],
                 recommendations={
                     "items": [
                         "Povecajte ucestalost TikTok objava - visoki engagement",
-                        "Iskoristite UCL utakmice za boost kampanje",
+                        "Leverage campaign milestones for engagement boost",
                         "Razmotrite nove Instagram Reels formate",
                     ]
                 },
@@ -687,9 +687,9 @@ def seed():
                     "avg_roas": round(random.uniform(3.0, 6.0), 1),
                 },
                 competitor_comparison={
-                    "dinamo_engagement": round(random.uniform(4.0, 6.5), 1),
+                    "own_engagement": round(random.uniform(4.0, 6.5), 1),
                     "avg_competitor_engagement": round(random.uniform(2.5, 4.0), 1),
-                    "dinamo_growth": round(random.uniform(3.0, 8.0), 1),
+                    "own_growth": round(random.uniform(3.0, 8.0), 1),
                     "avg_competitor_growth": round(random.uniform(1.0, 3.0), 1),
                 },
                 ai_strategy={
@@ -729,10 +729,10 @@ def seed():
         # ═══════════════════════════════════════════
         print("  🔔 Seeding notifications...")
         notifs_data = [
-            ("Kampanja 'UCL Matchday' dosegla 80% budzeta", "campaign_budget", "warning", "Budzetno upozorenje"),
+            ("Campaign 'Spring Launch' reached 80% of budget", "campaign_budget", "warning", "Budzetno upozorenje"),
             ("Tjedni izvjestaj generiran", "weekly_report", "info", "Izvjestaj spreman"),
             ("Negativni sentiment u porastu - sudjenje tema", "sentiment_alert", "warning", "Sentiment upozorenje"),
-            ("Hajduk Split: engagement spike detektiran", "competitor_alert", "info", "Konkurent alert"),
+            ("Competitor Alpha: engagement spike detected", "competitor_alert", "info", "Konkurent alert"),
             ("3 objave cekaju odobrenje", "content_approval", "info", "Sadrzaj ceka"),
             ("Novi dres objava objavljena na Instagram", "content_published", "info", "Objavljeno"),
             ("TikTok kampanja: ROAS 5.2x - preporuka skaliranja", "optimization", "info", "Optimizacija"),
@@ -777,8 +777,8 @@ def seed():
         # ═══════════════════════════════════════════
         print("  🗳️  Seeding polls & engagement...")
         poll = Poll(
-            question="Tko je bio najbolji igrac na utakmici?",
-            options={"options": ["Petkovic", "Stojkovic", "Juric", "Horvat"]},
+            question="Who delivered the best work this quarter?",
+            options={"options": ["Lead Designer", "Designer A", "Designer B", "Designer C"]},
             platform="instagram",
             status="active",
             starts_at=now - timedelta(days=1),
@@ -801,9 +801,9 @@ def seed():
 
         # UGC submissions
         ugc_data = [
-            ("dinamo_fan_art", "instagram", "@art_dinamo_fan", "positive"),
-            ("matchday_photo", "instagram", "@zagreb_blue", "positive"),
-            ("chant_video", "tiktok", "@bbboysforever", "positive"),
+            ("demo_brand_fan_art", "instagram", "@art_demo_brand_fan", "positive"),
+            ("matchday_photo", "instagram", "@brand_community", "positive"),
+            ("chant_video", "tiktok", "@brandloversforever", "positive"),
         ]
         for hashtag, platform, author, sent in ugc_data:
             ugc = UGCSubmission(

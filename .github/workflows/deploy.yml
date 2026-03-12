@@ -9,7 +9,7 @@ env:
   DEPLOY_HOST: 94.72.107.11
   DEPLOY_USER: root
   DEPLOY_PORT: 2222
-  DEPLOY_PATH: /opt/dinamo-marketing
+  DEPLOY_PATH: /opt/shiftonezero
 
 jobs:
   build-check:

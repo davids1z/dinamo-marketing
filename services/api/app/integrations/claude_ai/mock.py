@@ -17,15 +17,15 @@ class ClaudeMockClient(ClaudeClientBase):
         return {
             "plan_id": "plan_mock_20260305",
             "period": "2026-03-05 to 2026-03-11",
-            "theme": "Europa League Quarter-Final Build-Up",
+            "theme": "Spring Campaign Launch Build-Up",
             "items": [
                 {
                     "date": "2026-03-05",
                     "platform": "instagram",
                     "content_type": "carousel",
-                    "topic": "Derby recap - best moments",
-                    "caption": "3 goals, 1 unforgettable night. Relive every moment from the derby victory ⚽🔥 Swipe for the highlights!",
-                    "hashtags": ["#Dinamo", "#DerbyDay", "#HNL", "#Football", "#Zagreb"],
+                    "topic": "Launch recap - best moments",
+                    "caption": "3 goals, 1 unforgettable night. Relive every moment from the launch event victory ⚽🔥 Swipe for the highlights!",
+                    "hashtags": ["#DemoBrand", "#LaunchDay", "#HNL", "#Football", "#Zagreb"],
                     "best_time_to_post": "18:00 CET",
                     "visual_direction": "Dynamic action shots with blue overlay filter, score graphic on last slide",
                 },
@@ -33,9 +33,9 @@ class ClaudeMockClient(ClaudeClientBase):
                     "date": "2026-03-06",
                     "platform": "tiktok",
                     "content_type": "short_video",
-                    "topic": "Players react to derby win",
-                    "caption": "POV: You just beat your biggest rivals 😏 #Dinamo #Derby #Reaction",
-                    "hashtags": ["#Dinamo", "#Derby", "#Football", "#Reaction", "#POV"],
+                    "topic": "Players react to launch event win",
+                    "caption": "POV: You just beat your biggest rivals 😏 #DemoBrand #Launch #Reaction",
+                    "hashtags": ["#DemoBrand", "#Launch", "#Football", "#Reaction", "#POV"],
                     "best_time_to_post": "12:00 CET",
                     "visual_direction": "Quick cuts of player celebrations, trending audio overlay",
                 },
@@ -43,19 +43,19 @@ class ClaudeMockClient(ClaudeClientBase):
                     "date": "2026-03-07",
                     "platform": "instagram",
                     "content_type": "story_series",
-                    "topic": "Europa League countdown - 5 days to go",
+                    "topic": "Spring Campaign countdown - 5 days to go",
                     "caption": "5 days until we write the next chapter in Europe 🌟",
-                    "hashtags": ["#Dinamo", "#EuropaLeague", "#UEL", "#Countdown"],
+                    "hashtags": ["#DemoBrand", "#SpringCampaign", "#NewCollection", "#Countdown"],
                     "best_time_to_post": "10:00 CET",
-                    "visual_direction": "Countdown graphic with European nights montage",
+                    "visual_direction": "Countdown graphic with campaign launches montage",
                 },
                 {
                     "date": "2026-03-08",
                     "platform": "youtube",
                     "content_type": "long_video",
                     "topic": "Road to the quarter-finals - full documentary",
-                    "caption": "From the group stage to the quarter-finals: our complete European journey so far. Full documentary inside.",
-                    "hashtags": ["#Dinamo", "#EuropaLeague", "#Documentary", "#Football"],
+                    "caption": "From the group stage to the quarter-finals: our complete global journey so far. Full documentary inside.",
+                    "hashtags": ["#DemoBrand", "#SpringCampaign", "#Documentary", "#Football"],
                     "best_time_to_post": "15:00 CET",
                     "visual_direction": "Cinematic documentary style, player interviews intercut with match footage",
                 },
@@ -63,9 +63,9 @@ class ClaudeMockClient(ClaudeClientBase):
                     "date": "2026-03-09",
                     "platform": "instagram",
                     "content_type": "reel",
-                    "topic": "Training session - preparing for Roma",
+                    "topic": "Training session - preparing for Spring Collection",
                     "caption": "Locked in 🔒 Training is INTENSE ahead of Thursday's clash. Let's go! 💪",
-                    "hashtags": ["#Dinamo", "#Training", "#EuropaLeague", "#Roma"],
+                    "hashtags": ["#DemoBrand", "#Training", "#SpringCampaign", "#Spring Collection"],
                     "best_time_to_post": "17:00 CET",
                     "visual_direction": "High energy training clips, dramatic slow-mo shots",
                 },
@@ -73,28 +73,28 @@ class ClaudeMockClient(ClaudeClientBase):
                     "date": "2026-03-10",
                     "platform": "tiktok",
                     "content_type": "short_video",
-                    "topic": "History of Dinamo vs Italian clubs",
-                    "caption": "Every time Dinamo faced Italian teams 🇮🇹⚽ #Dinamo #History #Football #UEL",
-                    "hashtags": ["#Dinamo", "#History", "#EuropaLeague", "#Roma", "#Italian"],
+                    "topic": "History of Demo Brand vs Italian clubs",
+                    "caption": "Every time Demo Brand compared to global competitors 🇮🇹⚽ #DemoBrand #History #Football #NewCollection",
+                    "hashtags": ["#DemoBrand", "#History", "#SpringCampaign", "#Spring Collection", "#Italian"],
                     "best_time_to_post": "19:00 CET",
-                    "visual_direction": "Archival footage montage with modern graphics overlay",
+                    "visual_direction": "Brand archive footage montage with modern graphics overlay",
                 },
                 {
                     "date": "2026-03-11",
                     "platform": "instagram",
                     "content_type": "image",
-                    "topic": "Matchday graphic - Dinamo vs Roma",
-                    "caption": "MATCHDAY 🔵⚪ DINAMO vs AS ROMA | Europa League Quarter-Final | 21:00 CET | Maksimir\n\nWho's coming? 🙋",
-                    "hashtags": ["#Dinamo", "#Roma", "#UEL", "#Matchday", "#Zagreb"],
+                    "topic": "Matchday graphic - Demo Brand Spring Launch",
+                    "caption": "MATCHDAY 🔵⚪ Demo Brand vs AS Roma | Spring Campaign Quarter-Final | 21:00 CET | Flagship Store\n\nWho's coming? 🙋",
+                    "hashtags": ["#DemoBrand", "#Spring Collection", "#NewCollection", "#Matchday", "#Zagreb"],
                     "best_time_to_post": "09:00 CET",
                     "visual_direction": "Bold matchday poster with both crests, stadium background, kick-off time",
                 },
             ],
             "strategy_notes": (
-                "This week's content leans heavily into the Europa League narrative. "
-                "The derby win provides momentum and positive sentiment to carry into European "
-                "content. Recommend increasing ad spend on Europa League content by 40% and "
-                "targeting diaspora audiences in Germany and Austria. TikTok content should "
+                "This week's content leans heavily into the Spring Campaign narrative. "
+                "The launch event win provides momentum and positive sentiment to carry into global "
+                "content. Recommend increasing ad spend on Spring Campaign content by 40% and "
+                "targeting international audiences in internationaly and Austria. TikTok content should "
                 "prioritize trending audio formats to maximize For You Page reach."
             ),
         }
@@ -103,18 +103,18 @@ class ClaudeMockClient(ClaudeClientBase):
         platform = brief.get("platform", "instagram")
         tone = brief.get("tone", "energetic")
         return {
-            "headline": "The road to glory runs through Maksimir",
+            "headline": "The road to glory runs through Flagship Store",
             "body": (
-                "Thursday night under the lights. 35,000 voices as one. "
-                "This is what European football is all about.\n\n"
-                "Dinamo vs AS Roma. Quarter-final. Our house.\n\n"
+                "Launch night at the flagship store. 50,000 customers as one community. "
+                "This is what the industry is all about.\n\n"
+                "Demo Brand vs Competitor X. Quarter-final. Our house.\n\n"
                 "Get your tickets now and be part of history."
             ),
             "call_to_action": "Link in bio for tickets 🏟️",
-            "hashtags": ["#Dinamo", "#EuropaLeague", "#Roma", "#Maksimir", "#OurHouse"],
+            "hashtags": ["#DemoBrand", "#SpringCampaign", "#Spring Collection", "#Flagship Store", "#OurHouse"],
             "platform": platform,
             "tone": tone,
-            "estimated_engagement": "high - European nights content historically performs 2.5x above average",
+            "estimated_engagement": "high - campaign launches content historically performs 2.5x above average",
         }
 
     async def generate_ab_variants(self, base_copy: str, num_variants: int = 3) -> list[dict]:
@@ -122,28 +122,28 @@ class ClaudeMockClient(ClaudeClientBase):
             {
                 "variant_id": "var_A",
                 "label": "Emotion-driven",
-                "copy": "35,000 hearts. One dream. Thursday night, we make history together. Dinamo vs Roma - be there.",
+                "copy": "35,000 hearts. One dream. Thursday night, we make history together. Demo Brand Spring Launch - be there.",
                 "rationale": "Appeals to collective emotion and shared experience. Uses short, punchy sentences for impact.",
                 "predicted_ctr": 3.8,
             },
             {
                 "variant_id": "var_B",
                 "label": "Urgency-focused",
-                "copy": "Tickets are flying. Only 2,400 seats remaining for the biggest European night in years. Dinamo vs Roma, Thursday 21:00. Don't miss out.",
+                "copy": "Tickets are flying. Only 2,400 seats remaining for the biggest launch event in years. Demo Brand Spring Launch, Thursday 21:00. Don't miss out.",
                 "rationale": "Creates scarcity and urgency. FOMO-driven approach that works well for event tickets.",
                 "predicted_ctr": 4.2,
             },
             {
                 "variant_id": "var_C",
                 "label": "Stats-powered",
-                "copy": "7 wins. 0 defeats at home this season. 22 goals scored at Maksimir. Thursday we add another chapter. Dinamo vs Roma, Europa League QF.",
+                "copy": "7 wins. 0 defeats at home this season. 22 goals scored at Flagship Store. Thursday we add another chapter. Demo Brand Spring Launch, Spring Campaign QF.",
                 "rationale": "Leverages impressive home record statistics to build confidence and excitement.",
                 "predicted_ctr": 3.5,
             },
             {
                 "variant_id": "var_D",
                 "label": "Fan-centric",
-                "copy": "YOU made the group stage electric. YOU roared us through the Round of 16. Now we need you one more time. Dinamo vs Roma. Our Maksimir. Our night.",
+                "copy": "YOU made the group stage electric. YOU roared us through the Round of 16. Now we need you one more time. Demo Brand Spring Launch. Our Flagship Store. Our night.",
                 "rationale": "Directly addresses fans, making them feel essential to the team's success.",
                 "predicted_ctr": 4.0,
             },
@@ -180,20 +180,20 @@ class ClaudeMockClient(ClaudeClientBase):
         return (
             "Weekly Performance Summary (Feb 27 - Mar 5, 2026)\n\n"
             "Overall social media performance showed strong growth this week, driven "
-            "primarily by derby-related content. Instagram engagement rate peaked at 4.1% "
+            "primarily by launch event-related content. Instagram engagement rate peaked at 4.1% "
             "on matchday (vs. 2.8% weekly average), with the goal highlight reel generating "
             "22,150 likes - the highest-performing post this quarter.\n\n"
             "TikTok continues to be the fastest-growing channel with a 12% follower increase "
-            "month-over-month. The 'players pronounce Croatian words' video went semi-viral "
+            "month-over-month. The 'players pronounce local language words' video went semi-viral "
             "with 3.4M views, demonstrating strong appetite for personality-driven content.\n\n"
             "Website traffic surged 34% on matchday with ticket pages seeing 2.3x normal "
             "traffic. Recommendation: allocate additional budget to retargeting visitors who "
             "viewed ticket pages but did not convert.\n\n"
             "Key Actions:\n"
             "1. Double down on behind-the-scenes and personality content on TikTok\n"
-            "2. Increase Europa League ad spend by 40% ahead of Roma quarter-final\n"
+            "2. Increase Spring Campaign ad spend by 40% ahead of Spring Collection quarter-final\n"
             "3. Launch ticket retargeting campaign for unconverted matchday page visitors\n"
-            "4. Schedule Instagram carousel recap of derby within 24 hours of final whistle"
+            "4. Schedule Instagram carousel recap of launch event within 24 hours of final whistle"
         )
 
     async def translate_content(
@@ -213,12 +213,12 @@ class ClaudeMockClient(ClaudeClientBase):
         return {
             "summary": (
                 "Current social strategy is performing above industry benchmarks for sports "
-                "organizations. The primary opportunity lies in capitalizing on the Europa League "
-                "run to accelerate international audience growth, particularly in German-speaking "
-                "markets where there is an existing diaspora audience."
+                "organizations. The primary opportunity lies in capitalizing on the Spring Campaign "
+                "run to accelerate international audience growth, particularly in international "
+                "markets where there is an existing international audience."
             ),
             "strengths": [
-                "Instagram engagement rate (2.8%) is 1.4x the sports industry average (2.0%)",
+                "Instagram engagement rate (2.8%) is 1.4x the brand industry average (2.0%)",
                 "TikTok growth rate of 12% MoM significantly outpaces competitors",
                 "Strong matchday content pipeline with consistent posting cadence",
                 "YouTube documentary-style content drives high watch time (avg 5:12 per video)",
@@ -230,14 +230,14 @@ class ClaudeMockClient(ClaudeClientBase):
                 "Ad creative refresh cycle is too slow (avg 21 days vs. recommended 7-10 days)",
             ],
             "opportunities": [
-                "Europa League QF presents a 2-3 week window for massive international exposure",
+                "Spring Campaign QF presents a 2-3 week window for massive international exposure",
                 "Player personality content on TikTok has 3x viral potential vs. match content",
                 "Merch cross-selling via Instagram Shopping is underutilized",
                 "Email list (45K subscribers) is under-leveraged for ticket and merch campaigns",
             ],
             "recommended_actions": [
                 {
-                    "action": "Launch Europa League content series across all platforms",
+                    "action": "Launch Spring Campaign content series across all platforms",
                     "priority": "high",
                     "timeline": "immediate",
                     "expected_impact": "+25% engagement, +15% follower growth",
@@ -258,7 +258,7 @@ class ClaudeMockClient(ClaudeClientBase):
                     "budget_required": 0.0,
                 },
                 {
-                    "action": "Create German and English language content variants for key posts",
+                    "action": "Create international and English language content variants for key posts",
                     "priority": "medium",
                     "timeline": "within 1 week",
                     "expected_impact": "+20% reach in DE/AT markets",
