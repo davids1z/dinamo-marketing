@@ -37,6 +37,10 @@
   </head>
   <body class="bg-studio-bg text-studio-text-primary font-body" style="font-family: 'Inter', sans-serif; background: #F5F9FF; color: #0F172A;">
     <div id="root"></div>
+    <!-- Auto-reload on new deploy: inline so it works even before new JS bundles load -->
+    <script>
+      if('serviceWorker' in navigator){var _r=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(!_r){_r=true;window.location.reload()}})}
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     <noscript>
       <div style="text-align:center;padding:3rem;font-family:Inter,sans-serif;color:#475569;background:#F5F9FF;min-height:100vh;display:flex;align-items:center;justify-content:center;">

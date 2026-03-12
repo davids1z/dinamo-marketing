@@ -41,8 +41,14 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        navigateFallback: 'index.html',
+        // Exclude html from precache — index.html is always fetched from the
+        // server (nginx sends no-cache headers) so every normal refresh shows
+        // the latest deployed version.  Only cache JS/CSS (hashed, immutable).
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff,woff2}'],
+        // Block the default NavigationRoute — let navigation requests go to the
+        // network so nginx's try_files handles SPA routing with no-cache headers.
+        navigateFallback: null as unknown as undefined,
+        navigateFallbackDenylist: [/./],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
