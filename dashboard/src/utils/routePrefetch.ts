@@ -27,6 +27,8 @@ const routeImports: Record<string, () => Promise<unknown>> = {
   '/reports':           () => import('../pages/Reports'),
   '/settings':          () => import('../pages/Settings'),
   '/admin':             () => import('../pages/Admin'),
+  '/admin/users':       () => import('../pages/Admin'),
+  '/admin/clients':     () => import('../pages/Admin'),
   '/team':              () => import('../pages/Team'),
   '/campaign-research': () => import('../pages/CampaignResearch'),
 }
@@ -47,6 +49,7 @@ const PAGE_APIS: Record<string, string[]> = {
   '/reports':           ['/reports/weekly', '/reports/monthly'],
   '/campaigns':         ['/campaigns'],
   '/settings':          ['/settings/api-status'],
+  '/admin':             ['/admin/stats'],
 }
 
 // ---------------------------------------------------------------------------

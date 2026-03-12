@@ -105,12 +105,14 @@ const systemSections: NavSection[] = [
   {
     label: null,
     items: [
-      { name: 'Pregled sustava', href: '/admin', icon: Activity, requiredRole: 'superadmin' },
+      { name: 'Nadzorna ploča', href: '/admin', icon: Activity, requiredRole: 'superadmin' },
     ],
   },
   {
-    label: 'Sustav',
+    label: 'Upravljanje',
     items: [
+      { name: 'Klijenti', href: '/admin/clients', icon: Building2, requiredRole: 'superadmin' },
+      { name: 'Korisnici', href: '/admin/users', icon: Users, requiredRole: 'superadmin' },
       { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'superadmin' },
     ],
   },
@@ -210,8 +212,8 @@ export default function Sidebar() {
               <ul className="space-y-0.5">
                 {section.items.map((item) => {
                   const isActive =
-                    item.href === '/'
-                      ? location.pathname === '/'
+                    item.href === '/' || item.href === '/admin'
+                      ? location.pathname === item.href
                       : location.pathname.startsWith(item.href)
 
                   return (

@@ -88,7 +88,7 @@ export default function App() {
             <Route path="settings" element={<RoleGuard requiredRole="admin"><Suspense fallback={<FormPageSkeleton />}><Settings /></Suspense></RoleGuard>} />
 
             {/* Superadmin only */}
-            <Route path="admin" element={<RoleGuard requiredRole="superadmin"><Suspense fallback={<TablePageSkeleton />}><Admin /></Suspense></RoleGuard>} />
+            <Route path="admin/*" element={<RoleGuard requiredRole="superadmin"><Suspense fallback={<TablePageSkeleton />}><Admin /></Suspense></RoleGuard>} />
           </Route>
         </Routes>
         </ProjectProvider>

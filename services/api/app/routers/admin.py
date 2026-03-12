@@ -226,6 +226,153 @@ async def list_all_clients(
     return {"clients": items, "total": total}
 
 
+@router.get("/users/{user_id}/detail")
+async def user_detail(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(require_superadmin),
+):
+    """Get user with all client memberships (for drill-down)."""
+    from app.models.client import Client, UserClient
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Korisnik nije pronađen")
+
+    memberships_result = await db.execute(
+        select(UserClient, Client)
+        .join(Client, UserClient.client_id == Client.id)
+        .where(UserClient.user_id == user_id)
+        .order_by(Client.name)
+    )
+    memberships = [
+        {
+            "id": str(uc.id),
+            "client_id": str(c.id),
+            "client_name": c.name,
+            "client_slug": c.slug,
+            "role": uc.role,
+        }
+        for uc, c in memberships_result.all()
+    ]
+
+    return {
+        **_user_to_dict(user),
+        "is_superadmin": user.is_superadmin,
+        "memberships": memberships,
+    }
+
+
+@router.get("/clients/{client_id}/detail")
+async def client_detail(
+    client_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(require_superadmin),
+):
+    """Get client with members, projects, and brand profile (for drill-down)."""
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    result = await db.execute(select(Client).where(Client.id == client_id))
+    client = result.scalar_one_or_none()
+    if not client:
+        raise HTTPException(status_code=404, detail="Klijent nije pronađen")
+
+    # Members
+    members_result = await db.execute(
+        select(UserClient, User)
+        .join(User, UserClient.user_id == User.id)
+        .where(UserClient.client_id == client_id)
+        .order_by(User.full_name)
+    )
+    members = [
+        {
+            "membership_id": str(uc.id),
+            "user_id": str(u.id),
+            "email": u.email,
+            "full_name": u.full_name,
+            "role": uc.role,
+            "is_active": u.is_active,
+        }
+        for uc, u in members_result.all()
+    ]
+
+    # Projects
+    projects_result = await db.execute(
+        select(Project).where(Project.client_id == client_id).order_by(Project.name)
+    )
+    projects = [
+        {"id": str(p.id), "name": p.name, "slug": p.slug}
+        for p in projects_result.scalars().all()
+    ]
+
+    return {
+        "id": str(client.id),
+        "name": client.name,
+        "slug": client.slug,
+        "is_active": client.is_active,
+        "onboarding_completed": client.onboarding_completed,
+        "created_at": client.created_at.isoformat() if client.created_at else "",
+        "business_description": client.business_description,
+        "tone_of_voice": client.tone_of_voice,
+        "target_audience": client.target_audience,
+        "logo_url": client.logo_url,
+        "website_url": client.website_url,
+        "members": members,
+        "projects": projects,
+    }
+
+
+@router.put("/memberships/{membership_id}/role")
+async def update_membership_role(
+    membership_id: UUID,
+    body: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(require_superadmin),
+):
+    """Change a user's role on a specific client. Superadmin only."""
+    from app.models.client import UserClient
+
+    result = await db.execute(select(UserClient).where(UserClient.id == membership_id))
+    membership = result.scalar_one_or_none()
+    if not membership:
+        raise HTTPException(status_code=404, detail="Članstvo nije pronađeno")
+
+    if body.role is None:
+        raise HTTPException(status_code=400, detail="Polje 'role' je obavezno")
+
+    role = _ROLE_MIGRATION.get(body.role, body.role)
+    if role not in VALID_ROLES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Uloga mora biti: {', '.join(sorted(VALID_ROLES))}",
+        )
+
+    membership.role = role
+    await db.commit()
+    return {"status": "updated", "role": role}
+
+
+@router.delete("/memberships/{membership_id}")
+async def delete_membership(
+    membership_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_superadmin),
+):
+    """Remove a user from a client. Superadmin only."""
+    from app.models.client import UserClient
+
+    result = await db.execute(select(UserClient).where(UserClient.id == membership_id))
+    membership = result.scalar_one_or_none()
+    if not membership:
+        raise HTTPException(status_code=404, detail="Članstvo nije pronađeno")
+
+    await db.delete(membership)
+    await db.commit()
+    return {"status": "removed"}
+
+
 @router.delete("/users/{user_id}")
 async def delete_user(
     user_id: UUID,
