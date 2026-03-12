@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -20,6 +21,8 @@ import {
   X,
   LogOut,
   UsersRound,
+  Activity,
+  ArrowLeft,
   type LucideIcon,
 } from 'lucide-react'
 import { clsx } from 'clsx'
@@ -97,11 +100,31 @@ const sections: NavSection[] = [
   },
 ]
 
+// --- System navigation (superadmin panel mode) ---
+const systemSections: NavSection[] = [
+  {
+    label: null,
+    items: [
+      { name: 'Pregled sustava', href: '/admin', icon: Activity, requiredRole: 'superadmin' },
+    ],
+  },
+  {
+    label: 'Sustav',
+    items: [
+      { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'superadmin' },
+    ],
+  },
+]
+
 export default function Sidebar() {
   const { collapsed, mobileOpen, setMobileOpen, toggleSidebar } = useSidebar()
   const location = useLocation()
   const { user, logout } = useAuth()
   const { currentClient, clientRole } = useClient()
+
+  // Superadmin panel mode toggle
+  const isSuperadmin = user?.is_superadmin ?? false
+  const [adminMode, setAdminMode] = useState(false)
 
   const handleNavClick = () => {
     if (mobileOpen) setMobileOpen(false)
@@ -122,6 +145,9 @@ export default function Sidebar() {
     }))
     .filter((section) => section.items.length > 0)
 
+  // When in admin mode, show system navigation instead
+  const activeSections = adminMode && isSuperadmin ? systemSections : filteredSections
+
   return (
     <>
       <aside
@@ -134,16 +160,23 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-slate-200/70 justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-brand-accent flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="font-headline text-sm text-white font-bold">S1Z</span>
+            <div className={clsx(
+              'w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm',
+              adminMode && isSuperadmin ? 'bg-red-500' : 'bg-brand-accent'
+            )}>
+              {adminMode && isSuperadmin ? (
+                <Shield className="w-4 h-4 text-white" />
+              ) : (
+                <span className="font-headline text-sm text-white font-bold">S1Z</span>
+              )}
             </div>
             {!collapsed && (
               <div className="min-w-0">
                 <h1 className="font-headline text-lg tracking-wider text-slate-800 leading-none font-bold truncate">
-                  SHIFTONEZERO
+                  {adminMode && isSuperadmin ? 'ADMIN' : 'SHIFTONEZERO'}
                 </h1>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 truncate">
-                  Marketing Platforma
+                  {adminMode && isSuperadmin ? 'Upravljanje sustavom' : 'Marketing Platforma'}
                 </p>
               </div>
             )}
@@ -160,7 +193,7 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 sidebar-scroll">
-          {filteredSections.map((section, idx) => (
+          {activeSections.map((section, idx) => (
             <div key={idx}>
               {/* Section label */}
               {section.label && !collapsed && (
@@ -228,9 +261,39 @@ export default function Sidebar() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-slate-800 font-medium truncate">{user.full_name}</p>
-                <p className="text-[10px] text-slate-400 truncate capitalize">{currentClient?.role || user.role}</p>
+                <p className="text-[10px] text-slate-400 truncate capitalize">
+                  {adminMode && isSuperadmin ? 'Superadmin' : currentClient?.role || user.role}
+                </p>
               </div>
             </div>
+          )}
+          {/* Superadmin: Admin Panel toggle */}
+          {isSuperadmin && (
+            <button
+              onClick={() => setAdminMode(!adminMode)}
+              title={collapsed ? (adminMode ? 'Natrag' : 'Admin Panel') : undefined}
+              className={clsx(
+                'relative group flex items-center gap-2 rounded-xl transition-all w-full mb-1 text-sm font-medium',
+                collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
+                adminMode
+                  ? 'text-sky-600 bg-sky-50 hover:bg-sky-100'
+                  : 'text-red-500 bg-red-50/70 hover:bg-red-100'
+              )}
+            >
+              {adminMode ? (
+                <ArrowLeft className="w-4 h-4 flex-shrink-0" />
+              ) : (
+                <Shield className="w-4 h-4 flex-shrink-0" />
+              )}
+              {!collapsed && (
+                <span className="truncate">{adminMode ? 'Natrag na klijenta' : 'Admin Panel'}</span>
+              )}
+              {collapsed && (
+                <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 rounded-lg text-xs text-white whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
+                  {adminMode ? 'Natrag na klijenta' : 'Admin Panel'}
+                </div>
+              )}
+            </button>
           )}
           <button
             onClick={logout}

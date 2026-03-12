@@ -24,6 +24,7 @@ interface ClientContextType {
   clientRole: string | null
   isClientAdmin: boolean
   canModerate: boolean
+  isViewer: boolean
 }
 
 const ClientContext = createContext<ClientContextType>({
@@ -33,6 +34,7 @@ const ClientContext = createContext<ClientContextType>({
   clientRole: null,
   isClientAdmin: false,
   canModerate: false,
+  isViewer: true,
 })
 
 export function ClientProvider({ children }: { children: ReactNode }) {
@@ -68,9 +70,10 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const clientRole = currentClient?.role || null
   const isClientAdmin = clientRole === 'admin' || clientRole === 'superadmin'
   const canModerate = clientRole === 'moderator' || clientRole === 'admin' || clientRole === 'superadmin'
+  const isViewer = clientRole === 'viewer'
 
   return (
-    <ClientContext.Provider value={{ clients, currentClient, switchClient, clientRole, isClientAdmin, canModerate }}>
+    <ClientContext.Provider value={{ clients, currentClient, switchClient, clientRole, isClientAdmin, canModerate, isViewer }}>
       {children}
     </ClientContext.Provider>
   )

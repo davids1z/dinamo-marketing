@@ -10,7 +10,7 @@ import {
   Film, Filter, Send, Instagram, Facebook, Youtube, Music2,
 } from 'lucide-react'
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { useAuth } from '../contexts/AuthContext'
+import { useClient } from '../contexts/ClientContext'
 
 const DAYS_OF_WEEK = ['Pon', 'Uto', 'Sri', 'Cet', 'Pet', 'Sub', 'Ned']
 
@@ -356,7 +356,7 @@ type TabMode = 'calendar' | 'approvals'
 
 export default function ContentCalendar() {
   const navigate = useNavigate()
-  const { canApprove } = useAuth()
+  const { canModerate } = useClient()
   const [activeTab, setActiveTab] = useState<TabMode>('calendar')
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentMonth, setCurrentMonth] = useState(2) // March 2026 (0-indexed)
@@ -1278,7 +1278,7 @@ export default function ContentCalendar() {
                       <span>{item.platform}</span><span>|</span><span>{item.author}</span><span>|</span><span>{item.submitted}</span>
                     </div>
                   </div>
-                  {canApprove && (
+                  {canModerate && (
                     <div className="flex items-center gap-2">
                       <button onClick={() => handleApprove(item.id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors">
                         <Check size={14} />Odobri
@@ -1512,8 +1512,8 @@ export default function ContentCalendar() {
 
                 {/* Action buttons */}
                 <div className="pt-2 space-y-2">
-                  {/* Publish button - for scheduled, draft, approved, failed posts */}
-                  {selectedPost.status !== 'published' && (
+                  {/* Publish button - for scheduled, draft, approved, failed posts (moderator+) */}
+                  {canModerate && selectedPost.status !== 'published' && (
                     <button
                       onClick={handlePublishFromModal}
                       disabled={publishing}
