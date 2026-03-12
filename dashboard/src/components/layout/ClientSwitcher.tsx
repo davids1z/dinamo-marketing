@@ -16,15 +16,7 @@ export default function ClientSwitcher() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  if (!currentClient || clients.length <= 1) {
-    // Show current client name but no dropdown if only one client
-    return currentClient ? (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-primary/50 text-sm">
-        <Building2 size={16} className="text-brand-accent" />
-        <span className="text-white/90 font-medium truncate max-w-[140px]">{currentClient.client_name}</span>
-      </div>
-    ) : null
-  }
+  if (!currentClient) return null
 
   return (
     <div ref={ref} className="relative">

@@ -18,16 +18,6 @@ export default function ProjectSwitcher() {
 
   if (!currentProject) return null
 
-  // Single project — show badge without dropdown
-  if (projects.length <= 1) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-primary/50 text-sm">
-        <FolderKanban size={16} className="text-brand-accent" />
-        <span className="text-white/90 font-medium truncate max-w-[140px]">{currentProject.project_name}</span>
-      </div>
-    )
-  }
-
   return (
     <div ref={ref} className="relative">
       <button
