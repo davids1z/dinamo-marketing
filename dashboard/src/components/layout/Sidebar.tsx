@@ -41,7 +41,7 @@ function hasAccess(userRole: NavRole | null, required: NavRole): boolean {
   return ROLE_LEVEL[userRole] >= ROLE_LEVEL[required]
 }
 
-// --- Navigation items ---
+// --- Navigation sections ---
 interface NavItem {
   name: string
   href: string
@@ -49,31 +49,49 @@ interface NavItem {
   requiredRole: NavRole
 }
 
-const navigation: NavItem[] = [
-  // Viewer — everyone
-  { name: 'Nadzorna ploča', href: '/', icon: LayoutDashboard, requiredRole: 'viewer' },
-  { name: 'Istraživanje tržišta', href: '/market-research', icon: Globe, requiredRole: 'viewer' },
-  { name: 'Analitika', href: '/analytics', icon: BarChart3, requiredRole: 'viewer' },
-  { name: 'Izvještaji', href: '/reports', icon: FileText, requiredRole: 'viewer' },
-  { name: 'Profil klijenta', href: '/brand-profile', icon: Building2, requiredRole: 'viewer' },
+interface NavSection {
+  label: string | null
+  items: NavItem[]
+}
 
-  // Moderator
-  { name: 'Audit kanala', href: '/channels', icon: Radio, requiredRole: 'moderator' },
-  { name: 'Konkurencija', href: '/competitors', icon: Users, requiredRole: 'moderator' },
-  { name: 'Segmentacija korisnika', href: '/fans', icon: Heart, requiredRole: 'moderator' },
-  { name: 'Kalendar sadržaja', href: '/content', icon: CalendarDays, requiredRole: 'moderator' },
-  { name: 'Kampanje', href: '/campaigns', icon: Megaphone, requiredRole: 'moderator' },
-  { name: 'Sentiment', href: '/sentiment', icon: MessageCircle, requiredRole: 'moderator' },
-  { name: 'Social listening', href: '/social-listening', icon: Ear, requiredRole: 'moderator' },
-  { name: 'Geografska tržišta', href: '/diaspora', icon: MapPin, requiredRole: 'moderator' },
-
-  // Admin
-  { name: 'Partneri & kreatori', href: '/academy', icon: GraduationCap, requiredRole: 'admin' },
-  { name: 'Istraživanje kampanja', href: '/campaign-research', icon: FlaskConical, requiredRole: 'admin' },
-  { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'admin' },
-
-  // Superadmin
-  { name: 'Administracija', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
+const sections: NavSection[] = [
+  {
+    label: null, // Core — no label, top level
+    items: [
+      { name: 'Nadzorna ploča', href: '/', icon: LayoutDashboard, requiredRole: 'viewer' },
+      { name: 'Profil klijenta', href: '/brand-profile', icon: Building2, requiredRole: 'viewer' },
+    ],
+  },
+  {
+    label: 'Istraživanje',
+    items: [
+      { name: 'Istraživanje tržišta', href: '/market-research', icon: Globe, requiredRole: 'viewer' },
+      { name: 'Konkurencija', href: '/competitors', icon: Users, requiredRole: 'moderator' },
+      { name: 'Analitika', href: '/analytics', icon: BarChart3, requiredRole: 'viewer' },
+      { name: 'Sentiment', href: '/sentiment', icon: MessageCircle, requiredRole: 'moderator' },
+      { name: 'Social listening', href: '/social-listening', icon: Ear, requiredRole: 'moderator' },
+      { name: 'Izvještaji', href: '/reports', icon: FileText, requiredRole: 'viewer' },
+    ],
+  },
+  {
+    label: 'Operativa',
+    items: [
+      { name: 'Audit kanala', href: '/channels', icon: Radio, requiredRole: 'moderator' },
+      { name: 'Segmentacija korisnika', href: '/fans', icon: Heart, requiredRole: 'moderator' },
+      { name: 'Kalendar sadržaja', href: '/content', icon: CalendarDays, requiredRole: 'moderator' },
+      { name: 'Kampanje', href: '/campaigns', icon: Megaphone, requiredRole: 'moderator' },
+      { name: 'Partneri & kreatori', href: '/academy', icon: GraduationCap, requiredRole: 'admin' },
+      { name: 'Geografska tržišta', href: '/diaspora', icon: MapPin, requiredRole: 'moderator' },
+      { name: 'Istraživanje kampanja', href: '/campaign-research', icon: FlaskConical, requiredRole: 'admin' },
+    ],
+  },
+  {
+    label: 'Administracija',
+    items: [
+      { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'admin' },
+      { name: 'Korisnici', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
+    ],
+  },
 ]
 
 export default function Sidebar() {
@@ -93,19 +111,13 @@ export default function Sidebar() {
     ? 'superadmin'
     : (clientRole as NavRole) || 'viewer'
 
-  const filteredNav = navigation.filter((item) => hasAccess(effectiveRole, item.requiredRole))
-
-  // Group into sections
-  const sections = [
-    { label: null, items: filteredNav.filter((i) => i.requiredRole === 'viewer') },
-    { label: 'Upravljanje', items: filteredNav.filter((i) => i.requiredRole === 'moderator') },
-    {
-      label: 'Administracija',
-      items: filteredNav.filter(
-        (i) => i.requiredRole === 'admin' || i.requiredRole === 'superadmin'
-      ),
-    },
-  ].filter((s) => s.items.length > 0)
+  // Filter sections by role
+  const filteredSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => hasAccess(effectiveRole, item.requiredRole)),
+    }))
+    .filter((section) => section.items.length > 0)
 
   return (
     <>
@@ -145,11 +157,11 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-2">
-          {sections.map((section, idx) => (
+          {filteredSections.map((section, idx) => (
             <div key={idx}>
               {/* Section label */}
               {section.label && !collapsed && (
-                <div className="px-3 pt-4 pb-2">
+                <div className="px-3 pt-4 pb-1.5">
                   <span className="text-[10px] uppercase tracking-widest text-studio-text-tertiary font-semibold">
                     {section.label}
                   </span>
@@ -224,10 +236,6 @@ export default function Sidebar() {
             <LogOut className="w-4 h-4" />
             {!collapsed && <span className="text-xs">Odjava</span>}
           </button>
-          <div className="flex items-center gap-2 mt-1 px-1">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-            {!collapsed && <span className="text-[10px] text-studio-text-tertiary truncate">Demo način aktivan</span>}
-          </div>
         </div>
       </aside>
 

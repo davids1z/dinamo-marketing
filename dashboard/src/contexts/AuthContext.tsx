@@ -40,7 +40,9 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('auth_token'))
-  const [loading, setLoading] = useState(true)
+  // Only show loading spinner if there's a token to validate;
+  // when no token exists, skip the spinner → immediate redirect to /login
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('auth_token'))
 
   useEffect(() => {
     if (token) {

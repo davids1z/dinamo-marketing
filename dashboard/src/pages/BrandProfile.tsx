@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Building2, Palette, Globe, Hash, MessageSquare, Sparkles, Save, Loader2 } from 'lucide-react'
+import { Building2, Palette, Globe, Hash, MessageSquare, Sparkles, Save, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+// import { Link } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import { useClient } from '../contexts/ClientContext'
 import api from '../api/client'
@@ -133,6 +134,35 @@ export default function BrandProfile() {
       />
 
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl">
+        {/* AI Context Status Banner */}
+        {!data.business_description && !data.product_info ? (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-6 h-6 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-studio-text-primary mb-1">AI kontekst nije postavljen</h3>
+              <p className="text-sm text-studio-text-secondary mb-3">
+                Opišite svoj posao i proizvode kako bi AI mogao generirati kampanje, sadržaj i analize prilagođene vašem brendu.
+              </p>
+              {isClientAdmin && (
+                <p className="text-xs text-amber-400 font-medium">Ispunite polja ispod za aktivaciju AI konteksta.</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-brand-accent/5 border border-brand-accent/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-brand-accent/15 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-4 h-4 text-brand-accent" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-studio-text-primary font-medium">AI kontekst aktivan</p>
+              <p className="text-xs text-studio-text-tertiary">AI koristi ove podatke za generiranje sadržaja i analiza.</p>
+            </div>
+            <Sparkles className="w-5 h-5 text-brand-accent animate-pulse" />
+          </div>
+        )}
+
         {/* Basic Info */}
         <div className={cardCls}>
           <div className="flex items-center gap-3 mb-5">

@@ -14,15 +14,17 @@ interface UserRecord {
   created_at: string
 }
 
-const ROLES = ['admin', 'editor', 'viewer'] as const
+const ROLES = ['superadmin', 'admin', 'moderator', 'viewer'] as const
 const ROLE_LABELS: Record<string, string> = {
+  superadmin: 'Superadmin',
   admin: 'Admin',
-  editor: 'Urednik',
-  viewer: 'Preglednik',
+  moderator: 'Moderator',
+  viewer: 'Viewer',
 }
 const ROLE_COLORS: Record<string, string> = {
+  superadmin: 'bg-purple-500/10 text-purple-400',
   admin: 'bg-red-500/10 text-red-400',
-  editor: 'bg-blue-500/10 text-blue-400',
+  moderator: 'bg-blue-500/10 text-blue-400',
   viewer: 'bg-white/5 text-studio-text-tertiary',
 }
 
@@ -90,7 +92,7 @@ export default function Admin() {
     setEditForm({ full_name: u.full_name, role: u.role, is_active: u.is_active })
   }
 
-  if (currentUser?.role !== 'admin') {
+  if (!currentUser?.is_superadmin) {
     return (
       <div className="page-wrapper">
         <div className="card flex flex-col items-center justify-center py-16">
