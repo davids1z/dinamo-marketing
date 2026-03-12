@@ -27,17 +27,25 @@ export default function BrandProfile() {
   const { currentClient, isClientAdmin } = useClient()
   const [data, setData] = useState<BrandData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // Depend on stable string, not unstable object reference
+  const clientId = currentClient?.client_id
+
   useEffect(() => {
-    if (!currentClient) return
+    if (!clientId) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    api.get(`/api/v1/clients/${currentClient.client_id}`)
-      .then(res => setData(res.data))
-      .catch(console.error)
+    setError(false)
+    api.get(`/api/v1/clients/${clientId}`)
+      .then(res => { setData(res.data); setError(false) })
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [currentClient])
+  }, [clientId])
 
   const handleSave = async () => {
     if (!data || !currentClient) return
@@ -73,10 +81,10 @@ export default function BrandProfile() {
     setData({ ...data, [field]: value })
   }
 
-  if (loading) {
+  if (!currentClient || loading) {
     return (
       <>
-        <Header title="Brand Profil" subtitle="Postavke branda i AI kontekst" />
+        <Header title="Profil klijenta" subtitle="Postavke klijenta i AI kontekst" />
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
         </div>
@@ -84,11 +92,19 @@ export default function BrandProfile() {
     )
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
       <>
-        <Header title="Brand Profil" subtitle="Postavke branda i AI kontekst" />
-        <div className="p-8 text-center text-studio-text-secondary">Klijent nije pronaden.</div>
+        <Header title="Profil klijenta" subtitle="Postavke klijenta i AI kontekst" />
+        <div className="p-8 text-center">
+          <p className="text-studio-text-secondary mb-3">Nije moguće učitati podatke klijenta.</p>
+          <button
+            onClick={() => { setError(false); setLoading(true); api.get(`/api/v1/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false)) }}
+            className="text-sm text-brand-accent hover:underline font-medium"
+          >
+            Pokušaj ponovo
+          </button>
+        </div>
       </>
     )
   }
@@ -100,7 +116,7 @@ export default function BrandProfile() {
   return (
     <>
       <Header
-        title="Brand Profil"
+        title="Profil klijenta"
         subtitle={data.name}
         actions={
           isClientAdmin ? (
@@ -125,12 +141,12 @@ export default function BrandProfile() {
             </div>
             <div>
               <h3 className="text-base font-bold text-studio-text-primary">Osnovni podaci</h3>
-              <p className="text-xs text-studio-text-tertiary">Ime branda i opis poslovanja</p>
+              <p className="text-xs text-studio-text-tertiary">Ime klijenta i opis poslovanja</p>
             </div>
           </div>
           <div className="space-y-4">
             <div>
-              <label className={labelCls}>Ime branda</label>
+              <label className={labelCls}>Ime klijenta</label>
               <input className={inputCls} value={data.name} onChange={e => update('name', e.target.value)} disabled={!isClientAdmin} />
             </div>
             <div>
