@@ -1,5 +1,7 @@
 """Schemas for client management and multi-tenant RBAC."""
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -10,12 +12,12 @@ class ClientCreate(BaseModel):
     product_info: str = ""
     tone_of_voice: str = ""
     target_audience: str = ""
-    brand_colors: dict | None = None
-    brand_fonts: dict | None = None
+    brand_colors: Any = None
+    brand_fonts: Any = None
     logo_url: str = ""
     website_url: str = ""
     languages: list[str] | None = None
-    content_pillars: list[dict] | None = None
+    content_pillars: list[str] | None = None
     social_handles: dict | None = None
     hashtags: list[str] | None = None
     ai_system_prompt_override: str = ""
@@ -27,12 +29,12 @@ class ClientUpdate(BaseModel):
     product_info: str | None = None
     tone_of_voice: str | None = None
     target_audience: str | None = None
-    brand_colors: dict | None = None
-    brand_fonts: dict | None = None
+    brand_colors: Any = None
+    brand_fonts: Any = None
     logo_url: str | None = None
     website_url: str | None = None
     languages: list[str] | None = None
-    content_pillars: list[dict] | None = None
+    content_pillars: list[str] | None = None
     social_handles: dict | None = None
     hashtags: list[str] | None = None
     ai_system_prompt_override: str | None = None
@@ -47,8 +49,8 @@ class ClientResponse(BaseModel):
     product_info: str
     tone_of_voice: str
     target_audience: str
-    brand_colors: dict | None
-    brand_fonts: dict | None
+    brand_colors: Any
+    brand_fonts: Any
     logo_url: str
     website_url: str
     languages: list | None

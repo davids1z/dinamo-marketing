@@ -689,8 +689,8 @@ export default function Dashboard() {
     return <DashboardLoadingSkeleton />
   }
 
-  // Show welcome/empty state for new clients with no real data
-  if (!hasRealData && currentClient && !currentClient.onboarding_completed) {
+  // Show welcome/setup state for clients with no real analytics data
+  if (!hasRealData && currentClient) {
     return <WelcomeHero />
   }
 
