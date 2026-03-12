@@ -4,6 +4,19 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
 
+// Auto-reload when a new service worker takes control (new deploy detected).
+// Flow: user refreshes → old SW serves old page → browser finds new sw.js →
+// new SW installs + skipWaiting + clientsClaim → controllerchange fires → reload.
+// This ensures a normal refresh always shows the latest deployed version.
+if ('serviceWorker' in navigator) {
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return
+    refreshing = true
+    window.location.reload()
+  })
+}
+
 // Handle stale chunk errors after deploys: unregister old SW and reload
 window.addEventListener('error', (e) => {
   if (
