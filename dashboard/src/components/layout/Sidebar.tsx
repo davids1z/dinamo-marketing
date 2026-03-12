@@ -124,23 +124,23 @@ export default function Sidebar() {
     <>
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 bg-studio-surface-0 flex flex-col transition-all duration-300 ease-in-out border-r border-studio-border',
+          'fixed inset-y-0 left-0 z-50 bg-[#0F172A] flex flex-col transition-all duration-300 ease-in-out border-r border-[#1E293B]',
           !isMobileView && (collapsed ? 'w-[72px]' : 'w-64'),
           isMobileView && (mobileOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full')
         )}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-4 border-b border-studio-border justify-between">
+        <div className="h-16 flex items-center px-4 border-b border-[#1E293B] justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-brand-accent flex items-center justify-center flex-shrink-0 shadow-sm">
               <span className="font-headline text-sm text-brand-primary font-bold">S1Z</span>
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <h1 className="font-headline text-lg tracking-wider text-studio-text-primary leading-none font-bold truncate">
+                <h1 className="font-headline text-lg tracking-wider text-white leading-none font-bold truncate">
                   SHIFTONEZERO
                 </h1>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-studio-text-tertiary truncate">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 truncate">
                   Marketing Platforma
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default function Sidebar() {
           {isMobileView && mobileOpen && (
             <button
               onClick={() => setMobileOpen(false)}
-              className="p-1.5 rounded-lg text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-3 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E293B] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -163,14 +163,14 @@ export default function Sidebar() {
               {/* Section label */}
               {section.label && !collapsed && (
                 <div className="px-3 pt-4 pb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-studio-text-tertiary font-semibold">
+                  <span className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">
                     {section.label}
                   </span>
                 </div>
               )}
               {/* Collapsed divider */}
               {section.label && collapsed && (
-                <div className="mx-3 my-2 h-px bg-studio-border" />
+                <div className="mx-3 my-2 h-px bg-[#1E293B]" />
               )}
               <ul className="space-y-0.5">
                 {section.items.map((item) => {
@@ -195,7 +195,7 @@ export default function Sidebar() {
                           collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
                           isActive
                             ? 'bg-brand-accent/10 text-brand-accent'
-                            : 'text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2'
+                            : 'text-slate-400 hover:text-white hover:bg-[#1E293B]'
                         )}
                       >
                         {isActive && !collapsed && (
@@ -204,7 +204,7 @@ export default function Sidebar() {
                         <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
                         {!collapsed && <span className="truncate">{item.name}</span>}
                         {collapsed && (
-                          <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-studio-surface-4 rounded-lg text-xs text-studio-text-primary whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
+                          <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-[#334155] rounded-lg text-xs text-white whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
                             {item.name}
                           </div>
                         )}
@@ -218,15 +218,15 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className={clsx('p-3 border-t border-studio-border', collapsed && 'flex flex-col items-center gap-2')}>
+        <div className={clsx('p-3 border-t border-[#1E293B]', collapsed && 'flex flex-col items-center gap-2')}>
           {!collapsed && user && (
             <div className="flex items-center gap-2.5 mb-3 px-1">
-              <div className="w-8 h-8 rounded-xl bg-studio-surface-3 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#1E293B] flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-bold text-brand-accent">{user.full_name?.[0] || 'U'}</span>
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-studio-text-primary font-medium truncate">{user.full_name}</p>
-                <p className="text-[10px] text-studio-text-tertiary truncate capitalize">{currentClient?.role || user.role}</p>
+                <p className="text-xs text-white font-medium truncate">{user.full_name}</p>
+                <p className="text-[10px] text-slate-500 truncate capitalize">{currentClient?.role || user.role}</p>
               </div>
             </div>
           )}
@@ -234,7 +234,7 @@ export default function Sidebar() {
             onClick={logout}
             title={collapsed ? 'Odjava' : undefined}
             className={clsx(
-              'flex items-center gap-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-xl transition-colors w-full',
+              'flex items-center gap-2 text-slate-400 hover:text-white hover:bg-[#1E293B] rounded-xl transition-colors w-full',
               collapsed ? 'px-3 py-2 justify-center' : 'px-3 py-2'
             )}
           >
@@ -248,7 +248,7 @@ export default function Sidebar() {
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-studio-surface-3 border border-studio-border shadow-md flex items-center justify-center hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary text-studio-text-secondary transition-all duration-200 hover:shadow-lg hover:scale-110"
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-[#1E293B] border border-[#334155] shadow-md flex items-center justify-center hover:border-brand-accent hover:bg-brand-accent hover:text-brand-primary text-slate-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
           style={{ left: collapsed ? 72 - 12 : 256 - 12 }}
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>

@@ -66,8 +66,8 @@ export default function ContextSwitcher() {
       <div
         className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium ${
           hasAiContext
-            ? 'bg-brand-accent/10 text-brand-accent'
-            : 'bg-amber-500/10 text-amber-400'
+            ? 'bg-emerald-50 text-emerald-600'
+            : 'bg-amber-50 text-amber-600'
         }`}
         title={hasAiContext ? 'AI kontekst je aktivan' : 'AI kontekst nije postavljen — ispunite Profil klijenta'}
       >
@@ -87,7 +87,7 @@ export default function ContextSwitcher() {
                 onClick={() => setPanel('client')}
                 className={`flex-1 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
                   panel === 'client'
-                    ? 'text-brand-accent border-b-2 border-brand-accent bg-brand-accent/5'
+                    ? 'text-sky-600 border-b-2 border-sky-500 bg-sky-50'
                     : 'text-studio-text-tertiary hover:text-studio-text-secondary'
                 }`}
               >
@@ -98,7 +98,7 @@ export default function ContextSwitcher() {
                 onClick={() => setPanel('project')}
                 className={`flex-1 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
                   panel === 'project'
-                    ? 'text-brand-accent border-b-2 border-brand-accent bg-brand-accent/5'
+                    ? 'text-sky-600 border-b-2 border-sky-500 bg-sky-50'
                     : 'text-studio-text-tertiary hover:text-studio-text-secondary'
                 }`}
               >
@@ -125,7 +125,7 @@ export default function ContextSwitcher() {
                       }}
                       className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-studio-surface-2 transition-colors ${
                         c.client_id === currentClient.client_id
-                          ? 'bg-brand-accent/5 border-l-2 border-brand-accent'
+                          ? 'bg-sky-50 border-l-2 border-sky-500'
                           : ''
                       }`}
                     >
@@ -133,7 +133,7 @@ export default function ContextSwitcher() {
                         {c.client_logo_url ? (
                           <img src={c.client_logo_url} className="w-5 h-5 rounded" alt="" />
                         ) : (
-                          <span className="text-xs font-bold text-brand-accent">
+                          <span className="text-xs font-bold text-sky-600">
                             {c.client_name?.[0]?.toUpperCase() || 'K'}
                           </span>
                         )}
@@ -145,7 +145,7 @@ export default function ContextSwitcher() {
                         <div className="text-[11px] text-studio-text-tertiary capitalize">{c.role}</div>
                       </div>
                       {c.client_id === currentClient.client_id && (
-                        <div className="w-2 h-2 rounded-full bg-brand-accent flex-shrink-0" />
+                        <div className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
                       )}
                     </button>
                   ))}
@@ -174,12 +174,12 @@ export default function ContextSwitcher() {
                         }}
                         className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-studio-surface-2 transition-colors ${
                           p.project_id === currentProject?.project_id
-                            ? 'bg-brand-accent/5 border-l-2 border-brand-accent'
+                            ? 'bg-sky-50 border-l-2 border-sky-500'
                             : ''
                         }`}
                       >
                         <div className="w-8 h-8 rounded-lg bg-studio-surface-3 flex items-center justify-center flex-shrink-0">
-                          <FolderKanban size={14} className="text-brand-accent" />
+                          <FolderKanban size={14} className="text-sky-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-studio-text-primary font-medium truncate">
@@ -188,7 +188,7 @@ export default function ContextSwitcher() {
                           <div className="text-[11px] text-studio-text-tertiary">{p.project_slug}</div>
                         </div>
                         {p.project_id === currentProject?.project_id && (
-                          <div className="w-2 h-2 rounded-full bg-brand-accent flex-shrink-0" />
+                          <div className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
                         )}
                       </button>
                     ))

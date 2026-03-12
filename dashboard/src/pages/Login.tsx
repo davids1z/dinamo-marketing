@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Lock, Mail, KeyRound } from 'lucide-react'
+import { LogIn, Mail, KeyRound } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -26,87 +26,89 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-studio-base flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-studio-ai-purple/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+    <div className="min-h-screen bg-gradient-to-b from-sky-200 via-sky-100 to-sky-50 flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Decorative arc lines */}
+      <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] border border-sky-200/60 rounded-full pointer-events-none" />
+      <div className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] border border-sky-200/40 rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-[420px] relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-brand-accent mx-auto flex items-center justify-center mb-5 shadow-lg shadow-brand-accent/20">
-            <span className="font-headline text-2xl text-brand-primary font-bold">S1Z</span>
-          </div>
-          <h1 className="font-headline text-3xl tracking-wider text-studio-text-primary font-bold">SHIFTONEZERO</h1>
-          <p className="text-sm uppercase tracking-[0.25em] text-studio-text-tertiary mt-1.5 font-medium">Marketing Platforma</p>
+      {/* Bottom clouds */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none">
+        <div className="absolute bottom-0 left-[10%] w-72 h-28 bg-white/60 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-[15%] w-80 h-24 bg-white/50 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-[40%] w-64 h-20 bg-white/40 rounded-full blur-2xl" />
+      </div>
+
+      {/* Logo top-left */}
+      <div className="absolute top-6 left-8 flex items-center gap-2.5 z-20">
+        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+          <span className="font-headline text-xs text-white font-bold">S1Z</span>
         </div>
+        <span className="font-headline text-base tracking-wider text-slate-800 font-bold">SHIFTONEZERO</span>
+      </div>
 
-        {/* Form card */}
-        <div className="bg-studio-surface-1 rounded-3xl p-8 shadow-studio-canvas border border-studio-border">
-          <div className="flex items-center gap-2.5 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-studio-surface-3 flex items-center justify-center">
-              <Lock className="w-4 h-4 text-studio-text-secondary" />
+      {/* Card */}
+      <div className="w-full max-w-[400px] relative z-10">
+        <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/50">
+          {/* Card icon + title */}
+          <div className="flex flex-col items-center mb-7">
+            <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+              <LogIn className="w-5 h-5 text-slate-600" />
             </div>
-            <h2 className="font-headline text-lg text-studio-text-primary">Prijava</h2>
+            <h2 className="text-xl font-semibold text-slate-900" style={{ fontFamily: 'Inter, sans-serif', textTransform: 'none' }}>
+              Prijavite se
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">Upravljajte marketingom uz pomoć AI-ja</p>
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 font-medium">
+            <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-medium">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">E-mail adresa</label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-studio-text-tertiary" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0 transition-all placeholder-studio-text-tertiary"
-                  placeholder="email@primjer.hr"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-200 text-sm text-slate-900 transition-all placeholder-slate-400"
+                  placeholder="E-mail adresa"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">Lozinka</label>
               <div className="relative">
-                <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-studio-text-tertiary" />
+                <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0 transition-all placeholder-studio-text-tertiary"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-200 text-sm text-slate-900 transition-all placeholder-slate-400"
+                  placeholder="Lozinka"
                 />
               </div>
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-brand-accent hover:bg-brand-accent-hover text-brand-primary font-bold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-md shadow-brand-accent/20 hover:shadow-lg hover:shadow-brand-accent/30 active:scale-[0.98]"
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 active:scale-[0.98] mt-2"
             >
               {loading ? 'Prijava...' : 'Prijavi se'}
             </button>
           </form>
-        </div>
 
-        {/* Register link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-studio-text-secondary mb-2">Nemate račun?</p>
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-semibold text-brand-accent hover:bg-studio-surface-2 hover:border-brand-accent/30 transition-all"
-          >
-            Registrirajte se
-          </Link>
+          <p className="text-center text-sm text-slate-500 mt-5">
+            {'Nemate račun? '}
+            <Link to="/register" className="text-sky-600 hover:text-sky-700 font-medium hover:underline">
+              Registrirajte se
+            </Link>
+          </p>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-xs text-studio-text-tertiary mt-6">ShiftOneZero</p>
       </div>
     </div>
   )

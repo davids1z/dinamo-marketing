@@ -385,7 +385,7 @@
 .studio-canvas {
   position: relative;
   overflow: hidden;
-  background: #0A1A28;
+  background: #F0F7FF;
 }
 
 .studio-canvas .scene-layer {
@@ -397,7 +397,7 @@
   position: absolute;
   transform: translate(-50%, -50%);
   white-space: pre-wrap;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .studio-canvas .overlay-layer {
@@ -405,15 +405,15 @@
   transform: translate(-50%, -50%);
 }
 
-/* === Scene Timeline (dark video-editor panel) === */
+/* === Scene Timeline (dark video-editor panel — intentionally stays dark) === */
 
 /* Root container — fixed height, full width, dark surface */
 .scene-timeline-root {
   height: 120px;
   display: flex;
   flex-direction: column;
-  background: #151515;              /* studio-surface-0 */
-  border-top: 1px solid #1F1F1F;    /* studio-border-subtle */
+  background: #151515;
+  border-top: 1px solid #1F1F1F;
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
@@ -426,7 +426,7 @@
   justify-content: space-between;
   padding: 4px 10px;
   min-height: 30px;
-  border-bottom: 1px solid #1A1A1A; /* studio-surface-1 */
+  border-bottom: 1px solid #1A1A1A;
   gap: 8px;
 }
 
@@ -438,7 +438,7 @@
   width: 26px;
   height: 26px;
   border-radius: 6px;
-  color: #A0A0A0;                   /* studio-text-secondary */
+  color: #A0A0A0;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -446,8 +446,8 @@
 }
 
 .tl-icon-btn:hover {
-  background: #242424;              /* studio-surface-3 */
-  color: #E8E8E8;                   /* studio-text-primary */
+  background: #242424;
+  color: #E8E8E8;
 }
 
 .tl-icon-btn:disabled {
@@ -481,12 +481,12 @@
 }
 
 .scene-timeline-strip::-webkit-scrollbar-thumb {
-  background: #2A2A2A;              /* studio-surface-4 */
+  background: #2A2A2A;
   border-radius: 2px;
 }
 
 .scene-timeline-strip::-webkit-scrollbar-thumb:hover {
-  background: #383838;              /* studio-surface-6 */
+  background: #383838;
 }
 
 /* Individual scene thumbnail */
@@ -504,12 +504,12 @@
 }
 
 .scene-timeline-thumb:hover {
-  border-color: #404040;            /* studio-border-hover */
+  border-color: #404040;
   transform: translateY(-1px);
 }
 
 .scene-timeline-thumb.active {
-  border-color: #B8FF00;            /* brand-accent */
+  border-color: #B8FF00;
   box-shadow: 0 0 14px rgba(184, 255, 0, 0.2), 0 0 4px rgba(184, 255, 0, 0.15);
 }
 
@@ -551,7 +551,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed #2A2A2A;       /* studio-surface-4 */
+  border: 2px dashed #2A2A2A;
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
@@ -582,7 +582,7 @@
 }
 
 .scene-timeline-progress-seg.current {
-  background-color: #B8FF00;        /* brand-accent */
+  background-color: #B8FF00;
 }
 
 .scene-timeline-progress-seg.past {
@@ -590,7 +590,7 @@
 }
 
 .scene-timeline-progress-seg.future {
-  background-color: #2A2A2A;        /* studio-surface-4 */
+  background-color: #2A2A2A;
 }
 
 .scene-timeline-progress-seg:hover {
@@ -607,11 +607,11 @@
   50% { opacity: 0.55; }
 }
 
-/* === Studio Scrollbar (thin, dark) === */
+/* === Studio Scrollbar (thin, light) === */
 
 .studio-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #2A2A2A transparent;
+  scrollbar-color: #CBD5E1 transparent;
 }
 
 .studio-scrollbar::-webkit-scrollbar {
@@ -623,12 +623,12 @@
 }
 
 .studio-scrollbar::-webkit-scrollbar-thumb {
-  background: #2A2A2A;
+  background: #CBD5E1;
   border-radius: 2px;
 }
 
 .studio-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #383838;
+  background: #94A3B8;
 }
 
 /* === AI Panel Animations === */
@@ -740,49 +740,48 @@
 .ai-panel-root .grid > button:nth-child(5) { animation-delay: 120ms; }
 .ai-panel-root .grid > button:nth-child(6) { animation-delay: 150ms; }
 
-/* === Dark Form Elements (override browser defaults) === */
+/* === Light Form Elements === */
 
-/* Force dark color-scheme for the entire studio context */
 .studio-dark-forms {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .studio-dark-forms input,
 .studio-dark-forms select,
 .studio-dark-forms textarea,
 .studio-dark-forms option {
-  color-scheme: dark;
-  background-color: #1A1A1A;
-  color: #E8E8E8;
-  border-color: #2A2A2A;
+  color-scheme: light;
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #E2E8F0;
 }
 
 .studio-dark-forms input::placeholder,
 .studio-dark-forms textarea::placeholder {
-  color: #4A4A4A;
+  color: #94A3B8;
 }
 
 .studio-dark-forms input:focus,
 .studio-dark-forms select:focus,
 .studio-dark-forms textarea:focus {
-  border-color: #B8FF00;
+  border-color: #0EA5E9;
   outline: none;
-  box-shadow: 0 0 0 1px rgba(184, 255, 0, 0.2);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
 }
 
 .studio-dark-forms select option {
-  background-color: #1F1F1F;
-  color: #E8E8E8;
+  background-color: #FFFFFF;
+  color: #0F172A;
 }
 
-/* Number input spinner dark */
+/* Number input spinner */
 .studio-dark-forms input[type="number"]::-webkit-inner-spin-button,
 .studio-dark-forms input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Range slider dark */
+/* Range slider */
 .studio-dark-forms input[type="range"] {
   background-color: transparent;
 }
