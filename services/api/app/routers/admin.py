@@ -279,11 +279,11 @@ async def client_detail(
     if not client:
         raise HTTPException(status_code=404, detail="Klijent nije pronađen")
 
-    # Members
+    # Members (exclude superadmins — they are above the client level)
     members_result = await db.execute(
         select(UserClient, User)
         .join(User, UserClient.user_id == User.id)
-        .where(UserClient.client_id == client_id)
+        .where(UserClient.client_id == client_id, User.is_superadmin == False)
         .order_by(User.full_name)
     )
     members = [

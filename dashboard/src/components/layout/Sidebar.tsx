@@ -264,7 +264,7 @@ export default function Sidebar() {
               <div className="min-w-0">
                 <p className="text-xs text-slate-800 font-medium truncate">{user.full_name}</p>
                 <p className="text-[10px] text-slate-400 truncate capitalize">
-                  {adminMode && isSuperadmin ? 'Superadmin' : currentClient?.role || user.role}
+                  {isSuperadmin ? 'Superadmin' : currentClient?.role || user.role}
                 </p>
               </div>
             </div>

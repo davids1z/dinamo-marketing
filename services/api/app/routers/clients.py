@@ -223,7 +223,7 @@ async def list_members(
     result = await db.execute(
         select(UserClient, User)
         .join(User, UserClient.user_id == User.id)
-        .where(UserClient.client_id == client.id)
+        .where(UserClient.client_id == client.id, User.is_superadmin == False)
         .order_by(User.full_name)
     )
     return [

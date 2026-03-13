@@ -151,6 +151,48 @@ async def seed_admin_user(session: AsyncSession, default_client: Client):
     return admin
 
 
+async def seed_demo_users(session: AsyncSession, default_client: Client):
+    """Create demo team members for the default client."""
+    demo_users = [
+        {"email": "gazda@aseco.hr", "full_name": "Ante Gazda", "password": "gazda123", "role": "admin"},
+        {"email": "marko@aseco.hr", "full_name": "Marko Markić", "password": "marko123", "role": "moderator"},
+        {"email": "ana@aseco.hr", "full_name": "Ana Anić", "password": "ana123", "role": "moderator"},
+    ]
+
+    for u in demo_users:
+        existing = (await session.execute(
+            select(User).where(User.email == u["email"])
+        )).scalar_one_or_none()
+
+        if existing:
+            logger.info("Demo user %s already exists, ensuring membership", u["email"])
+            user = existing
+        else:
+            user = User(
+                email=u["email"],
+                hashed_password=hash_password(u["password"]),
+                full_name=u["full_name"],
+                role=u["role"],
+                is_active=True,
+                is_superadmin=False,
+            )
+            session.add(user)
+            await session.flush()
+            logger.info("Seeded demo user: %s (role=%s)", u["email"], u["role"])
+
+        # Ensure membership
+        membership = (await session.execute(
+            select(UserClient).where(
+                UserClient.user_id == user.id,
+                UserClient.client_id == default_client.id,
+            )
+        )).scalar_one_or_none()
+        if not membership:
+            session.add(UserClient(user_id=user.id, client_id=default_client.id, role=u["role"]))
+            await session.flush()
+            logger.info("Added %s to %s as %s", u["email"], default_client.slug, u["role"])
+
+
 async def seed_countries(session: AsyncSession, client_id):
     """Seed countries from regional, diaspora, expansion JSON files."""
     existing = (await session.execute(select(Country))).scalars().all()
@@ -423,6 +465,9 @@ async def main():
 
             # 3. Create admin user with client membership
             await seed_admin_user(session, default_client)
+
+            # 3b. Create demo team members
+            await seed_demo_users(session, default_client)
 
             # 4. Seed data (all scoped to default client)
             await seed_countries(session, client_id)
