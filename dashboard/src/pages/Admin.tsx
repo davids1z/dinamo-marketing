@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Shield, Plus, Edit2, UserX, Check, X, Users,
   Building2, FolderKanban, Activity,
@@ -143,13 +143,6 @@ const ACTION_LABELS: Record<string, string> = {
   'client.subscription_change': 'Promjena pretplate',
 }
 
-const NAV_ITEMS: { path: string; label: string; icon: typeof Shield }[] = [
-  { path: '/admin', label: 'Nadzorna ploča', icon: Activity },
-  { path: '/admin/users', label: 'Korisnici', icon: Users },
-  { path: '/admin/clients', label: 'Klijenti', icon: Building2 },
-  { path: '/admin/audit', label: 'Audit Log', icon: FileText },
-]
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -197,6 +190,16 @@ function DashboardView() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+          <Activity className="w-5 h-5 text-red-400" />
+        </div>
+        <div>
+          <h1 className="section-title">Pregled sustava</h1>
+          <p className="text-sm text-studio-text-tertiary">Statistika i zdravlje platforme</p>
+        </div>
+      </div>
+
       {/* Stat cards */}
       {loading || !stats ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -401,11 +404,16 @@ function UsersView() {
 
   return (
     <div className="space-y-4">
-      {/* Actions bar */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
-          {total} korisnika ukupno
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-blue-400" />
+          </div>
+          <div>
+            <h1 className="section-title">Korisnici</h1>
+            <p className="text-sm text-studio-text-tertiary">{total} korisnika ukupno</p>
+          </div>
+        </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Novi korisnik</span>
@@ -742,6 +750,16 @@ function ClientsView() {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+          <Building2 className="w-5 h-5 text-emerald-400" />
+        </div>
+        <div>
+          <h1 className="section-title">Klijenti</h1>
+          <p className="text-sm text-studio-text-tertiary">{total} registriranih organizacija</p>
+        </div>
+      </div>
+
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
           {error}
@@ -749,11 +767,6 @@ function ClientsView() {
         </div>
       )}
       <div className="card overflow-x-auto">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
-            {total} klijenata ukupno
-          </span>
-        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-studio-text-tertiary border-b border-studio-border">
@@ -1067,11 +1080,16 @@ function AuditLogView() {
 
   return (
     <div className="space-y-4">
-      {/* Filter */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
-          {total} zapisa ukupno
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+            <FileText className="w-5 h-5 text-violet-400" />
+          </div>
+          <div>
+            <h1 className="section-title">Audit Log</h1>
+            <p className="text-sm text-studio-text-tertiary">{total} zapisa ukupno</p>
+          </div>
+        </div>
         <select
           value={actionFilter}
           onChange={e => { setActionFilter(e.target.value); setPage(0) }}
@@ -1190,42 +1208,6 @@ export default function Admin() {
 
   return (
     <div className="page-wrapper space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-          <Shield className="w-5 h-5 text-red-400" />
-        </div>
-        <div>
-          <h1 className="section-title">Superadmin Panel</h1>
-          <p className="text-sm text-studio-text-tertiary">Upravljanje platformom</p>
-        </div>
-      </div>
-
-      {/* Sub-navigation */}
-      <div className="flex gap-1 bg-studio-surface-0 border border-studio-border rounded-xl p-1">
-        {NAV_ITEMS.map(item => {
-          const Icon = item.icon
-          const isActive = item.path === '/admin' ? view === 'dashboard' : location.pathname === item.path
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/admin'}
-              className={clsx(
-                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all flex-1 justify-center',
-                isActive
-                  ? 'bg-brand-accent/10 text-brand-accent shadow-sm'
-                  : 'text-studio-text-tertiary hover:text-studio-text-secondary hover:bg-studio-surface-2'
-              )}
-            >
-              <Icon size={15} />
-              <span className="hidden sm:inline">{item.label}</span>
-            </NavLink>
-          )
-        })}
-      </div>
-
-      {/* View content */}
       <div className="animate-fade-in">
         {view === 'dashboard' && <DashboardView />}
         {view === 'users' && <UsersView />}

@@ -95,7 +95,6 @@ const sections: NavSection[] = [
     items: [
       { name: 'Tim', href: '/team', icon: UsersRound, requiredRole: 'admin' },
       { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'admin' },
-      { name: 'Superadmin Panel', href: '/admin', icon: Shield, requiredRole: 'superadmin' },
     ],
   },
 ]
@@ -285,7 +284,7 @@ export default function Sidebar() {
           {isSuperadmin && (
             <button
               onClick={() => navigate(adminMode ? '/' : '/admin')}
-              title={collapsed ? (adminMode ? 'Natrag' : 'Admin Panel') : undefined}
+              title={collapsed ? (adminMode ? 'Natrag' : 'Sustav') : undefined}
               className={clsx(
                 'relative group flex items-center gap-2 rounded-xl transition-all w-full mb-1 text-sm font-medium',
                 collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
@@ -300,11 +299,11 @@ export default function Sidebar() {
                 <Shield className="w-4 h-4 flex-shrink-0" />
               )}
               {!collapsed && (
-                <span className="truncate">{adminMode ? 'Natrag na klijenta' : 'Admin Panel'}</span>
+                <span className="truncate">{adminMode ? 'Natrag na aplikaciju' : 'Sistemska administracija'}</span>
               )}
               {collapsed && (
                 <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 rounded-lg text-xs text-white whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none shadow-xl z-50">
-                  {adminMode ? 'Natrag na klijenta' : 'Admin Panel'}
+                  {adminMode ? 'Natrag na aplikaciju' : 'Sistemska administracija'}
                 </div>
               )}
             </button>
