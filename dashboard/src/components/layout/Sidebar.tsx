@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Globe,
@@ -113,6 +112,7 @@ const systemSections: NavSection[] = [
     items: [
       { name: 'Klijenti', href: '/admin/clients', icon: Building2, requiredRole: 'superadmin' },
       { name: 'Korisnici', href: '/admin/users', icon: Users, requiredRole: 'superadmin' },
+      { name: 'Audit Log', href: '/admin/audit', icon: FileText, requiredRole: 'superadmin' },
       { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'superadmin' },
     ],
   },
@@ -121,12 +121,13 @@ const systemSections: NavSection[] = [
 export default function Sidebar() {
   const { collapsed, mobileOpen, setMobileOpen, toggleSidebar } = useSidebar()
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
   const { currentClient, clientRole } = useClient()
 
-  // Superadmin panel mode toggle
+  // Superadmin panel mode — auto-detect from URL
   const isSuperadmin = user?.is_superadmin ?? false
-  const [adminMode, setAdminMode] = useState(false)
+  const adminMode = location.pathname.startsWith('/admin')
 
   const handleNavClick = () => {
     if (mobileOpen) setMobileOpen(false)
@@ -272,7 +273,7 @@ export default function Sidebar() {
           {/* Superadmin: Admin Panel toggle */}
           {isSuperadmin && (
             <button
-              onClick={() => setAdminMode(!adminMode)}
+              onClick={() => navigate(adminMode ? '/' : '/admin')}
               title={collapsed ? (adminMode ? 'Natrag' : 'Admin Panel') : undefined}
               className={clsx(
                 'relative group flex items-center gap-2 rounded-xl transition-all w-full mb-1 text-sm font-medium',

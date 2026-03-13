@@ -295,7 +295,14 @@ async def update_member_role(
     if not membership:
         raise HTTPException(status_code=404, detail="Članstvo nije pronađeno")
 
+    old_role = membership.role
     membership.role = body.role
+
+    from app.services.audit_service import log_action
+    await log_action(db, admin_user, "membership.role_change", "membership", membership.id, {
+        "old_role": old_role, "new_role": body.role,
+        "user_id": user_id, "client_slug": client.slug,
+    })
     await db.commit()
     logger.info("Member role updated: %s on %s → %s by %s", user_id, client.slug, body.role, admin_user.email)
     return {"status": "updated"}
@@ -321,6 +328,10 @@ async def remove_member(
     if not membership:
         raise HTTPException(status_code=404, detail="Članstvo nije pronađeno")
 
+    from app.services.audit_service import log_action
+    await log_action(db, admin_user, "membership.remove", "membership", membership.id, {
+        "user_id": user_id, "client_slug": client.slug, "role": membership.role,
+    })
     await db.delete(membership)
     await db.commit()
     logger.info("Member removed: %s from %s by %s", user_id, client.slug, admin_user.email)

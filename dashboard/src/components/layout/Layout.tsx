@@ -1,7 +1,9 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext } from 'react'
+import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import Sidebar from './Sidebar'
 import NavigationProgress from './NavigationProgress'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface SidebarContextType {
   collapsed: boolean
@@ -24,6 +26,8 @@ export function useSidebar() {
 }
 
 export default function Layout() {
+  const { user, impersonating, stopImpersonating } = useAuth()
+  const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved === 'true'
@@ -55,11 +59,33 @@ export default function Layout() {
     }
   }
 
+  const handleStopImpersonating = () => {
+    stopImpersonating()
+    navigate('/admin/users')
+  }
+
   const sidebarWidth = isMobile ? 0 : collapsed ? 72 : 256
 
   return (
     <SidebarContext.Provider value={{ collapsed, mobileOpen, setCollapsed, setMobileOpen, toggleSidebar }}>
       <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #daedfb 0%, #e4f0fc 30%, #edf5fd 60%, #F5F9FF 100%)' }}>
+        {/* Impersonation Banner */}
+        {impersonating && user && (
+          <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-500 text-amber-950 px-4 py-2 flex items-center justify-center gap-3 text-sm font-medium shadow-lg">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <span>
+              Prijavljeni ste kao <strong>{user.full_name}</strong> ({user.email})
+            </span>
+            <button
+              onClick={handleStopImpersonating}
+              className="flex items-center gap-1 px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-semibold transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Vrati se na admin
+            </button>
+          </div>
+        )}
+
         {/* Subtle cloud decoration at bottom */}
         <div className="fixed bottom-0 left-0 right-0 pointer-events-none z-0">
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/60 via-white/30 to-transparent" />
@@ -78,7 +104,7 @@ export default function Layout() {
         )}
         <main
           className="min-h-screen transition-[margin] duration-300 ease-in-out relative z-[1]"
-          style={{ marginLeft: sidebarWidth }}
+          style={{ marginLeft: sidebarWidth, paddingTop: impersonating ? 40 : 0 }}
         >
           <Outlet />
         </main>

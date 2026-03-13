@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Shield, Plus, Edit2, UserX, Check, X, Users,
   Building2, FolderKanban, Activity,
   ChevronDown, ChevronRight, Trash2, Globe, Palette,
+  LogIn, FileText, Crown, Zap,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import api from '../api/client'
@@ -24,6 +25,7 @@ interface UserRecord {
   is_superadmin?: boolean
   last_login: string | null
   created_at: string
+  client_count: number
 }
 
 interface UserMembership {
@@ -54,6 +56,11 @@ interface ClientRecord {
   onboarding_completed: boolean
   member_count: number
   project_count: number
+  primary_admin_name: string | null
+  plan: string
+  ai_credits_used: number
+  ai_credits_total: number
+  plan_expires_at: string | null
   created_at: string
 }
 
@@ -82,7 +89,17 @@ interface ClientDetail extends ClientRecord {
   projects: ClientProject[]
 }
 
-type ViewKey = 'dashboard' | 'users' | 'clients'
+interface AuditEntry {
+  id: string
+  user_email: string
+  action: string
+  entity_type: string
+  entity_id: string | null
+  details: Record<string, any> | null
+  created_at: string
+}
+
+type ViewKey = 'dashboard' | 'users' | 'clients' | 'audit'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -103,11 +120,55 @@ const ROLE_COLORS: Record<string, string> = {
   viewer: 'bg-white/5 text-studio-text-tertiary',
 }
 
+const PLAN_LABELS: Record<string, string> = {
+  free: 'Free',
+  pro: 'Pro',
+  enterprise: 'Enterprise',
+}
+const PLAN_COLORS: Record<string, string> = {
+  free: 'bg-slate-500/10 text-slate-400',
+  pro: 'bg-blue-500/10 text-blue-400',
+  enterprise: 'bg-purple-500/10 text-purple-400',
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  'user.login': 'Prijava',
+  'user.create': 'Kreiranje korisnika',
+  'user.update': 'Ažuriranje korisnika',
+  'user.deactivate': 'Deaktivacija korisnika',
+  'user.impersonate': 'Impersonacija',
+  'membership.role_change': 'Promjena uloge',
+  'membership.remove': 'Uklanjanje članstva',
+  'client.update': 'Ažuriranje klijenta',
+  'client.subscription_change': 'Promjena pretplate',
+}
+
 const NAV_ITEMS: { path: string; label: string; icon: typeof Shield }[] = [
   { path: '/admin', label: 'Nadzorna ploča', icon: Activity },
   { path: '/admin/users', label: 'Korisnici', icon: Users },
   { path: '/admin/clients', label: 'Klijenti', icon: Building2 },
+  { path: '/admin/audit', label: 'Audit Log', icon: FileText },
 ]
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function relativeTime(isoDate: string | null): string {
+  if (!isoDate) return 'Nikad'
+  const now = Date.now()
+  const then = new Date(isoDate).getTime()
+  const diff = now - then
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 1) return 'Upravo'
+  if (minutes < 60) return `prije ${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `prije ${hours}h`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `prije ${days}d`
+  const months = Math.floor(days / 30)
+  return `prije ${months} mj.`
+}
 
 // ---------------------------------------------------------------------------
 // Dashboard View
@@ -115,11 +176,14 @@ const NAV_ITEMS: { path: string; label: string; icon: typeof Shield }[] = [
 
 function DashboardView() {
   const [stats, setStats] = useState<PlatformStats | null>(null)
+  const [recentAudit, setRecentAudit] = useState<AuditEntry[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/admin/stats')
-      .then(res => setStats(res.data))
+    Promise.all([
+      api.get('/admin/stats').then(res => setStats(res.data)),
+      api.get('/admin/audit-log?limit=5').then(res => setRecentAudit(res.data.entries)),
+    ])
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -169,6 +233,33 @@ function DashboardView() {
         <SystemHealth />
         <QuotaDisplay />
       </div>
+
+      {/* Recent Activity */}
+      {recentAudit.length > 0 && (
+        <div className="card">
+          <h3 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Activity size={14} />
+            Posljednje aktivnosti
+          </h3>
+          <div className="space-y-2">
+            {recentAudit.map(e => (
+              <div key={e.id} className="flex items-center justify-between p-2 bg-studio-surface-1 rounded-lg">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[10px] font-bold text-brand-blue">{e.user_email?.[0]?.toUpperCase() || '?'}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-studio-text-primary truncate">
+                      {e.user_email} — {ACTION_LABELS[e.action] || e.action}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[10px] text-studio-text-tertiary flex-shrink-0 ml-2">{relativeTime(e.created_at)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -178,7 +269,8 @@ function DashboardView() {
 // ---------------------------------------------------------------------------
 
 function UsersView() {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, impersonate } = useAuth()
+  const navigate = useNavigate()
   const [users, setUsers] = useState<UserRecord[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -273,6 +365,18 @@ function UsersView() {
     setEditForm({ full_name: u.full_name, role: u.role, is_active: u.is_active })
   }
 
+  const handleImpersonate = async (userId: string) => {
+    setError('')
+    try {
+      const res = await api.post(`/admin/impersonate/${userId}`)
+      const { access_token, user: userData } = res.data
+      impersonate(access_token, userData)
+      navigate('/')
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Greška pri impersonaciji')
+    }
+  }
+
   const handleMembershipRoleChange = async (membershipId: string) => {
     setError('')
     try {
@@ -349,7 +453,8 @@ function UsersView() {
                 <th className="pb-3 font-medium hidden sm:table-cell">Email</th>
                 <th className="pb-3 font-medium">Uloga</th>
                 <th className="pb-3 font-medium hidden md:table-cell">Status</th>
-                <th className="pb-3 font-medium hidden lg:table-cell">Zadnja prijava</th>
+                <th className="pb-3 font-medium hidden md:table-cell">Klijenti</th>
+                <th className="pb-3 font-medium hidden lg:table-cell">Zadnja aktivnost</th>
                 <th className="pb-3 font-medium text-right">Akcije</th>
               </tr>
             </thead>
@@ -403,8 +508,11 @@ function UsersView() {
                         </span>
                       )}
                     </td>
+                    <td className="py-3 hidden md:table-cell">
+                      <span className="text-sm text-studio-text-primary">{u.client_count}</span>
+                    </td>
                     <td className="py-3 text-studio-text-tertiary text-xs hidden lg:table-cell">
-                      {u.last_login ? new Date(u.last_login).toLocaleDateString('hr-HR') : 'Nikad'}
+                      {relativeTime(u.last_login)}
                     </td>
                     <td className="py-3 text-right" onClick={e => e.stopPropagation()}>
                       {editingId === u.id ? (
@@ -414,6 +522,11 @@ function UsersView() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-1 justify-end">
+                          {u.id !== currentUser?.id && u.is_active && !u.is_superadmin && (
+                            <button onClick={() => handleImpersonate(u.id)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-amber-500/10 hover:text-amber-400" title="Prijavi se kao ovaj korisnik">
+                              <LogIn className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                           <button onClick={() => startEdit(u)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-white/5 hover:text-studio-text-secondary" title="Uredi"><Edit2 className="w-3.5 h-3.5" /></button>
                           {u.id !== currentUser?.id && u.is_active && (
                             <button onClick={() => handleDeactivate(u.id)} className="p-1.5 rounded-lg text-studio-text-tertiary hover:bg-red-500/10 hover:text-red-400" title="Deaktiviraj"><UserX className="w-3.5 h-3.5" /></button>
@@ -426,7 +539,7 @@ function UsersView() {
                   {/* Expanded drill-down */}
                   {expandedUserId === u.id && (
                     <tr key={`${u.id}-detail`}>
-                      <td colSpan={7} className="p-0">
+                      <td colSpan={8} className="p-0">
                         <div className="bg-studio-surface-0 border-t border-b border-studio-border px-6 py-4">
                           {detailLoading ? (
                             <div className="space-y-2">
@@ -518,7 +631,7 @@ function UsersView() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-studio-text-tertiary">
+                  <td colSpan={8} className="py-12 text-center text-studio-text-tertiary">
                     <Users className="w-8 h-8 mx-auto mb-2 text-studio-text-disabled" />
                     Nema korisnika
                   </td>
@@ -540,18 +653,30 @@ function ClientsView() {
   const [clients, setClients] = useState<ClientRecord[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Drill-down
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
   const [clientDetail, setClientDetail] = useState<ClientDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  useEffect(() => {
-    api.get('/admin/clients')
-      .then(res => { setClients(res.data.clients); setTotal(res.data.total) })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+  // Subscription editing
+  const [editingSub, setEditingSub] = useState(false)
+  const [subForm, setSubForm] = useState({ plan: 'free', ai_credits_total: 1000, ai_credits_used: 0, plan_expires_at: '' })
+
+  const fetchClients = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/clients')
+      setClients(res.data.clients)
+      setTotal(res.data.total)
+    } catch {
+      setError('Greška pri dohvaćanju klijenata')
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => { fetchClients() }, [fetchClients])
 
   const fetchClientDetail = useCallback(async (clientId: string) => {
     setDetailLoading(true)
@@ -559,7 +684,7 @@ function ClientsView() {
       const res = await api.get(`/admin/clients/${clientId}/detail`)
       setClientDetail(res.data)
     } catch {
-      // silently fail
+      setError('Greška pri dohvaćanju detalja klijenta')
     } finally {
       setDetailLoading(false)
     }
@@ -569,9 +694,39 @@ function ClientsView() {
     if (expandedClientId === clientId) {
       setExpandedClientId(null)
       setClientDetail(null)
+      setEditingSub(false)
     } else {
       setExpandedClientId(clientId)
+      setEditingSub(false)
       fetchClientDetail(clientId)
+    }
+  }
+
+  const startEditSub = (c: ClientDetail) => {
+    setEditingSub(true)
+    setSubForm({
+      plan: c.plan,
+      ai_credits_total: c.ai_credits_total,
+      ai_credits_used: c.ai_credits_used,
+      plan_expires_at: c.plan_expires_at ? c.plan_expires_at.split('T')[0] ?? '' : '',
+    })
+  }
+
+  const handleSaveSub = async () => {
+    if (!expandedClientId) return
+    setError('')
+    try {
+      await api.put(`/admin/clients/${expandedClientId}/subscription`, {
+        plan: subForm.plan,
+        ai_credits_total: subForm.ai_credits_total,
+        ai_credits_used: subForm.ai_credits_used,
+        plan_expires_at: subForm.plan_expires_at || null,
+      })
+      setEditingSub(false)
+      fetchClientDetail(expandedClientId)
+      fetchClients()
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Greška pri ažuriranju pretplate')
     }
   }
 
@@ -586,183 +741,424 @@ function ClientsView() {
   }
 
   return (
-    <div className="card overflow-x-auto">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
-          {total} klijenata ukupno
-        </span>
-      </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-studio-text-tertiary border-b border-studio-border">
-            <th className="pb-3 font-medium w-8"></th>
-            <th className="pb-3 font-medium">Klijent</th>
-            <th className="pb-3 font-medium hidden sm:table-cell">Slug</th>
-            <th className="pb-3 font-medium">Članovi</th>
-            <th className="pb-3 font-medium hidden md:table-cell">Projekti</th>
-            <th className="pb-3 font-medium hidden lg:table-cell">Onboarding</th>
-            <th className="pb-3 font-medium hidden lg:table-cell">Kreiran</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-studio-border">
-          {clients.map(c => (
-            <>
-              <tr
-                key={c.id}
-                className={clsx('hover:bg-studio-surface-1 cursor-pointer transition-colors', expandedClientId === c.id && 'bg-studio-surface-1')}
-                onClick={() => toggleExpand(c.id)}
-              >
-                <td className="py-3 pl-1">
-                  {expandedClientId === c.id
-                    ? <ChevronDown className="w-4 h-4 text-studio-text-tertiary" />
-                    : <ChevronRight className="w-4 h-4 text-studio-text-tertiary" />
-                  }
-                </td>
-                <td className="py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-brand-accent/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-brand-accent">{c.name?.[0]?.toUpperCase() || 'K'}</span>
-                    </div>
-                    <span className={clsx('font-medium text-studio-text-primary', !c.is_active && 'text-studio-text-disabled line-through')}>
-                      {c.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-3 text-studio-text-tertiary text-xs hidden sm:table-cell">{c.slug}</td>
-                <td className="py-3">
-                  <span className="text-sm text-studio-text-primary">{c.member_count}</span>
-                </td>
-                <td className="py-3 hidden md:table-cell">
-                  <span className="text-sm text-studio-text-primary">{c.project_count}</span>
-                </td>
-                <td className="py-3 hidden lg:table-cell">
-                  <span className={clsx(
-                    'text-xs font-medium',
-                    c.onboarding_completed ? 'text-emerald-400' : 'text-amber-400'
-                  )}>
-                    {c.onboarding_completed ? 'Da' : 'Ne'}
-                  </span>
-                </td>
-                <td className="py-3 text-studio-text-tertiary text-xs hidden lg:table-cell">
-                  {new Date(c.created_at).toLocaleDateString('hr-HR')}
+    <div className="space-y-4">
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
+          {error}
+          <button onClick={() => setError('')} className="float-right text-red-400 hover:text-red-300"><X className="w-4 h-4" /></button>
+        </div>
+      )}
+      <div className="card overflow-x-auto">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
+            {total} klijenata ukupno
+          </span>
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-studio-text-tertiary border-b border-studio-border">
+              <th className="pb-3 font-medium w-8"></th>
+              <th className="pb-3 font-medium">Klijent</th>
+              <th className="pb-3 font-medium hidden sm:table-cell">Vlasnik</th>
+              <th className="pb-3 font-medium">Plan</th>
+              <th className="pb-3 font-medium hidden md:table-cell">AI Krediti</th>
+              <th className="pb-3 font-medium hidden md:table-cell">Članovi</th>
+              <th className="pb-3 font-medium hidden lg:table-cell">Istječe</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-studio-border">
+            {clients.map(c => {
+              const creditsPercent = c.ai_credits_total > 0 ? Math.round((c.ai_credits_used / c.ai_credits_total) * 100) : 0
+              return (
+                <>
+                  <tr
+                    key={c.id}
+                    className={clsx('hover:bg-studio-surface-1 cursor-pointer transition-colors', expandedClientId === c.id && 'bg-studio-surface-1')}
+                    onClick={() => toggleExpand(c.id)}
+                  >
+                    <td className="py-3 pl-1">
+                      {expandedClientId === c.id
+                        ? <ChevronDown className="w-4 h-4 text-studio-text-tertiary" />
+                        : <ChevronRight className="w-4 h-4 text-studio-text-tertiary" />
+                      }
+                    </td>
+                    <td className="py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-brand-accent/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-bold text-brand-accent">{c.name?.[0]?.toUpperCase() || 'K'}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <span className={clsx('font-medium text-studio-text-primary block truncate', !c.is_active && 'text-studio-text-disabled line-through')}>
+                            {c.name}
+                          </span>
+                          <span className="text-[10px] text-studio-text-tertiary">{c.slug}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 hidden sm:table-cell">
+                      {c.primary_admin_name ? (
+                        <div className="flex items-center gap-1.5">
+                          <Crown size={12} className="text-amber-400 flex-shrink-0" />
+                          <span className="text-xs text-studio-text-secondary truncate">{c.primary_admin_name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-studio-text-disabled">—</span>
+                      )}
+                    </td>
+                    <td className="py-3">
+                      <span className={clsx('badge', PLAN_COLORS[c.plan] || PLAN_COLORS.free)}>
+                        {PLAN_LABELS[c.plan] || c.plan}
+                      </span>
+                    </td>
+                    <td className="py-3 hidden md:table-cell">
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-1.5 bg-studio-border rounded-full overflow-hidden">
+                          <div
+                            className={clsx('h-full rounded-full', creditsPercent > 80 ? 'bg-red-400' : creditsPercent > 50 ? 'bg-amber-400' : 'bg-emerald-400')}
+                            style={{ width: `${Math.min(creditsPercent, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-studio-text-tertiary whitespace-nowrap">{c.ai_credits_used}/{c.ai_credits_total}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 hidden md:table-cell">
+                      <span className="text-sm text-studio-text-primary">{c.member_count}</span>
+                    </td>
+                    <td className="py-3 text-studio-text-tertiary text-xs hidden lg:table-cell">
+                      {c.plan_expires_at ? new Date(c.plan_expires_at).toLocaleDateString('hr-HR') : '∞'}
+                    </td>
+                  </tr>
+
+                  {/* Expanded drill-down */}
+                  {expandedClientId === c.id && (
+                    <tr key={`${c.id}-detail`}>
+                      <td colSpan={7} className="p-0">
+                        <div className="bg-studio-surface-0 border-t border-b border-studio-border px-6 py-4">
+                          {detailLoading ? (
+                            <div className="space-y-2">
+                              {[1, 2, 3].map(i => <div key={i} className="skeleton h-10 w-full rounded" />)}
+                            </div>
+                          ) : clientDetail ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                              {/* Subscription management */}
+                              <div>
+                                <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                  <Zap size={14} />
+                                  Pretplata
+                                </h4>
+                                {editingSub ? (
+                                  <div className="space-y-2">
+                                    <select value={subForm.plan} onChange={e => setSubForm({ ...subForm, plan: e.target.value })} className="w-full px-2 py-1.5 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs">
+                                      <option value="free">Free</option>
+                                      <option value="pro">Pro</option>
+                                      <option value="enterprise">Enterprise</option>
+                                    </select>
+                                    <div>
+                                      <label className="text-[10px] text-studio-text-tertiary">AI Krediti (ukupno)</label>
+                                      <input type="number" value={subForm.ai_credits_total} onChange={e => setSubForm({ ...subForm, ai_credits_total: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs" />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-studio-text-tertiary">AI Krediti (potrošeno)</label>
+                                      <input type="number" value={subForm.ai_credits_used} onChange={e => setSubForm({ ...subForm, ai_credits_used: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs" />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-studio-text-tertiary">Datum isteka</label>
+                                      <input type="date" value={subForm.plan_expires_at} onChange={e => setSubForm({ ...subForm, plan_expires_at: e.target.value })} className="w-full px-2 py-1 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded text-xs" />
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <button onClick={handleSaveSub} className="p-1 rounded text-emerald-400 hover:bg-emerald-500/10" title="Spremi"><Check className="w-3.5 h-3.5" /></button>
+                                      <button onClick={() => setEditingSub(false)} className="p-1 rounded text-studio-text-tertiary hover:bg-white/5" title="Odustani"><X className="w-3.5 h-3.5" /></button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2">
+                                    <div className="p-2 bg-studio-surface-1 rounded-lg">
+                                      <p className="text-[10px] text-studio-text-tertiary uppercase">Plan</p>
+                                      <span className={clsx('badge mt-1', PLAN_COLORS[clientDetail.plan] || PLAN_COLORS.free)}>
+                                        {PLAN_LABELS[clientDetail.plan] || clientDetail.plan}
+                                      </span>
+                                    </div>
+                                    <div className="p-2 bg-studio-surface-1 rounded-lg">
+                                      <p className="text-[10px] text-studio-text-tertiary uppercase">AI Krediti</p>
+                                      <p className="text-xs font-medium text-studio-text-primary mt-0.5">{clientDetail.ai_credits_used} / {clientDetail.ai_credits_total}</p>
+                                    </div>
+                                    <div className="p-2 bg-studio-surface-1 rounded-lg">
+                                      <p className="text-[10px] text-studio-text-tertiary uppercase">Istječe</p>
+                                      <p className="text-xs font-medium text-studio-text-primary mt-0.5">
+                                        {clientDetail.plan_expires_at ? new Date(clientDetail.plan_expires_at).toLocaleDateString('hr-HR') : 'Bez isteka'}
+                                      </p>
+                                    </div>
+                                    <button onClick={() => startEditSub(clientDetail)} className="text-xs text-brand-blue hover:underline flex items-center gap-1">
+                                      <Edit2 size={10} /> Uredi pretplatu
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Members */}
+                              <div>
+                                <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                  <Users size={14} />
+                                  Članovi tima ({clientDetail.members.length})
+                                </h4>
+                                {clientDetail.members.length === 0 ? (
+                                  <p className="text-xs text-studio-text-tertiary">Nema članova</p>
+                                ) : (
+                                  <div className="space-y-1.5">
+                                    {clientDetail.members.map(m => (
+                                      <div key={m.user_id} className="flex items-center justify-between p-2 bg-studio-surface-1 rounded-lg">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-[10px] font-bold text-brand-blue">{m.full_name?.[0] || '?'}</span>
+                                          </div>
+                                          <div className="min-w-0">
+                                            <p className="text-xs font-medium text-studio-text-primary truncate">{m.full_name}</p>
+                                            <p className="text-[10px] text-studio-text-tertiary truncate">{m.email}</p>
+                                          </div>
+                                        </div>
+                                        <span className={clsx('badge text-[10px]', ROLE_COLORS[m.role] || ROLE_COLORS.viewer)}>
+                                          {ROLE_LABELS[m.role] || m.role}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Projects */}
+                              <div>
+                                <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                  <FolderKanban size={14} />
+                                  Projekti ({clientDetail.projects.length})
+                                </h4>
+                                {clientDetail.projects.length === 0 ? (
+                                  <p className="text-xs text-studio-text-tertiary">Nema projekata</p>
+                                ) : (
+                                  <div className="space-y-1.5">
+                                    {clientDetail.projects.map(p => (
+                                      <div key={p.id} className="p-2 bg-studio-surface-1 rounded-lg">
+                                        <p className="text-xs font-medium text-studio-text-primary">{p.name}</p>
+                                        <p className="text-[10px] text-studio-text-tertiary">{p.slug}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* AI Context */}
+                              <div>
+                                <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                  <Palette size={14} />
+                                  AI Kontekst
+                                </h4>
+                                <div className="space-y-3">
+                                  {clientDetail.business_description && (
+                                    <div>
+                                      <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Opis poslovanja</p>
+                                      <p className="text-xs text-studio-text-secondary line-clamp-3">{clientDetail.business_description}</p>
+                                    </div>
+                                  )}
+                                  {clientDetail.tone_of_voice && (
+                                    <div>
+                                      <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Ton komunikacije</p>
+                                      <p className="text-xs text-studio-text-secondary line-clamp-2">{clientDetail.tone_of_voice}</p>
+                                    </div>
+                                  )}
+                                  {clientDetail.target_audience && (
+                                    <div>
+                                      <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Ciljna publika</p>
+                                      <p className="text-xs text-studio-text-secondary line-clamp-2">{clientDetail.target_audience}</p>
+                                    </div>
+                                  )}
+                                  {clientDetail.website_url && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Globe size={12} className="text-studio-text-tertiary" />
+                                      <a href={clientDetail.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-blue hover:underline truncate">{clientDetail.website_url}</a>
+                                    </div>
+                                  )}
+                                  {!clientDetail.business_description && !clientDetail.tone_of_voice && !clientDetail.target_audience && (
+                                    <p className="text-xs text-studio-text-tertiary">AI kontekst nije konfiguriran</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )
+            })}
+            {clients.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-studio-text-tertiary">
+                  <Building2 className="w-8 h-8 mx-auto mb-2 text-studio-text-disabled" />
+                  Nema klijenata
                 </td>
               </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
 
-              {/* Expanded drill-down */}
-              {expandedClientId === c.id && (
-                <tr key={`${c.id}-detail`}>
-                  <td colSpan={7} className="p-0">
-                    <div className="bg-studio-surface-0 border-t border-b border-studio-border px-6 py-4">
-                      {detailLoading ? (
-                        <div className="space-y-2">
-                          {[1, 2, 3].map(i => <div key={i} className="skeleton h-10 w-full rounded" />)}
-                        </div>
-                      ) : clientDetail ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                          {/* Members */}
-                          <div>
-                            <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                              <Users size={14} />
-                              Članovi tima ({clientDetail.members.length})
-                            </h4>
-                            {clientDetail.members.length === 0 ? (
-                              <p className="text-xs text-studio-text-tertiary">Nema članova</p>
-                            ) : (
-                              <div className="space-y-1.5">
-                                {clientDetail.members.map(m => (
-                                  <div key={m.user_id} className="flex items-center justify-between p-2 bg-studio-surface-1 rounded-lg">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
-                                        <span className="text-[10px] font-bold text-brand-blue">{m.full_name?.[0] || '?'}</span>
-                                      </div>
-                                      <div className="min-w-0">
-                                        <p className="text-xs font-medium text-studio-text-primary truncate">{m.full_name}</p>
-                                        <p className="text-[10px] text-studio-text-tertiary truncate">{m.email}</p>
-                                      </div>
-                                    </div>
-                                    <span className={clsx('badge text-[10px]', ROLE_COLORS[m.role] || ROLE_COLORS.viewer)}>
-                                      {ROLE_LABELS[m.role] || m.role}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+// ---------------------------------------------------------------------------
+// Audit Log View
+// ---------------------------------------------------------------------------
 
-                          {/* Projects */}
-                          <div>
-                            <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                              <FolderKanban size={14} />
-                              Projekti ({clientDetail.projects.length})
-                            </h4>
-                            {clientDetail.projects.length === 0 ? (
-                              <p className="text-xs text-studio-text-tertiary">Nema projekata</p>
-                            ) : (
-                              <div className="space-y-1.5">
-                                {clientDetail.projects.map(p => (
-                                  <div key={p.id} className="p-2 bg-studio-surface-1 rounded-lg">
-                                    <p className="text-xs font-medium text-studio-text-primary">{p.name}</p>
-                                    <p className="text-[10px] text-studio-text-tertiary">{p.slug}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+function AuditLogView() {
+  const [entries, setEntries] = useState<AuditEntry[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const [actionFilter, setActionFilter] = useState('')
+  const pageSize = 30
 
-                          {/* AI Context */}
-                          <div>
-                            <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                              <Palette size={14} />
-                              AI Kontekst
-                            </h4>
-                            <div className="space-y-3">
-                              {clientDetail.business_description && (
-                                <div>
-                                  <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Opis poslovanja</p>
-                                  <p className="text-xs text-studio-text-secondary line-clamp-3">{clientDetail.business_description}</p>
-                                </div>
-                              )}
-                              {clientDetail.tone_of_voice && (
-                                <div>
-                                  <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Ton komunikacije</p>
-                                  <p className="text-xs text-studio-text-secondary line-clamp-2">{clientDetail.tone_of_voice}</p>
-                                </div>
-                              )}
-                              {clientDetail.target_audience && (
-                                <div>
-                                  <p className="text-[10px] font-medium text-studio-text-tertiary uppercase tracking-wider mb-0.5">Ciljna publika</p>
-                                  <p className="text-xs text-studio-text-secondary line-clamp-2">{clientDetail.target_audience}</p>
-                                </div>
-                              )}
-                              {clientDetail.website_url && (
-                                <div className="flex items-center gap-1.5">
-                                  <Globe size={12} className="text-studio-text-tertiary" />
-                                  <a href={clientDetail.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-blue hover:underline truncate">{clientDetail.website_url}</a>
-                                </div>
-                              )}
-                              {!clientDetail.business_description && !clientDetail.tone_of_voice && !clientDetail.target_audience && (
-                                <p className="text-xs text-studio-text-tertiary">AI kontekst nije konfiguriran</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
+  const fetchEntries = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({ skip: String(page * pageSize), limit: String(pageSize) })
+      if (actionFilter) params.set('action', actionFilter)
+      const res = await api.get(`/admin/audit-log?${params}`)
+      setEntries(res.data.entries)
+      setTotal(res.data.total)
+    } catch {
+      // silent
+    } finally {
+      setLoading(false)
+    }
+  }, [page, actionFilter])
+
+  useEffect(() => { fetchEntries() }, [fetchEntries])
+
+  const totalPages = Math.ceil(total / pageSize)
+  const actionTypes = [
+    '', 'user.login', 'user.create', 'user.update', 'user.deactivate',
+    'user.impersonate', 'membership.role_change', 'membership.remove',
+    'client.subscription_change',
+  ]
+
+  function formatDetails(entry: AuditEntry): string {
+    if (!entry.details) return ''
+    const d = entry.details
+    if (entry.action === 'membership.role_change') {
+      return `${d.old_role} → ${d.new_role}`
+    }
+    if (entry.action === 'user.impersonate') {
+      return d.target_email || d.target_name || ''
+    }
+    if (entry.action === 'user.create') {
+      return `${d.email} (${d.role})`
+    }
+    if (entry.action === 'user.deactivate') {
+      return d.email || d.full_name || ''
+    }
+    if (entry.action === 'client.subscription_change') {
+      const parts: string[] = []
+      if (d.plan) parts.push(`plan: ${d.plan.old}→${d.plan.new}`)
+      if (d.ai_credits_total) parts.push(`krediti: ${d.ai_credits_total.new}`)
+      return parts.join(', ')
+    }
+    return ''
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Filter */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
+          {total} zapisa ukupno
+        </span>
+        <select
+          value={actionFilter}
+          onChange={e => { setActionFilter(e.target.value); setPage(0) }}
+          className="px-3 py-1.5 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded-lg text-xs"
+        >
+          <option value="">Sve akcije</option>
+          {actionTypes.filter(Boolean).map(a => (
+            <option key={a} value={a}>{ACTION_LABELS[a] || a}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Table */}
+      <div className="card overflow-x-auto">
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => <div key={i} className="skeleton h-10 w-full rounded-lg" />)}
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-studio-text-tertiary border-b border-studio-border">
+                <th className="pb-3 font-medium">Vrijeme</th>
+                <th className="pb-3 font-medium">Korisnik</th>
+                <th className="pb-3 font-medium">Akcija</th>
+                <th className="pb-3 font-medium hidden md:table-cell">Detalji</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-studio-border">
+              {entries.map(e => (
+                <tr key={e.id} className="hover:bg-studio-surface-1 transition-colors">
+                  <td className="py-3 text-xs text-studio-text-tertiary whitespace-nowrap">
+                    {relativeTime(e.created_at)}
+                  </td>
+                  <td className="py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px] font-bold text-brand-blue">{e.user_email?.[0]?.toUpperCase() || '?'}</span>
+                      </div>
+                      <span className="text-xs text-studio-text-secondary truncate">{e.user_email}</span>
                     </div>
+                  </td>
+                  <td className="py-3">
+                    <span className="badge bg-white/5 text-studio-text-secondary text-[10px]">
+                      {ACTION_LABELS[e.action] || e.action}
+                    </span>
+                  </td>
+                  <td className="py-3 text-xs text-studio-text-tertiary hidden md:table-cell truncate max-w-[200px]">
+                    {formatDetails(e)}
+                  </td>
+                </tr>
+              ))}
+              {entries.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-12 text-center text-studio-text-tertiary">
+                    <FileText className="w-8 h-8 mx-auto mb-2 text-studio-text-disabled" />
+                    Nema zapisa
                   </td>
                 </tr>
               )}
-            </>
-          ))}
-          {clients.length === 0 && (
-            <tr>
-              <td colSpan={7} className="py-12 text-center text-studio-text-tertiary">
-                <Building2 className="w-8 h-8 mx-auto mb-2 text-studio-text-disabled" />
-                Nema klijenata
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="px-3 py-1.5 text-xs rounded-lg bg-studio-surface-1 border border-studio-border text-studio-text-secondary hover:bg-studio-surface-2 disabled:opacity-40"
+          >
+            Prethodna
+          </button>
+          <span className="text-xs text-studio-text-tertiary">
+            {page + 1} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            className="px-3 py-1.5 text-xs rounded-lg bg-studio-surface-1 border border-studio-border text-studio-text-secondary hover:bg-studio-surface-2 disabled:opacity-40"
+          >
+            Sljedeća
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -778,6 +1174,7 @@ export default function Admin() {
   const view: ViewKey =
     location.pathname === '/admin/users' ? 'users' :
     location.pathname === '/admin/clients' ? 'clients' :
+    location.pathname === '/admin/audit' ? 'audit' :
     'dashboard'
 
   if (!currentUser?.is_superadmin) {
@@ -833,6 +1230,7 @@ export default function Admin() {
         {view === 'dashboard' && <DashboardView />}
         {view === 'users' && <UsersView />}
         {view === 'clients' && <ClientsView />}
+        {view === 'audit' && <AuditLogView />}
       </div>
     </div>
   )

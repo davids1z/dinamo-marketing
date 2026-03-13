@@ -1,8 +1,9 @@
 """Multi-tenant client model and user-client junction."""
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import Boolean, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,6 +38,12 @@ class Client(BaseModel):
 
     # Onboarding
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Subscription / plan
+    plan: Mapped[str] = mapped_column(String(20), nullable=False, default="free")  # free, pro, enterprise
+    plan_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ai_credits_total: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
+    ai_credits_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     # Relationships
     members: Mapped[list["UserClient"]] = relationship(

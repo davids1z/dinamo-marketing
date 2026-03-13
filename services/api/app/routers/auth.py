@@ -77,6 +77,11 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
         )
 
     user.last_login = datetime.now(timezone.utc)
+
+    # Audit log
+    from app.services.audit_service import log_action
+    await log_action(db, user, "user.login", "user", user.id)
+
     await db.commit()
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
