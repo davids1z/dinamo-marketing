@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react'
 import {
   Brain, Palette, FolderKanban, ChevronRight, ChevronLeft, Check,
-  Sparkles, Zap, BarChart3, MessageSquare,
+  Sparkles, Zap, BarChart3, MessageSquare, Building2,
 } from 'lucide-react'
 import api from '../api/client'
 import { useClient } from '../contexts/ClientContext'
 
 /* ------------------------------------------------------------------ */
-/*  3-step AI-focused onboarding wizard                                */
+/*  4-step onboarding wizard (Step 0: org creation if no client)       */
 /* ------------------------------------------------------------------ */
 
-const STEPS = [
+const WIZARD_STEPS = [
+  { label: 'Organizacija', icon: Building2 },
+  { label: 'Nahrani AI', icon: Brain },
+  { label: 'Identitet', icon: Palette },
+  { label: 'Projekt', icon: FolderKanban },
+]
+
+const AI_STEPS = [
   { label: 'Nahrani AI', icon: Brain },
   { label: 'Identitet', icon: Palette },
   { label: 'Projekt', icon: FolderKanban },
@@ -28,6 +35,8 @@ const TONES = [
 ]
 
 interface FormData {
+  // Step 0: Organization
+  company_name: string
   // Step 1: AI context
   business_description: string
   product_info: string
@@ -47,13 +56,17 @@ interface FormData {
 }
 
 export default function Onboarding() {
-  const [step, setStep] = useState(0)
+  const { currentClient } = useClient()
+  const hasClient = !!currentClient
+
+  // If user already has a client, skip step 0 (organization creation)
+  const [step, setStep] = useState(hasClient ? 1 : 0)
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
-  const { currentClient } = useClient()
 
   const [form, setForm] = useState<FormData>({
+    company_name: '',
     business_description: '',
     product_info: '',
     target_audience: '',
@@ -73,14 +86,41 @@ export default function Onboarding() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
+  // Active steps depend on whether we need org creation
+  const steps = hasClient ? AI_STEPS : WIZARD_STEPS
+  const displayStep = hasClient ? step - 1 : step // map to steps array index
+
+  const handleCreateOrganization = async () => {
+    if (!form.company_name.trim()) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.post('/auth/create-organization', {
+        company_name: form.company_name.trim(),
+      })
+      // Set the new client in context
+      localStorage.setItem('current_client_id', res.data.client_id)
+      if (res.data.projects?.[0]) {
+        localStorage.setItem('current_project_id', res.data.projects[0].project_id)
+      }
+      // Move to next step
+      setStep(1)
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Greška pri kreiranju organizacije')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleFinish = async () => {
-    if (!currentClient) return
+    const clientId = currentClient?.client_id || localStorage.getItem('current_client_id')
+    if (!clientId) return
     setLoading(true)
     setError('')
 
     try {
       // 1. Save brand profile
-      await api.put(`/clients/${currentClient.client_id}`, {
+      await api.put(`/clients/${clientId}`, {
         business_description: form.business_description,
         product_info: form.product_info,
         website_url: form.website_url,
@@ -95,7 +135,7 @@ export default function Onboarding() {
       })
 
       // 2. Complete onboarding
-      await api.post(`/clients/${currentClient.client_id}/onboarding/complete`, {})
+      await api.post(`/clients/${clientId}/onboarding/complete`, {})
 
       // 3. Create named project if user specified one
       if (form.project_name.trim() && form.project_name.trim().toLowerCase() !== 'default') {
@@ -117,7 +157,7 @@ export default function Onboarding() {
     }
   }
 
-  // AI analyzing → redirect after delay
+  // AI analyzing -> redirect after delay
   useEffect(() => {
     if (!analyzing) return
     const timer = setTimeout(() => {
@@ -128,9 +168,10 @@ export default function Onboarding() {
 
   const canProceed = () => {
     switch (step) {
-      case 0: return form.business_description.trim().length >= 20
-      case 1: return true
+      case 0: return form.company_name.trim().length >= 2
+      case 1: return form.business_description.trim().length >= 20
       case 2: return true
+      case 3: return true
       default: return true
     }
   }
@@ -178,43 +219,44 @@ export default function Onboarding() {
   /* ------------------------------------------------------------------ */
   return (
     <div className="min-h-screen bg-studio-base flex flex-col">
-      {/* Header with client name + progress */}
+      {/* Header with progress */}
       <div className="bg-studio-surface-1 border-b border-studio-border px-6 py-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center">
                 <span className="font-headline text-xs text-white font-bold">
-                  {currentClient?.client_name?.charAt(0)?.toUpperCase() || 'S'}
+                  {currentClient?.client_name?.charAt(0)?.toUpperCase() || form.company_name?.charAt(0)?.toUpperCase() || 'S'}
                 </span>
               </div>
               <div>
                 <h1 className="font-headline text-lg text-studio-text-primary font-bold leading-tight">
-                  {currentClient?.client_name || 'Postavljanje'}
+                  {currentClient?.client_name || form.company_name || 'Postavljanje'}
                 </h1>
                 <p className="text-xs text-studio-text-tertiary">Postavljanje profila</p>
               </div>
             </div>
-            <span className="text-sm text-studio-text-tertiary font-mono">{step + 1} / {STEPS.length}</span>
+            <span className="text-sm text-studio-text-tertiary font-mono">{displayStep + 1} / {steps.length}</span>
           </div>
 
           {/* Step tabs */}
           <div className="flex gap-2">
-            {STEPS.map((s, i) => {
+            {steps.map((s, i) => {
               const Icon = s.icon
+              const actualStep = hasClient ? i + 1 : i
               return (
                 <button
                   key={i}
-                  onClick={() => i < step && setStep(i)}
+                  onClick={() => actualStep < step && setStep(actualStep)}
                   className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    i === step
+                    actualStep === step
                       ? 'bg-brand-accent text-white'
-                      : i < step
+                      : actualStep < step
                         ? 'bg-brand-accent/20 text-brand-accent cursor-pointer'
                         : 'bg-studio-surface-2 text-studio-text-tertiary'
                   }`}
                 >
-                  {i < step ? <Check size={16} /> : <Icon size={16} />}
+                  {actualStep < step ? <Check size={16} /> : <Icon size={16} />}
                   <span className="hidden sm:inline">{s.label}</span>
                 </button>
               )
@@ -233,8 +275,45 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* ---- STEP 1: Nahrani AI ---- */}
+          {/* ---- STEP 0: Kreiraj organizaciju ---- */}
           {step === 0 && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-sky-500/10 to-indigo-500/10 rounded-2xl p-6 border border-sky-200/30">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-sky-600" />
+                  </div>
+                  <div>
+                    <h2 className="font-headline text-xl text-studio-text-primary mb-1">Kreirajte svoju organizaciju</h2>
+                    <p className="text-sm text-studio-text-secondary leading-relaxed">
+                      Organizacija je prostor u kojem upravljate brandovima, projektima i timom.
+                      Možete pozvati kolege i partnere da vam se pridruže.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
+                <label className="block text-sm font-semibold text-studio-text-primary mb-2">
+                  Naziv tvrtke ili organizacije *
+                </label>
+                <p className="text-xs text-studio-text-tertiary mb-3">
+                  Ovo je ime pod kojim ćete se voditi u sustavu. Možete ga promijeniti kasnije.
+                </p>
+                <input
+                  type="text"
+                  value={form.company_name}
+                  onChange={e => updateField('company_name', e.target.value)}
+                  className="w-full px-4 py-3.5 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
+                  placeholder="Npr. Moja Agencija d.o.o."
+                  autoFocus
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ---- STEP 1: Nahrani AI ---- */}
+          {step === 1 && (
             <div className="space-y-6">
               {/* Hero message */}
               <div className="bg-gradient-to-br from-brand-accent/10 to-studio-ai-purple/10 rounded-2xl p-6 border border-brand-accent/20">
@@ -338,7 +417,7 @@ export default function Onboarding() {
           )}
 
           {/* ---- STEP 2: Vizualni identitet + mreže ---- */}
-          {step === 1 && (
+          {step === 2 && (
             <div className="space-y-6">
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
                 <h2 className="font-headline text-xl text-studio-text-primary mb-1">Vizualni identitet</h2>
@@ -461,7 +540,7 @@ export default function Onboarding() {
           )}
 
           {/* ---- STEP 3: Project ---- */}
-          {step === 2 && (
+          {step === 3 && (
             <div className="space-y-6">
               <div className="bg-gradient-to-br from-studio-ai-purple/10 to-brand-accent/5 rounded-2xl p-6 border border-studio-ai-purple/20">
                 <div className="flex items-start gap-4">
@@ -538,14 +617,32 @@ export default function Onboarding() {
           <div className="flex items-center justify-between mt-6">
             <button
               onClick={() => setStep(s => s - 1)}
-              disabled={step === 0}
+              disabled={step === 0 || (hasClient && step === 1)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
               Natrag
             </button>
 
-            {step < STEPS.length - 1 ? (
+            {step === 0 ? (
+              <button
+                onClick={handleCreateOrganization}
+                disabled={!canProceed() || loading}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Kreiram...
+                  </>
+                ) : (
+                  <>
+                    Dalje
+                    <ChevronRight size={16} />
+                  </>
+                )}
+              </button>
+            ) : step < 3 ? (
               <button
                 onClick={() => setStep(s => s + 1)}
                 disabled={!canProceed()}

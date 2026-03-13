@@ -1,19 +1,16 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { UserPlus, Mail, KeyRound, User, Building2 } from 'lucide-react'
+import { UserPlus, Mail, KeyRound, User } from 'lucide-react'
 import api from '../api/client'
-import { useAuth } from '../contexts/AuthContext'
 
 export default function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
-  const [companyName, setCompanyName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -34,17 +31,10 @@ export default function Register() {
         email,
         password,
         full_name: fullName,
-        company_name: companyName,
       })
-      const { access_token, user } = res.data
+      const { access_token } = res.data
       localStorage.setItem('auth_token', access_token)
-      if (user.clients?.[0]) {
-        localStorage.setItem('current_client_id', user.clients[0].client_id)
-        if (user.clients[0].projects?.[0]) {
-          localStorage.setItem('current_project_id', user.clients[0].projects[0].project_id)
-        }
-      }
-      await login(email, password)
+      // No client yet — user goes to onboarding to create their organization
       navigate('/onboarding')
     } catch (err: any) {
       const detail = err.response?.data?.detail
@@ -127,7 +117,9 @@ export default function Register() {
             <h2 className="text-[22px] font-semibold text-slate-800 tracking-[-0.01em]" style={{ fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'none' as const }}>
               Kreirajte račun
             </h2>
-            <p className="text-[13px] text-slate-400 mt-1.5 text-center">Započnite s AI marketingom</p>
+            <p className="text-[13px] text-slate-400 mt-1.5 text-center leading-relaxed max-w-[280px]">
+              Započnite s AI marketingom
+            </p>
           </div>
 
           {error && (
@@ -136,40 +128,65 @@ export default function Register() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
-              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
                 className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
-                style={inputStyle} placeholder="Ime i prezime" />
-            </div>
-            <div className="relative">
-              <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
-              <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required
-                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
-                style={inputStyle} placeholder="Naziv tvrtke" />
+                style={inputStyle}
+                placeholder="Ime i prezime"
+              />
             </div>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
-                style={inputStyle} placeholder="E-mail adresa" />
+                style={inputStyle}
+                placeholder="E-mail adresa"
+              />
             </div>
             <div className="relative">
               <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
                 className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
-                style={inputStyle} placeholder="Lozinka (min. 6 znakova)" />
+                style={inputStyle}
+                placeholder="Lozinka (min. 6 znakova)"
+              />
             </div>
             <div className="relative">
               <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
                 className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
-                style={inputStyle} placeholder="Potvrdi lozinku" />
+                style={inputStyle}
+                placeholder="Potvrdi lozinku"
+              />
             </div>
-            <button type="submit" disabled={loading}
+
+            <button
+              type="submit"
+              disabled={loading}
               className="w-full py-3.5 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 active:scale-[0.98] mt-1"
-              style={{ background: 'linear-gradient(180deg, #2d3748 0%, #1a202c 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1)' }}
+              style={{
+                background: 'linear-gradient(180deg, #2d3748 0%, #1a202c 100%)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1)',
+              }}
             >
               {loading ? 'Registracija...' : 'Registriraj se'}
             </button>

@@ -37,6 +37,9 @@ class RegisterRequest(PydanticBase):
     email: str
     password: str
     full_name: str
+
+
+class CreateOrganizationRequest(PydanticBase):
     company_name: str
 
 
@@ -194,21 +197,73 @@ async def get_me(current_user: User = Depends(get_current_user), db: AsyncSessio
 
 @router.post("/register", status_code=201, response_model=TokenResponse)
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    """Self-service registration: creates user, client, default project, and membership."""
-    import re
+    """Self-service registration: creates user account only. Organization is created later in onboarding."""
 
     # Check if email already exists
     existing_user = await db.execute(select(User).where(User.email == body.email))
     if existing_user.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Korisnik s ovim e-mailom već postoji")
 
+    # Create user (no client/project — that happens in onboarding)
+    user = User(
+        email=body.email,
+        hashed_password=hash_password(body.password),
+        full_name=body.full_name,
+        role="admin",
+        is_active=True,
+        is_superadmin=False,
+    )
+    db.add(user)
+
+    # Audit log
+    from app.services.audit_service import log_action
+    await db.flush()
+    await log_action(db, user, "user.register", "user", user.id)
+
+    await db.commit()
+    await db.refresh(user)
+
+    logger.info("New registration: %s", body.email)
+
+    token = create_access_token(data={"sub": user.email, "role": user.role})
+
+    return TokenResponse(
+        access_token=token,
+        user={
+            "id": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role,
+            "is_superadmin": user.is_superadmin,
+            "is_active": user.is_active,
+            "clients": [],
+        },
+    )
+
+
+@router.post("/create-organization", status_code=201)
+async def create_organization(
+    body: CreateOrganizationRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create an organization (client) for the current user during onboarding."""
+    import re
+
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    # Check if user already has a client (prevent duplicate org creation)
+    existing_membership = await db.execute(
+        select(UserClient).where(UserClient.user_id == current_user.id)
+    )
+    if existing_membership.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Već imate organizaciju")
+
     # Generate slug from company name
     slug = re.sub(r"[^a-z0-9]+", "-", body.company_name.lower()).strip("-")
     if not slug:
         slug = "company"
-
-    from app.models.client import Client, UserClient
-    from app.models.project import Project
 
     # Ensure slug uniqueness
     base_slug = slug
@@ -219,18 +274,6 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
             break
         slug = f"{base_slug}-{counter}"
         counter += 1
-
-    # Create user
-    user = User(
-        email=body.email,
-        hashed_password=hash_password(body.password),
-        full_name=body.full_name,
-        role="admin",
-        is_active=True,
-        is_superadmin=False,
-    )
-    db.add(user)
-    await db.flush()
 
     # Create client (onboarding not completed)
     client = Client(
@@ -252,48 +295,39 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
     # Create membership (admin role)
     membership = UserClient(
-        user_id=user.id,
+        user_id=current_user.id,
         client_id=client.id,
         role="admin",
     )
     db.add(membership)
+
+    # Audit log
+    from app.services.audit_service import log_action
+    await log_action(db, current_user, "client.create", "client", client.id, {
+        "client_name": body.company_name, "client_slug": slug,
+    })
+
     await db.commit()
-    await db.refresh(user)
     await db.refresh(client)
     await db.refresh(project)
 
-    logger.info("New registration: %s (company=%s, slug=%s)", body.email, body.company_name, slug)
+    logger.info("Organization created: %s (slug=%s) by %s", body.company_name, slug, current_user.email)
 
-    token = create_access_token(data={"sub": user.email, "role": user.role})
-
-    return TokenResponse(
-        access_token=token,
-        user={
-            "id": str(user.id),
-            "email": user.email,
-            "full_name": user.full_name,
-            "role": user.role,
-            "is_superadmin": user.is_superadmin,
-            "is_active": user.is_active,
-            "clients": [
-                {
-                    "client_id": str(client.id),
-                    "client_name": client.name,
-                    "client_slug": client.slug,
-                    "client_logo_url": client.logo_url,
-                    "role": "admin",
-                    "onboarding_completed": False,
-                    "projects": [
-                        {
-                            "project_id": str(project.id),
-                            "project_name": project.name,
-                            "project_slug": project.slug,
-                        }
-                    ],
-                }
-            ],
-        },
-    )
+    return {
+        "client_id": str(client.id),
+        "client_name": client.name,
+        "client_slug": client.slug,
+        "client_logo_url": client.logo_url,
+        "role": "admin",
+        "onboarding_completed": False,
+        "projects": [
+            {
+                "project_id": str(project.id),
+                "project_name": project.name,
+                "project_slug": project.slug,
+            }
+        ],
+    }
 
 
 @router.post("/accept-invite", response_model=TokenResponse)
