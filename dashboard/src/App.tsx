@@ -37,6 +37,8 @@ const Team = lazy(() => import('./pages/Team'))
 const Register = lazy(() => import('./pages/Register'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 const InviteAccept = lazy(() => import('./pages/InviteAccept'))
+const WorkspaceSelector = lazy(() => import('./pages/WorkspaceSelector'))
+const GlobalDashboard = lazy(() => import('./pages/GlobalDashboard'))
 
 /** Minimal spinner for auth pages (Login, Register, Invite) */
 function PageLoader() {
@@ -61,11 +63,13 @@ export default function App() {
           <Route path="/register" element={<Suspense fallback={<PageLoader />}><Register /></Suspense>} />
           <Route path="/invite" element={<Suspense fallback={<PageLoader />}><InviteAccept /></Suspense>} />
           <Route path="/onboarding" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><Onboarding /></Suspense></ProtectedRoute>} />
+          <Route path="/workspace" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><WorkspaceSelector /></Suspense></ProtectedRoute>} />
           <Route path="/studio/:postId" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><ContentStudio /></Suspense></ProtectedRoute>} />
 
           {/* App shell — page-specific skeleton fallbacks */}
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Suspense fallback={<DashboardSkeleton />}><Dashboard /></Suspense>} />
+            <Route path="overview" element={<Suspense fallback={<GenericPageSkeleton />}><GlobalDashboard /></Suspense>} />
             <Route path="market-research" element={<Suspense fallback={<TablePageSkeleton />}><MarketResearch /></Suspense>} />
             <Route path="analytics" element={<Suspense fallback={<DashboardSkeleton />}><Analytics /></Suspense>} />
             <Route path="reports" element={<Suspense fallback={<TablePageSkeleton />}><Reports /></Suspense>} />

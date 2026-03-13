@@ -1,15 +1,24 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Building2, FolderKanban, Sparkles } from 'lucide-react'
+import { ChevronDown, Building2, FolderKanban, Sparkles, Search, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useClient } from '../../contexts/ClientContext'
 import { useProject } from '../../contexts/ProjectContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 type Panel = 'closed' | 'client' | 'project'
 
 export default function ContextSwitcher() {
-  const { clients, currentClient, switchClient } = useClient()
+  const { clients, currentClient, switchClient, recentClientIds } = useClient()
   const { projects, currentProject, switchProject } = useProject()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [panel, setPanel] = useState<Panel>('closed')
+  const [clientSearch, setClientSearch] = useState('')
+  const [projectSearch, setProjectSearch] = useState('')
   const ref = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const isSuperadmin = user?.is_superadmin ?? false
 
   // Close on outside click
   useEffect(() => {
@@ -20,10 +29,71 @@ export default function ContextSwitcher() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Auto-focus search input when panel opens
+  useEffect(() => {
+    if (panel !== 'closed') {
+      setTimeout(() => searchInputRef.current?.focus(), 50)
+    } else {
+      setClientSearch('')
+      setProjectSearch('')
+    }
+  }, [panel])
+
   if (!currentClient) return null
 
-  // AI context is "active" when the client has a business description filled in
+  // AI context is "active" when the client has completed onboarding
   const hasAiContext = currentClient.onboarding_completed
+
+  // --- Client filtering ---
+  const filteredClients = clientSearch
+    ? clients.filter(c => c.client_name.toLowerCase().includes(clientSearch.toLowerCase()))
+    : clients
+
+  // Recent clients (max 3, only ones that exist in current clients list)
+  const recentClients = recentClientIds
+    .map(id => clients.find(c => c.client_id === id))
+    .filter((c): c is NonNullable<typeof c> => !!c)
+    .slice(0, 3)
+
+  // --- Project filtering ---
+  const filteredProjects = projectSearch
+    ? projects.filter(p => p.project_name.toLowerCase().includes(projectSearch.toLowerCase()))
+    : projects
+
+  // --- Client item renderer ---
+  const renderClientItem = (c: typeof clients[0]) => (
+    <button
+      key={c.client_id}
+      onClick={() => {
+        switchClient(c.client_id)
+        setPanel('closed')
+      }}
+      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-studio-surface-2 transition-colors ${
+        c.client_id === currentClient.client_id
+          ? 'bg-sky-50 border-l-2 border-sky-500'
+          : ''
+      }`}
+    >
+      <div className="w-8 h-8 rounded-lg bg-studio-surface-3 flex items-center justify-center flex-shrink-0">
+        {c.client_logo_url ? (
+          <img src={c.client_logo_url} className="w-5 h-5 rounded" alt="" />
+        ) : (
+          <span className="text-xs font-bold text-sky-600">
+            {c.client_name?.[0]?.toUpperCase() || 'K'}
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm text-studio-text-primary font-medium truncate">
+          {c.client_name}
+        </div>
+        <div className="text-[11px] text-studio-text-tertiary capitalize">{c.role}</div>
+      </div>
+      {c.client_id === currentClient.client_id && (
+        <div className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
+      )}
+    </button>
+  )
 
   return (
     <div ref={ref} className="relative flex items-center gap-2">
@@ -107,48 +177,51 @@ export default function ContextSwitcher() {
               </button>
             </div>
 
+            {/* Search input */}
+            <div className="px-3 py-2 border-b border-studio-border">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={panel === 'client' ? clientSearch : projectSearch}
+                  onChange={(e) => panel === 'client' ? setClientSearch(e.target.value) : setProjectSearch(e.target.value)}
+                  placeholder={panel === 'client' ? 'Pretraži klijente...' : 'Pretraži projekte...'}
+                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-studio-surface-0 border border-studio-border focus:outline-none focus:border-sky-300 focus:ring-1 focus:ring-sky-300/30 text-studio-text-primary placeholder-studio-text-tertiary"
+                />
+              </div>
+            </div>
+
             {/* List */}
-            <div className="max-h-[60vh] sm:max-h-72 overflow-y-auto py-1">
+            <div className="max-h-[60vh] sm:max-h-72 overflow-y-auto">
               {panel === 'client' && (
                 <>
+                  {/* Recent section (only when not searching and has 4+ clients) */}
+                  {!clientSearch && recentClients.length > 0 && clients.length > 3 && (
+                    <>
+                      <div className="px-4 py-2">
+                        <span className="text-[10px] uppercase tracking-widest text-studio-text-tertiary font-semibold">
+                          Nedavni
+                        </span>
+                      </div>
+                      {recentClients.map(renderClientItem)}
+                      <div className="mx-4 my-1 h-px bg-studio-border" />
+                    </>
+                  )}
+
+                  {/* All clients section */}
                   <div className="px-4 py-2">
                     <span className="text-[10px] uppercase tracking-widest text-studio-text-tertiary font-semibold">
-                      Dostupni klijenti
+                      {clientSearch ? `Rezultati (${filteredClients.length})` : 'Svi klijenti'}
                     </span>
                   </div>
-                  {clients.map((c) => (
-                    <button
-                      key={c.client_id}
-                      onClick={() => {
-                        switchClient(c.client_id)
-                        setPanel('closed')
-                      }}
-                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-studio-surface-2 transition-colors ${
-                        c.client_id === currentClient.client_id
-                          ? 'bg-sky-50 border-l-2 border-sky-500'
-                          : ''
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-studio-surface-3 flex items-center justify-center flex-shrink-0">
-                        {c.client_logo_url ? (
-                          <img src={c.client_logo_url} className="w-5 h-5 rounded" alt="" />
-                        ) : (
-                          <span className="text-xs font-bold text-sky-600">
-                            {c.client_name?.[0]?.toUpperCase() || 'K'}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-studio-text-primary font-medium truncate">
-                          {c.client_name}
-                        </div>
-                        <div className="text-[11px] text-studio-text-tertiary capitalize">{c.role}</div>
-                      </div>
-                      {c.client_id === currentClient.client_id && (
-                        <div className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
-                      )}
-                    </button>
-                  ))}
+                  {filteredClients.length === 0 ? (
+                    <div className="px-4 py-6 text-center">
+                      <p className="text-sm text-studio-text-tertiary">Nema rezultata</p>
+                    </div>
+                  ) : (
+                    filteredClients.map(renderClientItem)
+                  )}
                 </>
               )}
 
@@ -156,16 +229,18 @@ export default function ContextSwitcher() {
                 <>
                   <div className="px-4 py-2">
                     <span className="text-[10px] uppercase tracking-widest text-studio-text-tertiary font-semibold">
-                      Projekti — {currentClient.client_name}
+                      {projectSearch ? `Rezultati (${filteredProjects.length})` : `Projekti — ${currentClient.client_name}`}
                     </span>
                   </div>
-                  {projects.length === 0 ? (
+                  {filteredProjects.length === 0 ? (
                     <div className="px-4 py-8 text-center">
                       <FolderKanban className="w-6 h-6 text-studio-text-disabled mx-auto mb-2" />
-                      <p className="text-sm text-studio-text-secondary">Nema projekata</p>
+                      <p className="text-sm text-studio-text-secondary">
+                        {projectSearch ? 'Nema rezultata' : 'Nema projekata'}
+                      </p>
                     </div>
                   ) : (
-                    projects.map((p) => (
+                    filteredProjects.map((p) => (
                       <button
                         key={p.project_id}
                         onClick={() => {
@@ -196,6 +271,22 @@ export default function ContextSwitcher() {
                 </>
               )}
             </div>
+
+            {/* Footer links */}
+            {panel === 'client' && (
+              <div className="border-t border-studio-border">
+                <button
+                  onClick={() => {
+                    setPanel('closed')
+                    navigate(isSuperadmin ? '/admin/clients' : '/overview')
+                  }}
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm text-sky-600 hover:bg-sky-50 transition-colors font-medium"
+                >
+                  <span>{isSuperadmin ? 'Upravljaj klijentima' : 'Pregled svih klijenata'}</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}

@@ -25,6 +25,24 @@ interface ClientContextType {
   isClientAdmin: boolean
   canModerate: boolean
   isViewer: boolean
+  recentClientIds: string[]
+}
+
+const MAX_RECENT = 5
+
+function getRecentClientIds(): string[] {
+  try {
+    const raw = localStorage.getItem('recent_client_ids')
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveRecentClientId(clientId: string) {
+  const recent = getRecentClientIds().filter(id => id !== clientId)
+  recent.unshift(clientId)
+  localStorage.setItem('recent_client_ids', JSON.stringify(recent.slice(0, MAX_RECENT)))
 }
 
 const ClientContext = createContext<ClientContextType>({
@@ -35,6 +53,7 @@ const ClientContext = createContext<ClientContextType>({
   isClientAdmin: false,
   canModerate: false,
   isViewer: true,
+  recentClientIds: [],
 })
 
 export function ClientProvider({ children }: { children: ReactNode }) {
@@ -42,6 +61,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const [currentClientId, setCurrentClientId] = useState<string | null>(
     () => localStorage.getItem('current_client_id')
   )
+  const [recentClientIds, setRecentClientIds] = useState<string[]>(getRecentClientIds)
 
   const clients = user?.clients || []
 
@@ -60,9 +80,19 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     }
   }, [clients, currentClientId, currentClient])
 
+  // Track current client in recent list
+  useEffect(() => {
+    if (currentClient) {
+      saveRecentClientId(currentClient.client_id)
+      setRecentClientIds(getRecentClientIds())
+    }
+  }, [currentClient])
+
   const switchClient = useCallback((clientId: string) => {
     setCurrentClientId(clientId)
     localStorage.setItem('current_client_id', clientId)
+    // Track in recent
+    saveRecentClientId(clientId)
     // Reload the page to refresh all data for the new client
     window.location.reload()
   }, [])
@@ -73,7 +103,10 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const isViewer = clientRole === 'viewer'
 
   return (
-    <ClientContext.Provider value={{ clients, currentClient, switchClient, clientRole, isClientAdmin, canModerate, isViewer }}>
+    <ClientContext.Provider value={{
+      clients, currentClient, switchClient, clientRole, isClientAdmin, canModerate, isViewer,
+      recentClientIds,
+    }}>
       {children}
     </ClientContext.Provider>
   )

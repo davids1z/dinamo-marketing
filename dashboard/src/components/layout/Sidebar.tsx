@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
+  LayoutGrid,
   Globe,
   Radio,
   Users,
@@ -123,7 +124,7 @@ export default function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const { currentClient, clientRole } = useClient()
+  const { clients, currentClient, clientRole } = useClient()
 
   // Superadmin panel mode — auto-detect from URL
   const isSuperadmin = user?.is_superadmin ?? false
@@ -147,6 +148,16 @@ export default function Sidebar() {
       items: section.items.filter((item) => hasAccess(effectiveRole, item.requiredRole)),
     }))
     .filter((section) => section.items.length > 0)
+
+  // Add "Svi klijenti" nav item for multi-client users (at top of Core section)
+  const coreSection = filteredSections[0]
+  if (clients.length > 1 && coreSection && coreSection.items.length > 0 && !adminMode) {
+    const overviewItem: NavItem = { name: 'Svi klijenti', href: '/overview', icon: LayoutGrid, requiredRole: 'viewer' }
+    filteredSections[0] = {
+      label: coreSection.label,
+      items: [coreSection.items[0]!, overviewItem, ...coreSection.items.slice(1)],
+    }
+  }
 
   // When in admin mode, show system navigation instead
   const activeSections = adminMode && isSuperadmin ? systemSections : filteredSections
