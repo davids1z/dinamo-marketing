@@ -994,6 +994,23 @@ function ClientsView() {
                                   )}
                                 </div>
                               </div>
+
+                              {/* Actions */}
+                              <div className="lg:col-span-4 pt-3 border-t border-studio-border flex justify-end">
+                                <button
+                                  onClick={() => {
+                                    localStorage.setItem('current_client_id', expandedClientId!)
+                                    if (clientDetail.projects?.[0]) {
+                                      localStorage.setItem('current_project_id', clientDetail.projects[0].id)
+                                    }
+                                    window.location.href = '/'
+                                  }}
+                                  className="btn-primary flex items-center gap-2 text-sm"
+                                >
+                                  <LogIn className="w-4 h-4" />
+                                  Pregledaj klijenta
+                                </button>
+                              </div>
                             </div>
                           ) : null}
                         </div>

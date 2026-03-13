@@ -22,6 +22,76 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
+    """Build the client list for a user response.
+
+    Superadmins see ALL active clients (no membership required).
+    Regular users see only clients where they have a UserClient membership.
+    """
+    from app.models.client import Client, UserClient
+    from app.models.project import Project
+
+    if user.is_superadmin:
+        # Superadmin = god mode — see every active client
+        clients_result = await db.execute(
+            select(Client).where(Client.is_active == True).order_by(Client.name)
+        )
+        all_clients = clients_result.scalars().all()
+        client_ids = [c.id for c in all_clients]
+    else:
+        # Regular user — only membership-based clients
+        memberships_result = await db.execute(
+            select(UserClient, Client)
+            .join(Client, UserClient.client_id == Client.id)
+            .where(UserClient.user_id == user.id, Client.is_active == True)
+        )
+        memberships = memberships_result.all()
+        client_ids = [uc.client_id for uc, c in memberships]
+
+    # Load projects for all relevant clients
+    projects_by_client: dict[str, list] = {}
+    if client_ids:
+        projects_result = await db.execute(
+            select(Project)
+            .where(Project.client_id.in_(client_ids), Project.is_active == True)
+            .order_by(Project.name)
+        )
+        for p in projects_result.scalars().all():
+            cid = str(p.client_id)
+            projects_by_client.setdefault(cid, []).append({
+                "project_id": str(p.id),
+                "project_name": p.name,
+                "project_slug": p.slug,
+            })
+
+    if user.is_superadmin:
+        return [
+            {
+                "client_id": str(c.id),
+                "client_name": c.name,
+                "client_slug": c.slug,
+                "client_logo_url": c.logo_url,
+                "role": "superadmin",
+                "onboarding_completed": c.onboarding_completed,
+                "projects": projects_by_client.get(str(c.id), []),
+            }
+            for c in all_clients  # noqa: F821
+        ]
+    else:
+        return [
+            {
+                "client_id": str(uc.client_id),
+                "client_name": c.name,
+                "client_slug": c.slug,
+                "client_logo_url": c.logo_url,
+                "role": uc.role,
+                "onboarding_completed": c.onboarding_completed,
+                "projects": projects_by_client.get(str(uc.client_id), []),
+            }
+            for uc, c in memberships  # noqa: F821
+        ]
+
+
 class LoginRequest(PydanticBase):
     email: str
     password: str
@@ -89,44 +159,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
 
-    from app.models.client import Client, UserClient
-    from app.models.project import Project
-
-    memberships_result = await db.execute(
-        select(UserClient, Client)
-        .join(Client, UserClient.client_id == Client.id)
-        .where(UserClient.user_id == user.id, Client.is_active == True)
-    )
-    memberships = memberships_result.all()
-
-    # Load projects for each client
-    client_ids = [uc.client_id for uc, c in memberships]
-    projects_result = await db.execute(
-        select(Project)
-        .where(Project.client_id.in_(client_ids), Project.is_active == True)
-        .order_by(Project.name)
-    )
-    projects_by_client: dict[str, list] = {}
-    for p in projects_result.scalars().all():
-        cid = str(p.client_id)
-        projects_by_client.setdefault(cid, []).append({
-            "project_id": str(p.id),
-            "project_name": p.name,
-            "project_slug": p.slug,
-        })
-
-    clients = [
-        {
-            "client_id": str(uc.client_id),
-            "client_name": c.name,
-            "client_slug": c.slug,
-            "client_logo_url": c.logo_url,
-            "role": "superadmin" if user.is_superadmin else uc.role,
-            "onboarding_completed": c.onboarding_completed,
-            "projects": projects_by_client.get(str(uc.client_id), []),
-        }
-        for uc, c in memberships
-    ]
+    clients = await _build_client_list(db, user)
 
     return TokenResponse(
         access_token=token,
@@ -145,44 +178,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Return the currently authenticated user's profile."""
-    from app.models.client import Client, UserClient
-    from app.models.project import Project
-
-    memberships_result = await db.execute(
-        select(UserClient, Client)
-        .join(Client, UserClient.client_id == Client.id)
-        .where(UserClient.user_id == current_user.id, Client.is_active == True)
-    )
-    memberships = memberships_result.all()
-
-    # Load projects for each client
-    client_ids = [uc.client_id for uc, c in memberships]
-    projects_result = await db.execute(
-        select(Project)
-        .where(Project.client_id.in_(client_ids), Project.is_active == True)
-        .order_by(Project.name)
-    )
-    projects_by_client: dict[str, list] = {}
-    for p in projects_result.scalars().all():
-        cid = str(p.client_id)
-        projects_by_client.setdefault(cid, []).append({
-            "project_id": str(p.id),
-            "project_name": p.name,
-            "project_slug": p.slug,
-        })
-
-    clients = [
-        {
-            "client_id": str(uc.client_id),
-            "client_name": c.name,
-            "client_slug": c.slug,
-            "client_logo_url": c.logo_url,
-            "role": "superadmin" if current_user.is_superadmin else uc.role,
-            "onboarding_completed": c.onboarding_completed,
-            "projects": projects_by_client.get(str(uc.client_id), []),
-        }
-        for uc, c in memberships
-    ]
+    clients = await _build_client_list(db, current_user)
 
     return {
         "id": str(current_user.id),
@@ -393,41 +389,7 @@ async def accept_invite(body: AcceptInviteRequest, db: AsyncSession = Depends(ge
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
 
-    # Load all memberships for the response
-    memberships_result = await db.execute(
-        select(UserClient, Client)
-        .join(Client, UserClient.client_id == Client.id)
-        .where(UserClient.user_id == user.id, Client.is_active == True)
-    )
-    memberships = memberships_result.all()
-
-    mem_client_ids = [uc.client_id for uc, c in memberships]
-    projects_result = await db.execute(
-        select(Project)
-        .where(Project.client_id.in_(mem_client_ids), Project.is_active == True)
-        .order_by(Project.name)
-    )
-    projects_by_client: dict[str, list] = {}
-    for p in projects_result.scalars().all():
-        cid = str(p.client_id)
-        projects_by_client.setdefault(cid, []).append({
-            "project_id": str(p.id),
-            "project_name": p.name,
-            "project_slug": p.slug,
-        })
-
-    clients_list = [
-        {
-            "client_id": str(uc.client_id),
-            "client_name": c.name,
-            "client_slug": c.slug,
-            "client_logo_url": c.logo_url,
-            "role": uc.role,
-            "onboarding_completed": c.onboarding_completed,
-            "projects": projects_by_client.get(str(uc.client_id), []),
-        }
-        for uc, c in memberships
-    ]
+    clients_list = await _build_client_list(db, user)
 
     return TokenResponse(
         access_token=token,
