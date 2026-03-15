@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   Brain, Palette, FolderKanban, ChevronRight, ChevronLeft, Check,
   Sparkles, Zap, BarChart3, MessageSquare, Building2,
-  Globe, Upload, Loader2, CheckCircle2, AlertCircle,
+  Globe, Upload, Loader2, CheckCircle2, AlertCircle, SkipForward,
 } from 'lucide-react'
 import api from '../api/client'
 import { useClient } from '../contexts/ClientContext'
@@ -216,6 +216,31 @@ export default function Onboarding() {
     }
   }
 
+  const handleSkip = async () => {
+    const clientId = currentClient?.client_id || localStorage.getItem('current_client_id')
+    if (!clientId) return
+    setLoading(true)
+    setError('')
+    try {
+      // Save whatever data they've entered so far
+      const partial: Record<string, unknown> = {}
+      if (form.business_description.trim()) partial.business_description = form.business_description
+      if (form.product_info.trim()) partial.product_info = form.product_info
+      if (form.target_audience.trim()) partial.target_audience = form.target_audience
+      if (form.tone_of_voice) partial.tone_of_voice = form.tone_of_voice
+      if (form.website_url.trim()) partial.website_url = form.website_url
+      if (Object.keys(partial).length > 0) {
+        await api.put(`/clients/${clientId}`, partial)
+      }
+      // Mark onboarding as completed
+      await api.post(`/clients/${clientId}/onboarding/complete`, {})
+      window.location.href = '/'
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Greška. Pokušajte ponovno.')
+      setLoading(false)
+    }
+  }
+
   // AI analyzing -> redirect after delay
   useEffect(() => {
     if (!analyzing) return
@@ -228,7 +253,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 0: return form.company_name.trim().length >= 2
-      case 1: return form.business_description.trim().length >= 20
+      case 1: return true // soft validation only — user can skip or fill later
       case 2: return true
       case 3: return true
       default: return true
@@ -295,7 +320,19 @@ export default function Onboarding() {
                 <p className="text-xs text-studio-text-tertiary">Postavljanje profila</p>
               </div>
             </div>
-            <span className="text-sm text-studio-text-tertiary font-mono">{displayStep + 1} / {steps.length}</span>
+            <div className="flex items-center gap-3">
+              {step >= 1 && (
+                <button
+                  onClick={handleSkip}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-studio-text-tertiary hover:text-studio-text-secondary hover:bg-studio-surface-2 transition-all disabled:opacity-50"
+                >
+                  <SkipForward size={12} />
+                  Preskoči
+                </button>
+              )}
+              <span className="text-sm text-studio-text-tertiary font-mono">{displayStep + 1} / {steps.length}</span>
+            </div>
           </div>
 
           {/* Step tabs */}

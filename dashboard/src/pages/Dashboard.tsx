@@ -459,6 +459,16 @@ function WelcomeHero() {
   const navigate = useNavigate()
   const { currentClient } = useClient()
 
+  // Profile completeness calculation
+  const profileChecks = [
+    { label: 'Opis poslovanja', done: !!(currentClient?.business_description && currentClient.business_description.length >= 20) },
+    { label: 'Ton komunikacije', done: !!currentClient?.tone_of_voice },
+    { label: 'Kanali povezani', done: false },
+    { label: 'Prvi sadržaj', done: false },
+  ]
+  const completedCount = profileChecks.filter(c => c.done).length
+  const profilePercent = Math.round((completedCount / profileChecks.length) * 100)
+
   const steps = [
     {
       icon: Building2,
@@ -507,6 +517,35 @@ function WelcomeHero() {
           {/* Decorative gradient blob */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none" />
         </div>
+
+        {/* Profile completeness bar */}
+        {profilePercent < 100 && (
+          <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-brand-accent" />
+                <span className="text-sm font-semibold text-studio-text-primary">
+                  AI profil: {profilePercent}%
+                </span>
+              </div>
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="text-xs font-medium text-brand-accent hover:underline"
+              >
+                Popuni podatke
+              </button>
+            </div>
+            <div className="w-full h-2 bg-studio-surface-3 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-brand-accent rounded-full transition-all duration-700"
+                style={{ width: `${profilePercent}%` }}
+              />
+            </div>
+            <p className="text-xs text-studio-text-tertiary mt-2">
+              Što više podataka unesete, to će AI bolje generirati sadržaj za vaš brand.
+            </p>
+          </div>
+        )}
 
         {/* Brand Profile Summary — confirms onboarding data saved */}
         {currentClient?.business_description && (
