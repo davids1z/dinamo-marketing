@@ -39,7 +39,7 @@ async def get_sentiment_overview(
     service = _get_service()
 
     # Get basic overview
-    overview = await service.get_sentiment_overview(db, days)
+    overview = await service.get_sentiment_overview(db, days, client_id=client.id)
     total = overview.get("total", 0)
     positive = overview.get("positive", 0)
     neutral = overview.get("neutral", 0)
@@ -54,7 +54,7 @@ async def get_sentiment_overview(
         pos_pct, neu_pct, neg_pct = 0, 0, 0
 
     # Get previous period for changes
-    prev_overview = await service.get_sentiment_overview(db, days * 2)
+    prev_overview = await service.get_sentiment_overview(db, days * 2, client_id=client.id)
     prev_total = prev_overview.get("total", 0)
     if prev_total > total and prev_total > 0:
         prev_pos_pct = round(prev_overview.get("positive", 0) / prev_total * 100)
@@ -67,7 +67,7 @@ async def get_sentiment_overview(
         pos_change, neu_change, neg_change = 0.0, 0.0, 0.0
 
     # Get timeline data
-    timeline_raw = await service.get_sentiment_timeline(db, min(days, 14))
+    timeline_raw = await service.get_sentiment_timeline(db, min(days, 14), client_id=client.id)
     timeline = []
     for day in timeline_raw:
         day_pos = day.get("positive", 0)
@@ -87,7 +87,7 @@ async def get_sentiment_overview(
             })
 
     # Get topics
-    topics_raw = await service.get_top_topics(db, days)
+    topics_raw = await service.get_top_topics(db, days, client_id=client.id)
     topic_icons = {
         "players": "⚽", "tactics": "📋", "management": "🏢",
         "results": "🏆", "referee": "🟨", "transfer": "💰",
@@ -155,7 +155,7 @@ async def get_top_topics(
 ):
     user, client, role = ctx
     service = _get_service()
-    result = await service.get_top_topics(db, days)
+    result = await service.get_top_topics(db, days, client_id=client.id)
     return result
 
 
@@ -167,5 +167,5 @@ async def get_sentiment_timeline(
 ):
     user, client, role = ctx
     service = _get_service()
-    result = await service.get_sentiment_timeline(db, days)
+    result = await service.get_sentiment_timeline(db, days, client_id=client.id)
     return result

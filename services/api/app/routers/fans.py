@@ -29,7 +29,7 @@ async def get_segments(
     user, client, role = ctx
     try:
         service = _get_service()
-        result = await service.get_segments(db)
+        result = await service.get_segments(db, client_id=client.id)
         # If the service returned real segment rows, transform them into the
         # shape the dashboard expects and also build a funnel.
         if result and any(r.get("size", 0) > 0 for r in result):
@@ -66,7 +66,7 @@ async def get_fan_profile(
 ):
     user, client, role = ctx
     service = _get_service()
-    result = await service.get_fan_profile(db, fan_id)
+    result = await service.get_fan_profile(db, fan_id, client_id=client.id)
     return result
 
 
@@ -77,7 +77,7 @@ async def update_lifecycle_stages(
 ):
     user, client, role = ctx
     service = _get_service()
-    result = await service.update_lifecycle_stages(db)
+    result = await service.update_lifecycle_stages(db, client_id=client.id)
     return result
 
 
@@ -89,7 +89,7 @@ async def calculate_clv(
     user, client, role = ctx
     try:
         service = _get_service()
-        result = await service.calculate_clv(db)
+        result = await service.calculate_clv(db, client_id=client.id)
         # If we got real CLV data, transform it for the dashboard
         if result and any(r.get("count", 0) > 0 for r in result):
             stage_names = {
@@ -135,7 +135,7 @@ async def get_churn_predictions(
     user, client, role = ctx
     try:
         service = _get_service()
-        result = await service.get_churn_predictions(db)
+        result = await service.get_churn_predictions(db, client_id=client.id)
         # If we got real churn data, transform it for the dashboard
         if result and any(r.get("fan_count", 0) > 0 for r in result):
             return [

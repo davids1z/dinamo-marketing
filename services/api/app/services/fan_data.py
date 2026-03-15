@@ -36,11 +36,13 @@ class FanDataService:
     def __init__(self, claude_client):
         self.claude_client = claude_client
 
-    async def get_segments(self, db: AsyncSession) -> list[dict]:
+    async def get_segments(self, db: AsyncSession, client_id: UUID | None = None) -> list[dict]:
         """Return all fan segments with their current sizes and metrics."""
-        result = await db.execute(
-            select(FanSegment).order_by(FanSegment.size.desc())
-        )
+        query = select(FanSegment)
+        if client_id:
+            query = query.where(FanSegment.client_id == client_id)
+        query = query.order_by(FanSegment.size.desc())
+        result = await db.execute(query)
         segments = result.scalars().all()
 
         if not segments:
@@ -85,7 +87,7 @@ class FanDataService:
             for seg in segments
         ]
 
-    async def get_fan_profile(self, db: AsyncSession, fan_id: UUID) -> dict:
+    async def get_fan_profile(self, db: AsyncSession, fan_id: UUID, client_id: UUID | None = None) -> dict:
         """Get a single fan profile with lifecycle history."""
         fan = await db.get(FanProfile, fan_id)
         if not fan:
@@ -134,7 +136,7 @@ class FanDataService:
             ],
         }
 
-    async def update_lifecycle_stages(self, db: AsyncSession) -> dict:
+    async def update_lifecycle_stages(self, db: AsyncSession, client_id: UUID | None = None) -> dict:
         """Batch update fan lifecycle stages based on activity signals."""
         now = datetime.utcnow()
         promotions = 0
@@ -142,11 +144,11 @@ class FanDataService:
 
         # Promote: fans active in last 7 days with high engagement -> move up
         seven_days_ago = now - timedelta(days=7)
+        promo_filters = [FanProfile.last_active >= seven_days_ago, FanProfile.lifecycle_stage.in_(["new", "casual", "engaged"])]
+        if client_id:
+            promo_filters.append(FanProfile.client_id == client_id)
         active_fans_result = await db.execute(
-            select(FanProfile).where(
-                FanProfile.last_active >= seven_days_ago,
-                FanProfile.lifecycle_stage.in_(["new", "casual", "engaged"]),
-            )
+            select(FanProfile).where(*promo_filters)
         )
         active_fans = active_fans_result.scalars().all()
 
@@ -166,11 +168,11 @@ class FanDataService:
 
         # Demote: fans inactive for 60+ days -> move down
         sixty_days_ago = now - timedelta(days=60)
+        demo_filters = [FanProfile.last_active < sixty_days_ago, FanProfile.lifecycle_stage.in_(["engaged", "superfan", "ambassador"])]
+        if client_id:
+            demo_filters.append(FanProfile.client_id == client_id)
         inactive_fans_result = await db.execute(
-            select(FanProfile).where(
-                FanProfile.last_active < sixty_days_ago,
-                FanProfile.lifecycle_stage.in_(["engaged", "superfan", "ambassador"]),
-            )
+            select(FanProfile).where(*demo_filters)
         )
         inactive_fans = inactive_fans_result.scalars().all()
 
@@ -198,16 +200,17 @@ class FanDataService:
             "updated_at": now.isoformat(),
         }
 
-    async def calculate_clv(self, db: AsyncSession) -> list[dict]:
+    async def calculate_clv(self, db: AsyncSession, client_id: UUID | None = None) -> list[dict]:
         """Calculate Customer Lifetime Value by segment."""
-        result = await db.execute(
-            select(
-                FanProfile.lifecycle_stage,
-                func.count(FanProfile.id).label("count"),
-                func.avg(FanProfile.clv_score).label("avg_clv"),
-            )
-            .group_by(FanProfile.lifecycle_stage)
+        query = select(
+            FanProfile.lifecycle_stage,
+            func.count(FanProfile.id).label("count"),
+            func.avg(FanProfile.clv_score).label("avg_clv"),
         )
+        if client_id:
+            query = query.where(FanProfile.client_id == client_id)
+        query = query.group_by(FanProfile.lifecycle_stage)
+        result = await db.execute(query)
         rows = result.all()
 
         if not rows:
@@ -225,9 +228,12 @@ class FanDataService:
         for row in rows:
             weight = CLV_WEIGHTS.get(row.lifecycle_stage, 1.0)
             base_clv = float(row.avg_clv) if row.avg_clv else 0.0
+            upd_filters = [FanProfile.lifecycle_stage == row.lifecycle_stage]
+            if client_id:
+                upd_filters.append(FanProfile.client_id == client_id)
             await db.execute(
                 update(FanProfile)
-                .where(FanProfile.lifecycle_stage == row.lifecycle_stage)
+                .where(*upd_filters)
                 .values(clv_score=base_clv * weight)
             )
 
@@ -247,7 +253,7 @@ class FanDataService:
             for row in rows
         ]
 
-    async def get_churn_predictions(self, db: AsyncSession) -> list[dict]:
+    async def get_churn_predictions(self, db: AsyncSession, client_id: UUID | None = None) -> list[dict]:
         """Predict churn risk for fans based on inactivity patterns."""
         now = datetime.utcnow()
         predictions = []
@@ -257,12 +263,15 @@ class FanDataService:
         ):
             cutoff = now - timedelta(days=threshold_days)
 
+            filters = [FanProfile.last_active < cutoff]
+            if client_id:
+                filters.append(FanProfile.client_id == client_id)
             result = await db.execute(
                 select(
                     func.count(FanProfile.id).label("count"),
                     func.avg(FanProfile.clv_score).label("avg_clv"),
                 )
-                .where(FanProfile.last_active < cutoff)
+                .where(*filters)
             )
             row = result.one()
 

@@ -40,7 +40,7 @@ async def get_overview(
         return cached
 
     service = _get_analytics_service()
-    result = await service.get_overview_for_dashboard(db, days)
+    result = await service.get_overview_for_dashboard(db, days, client_id=client.id)
     await cache_set(cache_key, result, cfg.CACHE_TTL_DASHBOARD)
     return result
 
@@ -61,7 +61,7 @@ async def get_platform_breakdown(
         return cached
 
     service = _get_analytics_service()
-    result = await service.get_platform_breakdown(db, days)
+    result = await service.get_platform_breakdown(db, days, client_id=client.id)
     await cache_set(cache_key, result, cfg.CACHE_TTL_ANALYTICS)
     return result
 
@@ -73,7 +73,7 @@ async def get_market_performance(
 ):
     user, client, role = ctx
     service = _get_analytics_service()
-    result = await service.get_market_performance(db)
+    result = await service.get_market_performance(db, client_id=client.id)
     return result
 
 
@@ -85,7 +85,7 @@ async def get_content_rankings(
 ):
     user, client, role = ctx
     service = _get_analytics_service()
-    result = await service.get_content_rankings(db, limit)
+    result = await service.get_content_rankings(db, limit, client_id=client.id)
     return result
 
 
@@ -284,7 +284,7 @@ async def get_roi_summary(
     """ROAS, CPA, total spend, conversions, conversion value."""
     user, client, role = ctx
     service = _get_analytics_service()
-    return await service.get_roi_summary(db, days)
+    return await service.get_roi_summary(db, days, client_id=client.id)
 
 
 @router.get("/roi/by-platform")
@@ -296,7 +296,7 @@ async def get_roi_by_platform(
     """ROI breakdown per platform."""
     user, client, role = ctx
     service = _get_analytics_service()
-    return await service.get_roi_by_platform(db, days)
+    return await service.get_roi_by_platform(db, days, client_id=client.id)
 
 
 @router.get("/post-metrics/{post_id}/history")
@@ -309,7 +309,7 @@ async def get_post_metrics_history(
     """Time-series metrics for a single post."""
     user, client, role = ctx
     service = _get_analytics_service()
-    return await service.get_post_metrics_history(db, post_id, days)
+    return await service.get_post_metrics_history(db, post_id, days, client_id=client.id)
 
 
 @router.websocket("/ws/live")
@@ -331,6 +331,8 @@ async def live_metrics(websocket: WebSocket):
     try:
         while True:
             async with async_session_factory() as db:
+                # WebSocket doesn't have client context — return empty data
+                # Real-time updates should use client-scoped endpoints
                 data = await service.get_overview_for_dashboard(db)
             await websocket.send_json(data)
             await asyncio.sleep(30)

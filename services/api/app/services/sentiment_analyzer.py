@@ -3,6 +3,7 @@
 import logging
 from collections import Counter
 from datetime import datetime, timedelta
+from uuid import UUID
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,16 +60,19 @@ class SentimentAnalyzerService:
         logger.info(f"Analyzed {len(records)} comments")
         return records
 
-    async def get_sentiment_overview(self, db: AsyncSession, days: int = 30) -> dict:
+    async def get_sentiment_overview(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """Get sentiment overview for last N days."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
+        filters = [SentimentRecord.analyzed_at >= cutoff]
+        if client_id:
+            filters.append(SentimentRecord.client_id == client_id)
         result = await db.execute(
             select(
                 SentimentRecord.sentiment,
                 func.count(SentimentRecord.id).label("count"),
             )
-            .where(SentimentRecord.analyzed_at >= cutoff)
+            .where(*filters)
             .group_by(SentimentRecord.sentiment)
         )
         counts = {row.sentiment: row.count for row in result}
@@ -83,15 +87,15 @@ class SentimentAnalyzerService:
             "negative_pct": round(counts.get("negative", 0) / max(total, 1) * 100, 1),
         }
 
-    async def get_top_topics(self, db: AsyncSession, days: int = 30) -> list[dict]:
+    async def get_top_topics(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> list[dict]:
         """Extract top topics from sentiment records."""
         cutoff = datetime.utcnow() - timedelta(days=days)
+        filters = [SentimentRecord.analyzed_at >= cutoff, SentimentRecord.topics.isnot(None)]
+        if client_id:
+            filters.append(SentimentRecord.client_id == client_id)
         result = await db.execute(
             select(SentimentRecord.topics)
-            .where(
-                SentimentRecord.analyzed_at >= cutoff,
-                SentimentRecord.topics.isnot(None),
-            )
+            .where(*filters)
         )
 
         topic_counter: Counter = Counter()
@@ -106,16 +110,19 @@ class SentimentAnalyzerService:
             for topic, count in topic_counter.most_common(10)
         ]
 
-    async def get_sentiment_timeline(self, db: AsyncSession, days: int = 30) -> list[dict]:
+    async def get_sentiment_timeline(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> list[dict]:
         """Get daily sentiment breakdown."""
         cutoff = datetime.utcnow() - timedelta(days=days)
+        filters = [SentimentRecord.analyzed_at >= cutoff]
+        if client_id:
+            filters.append(SentimentRecord.client_id == client_id)
         result = await db.execute(
             select(
                 func.date(SentimentRecord.analyzed_at).label("date"),
                 SentimentRecord.sentiment,
                 func.count(SentimentRecord.id).label("count"),
             )
-            .where(SentimentRecord.analyzed_at >= cutoff)
+            .where(*filters)
             .group_by(func.date(SentimentRecord.analyzed_at), SentimentRecord.sentiment)
             .order_by(func.date(SentimentRecord.analyzed_at))
         )

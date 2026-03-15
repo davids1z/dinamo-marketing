@@ -2,6 +2,7 @@
 
 import logging
 from datetime import datetime, timedelta
+from uuid import UUID
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,11 +19,16 @@ class AnalyticsAggregatorService:
     def __init__(self):
         pass
 
-    async def get_overview_kpis(self, db: AsyncSession) -> dict:
+    async def get_overview_kpis(self, db: AsyncSession, client_id: UUID | None = None) -> dict:
         """Get cross-platform KPI overview for the dashboard."""
         now = datetime.utcnow()
         thirty_days_ago = now - timedelta(days=30)
         sixty_days_ago = now - timedelta(days=60)
+
+        # Build client filter conditions
+        post_client_filter = [PostMetric.timestamp >= thirty_days_ago]
+        if client_id:
+            post_client_filter.append(PostMetric.client_id == client_id)
 
         # Current period metrics
         current_result = await db.execute(
@@ -38,11 +44,14 @@ class AnalyticsAggregatorService:
                 func.sum(PostMetric.new_followers_attributed).label("new_followers"),
                 func.count(PostMetric.id).label("total_posts"),
             )
-            .where(PostMetric.timestamp >= thirty_days_ago)
+            .where(*post_client_filter)
         )
         current = current_result.one()
 
         # Previous period for comparison
+        prev_filters = [PostMetric.timestamp >= sixty_days_ago, PostMetric.timestamp < thirty_days_ago]
+        if client_id:
+            prev_filters.append(PostMetric.client_id == client_id)
         previous_result = await db.execute(
             select(
                 func.sum(PostMetric.impressions).label("impressions"),
@@ -50,14 +59,14 @@ class AnalyticsAggregatorService:
                 func.avg(PostMetric.engagement_rate).label("avg_engagement"),
                 func.sum(PostMetric.new_followers_attributed).label("new_followers"),
             )
-            .where(
-                PostMetric.timestamp >= sixty_days_ago,
-                PostMetric.timestamp < thirty_days_ago,
-            )
+            .where(*prev_filters)
         )
         previous = previous_result.one()
 
         # Ad spend metrics
+        ad_filters = [AdMetric.timestamp >= thirty_days_ago]
+        if client_id:
+            ad_filters.append(AdMetric.client_id == client_id)
         ad_result = await db.execute(
             select(
                 func.sum(AdMetric.spend).label("total_spend"),
@@ -67,7 +76,7 @@ class AnalyticsAggregatorService:
                 func.avg(AdMetric.cpm).label("avg_cpm"),
                 func.avg(AdMetric.cpc).label("avg_cpc"),
             )
-            .where(AdMetric.timestamp >= thirty_days_ago)
+            .where(*ad_filters)
         )
         ad_metrics = ad_result.one()
 
@@ -109,13 +118,16 @@ class AnalyticsAggregatorService:
             },
         }
 
-    async def get_platform_breakdown(self, db: AsyncSession, days: int = 30) -> dict:
+    async def get_platform_breakdown(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """Get performance breakdown by platform."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
         # Get own brand channels
+        ch_filters = [SocialChannel.owner_type == "own"]
+        if client_id:
+            ch_filters.append(SocialChannel.client_id == client_id)
         channels_result = await db.execute(
-            select(SocialChannel).where(SocialChannel.owner_type == "own")
+            select(SocialChannel).where(*ch_filters)
         )
         channels = channels_result.scalars().all()
         channel_map = {str(ch.id): ch for ch in channels}
@@ -123,6 +135,9 @@ class AnalyticsAggregatorService:
         # Post metrics joined with content posts to get platform
         from app.models.content import ContentPost
 
+        pm_filters = [PostMetric.timestamp >= cutoff]
+        if client_id:
+            pm_filters.append(PostMetric.client_id == client_id)
         platform_result = await db.execute(
             select(
                 ContentPost.platform,
@@ -135,7 +150,7 @@ class AnalyticsAggregatorService:
                 func.count(PostMetric.id).label("post_count"),
             )
             .join(ContentPost, PostMetric.post_id == ContentPost.id)
-            .where(PostMetric.timestamp >= cutoff)
+            .where(*pm_filters)
             .group_by(ContentPost.platform)
         )
         rows = platform_result.all()
@@ -176,12 +191,12 @@ class AnalyticsAggregatorService:
             "platforms": platforms,
         }
 
-    async def get_market_performance(self, db: AsyncSession) -> list[dict]:
+    async def get_market_performance(self, db: AsyncSession, client_id: UUID | None = None) -> list[dict]:
         """Get content performance by target market."""
         from app.models.content import ContentPlan, ContentPost
         from app.models.market import Country
 
-        result = await db.execute(
+        query = (
             select(
                 Country.name,
                 Country.code,
@@ -193,9 +208,12 @@ class AnalyticsAggregatorService:
             .join(ContentPlan, ContentPost.plan_id == ContentPlan.id)
             .join(Country, ContentPlan.market_id == Country.id)
             .join(PostMetric, PostMetric.post_id == ContentPost.id)
-            .group_by(Country.name, Country.code)
-            .order_by(func.sum(PostMetric.impressions).desc())
         )
+        if client_id:
+            query = query.where(PostMetric.client_id == client_id)
+        query = query.group_by(Country.name, Country.code).order_by(func.sum(PostMetric.impressions).desc())
+
+        result = await db.execute(query)
         rows = result.all()
 
         if not rows:
@@ -222,16 +240,18 @@ class AnalyticsAggregatorService:
             for row in rows
         ]
 
-    async def get_content_rankings(self, db: AsyncSession, limit: int = 20) -> list[dict]:
+    async def get_content_rankings(self, db: AsyncSession, limit: int = 20, client_id: UUID | None = None) -> list[dict]:
         """Get top-performing content posts ranked by engagement."""
         from app.models.content import ContentPost
 
-        result = await db.execute(
+        query = (
             select(ContentPost, PostMetric)
             .join(PostMetric, PostMetric.post_id == ContentPost.id)
-            .order_by(PostMetric.engagement_rate.desc())
-            .limit(limit)
         )
+        if client_id:
+            query = query.where(PostMetric.client_id == client_id)
+        query = query.order_by(PostMetric.engagement_rate.desc()).limit(limit)
+        result = await db.execute(query)
         rows = result.all()
 
         if not rows:
@@ -269,17 +289,20 @@ class AnalyticsAggregatorService:
     # Phase 3: Dashboard-ready methods
     # ------------------------------------------------------------------
 
-    async def get_daily_reach_series(self, db: AsyncSession, days: int = 30) -> list[dict]:
+    async def get_daily_reach_series(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> list[dict]:
         """Get daily reach + impressions for the last N days."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
+        filters = [PostMetric.timestamp >= cutoff]
+        if client_id:
+            filters.append(PostMetric.client_id == client_id)
         result = await db.execute(
             select(
                 func.date(PostMetric.timestamp).label("date"),
                 func.sum(PostMetric.reach).label("reach"),
                 func.sum(PostMetric.impressions).label("impressions"),
             )
-            .where(PostMetric.timestamp >= cutoff)
+            .where(*filters)
             .group_by(func.date(PostMetric.timestamp))
             .order_by(func.date(PostMetric.timestamp))
         )
@@ -294,27 +317,33 @@ class AnalyticsAggregatorService:
             for row in rows
         ]
 
-    async def get_funnel_data(self, db: AsyncSession, days: int = 30) -> list[dict]:
+    async def get_funnel_data(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> list[dict]:
         """Get conversion funnel: impressions → engagements → clicks → conversions."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
         # Organic funnel
+        org_filters = [PostMetric.timestamp >= cutoff]
+        if client_id:
+            org_filters.append(PostMetric.client_id == client_id)
         organic = await db.execute(
             select(
                 func.sum(PostMetric.impressions).label("impressions"),
                 func.sum(PostMetric.likes + PostMetric.comments + PostMetric.shares + PostMetric.saves).label("engagements"),
                 func.sum(PostMetric.clicks).label("clicks"),
             )
-            .where(PostMetric.timestamp >= cutoff)
+            .where(*org_filters)
         )
         org = organic.one()
 
         # Paid conversions
+        ad_filters = [AdMetric.timestamp >= cutoff]
+        if client_id:
+            ad_filters.append(AdMetric.client_id == client_id)
         paid = await db.execute(
             select(
                 func.sum(AdMetric.conversions).label("conversions"),
             )
-            .where(AdMetric.timestamp >= cutoff)
+            .where(*ad_filters)
         )
         pd = paid.one()
 
@@ -330,16 +359,16 @@ class AnalyticsAggregatorService:
             {"label": "Conversions", "value": conversions, "color": "#22c55e"},
         ]
 
-    async def get_overview_for_dashboard(self, db: AsyncSession, days: int = 30) -> dict:
+    async def get_overview_for_dashboard(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """Combined dashboard response matching frontend AnalyticsData interface."""
         from app.models.content import ContentPost
 
-        kpis = await self.get_overview_kpis(db)
-        reach_data = await self.get_daily_reach_series(db, days)
-        funnel = await self.get_funnel_data(db, days)
+        kpis = await self.get_overview_kpis(db, client_id)
+        reach_data = await self.get_daily_reach_series(db, days, client_id)
+        funnel = await self.get_funnel_data(db, days, client_id)
 
         # Campaign data by platform
-        platform_data = await self.get_platform_breakdown(db)
+        platform_data = await self.get_platform_breakdown(db, client_id=client_id)
         campaign_data = []
         for p_name, p_metrics in platform_data.get("platforms", {}).items():
             if p_metrics.get("impressions", 0) > 0:
@@ -351,7 +380,7 @@ class AnalyticsAggregatorService:
                 })
 
         # Top posts
-        rankings = await self.get_content_rankings(db, limit=5)
+        rankings = await self.get_content_rankings(db, limit=5, client_id=client_id)
         top_posts = []
         for r in rankings:
             if r.get("post_id"):
@@ -373,10 +402,13 @@ class AnalyticsAggregatorService:
             "top_posts": top_posts,
         }
 
-    async def get_roi_summary(self, db: AsyncSession, days: int = 30) -> dict:
+    async def get_roi_summary(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """ROAS, CPA, total spend, conversions, conversion value."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
+        filters = [AdMetric.timestamp >= cutoff]
+        if client_id:
+            filters.append(AdMetric.client_id == client_id)
         result = await db.execute(
             select(
                 func.sum(AdMetric.spend).label("total_spend"),
@@ -386,7 +418,7 @@ class AnalyticsAggregatorService:
                 func.avg(AdMetric.cpc).label("avg_cpc"),
                 func.avg(AdMetric.cpm).label("avg_cpm"),
             )
-            .where(AdMetric.timestamp >= cutoff)
+            .where(*filters)
         )
         row = result.one()
 
@@ -405,7 +437,7 @@ class AnalyticsAggregatorService:
             "avg_cpm": round(float(row.avg_cpm or 0), 2),
         }
 
-    async def get_roi_by_platform(self, db: AsyncSession, days: int = 30) -> dict:
+    async def get_roi_by_platform(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """ROI breakdown per platform."""
         from app.models.content import ContentPost
         from app.models.campaign import Ad
@@ -413,7 +445,7 @@ class AnalyticsAggregatorService:
         cutoff = datetime.utcnow() - timedelta(days=days)
 
         # For now, return aggregated ROI since ads may not be platform-tagged
-        summary = await self.get_roi_summary(db, days)
+        summary = await self.get_roi_summary(db, days, client_id)
         return {
             "period_days": days,
             "summary": summary,
@@ -421,15 +453,17 @@ class AnalyticsAggregatorService:
         }
 
     async def get_post_metrics_history(
-        self, db: AsyncSession, post_id, days: int = 7
+        self, db: AsyncSession, post_id, days: int = 7, client_id: UUID | None = None
     ) -> list[dict]:
         """Time-series metrics for a single post."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
+        filters = [PostMetric.post_id == post_id, PostMetric.timestamp >= cutoff]
+        if client_id:
+            filters.append(PostMetric.client_id == client_id)
         result = await db.execute(
             select(PostMetric)
-            .where(PostMetric.post_id == post_id)
-            .where(PostMetric.timestamp >= cutoff)
+            .where(*filters)
             .order_by(PostMetric.timestamp)
         )
         rows = result.scalars().all()
