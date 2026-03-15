@@ -17,9 +17,16 @@ export interface ClientMembership {
   /** Real onboarding status — only present for superadmin (onboarding_completed is always true for superadmin to prevent routing issues) */
   onboarding_completed_actual?: boolean
   business_description?: string
+  product_info?: string
   tone_of_voice?: string
+  target_audience?: string
   brand_colors?: string[] | Record<string, string> | null
   social_handles?: Record<string, string> | null
+  logo_url?: string
+  website_url?: string
+  languages?: string[] | null
+  content_pillars?: string[] | null
+  hashtags?: string[] | null
   projects: ProjectInfo[]
 }
 
@@ -27,6 +34,8 @@ interface ClientContextType {
   clients: ClientMembership[]
   currentClient: ClientMembership | null
   switchClient: (clientId: string) => void
+  /** Re-fetch user data from API to refresh currentClient without page reload */
+  refreshClient: () => Promise<void>
   clientRole: string | null
   isClientAdmin: boolean
   canModerate: boolean
@@ -55,6 +64,7 @@ const ClientContext = createContext<ClientContextType>({
   clients: [],
   currentClient: null,
   switchClient: () => {},
+  refreshClient: async () => {},
   clientRole: null,
   isClientAdmin: false,
   canModerate: false,
@@ -63,7 +73,7 @@ const ClientContext = createContext<ClientContextType>({
 })
 
 export function ClientProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [currentClientId, setCurrentClientId] = useState<string | null>(
     () => localStorage.getItem('current_client_id')
   )
@@ -103,6 +113,10 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     window.location.reload()
   }, [])
 
+  const refreshClient = useCallback(async () => {
+    await refreshUser()
+  }, [refreshUser])
+
   const clientRole = currentClient?.role || null
   const isClientAdmin = clientRole === 'admin' || clientRole === 'superadmin'
   const canModerate = clientRole === 'moderator' || clientRole === 'admin' || clientRole === 'superadmin'
@@ -110,7 +124,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   return (
     <ClientContext.Provider value={{
-      clients, currentClient, switchClient, clientRole, isClientAdmin, canModerate, isViewer,
+      clients, currentClient, switchClient, refreshClient, clientRole, isClientAdmin, canModerate, isViewer,
       recentClientIds,
     }}>
       {children}

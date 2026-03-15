@@ -78,9 +78,16 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "onboarding_completed": True,
                 "onboarding_completed_actual": c.onboarding_completed,
                 "business_description": c.business_description,
+                "product_info": c.product_info,
                 "tone_of_voice": c.tone_of_voice,
+                "target_audience": c.target_audience,
                 "brand_colors": c.brand_colors,
                 "social_handles": c.social_handles,
+                "logo_url": c.logo_url,
+                "website_url": c.website_url,
+                "languages": c.languages,
+                "content_pillars": c.content_pillars,
+                "hashtags": c.hashtags,
                 "projects": projects_by_client.get(str(c.id), []),
             }
             for c in all_clients  # noqa: F821
@@ -95,9 +102,16 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "role": uc.role,
                 "onboarding_completed": c.onboarding_completed,
                 "business_description": c.business_description,
+                "product_info": c.product_info,
                 "tone_of_voice": c.tone_of_voice,
+                "target_audience": c.target_audience,
                 "brand_colors": c.brand_colors,
                 "social_handles": c.social_handles,
+                "logo_url": c.logo_url,
+                "website_url": c.website_url,
+                "languages": c.languages,
+                "content_pillars": c.content_pillars,
+                "hashtags": c.hashtags,
                 "projects": projects_by_client.get(str(uc.client_id), []),
             }
             for uc, c in memberships  # noqa: F821

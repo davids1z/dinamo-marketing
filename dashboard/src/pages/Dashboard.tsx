@@ -19,6 +19,7 @@ import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useChannelStatus } from '../hooks/useChannelStatus'
 import { useProjectStatus } from '../hooks/useProjectStatus'
+import { useProfileCompleteness } from '../hooks/useProfileCompleteness'
 import EmptyState from '../components/common/EmptyState'
 import { FolderKanban } from 'lucide-react'
 
@@ -463,16 +464,16 @@ function WelcomeHero() {
   const navigate = useNavigate()
   const { currentClient } = useClient()
   const { hasConnectedChannels } = useChannelStatus()
+  const { percent: profilePercent, checks } = useProfileCompleteness()
 
-  // Profile completeness calculation
-  const profileChecks = [
-    { label: 'Opis poslovanja', done: !!(currentClient?.business_description && currentClient.business_description.length >= 20) },
-    { label: 'Ton komunikacije', done: !!currentClient?.tone_of_voice },
-    { label: 'Kanali povezani', done: hasConnectedChannels },
-    { label: 'Prvi sadržaj', done: false },
-  ]
-  const completedCount = profileChecks.filter(c => c.done).length
-  const profilePercent = Math.round((completedCount / profileChecks.length) * 100)
+  // Dynamic setup steps — done state computed from actual data
+  const hasProfileCore = !!(
+    currentClient?.business_description &&
+    currentClient.business_description.trim().length >= 20 &&
+    currentClient?.tone_of_voice &&
+    currentClient?.target_audience &&
+    currentClient.target_audience.trim().length >= 10
+  )
 
   const steps = [
     {
@@ -480,23 +481,25 @@ function WelcomeHero() {
       title: 'Završi profil klijenta',
       desc: 'Dodaj opis poslovanja, ton komunikacije i ciljnu publiku za AI kontekst.',
       to: '/brand-profile',
-      done: !!(currentClient?.onboarding_completed),
+      done: hasProfileCore,
     },
     {
       icon: Link2,
       title: 'Poveži kanale',
       desc: 'Poveži Instagram, TikTok, YouTube ili Facebook račune.',
       to: '/brand-profile?tab=mreze',
-      done: false,
+      done: hasConnectedChannels,
     },
     {
       icon: PenTool,
       title: 'Kreiraj prvi sadržaj',
       desc: 'Koristi AI za generiranje content plana ili kreiraj objavu ručno.',
       to: '/content',
-      done: false,
+      done: false, // Will be dynamic when content tracking exists
     },
   ]
+
+  const allStepsDone = steps.every(s => s.done)
 
   return (
     <div>
@@ -511,10 +514,13 @@ function WelcomeHero() {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-studio-text-primary font-headline uppercase tracking-wide">
-                  Započnite s platformom
+                  {allStepsDone ? 'Platforma spremna!' : 'Započnite s platformom'}
                 </h2>
                 <p className="text-sm text-studio-text-secondary">
-                  Dovršite korake ispod za aktivaciju svih funkcionalnosti.
+                  {allStepsDone
+                    ? 'Vaš profil je postavljen. Povežite kanale za puni pregled metrika.'
+                    : 'Dovršite korake ispod za aktivaciju svih funkcionalnosti.'
+                  }
                 </p>
               </div>
             </div>
@@ -524,33 +530,52 @@ function WelcomeHero() {
         </div>
 
         {/* Profile completeness bar */}
-        {profilePercent < 100 && (
-          <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} className="text-brand-accent" />
-                <span className="text-sm font-semibold text-studio-text-primary">
-                  AI profil: {profilePercent}%
-                </span>
-              </div>
+        <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={14} className={profilePercent >= 100 ? 'text-emerald-500' : 'text-brand-accent'} />
+              <span className="text-sm font-semibold text-studio-text-primary">
+                AI profil: {profilePercent}%
+              </span>
+              {profilePercent >= 100 && (
+                <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">Kompletno</span>
+              )}
+            </div>
+            {profilePercent < 100 && (
               <button
                 onClick={() => navigate('/brand-profile')}
                 className="text-xs font-medium text-brand-accent hover:underline"
               >
                 Popuni podatke
               </button>
+            )}
+          </div>
+          <div className="w-full h-2 bg-studio-surface-3 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${profilePercent >= 100 ? 'bg-emerald-500' : 'bg-brand-accent'}`}
+              style={{ width: `${Math.min(profilePercent, 100)}%` }}
+            />
+          </div>
+          {profilePercent < 100 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {checks.filter(ch => !ch.done).slice(0, 4).map(ch => (
+                <span key={ch.id} className="text-[10px] text-studio-text-tertiary bg-studio-surface-2 px-2 py-1 rounded-full">
+                  {ch.label} (+{ch.weight}%)
+                </span>
+              ))}
             </div>
-            <div className="w-full h-2 bg-studio-surface-3 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand-accent rounded-full transition-all duration-700"
-                style={{ width: `${profilePercent}%` }}
-              />
-            </div>
+          )}
+          {profilePercent >= 100 && (
+            <p className="text-xs text-emerald-600 mt-2">
+              Svi podaci su uneseni! AI koristi puni kontekst za generiranje sadržaja.
+            </p>
+          )}
+          {profilePercent < 100 && (
             <p className="text-xs text-studio-text-tertiary mt-2">
               Što više podataka unesete, to će AI bolje generirati sadržaj za vaš brand.
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Brand Profile Summary — confirms onboarding data saved */}
         {currentClient?.business_description && (
@@ -585,25 +610,36 @@ function WelcomeHero() {
                 onClick={() => navigate(step.to)}
                 className={`text-left bg-studio-surface-1 border rounded-2xl p-6 transition-all duration-300 group ${
                   step.done
-                    ? 'border-brand-accent/30 bg-brand-accent/5'
+                    ? 'border-emerald-500/30 bg-emerald-500/5'
                     : 'border-studio-border hover:border-brand-accent/30 hover:shadow-card-hover hover:-translate-y-0.5'
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    step.done ? 'bg-brand-accent/15' : 'bg-studio-surface-3'
+                    step.done ? 'bg-emerald-500/15' : 'bg-studio-surface-3'
                   }`}>
                     {step.done ? (
-                      <CheckCircle size={18} className="text-brand-accent" />
+                      <CheckCircle size={18} className="text-emerald-500" />
                     ) : (
                       <Icon size={18} className="text-studio-text-tertiary group-hover:text-brand-accent transition-colors" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-studio-text-primary mb-1">{step.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className={`text-sm font-semibold mb-1 ${step.done ? 'text-emerald-600' : 'text-studio-text-primary'}`}>
+                        {step.title}
+                      </h3>
+                      {step.done && (
+                        <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          Gotovo
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-studio-text-tertiary leading-relaxed">{step.desc}</p>
                   </div>
-                  <ArrowRight size={14} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors mt-1 flex-shrink-0" />
+                  {!step.done && (
+                    <ArrowRight size={14} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors mt-1 flex-shrink-0" />
+                  )}
                 </div>
               </button>
             )

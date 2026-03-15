@@ -71,7 +71,7 @@ const LANGUAGES = [
 /* ------------------------------------------------------------------ */
 
 export default function BrandProfile() {
-  const { currentClient, isClientAdmin, clientRole } = useClient()
+  const { currentClient, isClientAdmin, clientRole, refreshClient } = useClient()
   const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -135,6 +135,8 @@ export default function BrandProfile() {
         hashtags: data.hashtags,
         ai_system_prompt_override: data.ai_system_prompt_override,
       })
+      // Refresh client context so Dashboard / other pages see fresh data
+      await refreshClient()
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {

@@ -20,6 +20,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   loading: boolean
+  /** Re-fetch /auth/me to refresh user + client data without page reload */
+  refreshUser: () => Promise<void>
   // Impersonation
   impersonating: boolean
   impersonate: (token: string, user: AuthUser) => void
@@ -35,6 +37,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: () => {},
   loading: true,
+  refreshUser: async () => {},
   impersonating: false,
   impersonate: () => {},
   stopImpersonating: () => {},
@@ -89,6 +92,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setImpersonating(false)
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    const currentToken = localStorage.getItem('auth_token')
+    if (!currentToken) return
+    try {
+      const res = await api.get('/auth/me', { headers: { Authorization: `Bearer ${currentToken}` } })
+      setUser(res.data)
+    } catch {
+      // silently fail — data stays as-is
+    }
+  }, [])
+
   const logout = useCallback(() => {
     setToken(null)
     setUser(null)
@@ -141,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!token && !!user,
       isAdmin: user?.is_superadmin ?? false,
       canApprove: user?.is_superadmin || user?.role === 'admin' || user?.role === 'editor',
-      login, logout, loading,
+      login, logout, loading, refreshUser,
       impersonating, impersonate, stopImpersonating,
     }}>
       {children}
