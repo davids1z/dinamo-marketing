@@ -486,7 +486,7 @@ function WelcomeHero() {
       icon: Link2,
       title: 'Poveži kanale',
       desc: 'Poveži Instagram, TikTok, YouTube ili Facebook račune.',
-      to: '/channels',
+      to: '/brand-profile?tab=mreze',
       done: false,
     },
     {

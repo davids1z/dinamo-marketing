@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react'
-import { Building2, Palette, Globe, Hash, MessageSquare, Sparkles, Save, Loader2, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react'
-// import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import {
+  Building2, Palette, Globe, Sparkles, Save, Loader2, AlertTriangle,
+  CheckCircle2, ShieldAlert, Link2, X, Plus, ChevronDown, ChevronUp,
+} from 'lucide-react'
 import Header from '../components/layout/Header'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../api/client'
+import PlatformIcon from '../components/common/PlatformIcon'
+import { detectPlatformFromUrl, CONTENT_PILLARS } from '../utils/constants'
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                               */
+/* ------------------------------------------------------------------ */
 
 interface BrandData {
   id: string
@@ -19,33 +28,85 @@ interface BrandData {
   logo_url: string
   website_url: string
   languages: string[] | null
-  content_pillars: Array<{ id: string; name: string }> | null
+  content_pillars: string[] | null
   social_handles: Record<string, string> | null
   hashtags: string[] | null
   ai_system_prompt_override: string
 }
 
+type BrandTab = 'biznis' | 'identitet' | 'mreze' | 'ai'
+
+/* ------------------------------------------------------------------ */
+/*  Constants                                                           */
+/* ------------------------------------------------------------------ */
+
+const BRAND_TABS: Array<{ id: BrandTab; label: string; icon: typeof Building2 }> = [
+  { id: 'biznis', label: 'Biznis info', icon: Building2 },
+  { id: 'identitet', label: 'Vizualni identitet', icon: Palette },
+  { id: 'mreze', label: 'Društvene mreže', icon: Globe },
+  { id: 'ai', label: 'AI Postavke', icon: Sparkles },
+]
+
+const TONES = [
+  { value: 'professional', label: 'Profesionalan', emoji: '🎯' },
+  { value: 'friendly', label: 'Prijateljski', emoji: '👋' },
+  { value: 'bold', label: 'Hrabar i direktan', emoji: '🔥' },
+  { value: 'creative', label: 'Kreativan', emoji: '🎨' },
+  { value: 'formal', label: 'Formalan', emoji: '📋' },
+  { value: 'casual', label: 'Opušten', emoji: '☕' },
+  { value: 'inspirational', label: 'Inspirativan', emoji: '✨' },
+  { value: 'humorous', label: 'Humorističan', emoji: '😄' },
+]
+
+const LANGUAGES = [
+  { code: 'hr', label: 'Hrvatski' },
+  { code: 'en', label: 'English' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'sl', label: 'Slovenščina' },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                           */
+/* ------------------------------------------------------------------ */
+
 export default function BrandProfile() {
   const { currentClient, isClientAdmin, clientRole } = useClient()
   const { user } = useAuth()
-  // Superadmin can SEE everything but NOT edit — they're visitors, not owners
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const isSuperadminVisitor = user?.is_superadmin && clientRole === 'superadmin'
   const canEdit = isClientAdmin && !isSuperadminVisitor
   const canSeeAiOverride = isClientAdmin || user?.is_superadmin
+
   const [data, setData] = useState<BrandData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // Depend on stable string, not unstable object reference
+  // Tab state from URL
+  const activeTab: BrandTab = (searchParams.get('tab') as BrandTab) || 'biznis'
+  const setActiveTab = (tab: BrandTab) => setSearchParams({ tab }, { replace: true })
+
+  // Social handles local state
+  const [socialInput, setSocialInput] = useState('')
+  const [detectedPlatform, setDetectedPlatform] = useState<string | null>(null)
+
+  // Hashtags local state
+  const [hashtagInput, setHashtagInput] = useState('#')
+
+  // Content pillars custom input
+  const [showCustomPillar, setShowCustomPillar] = useState(false)
+  const [customPillarInput, setCustomPillarInput] = useState('')
+
+  // AI settings collapsible
+  const [aiExpanded, setAiExpanded] = useState(false)
+
   const clientId = currentClient?.client_id
 
   useEffect(() => {
-    if (!clientId) {
-      setLoading(false)
-      return
-    }
+    if (!clientId) { setLoading(false); return }
     setLoading(true)
     setError(false)
     api.get(`/clients/${clientId}`)
@@ -88,10 +149,11 @@ export default function BrandProfile() {
     setData({ ...data, [field]: value })
   }
 
+  /* Loading / error states */
   if (!currentClient || loading) {
     return (
       <>
-        <Header title="Profil klijenta" subtitle="Postavke klijenta i AI kontekst" />
+        <Header title="PROFIL KLIJENTA" subtitle="Postavke klijenta i AI kontekst" />
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
         </div>
@@ -102,11 +164,14 @@ export default function BrandProfile() {
   if (error || !data) {
     return (
       <>
-        <Header title="Profil klijenta" subtitle="Postavke klijenta i AI kontekst" />
+        <Header title="PROFIL KLIJENTA" subtitle="Postavke klijenta i AI kontekst" />
         <div className="p-8 text-center">
           <p className="text-studio-text-secondary mb-3">Nije moguće učitati podatke klijenta.</p>
           <button
-            onClick={() => { setError(false); setLoading(true); api.get(`/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false)) }}
+            onClick={() => {
+              setError(false); setLoading(true)
+              api.get(`/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false))
+            }}
             className="text-sm text-brand-accent hover:underline font-medium"
           >
             Pokušaj ponovo
@@ -120,10 +185,28 @@ export default function BrandProfile() {
   const labelCls = "block text-sm font-medium text-studio-text-secondary mb-1.5"
   const cardCls = "bg-studio-surface-0 border border-studio-border rounded-2xl p-6"
 
+  /* Helpers for social handles */
+  const socialEntries = Object.entries(data.social_handles || {}).filter(([, v]) => v && v.trim())
+
+  const addSocialLink = (platform: string, url: string) => {
+    update('social_handles', { ...(data.social_handles || {}), [platform]: url })
+    setSocialInput('')
+    setDetectedPlatform(null)
+  }
+
+  const removeSocialLink = (platform: string) => {
+    const h = { ...(data.social_handles || {}) }
+    delete h[platform]
+    update('social_handles', h)
+  }
+
+  /* Helpers for pillars */
+  const pillars: string[] = (data.content_pillars as string[] | null) || []
+
   return (
     <>
       <Header
-        title="Profil klijenta"
+        title="PROFIL KLIJENTA"
         subtitle={data.name}
         actions={
           canEdit ? (
@@ -155,18 +238,15 @@ export default function BrandProfile() {
 
         {/* AI Context Status Banner */}
         {!data.business_description && !data.product_info ? (
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-              <AlertTriangle className="w-6 h-6 text-amber-400" />
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-studio-text-primary mb-1">AI kontekst nije postavljen</h3>
-              <p className="text-sm text-studio-text-secondary mb-3">
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">AI kontekst nije postavljen</h3>
+              <p className="text-xs text-studio-text-secondary">
                 Opišite svoj posao i proizvode kako bi AI mogao generirati kampanje, sadržaj i analize prilagođene vašem brendu.
               </p>
-              {canEdit && (
-                <p className="text-xs text-amber-400 font-medium">Ispunite polja ispod za aktivaciju AI konteksta.</p>
-              )}
             </div>
           </div>
         ) : (
@@ -182,168 +262,452 @@ export default function BrandProfile() {
           </div>
         )}
 
-        {/* Basic Info */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-brand-accent" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-studio-text-primary">Osnovni podaci</h3>
-              <p className="text-xs text-studio-text-tertiary">Ime klijenta i opis poslovanja</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className={labelCls}>Ime klijenta</label>
-              <input className={inputCls} value={data.name} onChange={e => update('name', e.target.value)} disabled={!canEdit} />
-            </div>
-            <div>
-              <label className={labelCls}>Opis poslovanja</label>
-              <textarea className={`${inputCls} min-h-[100px]`} value={data.business_description} onChange={e => update('business_description', e.target.value)} disabled={!canEdit} placeholder="Opisi cime se tvoja firma bavi..." />
-            </div>
-            <div>
-              <label className={labelCls}>Proizvodi / Usluge</label>
-              <textarea className={`${inputCls} min-h-[80px]`} value={data.product_info} onChange={e => update('product_info', e.target.value)} disabled={!canEdit} placeholder="Koji su tvoji glavni proizvodi ili usluge?" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Web stranica</label>
-                <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!canEdit} placeholder="https://..." />
-              </div>
-              <div>
-                <label className={labelCls}>Logo URL</label>
-                <input className={inputCls} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!canEdit} />
-              </div>
-            </div>
-          </div>
+        {/* ---- Tab navigation ---- */}
+        <div className="flex gap-1 bg-studio-surface-1 border border-studio-border rounded-xl p-1 overflow-x-auto">
+          {BRAND_TABS.map(tab => {
+            if (tab.id === 'ai' && !canSeeAiOverride) return null
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                  isActive
+                    ? 'bg-brand-accent text-white shadow-sm'
+                    : 'text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2'
+                }`}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Tone & Audience */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-studio-text-primary">Ton i Publika</h3>
-              <p className="text-xs text-studio-text-tertiary">Kako komunicirate i kome se obracate</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className={labelCls}>Ton komunikacije</label>
-              <input className={inputCls} value={data.tone_of_voice} onChange={e => update('tone_of_voice', e.target.value)} disabled={!canEdit} placeholder="npr. Profesionalan, moderan, pristupacan" />
-            </div>
-            <div>
-              <label className={labelCls}>Ciljna publika</label>
-              <textarea className={`${inputCls} min-h-[80px]`} value={data.target_audience} onChange={e => update('target_audience', e.target.value)} disabled={!canEdit} placeholder="Tko su tvoji idealni kupci?" />
-            </div>
-          </div>
-        </div>
-
-        {/* Visual Identity */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-              <Palette className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-studio-text-primary">Vizualni identitet</h3>
-              <p className="text-xs text-studio-text-tertiary">Boje branda</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {Object.entries(data.brand_colors || {}).map(([key, val]) => (
-              <div key={key}>
-                <label className={labelCls}>{key}</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={val}
-                    onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })}
+        {/* ================================================================ */}
+        {/*  TAB: Biznis info                                                */}
+        {/* ================================================================ */}
+        {activeTab === 'biznis' && (
+          <div className="space-y-6">
+            <div className={cardCls}>
+              <div className="space-y-4">
+                <div>
+                  <label className={labelCls}>Ime klijenta</label>
+                  <input className={inputCls} value={data.name} onChange={e => update('name', e.target.value)} disabled={!canEdit} />
+                </div>
+                <div>
+                  <label className={labelCls}>Opis poslovanja</label>
+                  <textarea
+                    className={`${inputCls} min-h-[120px] resize-none`}
+                    value={data.business_description}
+                    onChange={e => update('business_description', e.target.value)}
                     disabled={!canEdit}
-                    className="w-10 h-10 rounded-lg border border-studio-border cursor-pointer"
+                    placeholder="Opišite čime se vaša firma bavi, koja je misija i vizija..."
                   />
-                  <input className={inputCls} value={val} onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })} disabled={!canEdit} />
+                </div>
+                <div>
+                  <label className={labelCls}>Proizvodi / Usluge</label>
+                  <textarea
+                    className={`${inputCls} min-h-[80px] resize-none`}
+                    value={data.product_info}
+                    onChange={e => update('product_info', e.target.value)}
+                    disabled={!canEdit}
+                    placeholder="Koji su vaši glavni proizvodi ili usluge?"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Ciljna publika</label>
+                  <textarea
+                    className={`${inputCls} min-h-[80px] resize-none`}
+                    value={data.target_audience}
+                    onChange={e => update('target_audience', e.target.value)}
+                    disabled={!canEdit}
+                    placeholder="Tko su vaši idealni kupci?"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Ton komunikacije</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {TONES.map(t => (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => canEdit && update('tone_of_voice', t.value)}
+                        disabled={!canEdit}
+                        className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left disabled:cursor-not-allowed ${
+                          data.tone_of_voice === t.value
+                            ? 'bg-brand-accent text-white ring-2 ring-brand-accent/30'
+                            : 'bg-studio-surface-1 text-studio-text-secondary hover:bg-studio-surface-2'
+                        }`}
+                      >
+                        <span className="mr-1.5">{t.emoji}</span>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Web stranica</label>
+                    <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!canEdit} placeholder="https://..." />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Logo URL</label>
+                    <div className="flex items-center gap-2">
+                      <input className={`${inputCls} flex-1`} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!canEdit} placeholder="https://example.com/logo.png" />
+                      {data.logo_url && (
+                        <div className="w-10 h-10 rounded-lg border border-studio-border overflow-hidden flex-shrink-0 bg-studio-surface-1 flex items-center justify-center">
+                          <img src={data.logo_url} alt="" className="w-full h-full object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Languages & Social */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-              <Globe className="w-5 h-5 text-green-400" />
+        {/* ================================================================ */}
+        {/*  TAB: Vizualni identitet                                        */}
+        {/* ================================================================ */}
+        {activeTab === 'identitet' && (
+          <div className="space-y-6">
+            {/* Brand Colors */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-4">Boje branda</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {Object.entries(data.brand_colors || {}).map(([key, val]) => (
+                  <div key={key}>
+                    <label className={labelCls}>{key}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={val}
+                        onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })}
+                        disabled={!canEdit}
+                        className="w-10 h-10 rounded-lg border border-studio-border cursor-pointer bg-transparent"
+                      />
+                      <input className={inputCls} value={val} onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })} disabled={!canEdit} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-studio-text-primary">Jezici i Mreze</h3>
-              <p className="text-xs text-studio-text-tertiary">Podrzani jezici i drustvene mreze</p>
+
+            {/* Languages */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-2">Jezici sadržaja</h3>
+              <p className="text-xs text-studio-text-tertiary mb-3">Odaberite jezike na kojima generirate sadržaj.</p>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map(lang => {
+                  const isSelected = (data.languages || []).includes(lang.code)
+                  return (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => {
+                        if (!canEdit) return
+                        const langs = isSelected
+                          ? (data.languages || []).filter(l => l !== lang.code)
+                          : [...(data.languages || []), lang.code]
+                        update('languages', langs)
+                      }}
+                      disabled={!canEdit}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:cursor-not-allowed ${
+                        isSelected
+                          ? 'bg-brand-accent text-white'
+                          : 'bg-studio-surface-1 text-studio-text-secondary hover:bg-studio-surface-2'
+                      }`}
+                    >
+                      {lang.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
-          <div className="space-y-4">
-            <div>
-              <label className={labelCls}>Jezici (razdvojeni zarezom)</label>
-              <input className={inputCls} value={(data.languages || []).join(', ')} onChange={e => update('languages', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!canEdit} placeholder="hr, en, de" />
+        )}
+
+        {/* ================================================================ */}
+        {/*  TAB: Društvene mreže                                           */}
+        {/* ================================================================ */}
+        {activeTab === 'mreze' && (
+          <div className="space-y-6">
+            {/* Social Handles */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">Društvene mreže</h3>
+              <p className="text-xs text-studio-text-tertiary mb-4">Zalijepite linkove svojih profila — automatski prepoznajemo platformu.</p>
+
+              <div className="space-y-3">
+                {/* Existing links */}
+                {socialEntries.map(([platform, url]) => (
+                  <div key={platform} className="flex items-center gap-3 bg-studio-surface-1 border border-studio-border rounded-xl px-4 py-3 group">
+                    <PlatformIcon platform={platform} size="md" />
+                    <span className="text-sm text-studio-text-primary flex-1 truncate">{url}</span>
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => removeSocialLink(platform)}
+                        className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add new link */}
+                {canEdit && (
+                  <div className="relative">
+                    <Link2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                    <input
+                      type="url"
+                      value={socialInput}
+                      onChange={e => {
+                        setSocialInput(e.target.value)
+                        setDetectedPlatform(detectPlatformFromUrl(e.target.value))
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && socialInput.trim()) {
+                          e.preventDefault()
+                          addSocialLink(detectedPlatform || 'web', socialInput.trim())
+                        }
+                      }}
+                      className="w-full pl-10 pr-36 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-1"
+                      placeholder="https://instagram.com/vaš_brand"
+                    />
+                    {detectedPlatform && socialInput.trim() && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        <PlatformIcon platform={detectedPlatform} size="sm" showLabel />
+                        <button
+                          type="button"
+                          onClick={() => addSocialLink(detectedPlatform, socialInput.trim())}
+                          className="px-3 py-1 bg-brand-accent text-white rounded-lg text-xs font-bold hover:bg-brand-accent-hover transition-colors"
+                        >
+                          Dodaj
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <p className="text-xs text-studio-text-tertiary">Instagram, Facebook, X/Twitter, LinkedIn, TikTok, YouTube — automatski prepoznajemo platformu.</p>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {Object.entries(data.social_handles || {}).map(([platform, handle]) => (
-                <div key={platform}>
-                  <label className={labelCls}>{platform}</label>
-                  <input className={inputCls} value={handle} onChange={e => update('social_handles', { ...data.social_handles, [platform]: e.target.value })} disabled={!canEdit} />
+
+            {/* Hashtags */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">Hashtagovi</h3>
+              <p className="text-xs text-studio-text-tertiary mb-3">Brand hashtagovi koje AI koristi za generiranje sadržaja.</p>
+
+              <div
+                className="flex flex-wrap gap-2 p-3 border border-studio-border rounded-xl bg-studio-surface-1 min-h-[48px] focus-within:border-brand-accent/50 focus-within:ring-2 focus-within:ring-brand-accent/10 transition-all cursor-text"
+                onClick={() => document.getElementById('bp-hashtag-input')?.focus()}
+              >
+                {(data.hashtags || []).map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-brand-accent/10 text-brand-accent rounded-full text-sm font-medium"
+                  >
+                    #{tag.replace(/^#/, '')}
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          update('hashtags', (data.hashtags || []).filter((_, idx) => idx !== i))
+                        }}
+                        className="hover:text-red-500 transition-colors ml-0.5"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </span>
+                ))}
+                {canEdit && (
+                  <input
+                    id="bp-hashtag-input"
+                    type="text"
+                    value={hashtagInput}
+                    onChange={e => {
+                      const v = e.target.value
+                      setHashtagInput(v.startsWith('#') ? v : '#' + v)
+                    }}
+                    onKeyDown={e => {
+                      if ((e.key === 'Enter' || e.key === ',') && hashtagInput.trim().length > 1) {
+                        e.preventDefault()
+                        const tag = hashtagInput.trim().replace(/^#/, '')
+                        if (tag && !(data.hashtags || []).includes(tag)) {
+                          update('hashtags', [...(data.hashtags || []), tag])
+                        }
+                        setHashtagInput('#')
+                      }
+                      if (e.key === 'Backspace' && hashtagInput === '#') {
+                        e.preventDefault()
+                      }
+                    }}
+                    className="flex-1 min-w-[120px] bg-transparent outline-none text-sm text-studio-text-primary placeholder:text-studio-text-tertiary py-1"
+                    placeholder={(data.hashtags || []).length === 0 ? 'hashtag + Enter' : 'Dodaj još...'}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Content Pillars */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">Stupovi sadržaja</h3>
+              <p className="text-xs text-studio-text-tertiary mb-3">Odaberite teme o kojima AI smije generirati sadržaj za vaš brand.</p>
+
+              <div className="flex flex-wrap gap-2">
+                {CONTENT_PILLARS.map(pillar => {
+                  const isSelected = pillars.includes(pillar.name)
+                  return (
+                    <button
+                      key={pillar.id}
+                      type="button"
+                      onClick={() => {
+                        if (!canEdit) return
+                        const updated = isSelected
+                          ? pillars.filter(p => p !== pillar.name)
+                          : [...pillars, pillar.name]
+                        update('content_pillars', updated)
+                      }}
+                      disabled={!canEdit}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all border disabled:cursor-not-allowed ${
+                        isSelected
+                          ? 'bg-brand-accent text-white border-brand-accent shadow-sm'
+                          : 'bg-studio-surface-1 text-studio-text-secondary border-studio-border hover:border-brand-accent/30 hover:bg-brand-accent/5'
+                      }`}
+                    >
+                      {pillar.name}
+                    </button>
+                  )
+                })}
+
+                {/* Custom pillars */}
+                {pillars
+                  .filter(p => !CONTENT_PILLARS.some(cp => cp.name === p))
+                  .map(customPillar => (
+                    <span
+                      key={customPillar}
+                      className="inline-flex items-center gap-1 px-4 py-2 bg-brand-accent text-white rounded-full text-sm font-medium border border-brand-accent shadow-sm"
+                    >
+                      {customPillar}
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => update('content_pillars', pillars.filter(p => p !== customPillar))}
+                          className="hover:text-red-200 transition-colors ml-0.5"
+                        >
+                          <X size={12} />
+                        </button>
+                      )}
+                    </span>
+                  ))}
+
+                {/* Add custom pillar */}
+                {canEdit && (
+                  showCustomPillar ? (
+                    <input
+                      type="text"
+                      value={customPillarInput}
+                      onChange={e => setCustomPillarInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && customPillarInput.trim()) {
+                          e.preventDefault()
+                          if (!pillars.includes(customPillarInput.trim())) {
+                            update('content_pillars', [...pillars, customPillarInput.trim()])
+                          }
+                          setCustomPillarInput('')
+                          setShowCustomPillar(false)
+                        }
+                        if (e.key === 'Escape') {
+                          setShowCustomPillar(false)
+                          setCustomPillarInput('')
+                        }
+                      }}
+                      onBlur={() => {
+                        if (customPillarInput.trim() && !pillars.includes(customPillarInput.trim())) {
+                          update('content_pillars', [...pillars, customPillarInput.trim()])
+                        }
+                        setCustomPillarInput('')
+                        setShowCustomPillar(false)
+                      }}
+                      autoFocus
+                      className="px-4 py-2 rounded-full text-sm border border-brand-accent/50 bg-studio-surface-1 focus:outline-none focus:ring-2 focus:ring-brand-accent/10 w-40"
+                      placeholder="Naziv stupca..."
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomPillar(true)}
+                      className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-studio-border text-studio-text-tertiary hover:border-brand-accent/30 hover:text-brand-accent transition-all"
+                    >
+                      <Plus size={14} />
+                      Prilagođen
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/*  TAB: AI Postavke (admin only)                                  */}
+        {/* ================================================================ */}
+        {activeTab === 'ai' && canSeeAiOverride && (
+          <div className="space-y-6">
+            <div className={cardCls}>
+              <button
+                type="button"
+                onClick={() => setAiExpanded(!aiExpanded)}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-brand-accent" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-base font-bold text-studio-text-primary">AI System Prompt Override</h3>
+                    <p className="text-xs text-studio-text-tertiary">Potpuno custom AI prompt za ovog klijenta</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20 flex items-center gap-1">
+                    <ShieldAlert size={10} />
+                    Samo admin
+                  </span>
+                  {aiExpanded ? <ChevronUp size={16} className="text-studio-text-tertiary" /> : <ChevronDown size={16} className="text-studio-text-tertiary" />}
+                </div>
+              </button>
 
-        {/* Hashtags */}
-        <div className={cardCls}>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-              <Hash className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-studio-text-primary">Hashtagovi</h3>
-              <p className="text-xs text-studio-text-tertiary">Brand hashtagovi za sadrzaj</p>
-            </div>
-          </div>
-          <div>
-            <label className={labelCls}>Hashtagovi (razdvojeni zarezom)</label>
-            <input className={inputCls} value={(data.hashtags || []).join(', ')} onChange={e => update('hashtags', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!canEdit} placeholder="#MojBrand, #Inovacija" />
-          </div>
-        </div>
+              {aiExpanded && (
+                <div className="mt-5 space-y-4">
+                  {/* Warning */}
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                    <AlertTriangle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-500">
+                      Ovo zamjenjuje kompletni AI system prompt. Pogrešna konfiguracija može degradirati kvalitetu generiranog sadržaja. Ostavite prazno za automatski generirani prompt.
+                    </p>
+                  </div>
 
-        {/* AI Override — only visible to admin+ */}
-        {canSeeAiOverride ? (
-          <div className={cardCls}>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-brand-accent" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-studio-text-primary">AI System Prompt Override</h3>
-                <p className="text-xs text-studio-text-tertiary">Opcionalno: potpuno custom AI prompt za ovog klijenta</p>
-              </div>
-              <span className="ml-auto text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20 flex items-center gap-1">
-                <ShieldAlert size={10} />
-                Samo admin
-              </span>
-            </div>
-            <div>
-              <label className={labelCls}>Custom system prompt (ostavi prazno za automatski)</label>
-              <textarea
-                className={`${inputCls} min-h-[150px] font-mono text-xs`}
-                value={data.ai_system_prompt_override}
-                onChange={e => update('ai_system_prompt_override', e.target.value)}
-                disabled={!canEdit}
-                placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
-              />
+                  <div>
+                    <label className={labelCls}>Custom system prompt</label>
+                    <textarea
+                      className={`${inputCls} min-h-[150px] font-mono text-xs resize-none`}
+                      value={data.ai_system_prompt_override}
+                      onChange={e => update('ai_system_prompt_override', e.target.value)}
+                      disabled={!canEdit}
+                      placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        ) : null}
+        )}
       </div>
     </>
   )

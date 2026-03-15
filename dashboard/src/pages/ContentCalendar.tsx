@@ -597,7 +597,7 @@ export default function ContentCalendar() {
               description="Prvo povežite društvene mreže, pa generirajte AI strategiju sadržaja."
               variant="hero"
               action={
-                <button onClick={() => navigate('/brand-profile')} className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm">
+                <button onClick={() => navigate('/brand-profile?tab=mreze')} className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm">
                   <Link2 size={16} /> Poveži kanale
                 </button>
               }
