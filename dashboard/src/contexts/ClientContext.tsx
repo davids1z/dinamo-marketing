@@ -19,6 +19,7 @@ export interface ClientMembership {
   business_description?: string
   tone_of_voice?: string
   brand_colors?: string[] | Record<string, string> | null
+  social_handles?: Record<string, string> | null
   projects: ProjectInfo[]
 }
 

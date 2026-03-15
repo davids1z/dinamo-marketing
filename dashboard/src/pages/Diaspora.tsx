@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
+import EmptyState from '../components/common/EmptyState'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
-import { Globe, Users, MapPin, Languages, Calendar } from 'lucide-react'
+import { useChannelStatus } from '../hooks/useChannelStatus'
+import { Globe, Users, MapPin, Languages, Calendar, Link2 } from 'lucide-react'
 
 interface MarketRegion {
   country: string
@@ -29,67 +32,6 @@ interface GeographicMarketsData {
   contentPipeline: ContentItem[]
 }
 
-// Fallback mock data for when API is not available
-const fallbackData: GeographicMarketsData = {
-  communities: [
-    { country: 'Germany', city: 'Multiple cities', population: 500000, activeMembers: 12400, offices: 8, engagement: 4.2, flag: '' },
-    { country: 'Austria', city: 'Vienna, Salzburg', population: 150000, activeMembers: 8200, offices: 5, engagement: 5.1, flag: '' },
-    { country: 'United States', city: 'Chicago, NYC, LA', population: 130000, activeMembers: 4800, offices: 4, engagement: 3.8, flag: '' },
-    { country: 'Canada', city: 'Toronto, Vancouver', population: 80000, activeMembers: 2900, offices: 3, engagement: 3.5, flag: '' },
-    { country: 'Switzerland', city: 'Zurich, Basel', population: 60000, activeMembers: 3100, offices: 3, engagement: 4.5, flag: '' },
-    { country: 'Australia', city: 'Sydney, Melbourne', population: 50000, activeMembers: 2200, offices: 2, engagement: 3.2, flag: '' },
-    { country: 'Sweden', city: 'Stockholm, Malmo', population: 45000, activeMembers: 1800, offices: 2, engagement: 3.9, flag: '' },
-    { country: 'Ireland', city: 'Dublin', population: 25000, activeMembers: 1100, offices: 1, engagement: 4.0, flag: '' },
-    { country: 'Norway', city: 'Oslo, Bergen', population: 20000, activeMembers: 950, offices: 1, engagement: 3.6, flag: '' },
-  ],
-  contentPipeline: [
-    {
-      id: 1,
-      title: 'Kampanja uživo thread — Globalni launch',
-      languages: ['HR', 'EN', 'DE'],
-      platform: 'Sve platforme',
-      date: 'Mar 7, 2026',
-      status: 'Zakazano',
-      description: 'Višejezična ažuriranja kampanja u realnom vremenu za korisnike u svim vremenskim zonama',
-    },
-    {
-      id: 2,
-      title: 'Hub Beč — pregled eventa',
-      languages: ['HR', 'DE'],
-      platform: 'Instagram + Facebook',
-      date: 'Mar 8, 2026',
-      status: 'U produkciji',
-      description: 'Video pregled networking eventa s 200+ korisnika u Beču',
-    },
-    {
-      id: 3,
-      title: 'ShiftOneZero bilten za tržišta',
-      languages: ['HR', 'EN'],
-      platform: 'Email',
-      date: 'Mar 10, 2026',
-      status: 'Nacrt',
-      description: 'Mjesečni bilten s novostima platforme, highlightsima kampanja i pregledom tržišta',
-    },
-    {
-      id: 4,
-      title: 'Kako koristiti: Vodič za onboarding',
-      languages: ['EN', 'DE'],
-      platform: 'Website + Social',
-      date: 'Mar 6, 2026',
-      status: 'Spremno',
-      description: 'Ažurirani vodič za korisnike o korištenju platforme po regijama',
-    },
-    {
-      id: 5,
-      title: 'Video poruka tima — njemačko tržište',
-      languages: ['DE', 'HR'],
-      platform: 'TikTok + Instagram',
-      date: 'Mar 12, 2026',
-      status: 'Pregled scenarija',
-      description: 'Personalizirani video pozdrav tima za zajednicu korisnika na njemačkom tržištu',
-    },
-  ],
-}
 
 const langColors: Record<string, string> = {
   HR: 'bg-red-500/10 text-red-400 border-red-200',
@@ -99,7 +41,34 @@ const langColors: Record<string, string> = {
 
 export default function GeographicMarkets() {
   const { data: apiData, loading } = useApi<GeographicMarketsData>('/diaspora/populations')
-  const data = apiData || fallbackData
+  const { hasConnectedChannels } = useChannelStatus()
+  const navigate = useNavigate()
+  const data = apiData || { communities: [], contentPipeline: [] }
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Globe}
+            title="Nema podataka o geografskim tržištima"
+            description="Povežite kanale za praćenje dijaspore i međunarodnih tržišta."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (loading && !apiData) return (
     <>
@@ -111,8 +80,8 @@ export default function GeographicMarkets() {
     </>
   )
 
-  const regions = data.communities || fallbackData.communities
-  const contentPipeline = data.contentPipeline || fallbackData.contentPipeline
+  const regions = data.communities || []
+  const contentPipeline = data.contentPipeline || []
 
   const regionComparison = regions.map(c => ({
     name: c.country,

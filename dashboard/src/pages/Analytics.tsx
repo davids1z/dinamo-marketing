@@ -11,6 +11,10 @@ import {
   Megaphone, Filter,
 } from 'lucide-react'
 import { analyticsApi, type AdRow, type AllAdsResponse } from '../api/analytics'
+import { useChannelStatus } from '../hooks/useChannelStatus'
+import EmptyState from '../components/common/EmptyState'
+import { useNavigate } from 'react-router-dom'
+import { Link2 } from 'lucide-react'
 
 interface AnalyticsData {
   reach_data: Array<{ date: string; reach: number; impressions: number }>
@@ -24,55 +28,6 @@ interface AnalyticsData {
   }
 }
 
-// Fallback data
-const fallbackReach = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date(2026, 1, 4 + i)
-  const isCampaignDay = [0, 3, 7, 10, 14, 17, 21, 24, 28].includes(i)
-  return {
-    date: `${date.getDate()}.${date.getMonth() + 1}`,
-    reach: Math.round(120000 + Math.random() * 80000 + (isCampaignDay ? 180000 : 0)),
-    impressions: Math.round(250000 + Math.random() * 150000 + (isCampaignDay ? 350000 : 0)),
-  }
-})
-
-const fallbackCampaigns = [
-  { name: 'Lansiranje proizvoda', meta: 42000, tiktok: 18000, youtube: 12000 },
-  { name: 'Brand awareness', meta: 15000, tiktok: 28000, youtube: 8000 },
-  { name: 'Sezonska promocija', meta: 38000, tiktok: 5000, youtube: 3000 },
-  { name: 'Retargeting', meta: 22000, tiktok: 12000, youtube: 18000 },
-  { name: 'Newsletter signup', meta: 35000, tiktok: 42000, youtube: 15000 },
-]
-const fallbackBars = [
-  { key: 'meta', name: 'Meta (IG + FB)', color: '#3b82f6' },
-  { key: 'tiktok', name: 'TikTok', color: '#a855f7' },
-  { key: 'youtube', name: 'YouTube', color: '#ef4444' },
-]
-const fallbackFunnel = [
-  { label: 'Impressions', value: 4200000, color: '#60a5fa' },
-  { label: 'Engagements', value: 315000, color: '#3b82f6' },
-  { label: 'Profile Visits / Follows', value: 89000, color: '#6366f1' },
-  { label: 'Website Visits', value: 42000, color: '#a855f7' },
-  { label: 'Conversions', value: 8500, color: '#22c55e' },
-]
-const fallbackTopPosts = [
-  { id: '1', title: 'Najava novog proizvoda — teaser video', platform: 'Instagram Reel', date: '28.02.2026', reach: 892000, engagement: 45200, engRate: 5.1 },
-  { id: '2', title: 'Lansiranje proljetne kolekcije', platform: 'TikTok', date: '01.03.2026', reach: 756000, engagement: 52800, engRate: 7.0 },
-  { id: '3', title: 'Recenzija klijenta — uspješna priča', platform: 'Instagram Reel', date: '02.03.2026', reach: 645000, engagement: 38900, engRate: 6.0 },
-  { id: '4', title: 'Webinar — digitalne strategije 2026', platform: 'YouTube Short', date: '25.02.2026', reach: 412000, engagement: 21500, engRate: 5.2 },
-  { id: '5', title: 'Iza kulisa — radni dan u timu', platform: 'Instagram Carousel', date: '22.02.2026', reach: 389000, engagement: 28400, engRate: 7.3 },
-]
-
-// Fallback ads data
-const fallbackAds: AdRow[] = [
-  { ad_id: '1', variant_label: 'A', headline: 'Otkrijte novu kolekciju!', image_url: '', status: 'active', campaign_id: '1', campaign_name: 'Lansiranje proizvoda Q1', platform: 'meta', impressions: 245000, clicks: 7840, ctr: 3.2, spend: 1250, conversions: 312, roas: 4.1 },
-  { ad_id: '2', variant_label: 'B', headline: 'Vaš sljedeći favorit čeka', image_url: '', status: 'active', campaign_id: '1', campaign_name: 'Lansiranje proizvoda Q1', platform: 'meta', impressions: 198000, clicks: 6930, ctr: 3.5, spend: 1180, conversions: 289, roas: 3.8 },
-  { ad_id: '3', variant_label: 'A', headline: 'Budućnost počinje danas', image_url: '', status: 'active', campaign_id: '2', campaign_name: 'Brand awareness kampanja', platform: 'tiktok', impressions: 312000, clicks: 14976, ctr: 4.8, spend: 820, conversions: 156, roas: 2.9 },
-  { ad_id: '4', variant_label: 'A', headline: 'Proljetna promocija — 30% popust', image_url: '', status: 'active', campaign_id: '3', campaign_name: 'Sezonska promocija', platform: 'meta', impressions: 156000, clicks: 3276, ctr: 2.1, spend: 1450, conversions: 423, roas: 5.2 },
-  { ad_id: '5', variant_label: 'B', headline: 'Pridružite se našoj zajednici', image_url: '', status: 'active', campaign_id: '3', campaign_name: 'Sezonska promocija', platform: 'meta', impressions: 142000, clicks: 3550, ctr: 2.5, spend: 1330, conversions: 398, roas: 4.8 },
-  { ad_id: '6', variant_label: 'A', headline: 'Ekskluzivno za pretplatnike', image_url: '', status: 'paused', campaign_id: '4', campaign_name: 'Retargeting kampanja', platform: 'meta', impressions: 89000, clicks: 1602, ctr: 1.8, spend: 710, conversions: 89, roas: 2.4 },
-  { ad_id: '7', variant_label: 'A', headline: 'Novo u ponudi — pogledajte sada', image_url: '', status: 'active', campaign_id: '5', campaign_name: 'Newsletter signup', platform: 'tiktok', impressions: 425000, clicks: 21675, ctr: 5.1, spend: 1390, conversions: 378, roas: 3.8 },
-  { ad_id: '8', variant_label: 'C', headline: 'Proizvod izbliza — pogledajte detalje', image_url: '', status: 'active', campaign_id: '5', campaign_name: 'Newsletter signup', platform: 'tiktok', impressions: 389000, clicks: 19839, ctr: 5.1, spend: 1390, conversions: 345, roas: 3.5 },
-]
 
 type Tab = 'pregled' | 'reklame'
 type SortKey = 'impressions' | 'clicks' | 'ctr' | 'spend' | 'conversions' | 'roas'
@@ -85,6 +40,8 @@ const platformColors: Record<string, string> = {
 
 export default function Analytics() {
   const { data: apiData, loading, refetch } = useApi<AnalyticsData>('/analytics/overview')
+  const { hasConnectedChannels } = useChannelStatus()
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('pregled')
 
   // Ads state
@@ -94,11 +51,11 @@ export default function Analytics() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [platformFilter, setPlatformFilter] = useState<string>('')
 
-  const reachData = apiData?.reach_data || fallbackReach
-  const campaignData = apiData?.campaign_data || fallbackCampaigns
-  const campaignBars = apiData?.campaign_bars || fallbackBars
-  const funnelSteps = apiData?.funnel || fallbackFunnel
-  const topPosts = apiData?.top_posts || fallbackTopPosts
+  const reachData = apiData?.reach_data || []
+  const campaignData = apiData?.campaign_data || []
+  const campaignBars = apiData?.campaign_bars || []
+  const funnelSteps = apiData?.funnel || []
+  const topPosts = apiData?.top_posts || []
   const paid = apiData?.paid
 
   // Load ads when tab switches or sort/filter changes
@@ -117,10 +74,10 @@ export default function Analytics() {
         if (data?.ads?.length > 0) {
           setAds(data.ads)
         } else {
-          setAds(fallbackAds)
+          setAds([])
         }
       } catch {
-        setAds(fallbackAds)
+        setAds([])
       } finally {
         setAdsLoading(false)
       }
@@ -161,6 +118,32 @@ export default function Analytics() {
   const adsTotalClicks = ads.reduce((s, a) => s + a.clicks, 0)
   const adsTotalConversions = ads.reduce((s, a) => s + a.conversions, 0)
   const adsAvgCTR = ads.length > 0 ? ads.reduce((s, a) => s + a.ctr, 0) / ads.length : 0
+
+  // Empty state when no channels connected
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={BarChart3}
+            title="Nema podataka za analitiku"
+            description="Povežite barem jedan kanal (Instagram, TikTok, Facebook) da biste vidjeli analitiku performansi i uvide."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale za analitiku
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (loading && !apiData) return (
     <>

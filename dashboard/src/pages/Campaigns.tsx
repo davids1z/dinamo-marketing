@@ -1,16 +1,19 @@
 import { useState, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
 import DataTable from '../components/common/DataTable'
 import StatusBadge from '../components/common/StatusBadge'
 import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
+import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
+import { useChannelStatus } from '../hooks/useChannelStatus'
 import { campaignsApi, type AdPerformance, type CampaignPerformance } from '../api/campaigns'
 import {
-  Zap, CreditCard, BarChart3, Target, Plus, Pause, Play,
+  Zap, CreditCard, BarChart3, Plus, Pause, Play,
   X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
-  Filter, Loader2, Image, RefreshCw,
+  Filter, Loader2, Image, RefreshCw, Rocket, Link2,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -47,29 +50,6 @@ interface NewCampaignForm {
   startDate: string
   endDate: string
   objective: 'awareness' | 'engagement' | 'conversions'
-}
-
-type ABMetricKey = 'ctr' | 'conversions' | 'impressions' | 'clicks'
-
-// ---------------------------------------------------------------------------
-// Fallback data
-// ---------------------------------------------------------------------------
-
-const fallbackCampaigns: CampaignRow[] = [
-  { id: '1', name: 'Brand awareness Q1', platform: 'Meta (IG + FB)', market: 'HR, BA, AT, DE', status: 'aktivna', budget: 4500, spend: 3820, ctr: 3.2, roas: 4.1 },
-  { id: '2', name: 'Product launch video', platform: 'TikTok', market: 'HR, SI, RS', status: 'aktivna', budget: 2000, spend: 1650, ctr: 4.8, roas: 2.9 },
-  { id: '3', name: 'Sezonska rasprodaja', platform: 'Meta (IG + FB)', market: 'HR', status: 'aktivna', budget: 3000, spend: 2780, ctr: 2.1, roas: 5.2 },
-  { id: '4', name: 'Medjunarodni doseg', platform: 'YouTube + Meta', market: 'DE, AT, CH, US', status: 'pauzirana', budget: 2500, spend: 1420, ctr: 1.8, roas: 2.4 },
-  { id: '5', name: 'Lansiranje kolekcije 2026', platform: 'TikTok + IG', market: 'Global', status: 'aktivna', budget: 3500, spend: 2780, ctr: 5.1, roas: 3.8 },
-]
-
-const fallbackABTest = {
-  campaign: 'Lansiranje kolekcije 2026',
-  variants: [
-    { name: 'Varijanta A', description: 'Fokus na proizvodu', impressions: 85000, clicks: 4590, ctr: 5.4, conversions: 312, spend: 920, color: 'bg-blue-500' },
-    { name: 'Varijanta B', description: 'Montaza korisnickih recenzija', impressions: 82000, clicks: 3936, ctr: 4.8, conversions: 245, spend: 930, color: 'bg-purple-500' },
-    { name: 'Varijanta C', description: 'Detalji proizvoda izbliza', impressions: 79000, clicks: 4029, ctr: 5.1, conversions: 289, spend: 930, color: 'bg-emerald-500' },
-  ],
 }
 
 // Mock daily spend data for campaign detail modal
@@ -120,6 +100,8 @@ function objectiveLabel(o: string): string {
 
 export default function Campaigns() {
   const { data: apiData, loading, refetch } = useApi<CampaignRow[]>('/campaigns')
+  const { hasConnectedChannels } = useChannelStatus()
+  const navigate = useNavigate()
 
   // Local campaigns state (for adding new ones)
   const [localCampaigns, setLocalCampaigns] = useState<CampaignRow[]>([])
@@ -173,9 +155,6 @@ export default function Campaigns() {
     }
   }
 
-  // A/B test metric selector
-  const [abMetric, setAbMetric] = useState<ABMetricKey>('ctr')
-
   // -------------------------------------------------------------------------
   // Toast helpers
   // -------------------------------------------------------------------------
@@ -209,7 +188,7 @@ export default function Campaigns() {
         ctr: 0,
         roas: 0,
       }))
-    : fallbackCampaigns
+    : []
   const allCampaigns = [...mappedApi, ...localCampaigns]
   const filteredCampaigns = statusFilter === 'sve'
     ? allCampaigns
@@ -332,27 +311,6 @@ export default function Campaigns() {
   }
 
   // -------------------------------------------------------------------------
-  // A/B test helpers
-  // -------------------------------------------------------------------------
-
-  const abMetricLabel: Record<ABMetricKey, string> = {
-    ctr: 'CTR',
-    conversions: 'Konverzije',
-    impressions: 'Prikazivanja',
-    clicks: 'Klikovi',
-  }
-
-  const getABWinner = (metric: ABMetricKey) => {
-    const best = fallbackABTest.variants.reduce((a, b) => a[metric] > b[metric] ? a : b)
-    return best.name
-  }
-
-  const winnerName = getABWinner(abMetric)
-
-  // Max value for the selected metric (for bar chart)
-  const abMaxValue = Math.max(...fallbackABTest.variants.map(v => v[abMetric]))
-
-  // -------------------------------------------------------------------------
   // Table columns
   // -------------------------------------------------------------------------
 
@@ -408,6 +366,31 @@ export default function Campaigns() {
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Rocket}
+            title="Nema aktivnih kampanja"
+            description="Povežite kanale i kreirajte prvu kampanju za praćenje performansi."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (loading && !apiData) return (
     <>
@@ -477,84 +460,6 @@ export default function Campaigns() {
           </div>
         </div>
 
-        {/* A/B Test Results */}
-        <div className="card">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <Target size={20} className="text-purple-600" />
-              <h2 className="section-title">A/B test rezultati: {fallbackABTest.campaign}</h2>
-            </div>
-            {/* Metric selector */}
-            <div className="flex items-center gap-1 bg-studio-surface-2 rounded-lg p-1">
-              {(Object.keys(abMetricLabel) as ABMetricKey[]).map((key) => (
-                <button
-                  key={key}
-                  onClick={() => setAbMetric(key)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                    abMetric === key
-                      ? 'bg-studio-surface-1 text-purple-700 shadow-sm'
-                      : 'text-studio-text-secondary hover:text-studio-text-primary'
-                  }`}
-                >
-                  {abMetricLabel[key]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {fallbackABTest.variants.map((variant) => {
-              const isWinner = variant.name === winnerName
-              const barWidth = abMaxValue > 0 ? (variant[abMetric] / abMaxValue) * 100 : 0
-              return (
-                <div
-                  key={variant.name}
-                  className={`relative rounded-lg border p-5 space-y-3 transition-all hover:-translate-y-0.5 ${
-                    isWinner
-                      ? 'border-green-300 bg-green-500/10 shadow-md ring-1 ring-green-200'
-                      : 'border-studio-border bg-studio-surface-0'
-                  }`}
-                >
-                  {isWinner && (
-                    <span className="absolute -top-2.5 left-4 text-xs px-2 py-0.5 bg-green-600 text-white rounded-full flex items-center gap-1">
-                      <Trophy size={10} />
-                      Pobjednik
-                    </span>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${variant.color}`} />
-                    <h3 className="text-studio-text-primary font-medium">{variant.name}</h3>
-                  </div>
-                  <p className="text-xs text-studio-text-secondary">{variant.description}</p>
-
-                  {/* Highlighted metric with bar */}
-                  <div className="bg-studio-surface-1 rounded-md p-3 border border-studio-border-subtle">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs text-studio-text-secondary">{abMetricLabel[abMetric]}</span>
-                      <span className={`text-sm font-bold font-mono ${isWinner ? 'text-green-600' : 'text-studio-text-primary'}`}>
-                        {abMetric === 'ctr' ? `${variant[abMetric]}%` : variant[abMetric].toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="w-full bg-studio-surface-2 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${isWinner ? 'bg-green-500' : 'bg-studio-surface-3'}`}
-                        style={{ width: `${barWidth}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-studio-border">
-                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Prikazivanja</span><span className="text-studio-text-primary font-mono">{variant.impressions.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Klikovi</span><span className="text-studio-text-primary font-mono">{variant.clicks.toLocaleString()}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">CTR</span><span className={`font-mono font-bold ${variant.ctr > 5 ? 'text-green-600' : 'text-studio-text-primary'}`}>{variant.ctr}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Konverzije</span><span className="text-studio-text-primary font-mono">{variant.conversions}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-studio-text-secondary">Potrošnja</span><span className="text-studio-text-primary font-mono">EUR{variant.spend}</span></div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </div>
 
       {/* ================================================================ */}

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import DataTable from '../components/common/DataTable'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { CardSkeleton, ChartSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
+import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
+import { useChannelStatus } from '../hooks/useChannelStatus'
 import {
   TrendingUp, TrendingDown, Minus, Target, Shield, Zap,
-  ArrowUpRight, ArrowDownRight,
+  ArrowUpRight, ArrowDownRight, Link2,
 } from 'lucide-react'
 import {
   XAxis, YAxis, Tooltip,
@@ -99,38 +102,6 @@ const threatBadge = (level: 'high' | 'medium' | 'low') => {
 }
 
 // ---------------------------------------------------------------------------
-// Fallback data
-// ---------------------------------------------------------------------------
-
-const fallbackData: CompetitorData = {
-  competitors: [
-    { company: 'GlobalReach Media', country: 'SAD', igFollowers: 15600000, igEngagement: 1.2, tiktokFollowers: 4200000, tiktokEngagement: 1.0, gapVsUs: 15033000, tier: 'aspirational', followerGrowth: 2.1, engagementGrowth: -0.3, contentPerWeek: 28 },
-    { company: 'NexaDigital Group', country: 'Nizozemska', igFollowers: 9000000, igEngagement: 1.8, tiktokFollowers: 2100000, tiktokEngagement: 1.5, gapVsUs: 8433000, tier: 'aspirational', followerGrowth: 1.8, engagementGrowth: 0.2, contentPerWeek: 24 },
-    { company: 'Pinnacle Marketing', country: 'UK', igFollowers: 5600000, igEngagement: 1.4, tiktokFollowers: 1800000, tiktokEngagement: 1.1, gapVsUs: 5033000, tier: 'aspirational', followerGrowth: 1.5, engagementGrowth: -0.1, contentPerWeek: 22 },
-    { company: 'Orbit Creative', country: 'Portugal', igFollowers: 2800000, igEngagement: 2.1, tiktokFollowers: 950000, tiktokEngagement: 2.3, gapVsUs: 2233000, tier: 'stretch', followerGrowth: 3.2, engagementGrowth: 0.5, contentPerWeek: 18 },
-    { company: 'Alpine Digital', country: 'Austrija', igFollowers: 542000, igEngagement: 2.4, tiktokFollowers: 320000, tiktokEngagement: 3.1, gapVsUs: -25000, tier: 'direct', followerGrowth: 4.8, engagementGrowth: 0.8, contentPerWeek: 16 },
-    { company: 'BrightWave Agency', country: 'Češka', igFollowers: 413000, igEngagement: 2.6, tiktokFollowers: 185000, tiktokEngagement: 2.9, gapVsUs: -154000, tier: 'direct', followerGrowth: 3.5, engagementGrowth: 0.4, contentPerWeek: 14 },
-    { company: 'Competitor A', country: 'Hrvatska', igFollowers: 302000, igEngagement: 3.1, tiktokFollowers: 145000, tiktokEngagement: 3.5, gapVsUs: -265000, tier: 'direct', followerGrowth: 5.2, engagementGrowth: 1.1, contentPerWeek: 12 },
-    { company: 'VoxMedia CEE', country: 'Mađarska', igFollowers: 280000, igEngagement: 2.8, tiktokFollowers: 120000, tiktokEngagement: 2.7, gapVsUs: -287000, tier: 'direct', followerGrowth: 2.9, engagementGrowth: 0.3, contentPerWeek: 10 },
-  ],
-  ourIg: 567000,
-  ourTiktok: 245000,
-  ourEngagement: 3.2,
-  ourTiktokEngagement: 3.8,
-  ourFollowerGrowth: 4.2,
-  ourEngagementGrowth: 0.6,
-  ourContentPerWeek: 18,
-  summary: {
-    directCount: 4,
-    weLeadIn: 3,
-    ourIgFormatted: '567K',
-    ourRank: '#1 u direktnoj skupini',
-    avgEngagementDirect: 2.7,
-    ourEngagement: 3.2,
-  },
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -138,7 +109,19 @@ type PlatformTab = 'instagram' | 'tiktok' | 'overall'
 
 export default function Competitors() {
   const { data: apiData, loading } = useApi<CompetitorData>('/competitors')
-  const data = apiData || fallbackData
+  const { hasConnectedChannels } = useChannelStatus()
+  const navigate = useNavigate()
+  const data: CompetitorData = apiData || {
+    competitors: [],
+    ourIg: 0,
+    ourTiktok: 0,
+    ourEngagement: 0,
+    ourTiktokEngagement: 0,
+    ourFollowerGrowth: 0,
+    ourEngagementGrowth: 0,
+    ourContentPerWeek: 0,
+    summary: { directCount: 0, weLeadIn: 0, ourIgFormatted: '0', ourRank: '--', avgEngagementDirect: 0, ourEngagement: 0 },
+  }
   const [platformTab, setPlatformTab] = useState<PlatformTab>('instagram')
   const [chartRevealed, setChartRevealed] = useState(false)
 
@@ -146,6 +129,31 @@ export default function Competitors() {
     const timer = setTimeout(() => setChartRevealed(true), 60)
     return () => clearTimeout(timer)
   }, [])
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Target}
+            title="Konkurencija nije postavljena"
+            description="Povežite kanale i dodajte konkurente za praćenje i usporedbu performansi."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (loading && !apiData) return (
     <>
@@ -159,15 +167,15 @@ export default function Competitors() {
     </>
   )
 
-  const competitorList = data.competitors || fallbackData.competitors
-  const summary = data.summary || fallbackData.summary
-  const ourIg = data.ourIg || fallbackData.ourIg
-  const ourTiktok = data.ourTiktok ?? fallbackData.ourTiktok
-  const ourEngagement = data.ourEngagement ?? fallbackData.ourEngagement
-  const ourTiktokEngagement = data.ourTiktokEngagement ?? fallbackData.ourTiktokEngagement
-  const ourFollowerGrowth = data.ourFollowerGrowth ?? fallbackData.ourFollowerGrowth
-  const ourEngagementGrowth = data.ourEngagementGrowth ?? fallbackData.ourEngagementGrowth
-  const ourContentPerWeek = data.ourContentPerWeek ?? fallbackData.ourContentPerWeek
+  const competitorList = data.competitors || []
+  const summary = data.summary || { directCount: 0, weLeadIn: 0, ourIgFormatted: '0', ourRank: '--', avgEngagementDirect: 0, ourEngagement: 0 }
+  const ourIg = data.ourIg || 0
+  const ourTiktok = data.ourTiktok ?? 0
+  const ourEngagement = data.ourEngagement ?? 0
+  const ourTiktokEngagement = data.ourTiktokEngagement ?? 0
+  const ourFollowerGrowth = data.ourFollowerGrowth ?? 0
+  const ourEngagementGrowth = data.ourEngagementGrowth ?? 0
+  const ourContentPerWeek = data.ourContentPerWeek ?? 0
 
   const directCompetitors = competitorList.filter(c => c.tier === 'direct')
 

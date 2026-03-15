@@ -1,14 +1,17 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
+import { useChannelStatus } from '../hooks/useChannelStatus';
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import MetricCard from '../components/common/MetricCard';
 import PlatformIcon from '../components/common/PlatformIcon';
 import { SentimentDonut } from '../components/charts/SentimentDonut';
 import {
   MessageSquare, Volume2, TrendingUp, Hash, Globe,
   ThumbsUp, ThumbsDown, Minus, AlertTriangle, ShieldCheck,
-  Filter, Reply, Search,
+  Filter, Reply, Search, Link2,
 } from 'lucide-react';
 import {
   LineChart, Line, AreaChart, Area,
@@ -73,144 +76,6 @@ interface SocialListeningData {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers to generate 14-day fallback data
-// ---------------------------------------------------------------------------
-
-function generateDates(days: number): string[] {
-  const dates: string[] = [];
-  const now = new Date();
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    dates.push(`${d.getDate()}.${d.getMonth() + 1}.`);
-  }
-  return dates;
-}
-
-const dates14 = generateDates(14);
-
-// ---------------------------------------------------------------------------
-// Fallback mock data
-// ---------------------------------------------------------------------------
-
-const fallbackData: SocialListeningData = {
-  metrics: {
-    totalMentions: 2450,
-    prevMentions: 1980,
-    shareOfVoice: 38,
-    prevShareOfVoice: 32,
-    trendingCount: 7,
-    sentimentPositive: 1420,
-    sentimentNeutral: 680,
-    sentimentNegative: 350,
-  },
-  recentMentions: [
-    {
-      id: 1,
-      platform: 'twitter',
-      author: '@MarketingCroatia',
-      text: 'ShiftOneZero nastavlja impresionirati s novom digitalnom strategijom. Njihov pristup tržištu je jedinstven u regiji. #MarketingHR',
-      sentiment: 'positive',
-      time: 'prije 15 min',
-      reach: 12400,
-    },
-    {
-      id: 2,
-      platform: 'instagram',
-      author: '@digital_marketing_daily',
-      text: 'Nova kampanja lansirana! ShiftOneZero pokazuje zašto su lideri u digitalnom marketingu u Hrvatskoj.',
-      sentiment: 'positive',
-      time: 'prije 1 sat',
-      reach: 8900,
-    },
-    {
-      id: 3,
-      platform: 'facebook',
-      author: 'Marketing Meetup Zagreb',
-      text: 'Odličan event sinoć s timom iz ShiftOneZero. 200+ marketing profesionalaca. Atmosfera odlična!',
-      sentiment: 'positive',
-      time: 'prije 2 sata',
-      reach: 3200,
-    },
-    {
-      id: 4,
-      platform: 'tiktok',
-      author: '@tech_hrvatska',
-      text: 'Cijena novih premium paketa je previsoka za male poduzetnike. Trebaju razmotriti pristupačnije opcije.',
-      sentiment: 'negative',
-      time: 'prije 3 sata',
-      reach: 45000,
-    },
-    {
-      id: 5,
-      platform: 'youtube',
-      author: 'Digital Trends HR',
-      text: 'Analiza: Kako ShiftOneZero koristi AI za personalizaciju marketinških kampanja. Detaljan pregled u našem najnovijem videu.',
-      sentiment: 'neutral',
-      time: 'prije 5 sati',
-      reach: 18500,
-    },
-    {
-      id: 6,
-      platform: 'twitter',
-      author: '@ZagrebStartups',
-      text: 'ShiftOneZero pop-up event na Trgu danas - velika gužva ali odlična atmosfera. Novi proizvodi su brzo rasprodani!',
-      sentiment: 'positive',
-      time: 'prije 6 sati',
-      reach: 6700,
-    },
-    {
-      id: 7,
-      platform: 'facebook',
-      author: 'Korisnici Forum',
-      text: 'Korisničku podršku treba poboljšati. Vrijeme odgovora je predugo za premium korisnike.',
-      sentiment: 'negative',
-      time: 'prije 7 sati',
-      reach: 2100,
-    },
-    {
-      id: 8,
-      platform: 'instagram',
-      author: '@brandovi_hr',
-      text: 'Nova vizualna kampanja od ShiftOneZero izgleda odlično. Očekujemo još novosti. #Branding #Marketing',
-      sentiment: 'neutral',
-      time: 'prije 8 sati',
-      reach: 15400,
-    },
-  ],
-  trendingTopics: [
-    { id: 1, topic: '#ShiftOneZero', mentions: 4250, change: '+32%', velocity: 'raste' },
-    { id: 2, topic: '#DigitalMarketing', mentions: 3800, change: '+28%', velocity: 'raste' },
-    { id: 3, topic: '#AIMarketing', mentions: 2100, change: '+65%', velocity: 'u porastu' },
-    { id: 4, topic: '#BrandStrategy', mentions: 1450, change: '+12%', velocity: 'stabilno' },
-    { id: 5, topic: '#MarketingHR', mentions: 1200, change: '+8%', velocity: 'stabilno' },
-    { id: 6, topic: '#ContentCreation', mentions: 890, change: '+45%', velocity: 'raste' },
-    { id: 7, topic: '#Ecommerce', mentions: 760, change: '+120%', velocity: 'u porastu' },
-  ],
-  sentimentTimeline: dates14.map((date, i) => {
-    // Slightly varied percentages for realistic chart
-    const base: [number, number, number][] = [
-      [62, 24, 14], [58, 26, 16], [65, 22, 13], [60, 25, 15],
-      [55, 27, 18], [52, 28, 20], [48, 29, 23], [54, 28, 18],
-      [61, 25, 14], [63, 23, 14], [59, 26, 15], [57, 27, 16],
-      [64, 22, 14], [60, 25, 15],
-    ];
-    const [p, n, neg] = base[i]!;
-    return { date, positive: p, neutral: n, negative: neg };
-  }),
-  mentionVolume: dates14.map((date, i) => {
-    const volumes = [145, 162, 178, 210, 195, 230, 285, 260, 198, 175, 220, 240, 205, 190];
-    return { date, mentions: volumes[i]! };
-  }),
-  competitorMentions: [
-    { name: 'ShiftOneZero', mentions: 2450, color: SHIFTONEZERO_BRAND.colors.accent },
-    { name: 'Competitor A', mentions: 1820, color: '#E4405F' },
-    { name: 'Competitor B', mentions: 680, color: '#6B7280' },
-    { name: 'Competitor C', mentions: 520, color: '#F59E0B' },
-  ],
-};
-
-// ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
@@ -252,18 +117,31 @@ const sentimentLabel = (s: string) => {
 // Component
 // ---------------------------------------------------------------------------
 
+const emptyMetrics: SocialListeningData['metrics'] = {
+  totalMentions: 0,
+  prevMentions: 0,
+  shareOfVoice: 0,
+  prevShareOfVoice: 0,
+  trendingCount: 0,
+  sentimentPositive: 0,
+  sentimentNeutral: 0,
+  sentimentNegative: 0,
+};
+
 export default function SocialListening() {
   const { data: apiData, loading } = useApi<SocialListeningData>('/social-listening/trending');
+  const { hasConnectedChannels } = useChannelStatus();
+  const navigate = useNavigate();
   const data: SocialListeningData = apiData
     ? {
-        metrics: apiData.metrics ?? fallbackData.metrics,
-        recentMentions: apiData.recentMentions ?? fallbackData.recentMentions,
-        trendingTopics: apiData.trendingTopics ?? fallbackData.trendingTopics,
-        sentimentTimeline: apiData.sentimentTimeline ?? fallbackData.sentimentTimeline,
-        mentionVolume: apiData.mentionVolume ?? fallbackData.mentionVolume,
-        competitorMentions: apiData.competitorMentions ?? fallbackData.competitorMentions,
+        metrics: apiData.metrics ?? emptyMetrics,
+        recentMentions: apiData.recentMentions ?? [],
+        trendingTopics: apiData.trendingTopics ?? [],
+        sentimentTimeline: apiData.sentimentTimeline ?? [],
+        mentionVolume: apiData.mentionVolume ?? [],
+        competitorMentions: apiData.competitorMentions ?? [],
       }
-    : fallbackData;
+    : { metrics: emptyMetrics, recentMentions: [], trendingTopics: [], sentimentTimeline: [], mentionVolume: [], competitorMentions: [] };
 
   // Filters
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
@@ -291,6 +169,32 @@ export default function SocialListening() {
     () => Math.max(...data.competitorMentions.map((c) => c.mentions), 1),
     [data.competitorMentions],
   );
+
+  // Empty state when no channels connected
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="SOCIAL LISTENING" subtitle="Pracenje brenda i spominjanja" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={MessageSquare}
+            title="Nema podataka za social listening"
+            description="Povežite kanale za praćenje spomena, sentimenta i trendova."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (loading && !apiData) return (

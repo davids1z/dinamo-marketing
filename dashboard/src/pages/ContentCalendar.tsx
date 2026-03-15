@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
+import EmptyState from '../components/common/EmptyState'
 import { contentApi } from '../api/content'
+import { useChannelStatus } from '../hooks/useChannelStatus'
 import {
   Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Sparkles,
   Eye, Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown,
   LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap,
-  Film, Filter, Send, Instagram, Facebook, Youtube, Music2,
+  Film, Filter, Send, Instagram, Facebook, Youtube, Music2, Link2,
 } from 'lucide-react'
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useClient } from '../contexts/ClientContext'
@@ -90,188 +92,6 @@ const statusDotColors: Record<string, string> = {
   failed: 'bg-red-500',
 }
 
-// Rich fallback data for March 2026
-// Convert short mock ID (e.g. '7a') to a valid UUID for API compatibility
-function mockUUID(short: string): string {
-  return `00000000-0000-4000-a000-${short.padStart(12, '0')}`
-}
-
-function generateFallbackData(): Record<number, Post[]> {
-  const data: Record<number, Post[]> = {}
-
-  const published = (id: string, platform: string, type: string, title: string, desc: string, caption: string, time: string, pillar: string, hashtags: string[], visual: string, metrics: PostMetrics): Post => ({
-    id: mockUUID(id), platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'published', metrics,
-  })
-
-  const scheduled = (id: string, platform: string, type: string, title: string, desc: string, caption: string, time: string, pillar: string, hashtags: string[], visual: string): Post => ({
-    id: mockUUID(id), platform, type, title, description: desc, caption_hr: caption, scheduled_time: time, content_pillar: pillar, hashtags, visual_brief: visual, status: 'scheduled',
-  })
-
-  // Day 1 - Sunday (past)
-  data[1] = [
-    published('1a', 'instagram', 'reel', 'Nedjeljna regeneracija', 'Igraci na laganom treningu nakon pobjede u HNL-u. Opustena atmosfera, smijeh i timski duh.', 'Nedjelja = regeneracija! 💪 Tijelo odmara, ali duh je uvijek spreman. #S1Z #Marketing #HNL', '10:00', 'behind_scenes', ['#S1Z', '#Marketing', '#Trening', '#HNL'], 'Slow-motion kadrovi igrača na treningu, plavi filter, opustena glazba', { views: 45200, likes: 3820, comments: 187, shares: 412, saves: 298, engagement_rate: 4.2, reach: 89400, impressions: 112000, prev_week_avg_views: 38000, prev_week_avg_engagement: 3.8 }),
-    published('1b', 'facebook', 'post', 'Rezultati omladinskog kupa', 'U19 reprezentacija pobijedila u polufinalu omladinskog kupa. Detaljan izvjestaj s utakmice.', '⚽ U19 u finalu! Nasa mladost, nasa buducnost. Cestitamo nasim mladim lavovima! 🦁🔵 #S1ZAkademija', '14:00', 'academy', ['#S1Z', '#Akademija', '#U19', '#Buducnost'], 'Fotografija U19 tima sa slavljem, grb kluba u kutu', { views: 12800, likes: 1540, comments: 89, shares: 234, saves: 45, engagement_rate: 3.1, reach: 42000, impressions: 58000, prev_week_avg_views: 11000, prev_week_avg_engagement: 2.8 }),
-    published('1c', 'tiktok', 'video', 'Tko je najbrzi? Challenge', 'Sprint challenge izmedju trojice igrača na treningu. Zabavan sadržaj za mlade navijace.', 'Tko je NAJBRŽI u S1Z timu?! 🏃‍♂️💨 Pogledajte i dajte svoj glas! #S1Z #Challenge #Brzi', '18:00', 'player_spotlight', ['#S1Z', '#Challenge', '#Nogomet', '#HNL', '#FYP'], 'Vertikalni format, split screen utrka, timer overlay, energicna glazba', { views: 128000, likes: 14200, comments: 892, shares: 3400, saves: 1200, engagement_rate: 7.8, reach: 245000, impressions: 310000, prev_week_avg_views: 95000, prev_week_avg_engagement: 6.2 }),
-  ]
-
-  // Day 2 - Monday (past)
-  data[2] = [
-    published('2a', 'instagram', 'carousel', 'Igrač tjedna: Petković', 'Statistike, highlights i osobna prica o najboljem igraču proslog tjedna.', 'Bruno Petković — nas br. 9 je opet pokazao klasu! 🔥 Hat-trick heroj. Swipe za sve statse ➡️ #S1Z #Petković #HNL', '12:00', 'player_spotlight', ['#S1Z', '#Petković', '#IgračTjedna', '#HNL'], '5-slide carousel: slide 1 akcijska fotka, slide 2-4 statistike na plavoj pozadini, slide 5 quote igrača', { views: 67800, likes: 8920, comments: 456, shares: 1230, saves: 890, engagement_rate: 5.8, reach: 134000, impressions: 178000, prev_week_avg_views: 52000, prev_week_avg_engagement: 4.9 }),
-    published('2b', 'youtube', 'video', 'Analiza: S1Z 3-0 Rijeka', 'Detaljni pregled utakmice s taktičkom analizom, najboljim akcijama i statistikama.', 'ANALIZA: S1Z 3-0 Rijeka | Sve o utakmici, taktici i najboljim trenutcima! ⚽🔵', '17:00', 'match_day', ['#S1Z', '#HNL', '#S1ZAnaliza', '#Analiza'], 'YouTube thumbnail: akcijska fotka s rezultatom 3-0, plavi okvir, strelice na taktičkoj tabli', { views: 34500, likes: 2100, comments: 312, shares: 456, saves: 678, engagement_rate: 4.1, reach: 56000, impressions: 72000, prev_week_avg_views: 28000, prev_week_avg_engagement: 3.7 }),
-  ]
-
-  // Day 3 - Tuesday (past)
-  data[3] = [
-    published('3a', 'instagram', 'story', 'Trening u Maksimiru', 'Behind the scenes s jucarnjeg treninga. Stories serija od 5 frame-ova.', 'Jutarnji trening ✅ Spremi se za srijedu! 🔵', '09:00', 'behind_scenes', ['#S1Z', '#Trening'], 'Story format: video snippets iz treninga, poll "Tko ce zabiti u srijedu?"', { views: 32000, likes: 2100, comments: 0, shares: 180, saves: 0, engagement_rate: 3.4, reach: 54000, impressions: 68000, prev_week_avg_views: 28000, prev_week_avg_engagement: 3.1 }),
-    published('3b', 'tiktok', 'video', 'Reakcija navijača na golove', 'Kompilacija reakcija navijača na Petkovićev hat-trick. Emotivni trenutci s tribina.', 'Reakcije navijača na HAT-TRICK! 😱🔥 Ovo je Maksimir! #S1Z #Navijaci #HatTrick #BBB', '20:00', 'fan_engagement', ['#S1Z', '#BBB', '#Navijaci', '#HatTrick', '#FYP'], 'Brzi rezovi reakcija s tribina, usporeni kadrovi, epska pozadinska glazba', { views: 198000, likes: 24500, comments: 1340, shares: 8900, saves: 2100, engagement_rate: 9.2, reach: 380000, impressions: 456000, prev_week_avg_views: 95000, prev_week_avg_engagement: 6.2 }),
-  ]
-
-  // Day 4 - Wednesday (past) - European night!
-  data[4] = [
-    published('4a', 'instagram', 'carousel', 'Matchday: Europa League', 'Dan utakmice! S1Z vs AS Roma, Europa League cetvrtfinale. Najava s grafickim dizajnom.', '🏟️ MATCHDAY! S1Z vs AS Roma | UEL Quarter-Final 🔵⚡ Spremni za europsku noc! #UEL #S1Z', '09:00', 'european_nights', ['#S1Z', '#UEL', '#EuropaLeague', '#S1ZEuropa', '#Marketing'], 'Matchday poster: stadion Maksimir, grb vs grb, datum i vrijeme, europska noc atmosfera', { views: 89000, likes: 12400, comments: 1890, shares: 4500, saves: 1200, engagement_rate: 8.1, reach: 210000, impressions: 280000, prev_week_avg_views: 52000, prev_week_avg_engagement: 4.9 }),
-    published('4b', 'tiktok', 'video', 'Tunnel cam: Dolazak igrača', 'Igraci dolaze na stadion za europsku utakmicu. Svaki igračsa svojim stilom.', '🚶‍♂️ Arrival day. Svaki od njih zna sto treba napraviti. #S1Z #UEL #MatchDay #Tunnel', '17:00', 'european_nights', ['#S1Z', '#UEL', '#MatchDay', '#Tunnel', '#FYP'], 'Slo-mo igračkih dolazaka, kožne jakne, slušalice, fokusirani pogledi, dramska muzika', { views: 156000, likes: 18900, comments: 2100, shares: 6700, saves: 3400, engagement_rate: 8.9, reach: 298000, impressions: 380000, prev_week_avg_views: 95000, prev_week_avg_engagement: 6.2 }),
-    published('4c', 'youtube', 'video', 'HIGHLIGHTS: S1Z vs Roma', 'Produzeni highlights europske utakmice. Svi golovi i najbolje akcije.', 'HIGHLIGHTS | S1Z Zagreb vs AS Roma | UEL Quarter-Final ⚽', '23:00', 'european_nights', ['#S1Z', '#UEL', '#Highlights', '#S1ZEuropa'], 'Full HD highlights, 10-minutni video, svi golovi iz vise kutova, atmosfera s tribina', { views: 412000, likes: 28400, comments: 3450, shares: 12300, saves: 8900, engagement_rate: 6.8, reach: 680000, impressions: 890000, prev_week_avg_views: 28000, prev_week_avg_engagement: 3.7 }),
-    published('4d', 'facebook', 'post', 'FT: S1Z 2-1 Roma!', 'Rezultat i kratki pregled utakmice za Facebook zajednicu.', '⚽ POBJEDA! 🔵 S1Z 2-1 AS Roma! Europska noc za pamcenje! 🏟️🇭🇷 #S1Z #UEL', '22:30', 'european_nights', ['#S1Z', '#UEL', '#Pobjeda'], 'Rezultatska grafika, slavlje igrača, plave boje', { views: 78000, likes: 9800, comments: 2340, shares: 5600, saves: 890, engagement_rate: 7.2, reach: 145000, impressions: 198000, prev_week_avg_views: 11000, prev_week_avg_engagement: 2.8 }),
-  ]
-
-  // Day 5 - Thursday (today) - post-match
-  data[5] = [
-    published('5a', 'instagram', 'reel', 'Best moments: S1Z vs Roma', 'Najbolji trenuci europske noci u 30 sekundi. Emotivni video za IG.', '🎬 Europska noć. Maksimir. Pobjeda. 🔵⚡ Ovo su trenuci za koje živimo! #S1Z #UEL #Marketing', '10:00', 'european_nights', ['#S1Z', '#UEL', '#BestMoments', '#Marketing'], '30s reel: najljepsi trenuci iz utakmice, spora snimka golova, navijacko slavlje', { views: 234000, likes: 31200, comments: 2890, shares: 9800, saves: 5600, engagement_rate: 9.4, reach: 420000, impressions: 540000, prev_week_avg_views: 38000, prev_week_avg_engagement: 3.8 }),
-    scheduled('5b', 'tiktok', 'video', 'Petković gol reakcija', 'Slow motion Petkovićev gol iz svih kuteva kamere + reakcija klupe i navijača.', '🎯 PETKOVIĆ! Pogledajte ovaj gol iz SVIH kutova! 😱🔥 #S1Z #Gol #Petković #UEL', '17:00', 'european_nights', ['#S1Z', '#Petković', '#Gol', '#UEL', '#FYP'], 'Multi-angle replay, slow motion, reakcija klupe, zvuk gola + navijača'),
-    scheduled('5c', 'youtube', 'short', 'Press konferencija highlights', 'Najbolji trenuci s press konferencije nakon utakmice. Trenerov komentar.', 'Trener nakon pobjede nad Romom: "Ovo je samo početak!" 🎙️ #S1Z #UEL', '20:00', 'european_nights', ['#S1Z', '#UEL', '#Press', '#Trener'], 'Vertikalni crop press konferencije, titlovi na hrvatskom, plavi overlay'),
-  ]
-
-  // Days 6-31 - Future days with scheduled content
-  const futureContent: [number, Post[]][] = [
-    [6, [
-      scheduled('6a', 'instagram', 'carousel', 'UEL statistike', 'Infografika s detaljnim statistikama utakmice protiv Rome. Posjed, udarci, prilike.', '📊 Brojke govore same za sebe! S1Z vs Roma u statistikama ➡️ #S1Z #UEL #Stats', '12:00', 'european_nights', ['#S1Z', '#UEL', '#Statistike'], 'Statistički carousel: 5 slajdova s grafovima i brojevima, plava/bijela tema'),
-      scheduled('6b', 'facebook', 'post', 'Fan foto galerija', 'Najbolje fotografije navijača s europske noci. UGC sadržaj s tribina Maksimira.', '📸 Vaše fotke s Maksimira! Hvala vam na nevjerojatnoj atmosferi! Tagajte se! 🔵🏟️ #BBB #S1Z', '18:00', 'fan_engagement', ['#S1Z', '#BBB', '#Navijaci', '#Maksimir'], 'Kolaž navijačkih fotografija, poziv na tagging, plavi okvir'),
-    ]],
-    [7, [
-      scheduled('7a', 'instagram', 'reel', 'Subotnja najava: HNL', 'Matchday najava za subotnju HNL utakmicu. Hype video s najavaom protivnika.', '🏟️ Subota. HNL. Mi smo spremni, a vi? 🔵⚡ #S1Z #HNL #Matchday', '09:00', 'match_day', ['#S1Z', '#HNL', '#Matchday', '#Marketing'], 'Kratki hype video: stadion, igraci, navijaci, tekst "SUBOTA 17:30"'),
-      scheduled('7b', 'tiktok', 'video', 'Igrač priprema opremu', 'POV video igrača koji sprema opremu za utakmicu. Kopačke, dresovi, rutina.', 'POV: Pripremaš se za HNL utakmicu 👟⚽ #S1Z #MatchPrep #Football #POV', '13:00', 'behind_scenes', ['#S1Z', '#POV', '#Football', '#BTS'], 'POV kamera, close-up cipela, dresova, torbice, stadion u pozadini'),
-      scheduled('7c', 'youtube', 'video', 'Taktički preview', 'Analitičar kluba objašnjava taktički pristup za subotnju utakmicu. Formacija, ključni igraci.', '🎯 TAKTIKA | Kako ćemo pristupiti subotnjoj utakmici? | Preview', '17:00', 'match_day', ['#S1Z', '#Taktika', '#HNL', '#Preview'], 'Studio setup, taktička tabla, animirane formacije, split screen s isječcima'),
-    ]],
-    [8, [
-      scheduled('8a', 'instagram', 'story', 'Matchday countdown', 'Story serija s countdownom do utakmice. Interaktivni stickeri i ankete.', '⏰ Još 5 sati! Tko ce zabiti prvi? Glasajte! 🔵', '12:00', 'match_day', ['#S1Z', '#HNL'], 'Story s countdown stickerom, poll za prvog strijelca, quiz'),
-      scheduled('8b', 'instagram', 'reel', 'Gol kompilacija sezone', 'Svi golovi S1Z-a ove sezone u jednom reelu. Epska montaza.', '⚽ SVAKI GOL ove sezone u 60 sekundi! 🔥🔵 Koji vam je najljepši? #S1Z #Golovi #HNL', '20:00', 'match_day', ['#S1Z', '#Golovi', '#HNL', '#Sezona'], '60s reel: brzi rezovi svih golova, brojač u kutu, energična glazba'),
-      scheduled('8c', 'facebook', 'event', 'Gledanje utakmice — Zagreb', 'Organizirano zajedničko gledanje utakmice u centru Zagreba za navijače.', '📺 ZAJEDNO GLEDAMO! Pridružite nam se u Saturday Beer Gardenu! 🍻🔵 #S1Z #Zajedno', '10:00', 'fan_engagement', ['#S1Z', '#ZajednoGledamo', '#Zagreb'], 'Event poster s lokacijom, vremenom, logom kluba'),
-    ]],
-    [9, [
-      scheduled('9a', 'instagram', 'carousel', 'Rezultat + highlights', 'Post-match carousel s rezultatom, najboljim trenucima i statistikama.', '✅ Još jedna pobjeda! Pogledajte highlights ➡️ #S1Z #HNL #Pobjeda', '11:00', 'match_day', ['#S1Z', '#HNL', '#Highlights'], '4-slide carousel: rezultat, best moments, statistike, sljedeca utakmica'),
-      scheduled('9b', 'tiktok', 'video', 'Fan reakcije na pobjedu', 'Kompilacija reakcija navijača iz cijele Hrvatske na golove S1Z-a.', '📱 Reakcije navijača na pobjedu! 😂🔥 Ovo je ljubav prema klubu! #S1Z #Reakcije #FYP', '18:00', 'fan_engagement', ['#S1Z', '#Reakcije', '#FYP', '#BBB'], 'Split screen reakcija, glasne navijačke reakcije, sretni trenuci'),
-    ]],
-    [10, [
-      scheduled('10a', 'instagram', 'reel', 'Trening freestyle', 'Igraci pokazuju freestyle trikove na treningu. Zabavan, viralan sadržaj.', '🤹‍♂️ Freestyle na treningu! Tko je najbolji? 😂⚽ #S1Z #Freestyle #Nogomet', '12:00', 'player_spotlight', ['#S1Z', '#Freestyle', '#Trikovi'], 'Vertikalni format, slow motion trikovi, natjecanje izmedju igrača'),
-      scheduled('10b', 'youtube', 'short', 'Akademija: Talent u fokusu', 'Profil mladog igrača iz akademije. Njegov put, snovi i ambicije.', '⭐ BUDUĆNOST je ovdje! Upoznajte našeg mladog talenta! #S1ZAkademija', '17:00', 'academy', ['#S1Z', '#Akademija', '#MladiTalent'], 'Intervju format, trening kadrovi, statistike talenta'),
-    ]],
-    [11, [
-      scheduled('11a', 'tiktok', 'video', 'Dan u zivotu: Kondicijski trener', 'Prateći kondicijskog trenera kroz radni dan. Od jutra do zadnjeg treninga.', '5:30 buđenje, 22:00 zavrsava trening... Dan u životu kondicijskog trenera 💪 #S1Z #Fitness #DanUŽivotu', '09:00', 'behind_scenes', ['#S1Z', '#DanUŽivotu', '#Fitness', '#FYP'], 'Vlog stil, time-lapse priprema, intenzivni treninzi, zavrsni shot s igracima'),
-      scheduled('11b', 'instagram', 'post', 'Motivacijski citat', 'Citat trenera ili igrača na inspirativnoj pozadini stadiona.', '"Svaka utakmica je prilika da se pokažemo." — Trener 🔵💪 #S1Z #Motivacija', '20:00', 'lifestyle', ['#S1Z', '#Motivacija', '#Citat'], 'Tipografija na slici stadiona, plavi gradient, minimalistički dizajn'),
-    ]],
-    [12, [
-      scheduled('12a', 'instagram', 'reel', 'Kit reveal: Gostujući dres', 'Otkrivanje novog gostujućeg dresa za sezonu 2026/27. Teaser video.', '👀 Nešto novo dolazi... 🔵⚪ Jeste li spremni? #S1Z #NoviDres #2027', '18:00', 'lifestyle', ['#S1Z', '#NoviDres', '#Kit', '#Reveal'], 'Teaser: zamucena slika dresa, ruke koje odmotavaju, dramska pauza, reveal'),
-      scheduled('12b', 'facebook', 'post', '#OnThisDay: Povijesna pobjeda', 'Throwback na povijesnu pobjedu S1Z-a na danasnji datum. Nostalgicni sadržaj.', '📅 #OnThisDay | Na današnji dan S1Z je... 🔵🏆 Sjećate li se? #S1Z #Povijest', '14:00', 'fan_engagement', ['#S1Z', '#OnThisDay', '#Povijest'], 'Stara fotografija/video s modernim overlay-em, datum i rezultat'),
-    ]],
-    [13, [
-      scheduled('13a', 'tiktok', 'video', 'Što igrači jedu', 'Nutricionistički plan igrača. Sto je na tanjuru profesionalnog nogometaša.', '🍽️ Što jede profesionalni nogometaš? Pogledajte jelovnik nasih igrača! #S1Z #Hrana #Nogomet', '12:00', 'behind_scenes', ['#S1Z', '#Hrana', '#Nutrition', '#FYP'], 'Close-up hrane, boja, nutritivne vrijednosti overlay, igrač objašnjava'),
-      scheduled('13b', 'instagram', 'story', 'Kviz: Poznajes li S1Z?', 'Interaktivni kviz u Stories formatu o povijesti i igracima kluba.', 'Koliko ZAISTA znaš o S1Z timu? 🧠🔵 Testiraj se! #S1ZKviz', '17:00', 'fan_engagement', ['#S1Z', '#Kviz'], 'Quiz stickeri, 5 pitanja o klubu, rezultati na kraju'),
-    ]],
-    [14, [
-      scheduled('14a', 'instagram', 'carousel', 'Top 5 golova mjeseca', 'Carousel s 5 najljepsih golova S1Z-a ovog mjeseca. Glasanje u komentarima.', '🏆 TOP 5 golova ožujka! Koji je vaš br. 1? Glasajte u komentarima! ⬇️ #S1Z #Golovi', '12:00', 'match_day', ['#S1Z', '#Top5', '#Golovi', '#Ozujak'], '5-slide carousel: svaki slajd jedan gol s brojem i kratkim opisom'),
-      scheduled('14b', 'tiktok', 'video', 'Igrač vs navijač: Penalty challenge', 'Igrač S1Z-a protiv navijača u penalty izazovu. Zabavan interaktivni sadržaj.', '⚽ PENALTY CHALLENGE! Igrač vs Navijač! Tko pobjeđuje? 😂 #S1Z #Challenge #Penalty', '18:00', 'fan_engagement', ['#S1Z', '#PenaltyChallenge', '#FYP'], 'Split screen, reakcije, polagani replay, zabavan komentar'),
-      scheduled('14c', 'youtube', 'video', 'Subotnja najava + preview', 'Detaljan preview subotnje HNL utakmice. Forma, statistike, kljucni igraci.', '🎯 PREVIEW | Sve sto trebate znati prije subotnje utakmice! ⚽🔵', '17:00', 'match_day', ['#S1Z', '#HNL', '#Preview'], 'Studijski format, grafike statistika, isjecci s proslih utakmica'),
-    ]],
-    [15, [
-      scheduled('15a', 'instagram', 'reel', 'Matchday hype', 'Epski hype video za sutrašnju utakmicu. Igraci, navijaci, stadion.', '🔥 SUTRA. MAKSIMIR. HNL. Budite glasni! 🏟️🔵 #S1Z #Matchday #HNL', '20:00', 'match_day', ['#S1Z', '#HNL', '#Matchday', '#Hype'], 'Cinematic slow-mo: igraci ulaze na teren, tribine pune, baklje, zvuk navijača'),
-      scheduled('15b', 'facebook', 'event', 'HNL: S1Z vs Osijek', 'Event za sutrašnju utakmicu. Informacije o kartama, prijevozu i atmosferi.', '🎫 HNL | S1Z vs Osijek | Subota 17:30 | Maksimir 🏟️ Vidimo se! #S1Z', '10:00', 'match_day', ['#S1Z', '#HNL', '#S1ZMatch'], 'Event cover s matchday grafikom, info o kartama'),
-    ]],
-    [16, [
-      scheduled('16a', 'instagram', 'reel', 'Post-match celebration', 'Slavlje nakon pobjede. Igraci s navijacima, zagrljaji, veselje.', '🎉 TRI BODA! Slavlje s navijačima! 🔵💙 #S1Z #Pobjeda #HNL', '20:00', 'match_day', ['#S1Z', '#Pobjeda', '#Slavlje'], 'Emotivni kadrovi slavlja, igraci trcati prema tribinama, zagrljaji'),
-      scheduled('16b', 'tiktok', 'video', 'Locker room vibes', 'Atmosfera u svlacionici nakon pobjede. Muzika, ples, slavlje.', '🎵 Svlačionica AFTER pobjede! Vibes su na drugom nivou! 🔵🕺 #S1Z #LockerRoom #FYP', '22:00', 'behind_scenes', ['#S1Z', '#LockerRoom', '#Vibes', '#FYP'], 'Handheld kamera, glazba, igraci plešu, spontani trenuci'),
-    ]],
-    [17, [
-      scheduled('17a', 'youtube', 'video', 'Extended highlights', 'Produzeni highlights utakmice. 10 minuta najboljih akcija.', 'HIGHLIGHTS | S1Z vs Osijek | HNL 2025/26 ⚽', '11:00', 'match_day', ['#S1Z', '#HNL', '#Highlights'], 'Full HD highlights, vise kutova, atmosfera, komentator'),
-      scheduled('17b', 'instagram', 'carousel', 'Player ratings', 'Ocjene igrača nakon utakmice s kratkim komentarima za svakog.', '📊 Ocjene igrača! Slažete li se? Koji igrač zaslužuje 10? ⬇️ #S1Z #Ocjene', '15:00', 'match_day', ['#S1Z', '#Ocjene', '#HNL'], 'Carousel: svaki igrač s ocjenom i kratkim opisom, plava tema'),
-    ]],
-    [18, [
-      scheduled('18a', 'tiktok', 'video', 'Dijaspora event: Beč', 'Najava gledanja utakmice za dijasporu u Becu. Community building.', '🇦🇹 S1Z u Beču! Pridružite nam se na zajedničkom gledanju! 🔵 #S1Z #Dijaspora #Wien', '12:00', 'diaspora', ['#S1Z', '#Dijaspora', '#Wien', '#Bec'], 'Video poziv, lokacija u Beču, zajedničko gledanje, zastave'),
-      scheduled('18b', 'instagram', 'post', 'Merch drop: Nova kolekcija', 'Najava nove kolekcije merchandise-a. Lifestyle fotografije s igracima.', '🛍️ NOVO u shopu! Lifestyle kolekcija 2026 🔵 Link u bio! #S1Z #Merch #Moda', '18:00', 'lifestyle', ['#S1Z', '#Merch', '#Shop', '#Lifestyle'], 'Lifestyle fotografije, igraci u casual odjevnim kombinacijama, gradski Zagreb'),
-    ]],
-    [19, [
-      scheduled('19a', 'instagram', 'reel', 'Training drills montage', 'Montaza najintenzivnijih vježbi s treninga. Pokazuje radnu etiku tima.', '💪 Ovo je razina. Ovo je S1Z. Trening bez kompromisa. 🔵🔥 #S1Z #Trening #WorkHard', '10:00', 'behind_scenes', ['#S1Z', '#Trening', '#NikadiNe', '#Rad'], 'Brza montaza: sprint, udarci, obrana, znoj, fokusirani pogledi'),
-      scheduled('19b', 'facebook', 'post', 'Navijacka anketa', 'Anketa za navijace: Tko je MVP sezone? Online glasanje s rezultatima.', '🏆 TKO je MVP sezone? 🤔 Glasajte SADA! ⬇️ #S1Z #MVP #Glasanje', '17:00', 'fan_engagement', ['#S1Z', '#MVP', '#Anketa'], 'Grafika s 4 kandidata, glasacki gumbi, poziv na interakciju'),
-    ]],
-    [20, [
-      scheduled('20a', 'instagram', 'carousel', 'Zagreb x S1Z', 'Foto serija: igraci na ikonicnim lokacijama u Zagrebu. Lifestyle sadržaj.', '🏙️ Zagreb 🤝 S1Z | Grad i klub, nerazdvojni! 📸 #S1Z #Zagreb #Lifestyle', '12:00', 'lifestyle', ['#S1Z', '#Zagreb', '#Grad', '#Lifestyle'], 'Profesionalne fotografije igrača ispred katedrale, Trga, Jaruna'),
-      scheduled('20b', 'tiktok', 'video', 'Guess the player: Childhood', 'Igra pogadjanja igrača po djecjim fotografijama. Viralni format.', '👶 Pogodite igrača po DJEČJOJ fotki! 😂 Zadnja ce vas šokirati! #S1Z #GuessThePlayer #FYP', '18:00', 'player_spotlight', ['#S1Z', '#GuessThePlayer', '#FYP', '#Zabava'], 'Blur reveal format, djecje fotke pa adult reveal, reakcije igrača'),
-      scheduled('20c', 'youtube', 'short', 'Fan token ekskluziva', 'Ekskluzivni sadržaj za Socios fan token holdere. Behind-the-scenes pristup.', '🪙 EKSKLUZIVNO za Fan Token holdere! Iza kulisa europske noci! #S1Z #Socios', '20:00', 'fan_engagement', ['#S1Z', '#Socios', '#FanToken'], 'Ekskluzivni behind-the-scenes, watermark "FAN TOKEN EXCLUSIVE"'),
-    ]],
-    [21, [
-      scheduled('21a', 'instagram', 'reel', 'Petak vibes', 'Opusteni petak na treningu. Igraci se zabavljaju, smijeh i good vibes.', '😂 Petak na treningu = GOOD VIBES ONLY! 🔵✌️ #S1Z #Petak #GoodVibes', '15:00', 'behind_scenes', ['#S1Z', '#GoodVibes', '#Petak'], 'Veseli trenuci, smijeh, salacke igara, glazba u pozadini'),
-      scheduled('21b', 'facebook', 'post', 'Subotnja najava', 'Najava sutrašnje utakmice s informacijama o TV prijenosu i live streamu.', '📺 SUTRA | HNL | S1Z vs Hajduk | 19:00 | Maksimir | DERBI! 🔵🔴 #EterniDerbi', '18:00', 'match_day', ['#S1Z', '#HNL', '#EterniDerbi', '#S1ZDerbi'], 'Derbi poster, grb vs grb, vatra i strast, "ETERNI DERBI" tipografija'),
-    ]],
-    [22, [
-      scheduled('22a', 'instagram', 'reel', 'DERBI DANA!', 'Matchday content za vjecni derbi. Epska najava s povijesnim momentima.', '🔥 D-E-R-B-I! S1Z vs Hajduk | Danas. Maksimir. 19:00. BUDITE TU! 🏟️🔵', '09:00', 'match_day', ['#S1Z', '#EterniDerbi', '#HNL', '#Matchday'], 'Epski mashup: povijesni derbi momenti + sadasnji igraci, dramaticna muzika'),
-      scheduled('22b', 'tiktok', 'video', 'Derbi atmosphere', 'Atmosfera pred derbi. Navijaci se okupljaju, baklje, zastave, pjesme.', '🏟️ ATMOSFERA pred S1Z-Hajduk! Ovo morate doživjeti uživo! 🔵🔥 #EterniDerbi #BBB', '17:00', 'match_day', ['#S1Z', '#EterniDerbi', '#BBB', '#Atmosfera', '#FYP'], 'POV dolazak na stadion, navijacke pjesme, tifo, baklje (iz daljine)'),
-      scheduled('22c', 'instagram', 'story', 'Live updates', 'Stories tijekom utakmice: postava, golovi, poluvrijeme, FT.', '⚽ LIVE | S1Z vs Hajduk | Pratite nas! 🔵', '18:30', 'match_day', ['#S1Z', '#EterniDerbi'], 'Story serija: postava grafika, gol celebracije, poluvrijeme stats'),
-      scheduled('22d', 'youtube', 'video', 'DERBI HIGHLIGHTS', 'Produzeni highlights vjecnog derbija. Svi golovi, najbolje akcije, atmosfera.', 'HIGHLIGHTS | S1Z vs Hajduk | Eterni Derbi | HNL 2025/26 ⚽🔥', '23:00', 'match_day', ['#S1Z', '#Hajduk', '#HNL', '#Derbi', '#Highlights'], 'Cinematic highlights, tribine, golovi iz vise kutova, emocije'),
-    ]],
-    [23, [
-      scheduled('23a', 'instagram', 'carousel', 'Derbi u brojevima', 'Statistika derbija: posjed, udarci, prilike, karta topline. Detaljna analiza.', '📊 DERBI U BROJEVIMA! Dominacija u svakom segmentu 🔵📈 #S1Z #EterniDerbi #Stats', '12:00', 'match_day', ['#S1Z', '#EterniDerbi', '#Statistike'], 'Infograficki carousel, heatmap, passing mapa, xG grafikon'),
-      scheduled('23b', 'tiktok', 'video', 'Best fan moments: Derbi', 'Kompilacija najljepsih navijackih momenata s derbija. UGC content.', '💙 NAVIJACI NA DERBIJU! Ovo je BBB! 🔵🔥 Tagajte se! #S1Z #BBB #Derbi #FYP', '18:00', 'fan_engagement', ['#S1Z', '#BBB', '#Derbi', '#FYP'], 'UGC kompilacija, razliciti kutovi navijača, emotivni trenuci, slavlje'),
-    ]],
-    [24, [
-      scheduled('24a', 'instagram', 'reel', 'Week recap', 'Tjedni pregled: najbolji trenuci iz treninga, utakmice i iza kulisa.', '📅 Tjedan u S1Z timu! Derbi pobjeda, trening, i vise! 🔵✨ #S1Z #TjedniPregled', '17:00', 'behind_scenes', ['#S1Z', '#TjedniPregled', '#Recap'], 'Montaza tjedna: trening, derbi, slavlje, opusteni trenuci'),
-      scheduled('24b', 'facebook', 'post', 'Zahvala navijacima', 'Post zahvale navijacima za fenomenalnu podrsku na derbiju. Community post.', '💙 HVALA! 40.000 navijača na derbiju! Vi ste naš 12. igrač! 🏟️🔵 #S1Z #Hvala #BBB', '10:00', 'fan_engagement', ['#S1Z', '#Hvala', '#BBB', '#12Igrač'], 'Panoramska fotografija punog stadiona, "HVALA" tekst overlay'),
-    ]],
-    [25, [
-      scheduled('25a', 'tiktok', 'video', 'Gym session: Snaga i izdržljivost', 'Treninzi snage u teretani. Igraci dizu utege, rade vježbe eksplozivnosti.', '🏋️ GYM DAY! Kako se gradi S1Z snaga! 💪🔵 #S1Z #Gym #Fitness #FYP', '09:00', 'behind_scenes', ['#S1Z', '#Gym', '#Fitness', '#Snaga', '#FYP'], 'Teretana kadrovi, close-up dizanja, znojenje, motivacijska glazba'),
-      scheduled('25b', 'instagram', 'carousel', 'Akademija spotlight', 'Profili 3 mlada igrača iz akademije. Statistike, pozicija, potencijal.', '⭐ AKADEMIJA SPOTLIGHT | 3 talenta koja morate pratiti! 🔵 #S1ZAkademija #Talenti', '15:00', 'academy', ['#S1Z', '#Akademija', '#MladiTalenti', '#Buducnost'], 'Profesionalne fotke mladih igrača, statistike, kratke bio informacije'),
-    ]],
-    [26, [
-      scheduled('26a', 'instagram', 'reel', 'City walk: Zagreb sa igracima', 'Igraci setaju Zagrebom, posjete omiljene restorane, kafice. Lifestyle sadržaj.', '🏙️ Zagreb kroz oči naših igrača! 📸☕ Gdje se vole opustiti? #S1Z #Zagreb #Lifestyle', '12:00', 'lifestyle', ['#S1Z', '#Zagreb', '#Lifestyle', '#CityWalk'], 'Vlog stil, igraci u casual odjeci, zagrebacke ulice, kafici, hrana'),
-      scheduled('26b', 'youtube', 'video', 'Sezonski recap (do sad)', 'Pregled sezone do sad: rezultati, najbolji momenti, statistike, put do cilja.', '📊 SEZONA 2025/26 — DO SAD! | Sve sto trebate znati! ⚽🔵', '18:00', 'match_day', ['#S1Z', '#Sezona', '#HNL', '#Recap'], 'Montaza sezone: golovi, slavlja, tablica, put do naslova'),
-    ]],
-    [27, [
-      scheduled('27a', 'tiktok', 'video', 'Igrač odgovara na komentare', 'Igrač cita i odgovara na komentare navijača. Smiješno i iskreno.', '💬 Čitamo VAŠE komentare! 😂 Igrač reagira! #S1Z #Komentari #React #FYP', '17:00', 'fan_engagement', ['#S1Z', '#Komentari', '#React', '#FYP'], 'Selfie kamera, igrač cita telefon, reakcije, smijeh'),
-      scheduled('27b', 'instagram', 'post', 'Petak motivacija', 'Motivacijski post za kraj tjedna. Fokus na subotnju utakmicu.', '💪 "Svaki dan je prilika da budemo bolji." — Fokus na sutra! 🔵⚡ #S1Z #Motivacija', '20:00', 'lifestyle', ['#S1Z', '#Motivacija', '#Fokus'], 'Cinematic fotografija s treninga, quote overlay, plavi ton'),
-    ]],
-    [28, [
-      scheduled('28a', 'instagram', 'reel', 'Matchday: HNL', 'Najava subotnje HNL utakmice. Stadion, igraci, navijaci.', '🏟️ MATCHDAY! HNL | Danas igramo za vas! 🔵⚽ #S1Z #HNL #Matchday', '10:00', 'match_day', ['#S1Z', '#HNL', '#Matchday'], 'Hype video: budjenje igrača, put na stadion, ulazak u tunel'),
-      scheduled('28b', 'tiktok', 'video', 'Walk out tunnel cam', 'POV izlazak iz tunela na teren. Zvuk navijača, svjetla, adrenalin.', '🚶‍♂️ POV: Izlaziš iz tunela na Maksimiru! 😱🏟️ #S1Z #TunnelCam #POV #FYP', '17:00', 'match_day', ['#S1Z', '#TunnelCam', '#POV', '#Matchday'], 'GoPro na prsima igrača, tunel → teren, zvuk navijača eksplodira'),
-      scheduled('28c', 'facebook', 'post', 'FT rezultat', 'Rezultat i kratki pregled utakmice.', '⚽ ZAVRŠENO! S1Z pobjeđuje! 🔵🏆 #S1Z #HNL #Pobjeda', '19:30', 'match_day', ['#S1Z', '#HNL', '#Pobjeda'], 'Rezultatska grafika, slavlje igrača'),
-    ]],
-    [29, [
-      scheduled('29a', 'youtube', 'video', 'Full match highlights', 'Produzeni highlights subotnje utakmice. Svi golovi i najbolje akcije.', 'HIGHLIGHTS | S1Z | HNL 2025/26 | Matchday ⚽🔵', '11:00', 'match_day', ['#S1Z', '#HNL', '#Highlights'], 'Full HD, vise kutova, atmosfera'),
-      scheduled('29b', 'instagram', 'carousel', 'Nedjeljna regeneracija', 'Fotografije igrača na regeneraciji. Bazeni, masaze, istezanje.', '🧘 Nedjelja = Oporavak! Tijelo i um se pripremaju za novo! 🔵💆‍♂️ #S1Z #Recovery', '14:00', 'behind_scenes', ['#S1Z', '#Recovery', '#Regeneracija'], 'Fotografije: ledeni bazen, masaza, yoga, opustena atmosfera'),
-    ]],
-    [30, [
-      scheduled('30a', 'instagram', 'reel', 'Mjesecni best of', 'Kompilacija najboljih trenutaka ožujka. Golovi, slavlja, trenuci iza kulisa.', '🏆 NAJBOLJE IZ OŽUJKA! Koji je vaš omiljeni trenutak? 🔵🔥 #S1Z #Ozujak #BestOf', '18:00', 'fan_engagement', ['#S1Z', '#BestOf', '#Ozujak', '#Recap'], 'Montaza mjeseca: epski golovi, slavlja, behind the scenes, navijaci'),
-      scheduled('30b', 'tiktok', 'video', 'Travanj preview', 'Sto nas ceka u travnju? Raspored, europske utakmice, izazovi.', '📅 TRAVANJ dolazi! Sto nas ceka? 👀🔵 #S1Z #Travanj #Najava #FYP', '20:00', 'match_day', ['#S1Z', '#Travanj', '#Najava', '#FYP'], 'Calendar reveal format, matchevi se otkrivaju jedan po jedan, hype'),
-    ]],
-    [31, [
-      scheduled('31a', 'instagram', 'carousel', 'Ozujak u brojevima', 'Mjesecna statistika: golovi, pobjede, angazman na mrežama, rast pratitelja.', '📊 OZUJAK 2026 u brojevima! Mjesec za pamcenje! 🔵📈 #S1Z #Statistike #Ozujak', '12:00', 'match_day', ['#S1Z', '#Statistike', '#Ozujak', '#Recap'], 'Infograficki carousel: golovi, posjed, bodovi, rast socijala'),
-      scheduled('31b', 'facebook', 'post', 'Hvala za ozujak', 'Zahvala navijacima za podrsku u ozujku. Najava uzbudljivog travnja.', '💙 Hvala vam za nevjerojatan ozujak! Travanj obećava jos vise! 🔵🔥 #S1Z #Hvala', '18:00', 'fan_engagement', ['#S1Z', '#Hvala', '#Ozujak', '#Travanj'], 'Kolaž najboljih trenutaka mjeseca, "HVALA" overlay'),
-    ]],
-  ]
-
-  for (const [day, posts] of futureContent) {
-    data[day] = posts
-  }
-
-  return data
-}
-
-const fallbackCalendar = generateFallbackData()
-
-const fallbackQueue: QueueItem[] = [
-  { id: '1', title: 'Najava nove kampanje: Proljetna kolekcija', platform: 'Instagram Reel', author: 'Tim za sadržaj', submitted: 'prije 2 sata', pillar: 'Kampanja' },
-  { id: '2', title: 'Edukativni video: Marketing trendovi 2026', platform: 'TikTok video', author: 'Tim za edukaciju', submitted: 'prije 5 sati', pillar: 'Edukacija' },
-  { id: '3', title: 'Q&A s brand ambasadorom', platform: 'YouTube Short', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Proizvodi' },
-  { id: '4', title: 'Iza kulisa: Kreativni proces', platform: 'Instagram karusel', author: 'Tim za sadržaj', submitted: 'prije 1 dan', pillar: 'Iza kulisa' },
-  { id: '5', title: 'Medjunarodni event — Bec', platform: 'Facebook event', author: 'Tim za zajednicu', submitted: 'prije 2 dana', pillar: 'Zajednica' },
-]
 
 const platformColors: Record<string, string> = {
   instagram: 'bg-pink-500',
@@ -356,6 +176,7 @@ type TabMode = 'calendar' | 'approvals'
 export default function ContentCalendar() {
   const navigate = useNavigate()
   const { canModerate } = useClient()
+  const { hasConnectedChannels } = useChannelStatus()
   const [activeTab, setActiveTab] = useState<TabMode>('calendar')
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentMonth, setCurrentMonth] = useState(2) // March 2026 (0-indexed)
@@ -392,7 +213,7 @@ export default function ContentCalendar() {
     if (!post || !targetDay) return
 
     // Find source day
-    const data = generatedData || fallbackCalendar
+    const data = generatedData || {}
     let sourceDay: number | null = null
     for (const [day, posts] of Object.entries(data)) {
       if (posts.some((p) => p.id === post.id)) {
@@ -448,9 +269,9 @@ export default function ContentCalendar() {
     return () => { document.body.style.overflow = '' }
   }, [selectedPost])
 
-  const queue = fallbackQueue
+  const queue: QueueItem[] = []
 
-  const rawCalendarData = generatedData || fallbackCalendar
+  const rawCalendarData = generatedData || {}
 
   // Filter posts based on active filters
   const calendarData = useMemo(() => {
@@ -591,7 +412,7 @@ export default function ContentCalendar() {
           })
           if (weekPosts.length > 0) {
             const grouped = _groupPosts(weekPosts)
-            const merged = { ...(generatedData || fallbackCalendar) }
+            const merged = { ...(generatedData || {}) }
             for (const [day, dayPosts] of Object.entries(grouped)) {
               merged[Number(day)] = dayPosts
             }
@@ -615,7 +436,7 @@ export default function ContentCalendar() {
               })
               if (weekPosts.length > 0) {
                 const grouped = _groupPosts(weekPosts)
-                const merged = { ...(generatedData || fallbackCalendar) }
+                const merged = { ...(generatedData || {}) }
                 for (const [day, dayPosts] of Object.entries(grouped)) {
                   merged[Number(day)] = dayPosts
                 }
@@ -726,6 +547,64 @@ export default function ContentCalendar() {
 
   const totalPosts = Object.values(calendarData).reduce((sum, posts) => sum + posts.length, 0)
   const daysWithContent = Object.keys(calendarData).length
+
+  // Show empty state when no content exists
+  const hasAnyPosts = Object.values(calendarData).some(posts => posts && posts.length > 0)
+
+  if (!hasAnyPosts && !generating) {
+    // If channels not connected, suggest connecting first
+    if (!hasConnectedChannels) {
+      return (
+        <div>
+          <Header
+            title="KALENDAR SADRŽAJA"
+            subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
+          />
+          <div className="page-wrapper">
+            <EmptyState
+              icon={Sparkles}
+              title="Povežite kanale za sadržaj"
+              description="Prvo povežite društvene mreže, pa generirajte AI strategiju sadržaja."
+              variant="hero"
+              action={
+                <button onClick={() => navigate('/brand-profile')} className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm">
+                  <Link2 size={16} /> Poveži kanale
+                </button>
+              }
+            />
+          </div>
+        </div>
+      )
+    }
+
+    // Channels connected but no content plan yet
+    return (
+      <div>
+        <Header
+          title="KALENDAR SADRŽAJA"
+          subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
+        />
+        <div className="page-wrapper space-y-6">
+          <EmptyState
+            icon={Sparkles}
+            title="Generiraj AI strategiju za ovaj mjesec"
+            description="AI će kreirati kompletni sadržajni plan s objavama za sve vaše kanale na temelju vašeg brand profila."
+            variant="hero"
+            action={
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50"
+              >
+                {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                {generating ? 'Generiranje...' : 'AI Generiraj plan'}
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>

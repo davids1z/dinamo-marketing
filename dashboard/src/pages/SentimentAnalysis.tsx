@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
+import { useChannelStatus } from '../hooks/useChannelStatus';
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import { SentimentDonut } from '../components/charts/SentimentDonut';
 import { EngagementChart } from '../components/charts/EngagementChart';
-import { AlertTriangle, TrendingUp, TrendingDown, Hash } from 'lucide-react';
+import { AlertTriangle, TrendingUp, TrendingDown, Hash, Heart, Link2 } from 'lucide-react';
 
 interface SentimentOverview {
   positive: number;
@@ -25,55 +28,48 @@ interface SentimentOverview {
   }>;
 }
 
-// Fallback mock data for when API is not available
-const fallbackData: SentimentOverview = {
-  positive: 65,
-  neutral: 25,
-  negative: 10,
-  positiveChange: '+4.2%',
-  neutralChange: '-2.1%',
-  negativeChange: '+2.1%',
-  timeline: Array.from({ length: 14 }, (_, i) => {
-    const date = new Date(2026, 1, 20 + i);
-    const hasSpike = i === 8;
-    return {
-      date: date.toISOString().split('T')[0] as string,
-      engagement: Math.round(55 + Math.random() * 20 + (hasSpike ? -15 : 0)),
-      reach: Math.round(8 + Math.random() * 8 + (hasSpike ? 25 : 0)),
-    };
-  }),
-  topics: [
-    { topic: 'Proizvodi', mentions: 1240, sentiment: 'positive', change: '+12%', icon: '📦' },
-    { topic: 'Korisnička podrška', mentions: 890, sentiment: 'neutral', change: '+3%', icon: '📋' },
-    { topic: 'Cijena', mentions: 650, sentiment: 'mixed', change: '-5%', icon: '💰' },
-    { topic: 'Kvaliteta usluge', mentions: 1580, sentiment: 'positive', change: '+18%', icon: '⭐' },
-    { topic: 'Dostava', mentions: 420, sentiment: 'negative', change: '+45%', icon: '📬' },
-  ],
-  alerts: [
-    {
-      id: 1,
-      severity: 'warning',
-      title: 'Detektiran porast negativnog sentimenta',
-      description: 'Pritužbe na kašnjenje dostave generiraju 420+ negativnih spominjanja. 68% negativnog sentimenta na Facebooku. Razmotriti objavu službene izjave ili ažuriranja o poboljšanjima za promjenu narativa.',
-      time: 'prije 3 sata',
-      platform: 'Facebook',
-      mentions: 420,
-    },
-    {
-      id: 2,
-      severity: 'info',
-      title: 'Pozitivan trend: Lansiranje novog proizvoda',
-      description: 'Sadržaj o novom proizvodu prima 92% pozitivnog sentimenta na svim platformama. Razmotriti pojačanje s dodatnim sadržajem koji prikazuje zadovoljne korisnike.',
-      time: 'prije 1 dan',
-      platform: 'All Platforms',
-      mentions: 890,
-    },
-  ],
+const emptyData: SentimentOverview = {
+  positive: 0,
+  neutral: 0,
+  negative: 0,
+  positiveChange: '0%',
+  neutralChange: '0%',
+  negativeChange: '0%',
+  timeline: [],
+  topics: [],
+  alerts: [],
 };
 
 export default function SentimentAnalysis() {
   const { data: apiData, loading } = useApi<SentimentOverview>('/sentiment/overview');
-  const data = apiData || fallbackData;
+  const { hasConnectedChannels } = useChannelStatus();
+  const navigate = useNavigate();
+  const data = apiData || emptyData;
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Heart}
+            title="Nema podataka za sentiment"
+            description="Povežite kanale za analizu sentimenta komentara i interakcija."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (loading && !apiData) return (
     <>

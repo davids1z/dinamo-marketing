@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import { FunnelChart } from '../components/charts/FunnelChart'
 import { CardSkeleton, ChartSkeleton, ErrorState } from '../components/common/LoadingSpinner'
+import { useChannelStatus } from '../hooks/useChannelStatus'
+import EmptyState from '../components/common/EmptyState'
 import { fansApi } from '../api/fans'
 import {
   Users, UserPlus, Heart, Star, Award, TrendingUp, TrendingDown,
   DollarSign, RefreshCw, ShieldAlert, ShieldCheck, AlertTriangle,
-  ArrowUpRight, ArrowDownRight, Target, Activity,
+  ArrowUpRight, ArrowDownRight, Target, Activity, Link2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -56,24 +59,6 @@ const iconMap: Record<string, LucideIcon> = {
 
 const SEGMENT_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
 
-// Fallback growth trend data (last 6 months)
-const fallbackGrowthTrend = [
-  { month: 'Lis', casual: 45000, engaged: 18000, loyal: 8500, vip: 2200, ambassador: 420 },
-  { month: 'Stu', casual: 48000, engaged: 19200, loyal: 9100, vip: 2350, ambassador: 445 },
-  { month: 'Pro', casual: 52000, engaged: 21000, loyal: 9800, vip: 2500, ambassador: 470 },
-  { month: 'Sij', casual: 55000, engaged: 22500, loyal: 10400, vip: 2680, ambassador: 490 },
-  { month: 'Velj', casual: 58000, engaged: 24000, loyal: 11200, vip: 2850, ambassador: 510 },
-  { month: 'Ožu', casual: 62000, engaged: 26000, loyal: 12000, vip: 3050, ambassador: 535 },
-]
-
-// Fallback churn risk distribution
-const fallbackChurnDistribution = [
-  { name: 'Minimalni', value: 45, color: '#10b981' },
-  { name: 'Niski', value: 28, color: '#3b82f6' },
-  { name: 'Srednji', value: 18, color: '#f59e0b' },
-  { name: 'Visoki', value: 9, color: '#ef4444' },
-]
-
 const churnRiskColor = (risk: string) => {
   if (risk === 'Visoki') return { bg: 'bg-red-500/10', text: 'text-red-400', bar: 'bg-red-500', width: '85%' }
   if (risk === 'Srednji') return { bg: 'bg-yellow-500/10', text: 'text-yellow-400', bar: 'bg-yellow-500', width: '55%' }
@@ -82,6 +67,8 @@ const churnRiskColor = (risk: string) => {
 }
 
 export default function CustomerSegmentation() {
+  const navigate = useNavigate()
+  const { hasConnectedChannels } = useChannelStatus()
   const [customerSegments, setCustomerSegments] = useState<CustomerSegment[]>([])
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([])
   const [clvData, setClvData] = useState<ClvRow[]>([])
@@ -159,6 +146,31 @@ export default function CustomerSegmentation() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Users}
+            title="Nema podataka o korisnicima"
+            description="Povežite kanale i prikupite podatke o publici za segmentaciju korisnika i analizu životnog ciklusa."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -336,7 +348,7 @@ export default function CustomerSegmentation() {
               Trend rasta segmenata (6 mjeseci)
             </h2>
             <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={fallbackGrowthTrend}>
+              <LineChart data={[]}>
                 <CartesianGrid {...GRID_STYLE} />
                 <XAxis dataKey="month" {...AXIS_STYLE} dy={8} />
                 <YAxis {...AXIS_STYLE} dx={-4} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
@@ -439,14 +451,14 @@ export default function CustomerSegmentation() {
             </h2>
             <div className="flex justify-center">
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={fallbackChurnDistribution} layout="vertical">
+                <BarChart data={[]} layout="vertical">
                   <CartesianGrid {...GRID_STYLE} horizontal={false} vertical />
                   <XAxis type="number" {...AXIS_STYLE} tickFormatter={(v: number) => `${v}%`} />
                   <YAxis type="category" dataKey="name" {...AXIS_STYLE} width={80} />
                   <Tooltip content={<ChartTooltip formatter={(value: number) => `${value}%`} />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                   <Bar dataKey="value" radius={[0, 6, 6, 0]}
                     animationDuration={CHART_ANIM.barDuration} animationEasing={CHART_ANIM.barEasing}>
-                    {fallbackChurnDistribution.map((entry, idx) => (
+                    {([] as any[]).map((entry, idx) => (
                       <Cell key={`bar-${idx}`} fill={entry.color} />
                     ))}
                   </Bar>

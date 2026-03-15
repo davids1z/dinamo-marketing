@@ -1,10 +1,13 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import { Trophy, TrendingUp, TrendingDown, Eye, BarChart3, ArrowUpRight, ArrowDownRight, Minus, Clock } from 'lucide-react'
+import { useChannelStatus } from '../hooks/useChannelStatus'
+import EmptyState from '../components/common/EmptyState'
+import { Trophy, TrendingUp, TrendingDown, Eye, BarChart3, ArrowUpRight, ArrowDownRight, Minus, Clock, Link2 } from 'lucide-react'
 import { PLATFORMS } from '../utils/constants'
 
 // ---------------------------------------------------------------------------
@@ -131,46 +134,21 @@ function generatePostingTimes(): PostingTimeSlot[] {
   return slots
 }
 
-const fallbackData: ChannelData = {
-  platformStats: [
-    { platform: 'instagram', followers: 567000, prevFollowers: 542000, engagement: 3.2, prevEngagement: 2.9, reach: 1800000, icon: 'Users', contentCount: 126 },
-    { platform: 'facebook', followers: 320000, prevFollowers: 312000, engagement: 1.8, prevEngagement: 1.6, reach: 950000, icon: 'Users', contentCount: 98 },
-    { platform: 'tiktok', followers: 89000, prevFollowers: 72000, engagement: 5.4, prevEngagement: 4.8, reach: 620000, icon: 'Users', contentCount: 64 },
-    { platform: 'youtube', followers: 145000, prevFollowers: 138000, engagement: 2.1, prevEngagement: 1.9, reach: 480000, icon: 'Users', contentCount: 42 },
-    { platform: 'web', followers: 180000, prevFollowers: 165000, engagement: 1.2, prevEngagement: 1.0, reach: 320000, icon: 'Globe', contentCount: 85 },
-  ],
-  engagementData30: Array.from({ length: 30 }, (_, i) => {
-    const date = new Date(2026, 1, 4 + i)
-    const isCampaignDay = [0, 3, 7, 10, 14, 17, 21, 24, 28].includes(i)
-    return {
-      date: date.toISOString().split('T')[0]!,
-      engagement: Math.round(3000 + Math.random() * 4000 + (isCampaignDay ? 5000 : 0)),
-      reach: Math.round(80000 + Math.random() * 120000 + (isCampaignDay ? 150000 : 0)),
-    }
-  }),
-  formatBreakdown: [
-    { type: 'Reels / Short Video', share: 42, posts: 126, avgEngagement: 4.8 },
-    { type: 'Static Image', share: 24, posts: 72, avgEngagement: 2.1 },
-    { type: 'Carousel', share: 18, posts: 54, avgEngagement: 3.4 },
-    { type: 'Stories', share: 10, posts: 30, avgEngagement: 1.8 },
-    { type: 'Long-form Video', share: 6, posts: 18, avgEngagement: 2.9 },
-  ],
-  postingTimes: generatePostingTimes(),
-}
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function ChannelAudit() {
   const { data: apiData, loading } = useApi<ChannelData>('/channels')
-  const data = apiData || fallbackData
+  const { hasConnectedChannels } = useChannelStatus()
+  const navigate = useNavigate()
+  const data = apiData || { platformStats: [], engagementData30: [], formatBreakdown: [], postingTimes: [] }
 
   // Resolved data with safe fallbacks
-  const platformStats = data.platformStats || fallbackData.platformStats
-  const engagementData30 = data.engagementData30 || fallbackData.engagementData30
-  const formatBreakdown = data.formatBreakdown || fallbackData.formatBreakdown
-  const postingTimes = data.postingTimes || fallbackData.postingTimes || generatePostingTimes()
+  const platformStats = data.platformStats || []
+  const engagementData30 = data.engagementData30 || []
+  const formatBreakdown = data.formatBreakdown || []
+  const postingTimes = data.postingTimes || generatePostingTimes()
 
   // Health scores per platform
   const platformsWithHealth = useMemo(
@@ -210,6 +188,31 @@ export default function ChannelAudit() {
       return { ...f, recommendation }
     })
   }, [formatBreakdown])
+
+  if (!hasConnectedChannels) {
+    return (
+      <div>
+        <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={BarChart3}
+            title="Kanali nisu povezani"
+            description="Povežite Instagram, TikTok, YouTube ili Facebook za detaljan audit performansi svakog kanala."
+            variant="hero"
+            action={
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale za audit
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   // Loading state
   if (loading && !apiData) return (

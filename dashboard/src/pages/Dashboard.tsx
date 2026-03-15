@@ -17,6 +17,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useChannelStatus } from '../hooks/useChannelStatus'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -458,12 +459,13 @@ function HeroMetricCard({
 function WelcomeHero() {
   const navigate = useNavigate()
   const { currentClient } = useClient()
+  const { hasConnectedChannels } = useChannelStatus()
 
   // Profile completeness calculation
   const profileChecks = [
     { label: 'Opis poslovanja', done: !!(currentClient?.business_description && currentClient.business_description.length >= 20) },
     { label: 'Ton komunikacije', done: !!currentClient?.tone_of_voice },
-    { label: 'Kanali povezani', done: false },
+    { label: 'Kanali povezani', done: hasConnectedChannels },
     { label: 'Prvi sadržaj', done: false },
   ]
   const completedCount = profileChecks.filter(c => c.done).length
@@ -651,9 +653,9 @@ export default function Dashboard() {
   const activeApi = liveData || rawApi
   const mapped = activeApi ? mapApiToOverview(activeApi) : {}
 
-  // Real channel data will be used once social accounts are connected (Phase 3).
-  // Until then, show the WelcomeHero with zero metrics instead of fake data.
-  const hasRealChannels = !!(mapped.monthly_reach && mapped.monthly_reach > 0)
+  // Show WelcomeHero when client hasn't connected any social channels yet.
+  const { hasConnectedChannels } = useChannelStatus()
+  const hasRealChannels = hasConnectedChannels
 
   const handlePeriodChange = useCallback((key: PeriodKey) => {
     setPeriod(key)
