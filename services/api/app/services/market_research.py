@@ -26,9 +26,11 @@ class MarketResearchService:
         self.trends_client = trends_client
         self.meta_client = meta_client
 
-    async def scan_all_countries(self, db: AsyncSession) -> list[dict]:
-        """Run full market scan for all countries."""
-        countries = (await db.execute(select(Country))).scalars().all()
+    async def scan_all_countries(self, db: AsyncSession, *, client_id: UUID) -> list[dict]:
+        """Run full market scan for all countries belonging to the client."""
+        countries = (
+            await db.execute(select(Country).where(Country.client_id == client_id))
+        ).scalars().all()
         results = []
 
         for country in countries:
@@ -44,6 +46,7 @@ class MarketResearchService:
         for result in results:
             market_score = MarketScore(
                 country_id=result["country_id"],
+                client_id=client_id,
                 sports_density_score=result["sports_density_score"],
                 audience_score=result["audience_score"],
                 diaspora_score=result["diaspora_score"],
@@ -55,10 +58,10 @@ class MarketResearchService:
             db.add(market_score)
 
         await db.flush()
-        logger.info(f"Scanned {len(results)} countries")
+        logger.info(f"Scanned {len(results)} countries for client {client_id}")
         return results
 
-    async def get_events_by_country(self, country_code: str) -> dict:
+    async def get_events_by_country(self, country_code: str, *, client_id: UUID | None = None) -> dict:
         """Get sports events breakdown for a country."""
         leagues = await self.sports_client.get_leagues_by_country(country_code)
         total_events = 0
@@ -155,15 +158,21 @@ class MarketResearchService:
             "rank": 0,
         }
 
-    async def run_market_scan(self, db: AsyncSession) -> list[dict]:
+    async def run_market_scan(self, db: AsyncSession, *, client_id: UUID) -> list[dict]:
         """Alias for scan_all_countries - used by router."""
-        return await self.scan_all_countries(db)
+        return await self.scan_all_countries(db, client_id=client_id)
 
-    async def get_all_countries(self, db: AsyncSession) -> list[dict]:
-        """Get all countries with their latest market scores."""
+    async def get_all_countries(self, db: AsyncSession, *, client_id: UUID) -> list[dict]:
+        """Get all countries with their latest market scores for this client.
+
+        When scan scores exist, market_interest and brand_awareness reflect
+        actual computed values (audience_score and social_penetration_score).
+        Otherwise fall back to raw internet_penetration / football_popularity_index.
+        """
         result = await db.execute(
             select(Country, MarketScore)
             .outerjoin(MarketScore, MarketScore.country_id == Country.id)
+            .where(Country.client_id == client_id)
             .order_by(Country.name)
         )
         rows = result.all()
@@ -176,13 +185,20 @@ class MarketResearchService:
                 "population": country.population,
                 "internet_penetration": country.internet_penetration,
                 "football_popularity_index": country.football_popularity_index,
+                # Use scan scores if available, otherwise derive from base indices
+                "market_interest": round(score.audience_score) if score else (
+                    round(country.internet_penetration * 100) if country.internet_penetration else 0
+                ),
+                "brand_awareness": round(score.social_penetration_score) if score else (
+                    round(country.football_popularity_index * 100) if country.football_popularity_index else 0
+                ),
                 "total_score": score.total_score if score else None,
                 "rank": score.rank if score else None,
             }
             for country, score in rows
         ]
 
-    async def get_country_detail(self, db: AsyncSession, country_id: UUID) -> dict:
+    async def get_country_detail(self, db: AsyncSession, country_id: UUID, *, client_id: UUID) -> dict:
         """Get detailed info for a single country."""
         country = await db.get(Country, country_id)
         if not country:
@@ -241,11 +257,12 @@ class MarketResearchService:
             } if audience else None,
         }
 
-    async def get_market_rankings(self, db: AsyncSession, limit: int = 5) -> list[dict]:
-        """Get top-ranked markets."""
+    async def get_market_rankings(self, db: AsyncSession, *, client_id: UUID, limit: int = 5) -> list[dict]:
+        """Get top-ranked markets for this client."""
         result = await db.execute(
             select(MarketScore, Country)
             .join(Country, MarketScore.country_id == Country.id)
+            .where(MarketScore.client_id == client_id)
             .order_by(MarketScore.rank)
             .limit(limit)
         )

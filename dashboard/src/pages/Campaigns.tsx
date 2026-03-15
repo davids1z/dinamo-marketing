@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
@@ -7,30 +7,138 @@ import StatusBadge from '../components/common/StatusBadge'
 import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
-import { useChannelStatus } from '../hooks/useChannelStatus'
 import { useProjectStatus } from '../hooks/useProjectStatus'
+import { useClient } from '../contexts/ClientContext'
 import { campaignsApi, type AdPerformance, type CampaignPerformance } from '../api/campaigns'
+import { formatCurrency, formatNumber } from '../utils/formatters'
 import {
   Zap, CreditCard, BarChart3, Plus, Pause, Play,
   X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
-  Filter, Loader2, Image, RefreshCw, Rocket, Link2, FolderKanban,
+  Filter, Loader2, Image, RefreshCw, Rocket, FolderKanban,
+  AlertTriangle, Info, Sparkles, Lightbulb, Target, DollarSign,
+  Activity, PieChart,
 } from 'lucide-react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, LineChart, Line, Cell,
+} from 'recharts'
+import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface CampaignRow {
+interface AdVariant {
+  variant_label: string
+  headline: string
+  description: string
+  status: string
+  impressions: number
+  clicks: number
+  ctr: number
+  spend: number
+  conversions: number
+  roas: number
+}
+
+interface DailyMetric {
+  date: string
+  day_label: string
+  spend: number
+  impressions: number
+  clicks: number
+  conversions: number
+}
+
+interface CampaignData {
   id: string
   name: string
   platform: string
-  market: string
+  platform_label: string
+  objective: string
   status: string
-  budget: number
+  daily_budget: number
+  max_budget: number
   spend: number
+  impressions: number
+  clicks: number
   ctr: number
+  conversions: number
   roas: number
+  health_score: number
+  start_date: string
+  end_date: string
+  days_running: number
+  budget_utilization: number
+  ad_variants: AdVariant[]
+  daily_metrics: DailyMetric[]
+}
+
+interface PlatformComparison {
+  platform: string
+  label: string
+  spend: number
+  impressions: number
+  clicks: number
+  ctr: number
+  conversions: number
+  roas: number
+  spend_share: number
+}
+
+interface MonthlyTrend {
+  month: string
+  spend: number
+  roas: number
+  conversions: number
+}
+
+interface Alert {
+  campaign_id: string
+  campaign_name: string
+  severity: 'critical' | 'warning' | 'success'
+  icon: string
+  title: string
+  message: string
+}
+
+interface AIInsight {
+  icon: string
+  text: string
+  type: 'success' | 'warning' | 'info'
+}
+
+interface AIAdvice {
+  title: string
+  insights: AIInsight[]
+}
+
+interface Summary {
+  active_campaigns: number
+  paused_campaigns: number
+  total_campaigns: number
+  total_spend: number
+  avg_roas: number
+  avg_ctr: number
+  total_impressions: number
+  total_clicks: number
+  total_conversions: number
+  cost_per_conversion: number
+}
+
+interface PageData {
+  campaigns: CampaignData[]
+  summary: Summary
+  platform_comparison: PlatformComparison[]
+  monthly_trend: MonthlyTrend[]
+  alerts: Alert[]
+  ai_advice: AIAdvice
+  _meta: {
+    is_estimate: boolean
+    connected_platforms: string[]
+    analyzed_at: string
+  }
 }
 
 interface Toast {
@@ -52,17 +160,6 @@ interface NewCampaignForm {
   endDate: string
   objective: 'awareness' | 'engagement' | 'conversions'
 }
-
-// Mock daily spend data for campaign detail modal
-const mockDailySpend = [
-  { day: 'Pon', spend: 145 },
-  { day: 'Uto', spend: 210 },
-  { day: 'Sri', spend: 180 },
-  { day: 'Cet', spend: 260 },
-  { day: 'Pet', spend: 320 },
-  { day: 'Sub', spend: 190 },
-  { day: 'Ned', spend: 130 },
-]
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -88,25 +185,221 @@ function platformLabel(p: NewCampaignForm['platforms']): string {
 
 function objectiveLabel(o: string): string {
   switch (o) {
-    case 'awareness': return 'Svijest'
+    case 'awareness': return 'Svijest o brendu'
     case 'engagement': return 'Angažman'
     case 'conversions': return 'Konverzije'
     default: return o
   }
 }
 
+function objectiveIcon(o: string) {
+  switch (o) {
+    case 'awareness': return Eye
+    case 'engagement': return MousePointerClick
+    case 'conversions': return TrendingUp
+    default: return Target
+  }
+}
+
+function healthEmoji(score: number): string {
+  if (score >= 80) return '🟢'
+  if (score >= 60) return '🟡'
+  if (score >= 40) return '🟠'
+  return '🔴'
+}
+
+function healthLabel(score: number): string {
+  if (score >= 80) return 'Odlično'
+  if (score >= 60) return 'Dobro'
+  if (score >= 40) return 'Prosječno'
+  return 'Slabo'
+}
+
+const ROAS_COLORS = {
+  great: '#22c55e',
+  good: '#f59e0b',
+  poor: '#ef4444',
+}
+
+function roasColor(roas: number): string {
+  if (roas >= 3) return ROAS_COLORS.great
+  if (roas >= 2) return ROAS_COLORS.good
+  return ROAS_COLORS.poor
+}
+
 // ---------------------------------------------------------------------------
-// Component
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function EstimateBanner() {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+      <Info size={16} className="text-amber-500 flex-shrink-0" />
+      <p className="text-xs text-amber-400/80">
+        <span className="font-semibold text-amber-400">Procijenjeni podaci</span> — prikazane su simulirane kampanje na temelju benchmark podataka.
+        Povežite Ad račun (Meta Ads, Google Ads) za stvarne rezultate.
+      </p>
+    </div>
+  )
+}
+
+function CampaignAIInsight({ advice, isEstimate, brandName }: {
+  advice: AIAdvice
+  isEstimate: boolean
+  brandName: string
+}) {
+  const insightIcons: Record<string, typeof Zap> = {
+    Trophy, AlertTriangle, BarChart3, Lightbulb, TrendingUp,
+    Sparkles, Target, Activity, Zap,
+  }
+
+  return (
+    <div className="rounded-2xl border border-brand-accent/20 bg-gradient-to-br from-brand-accent/5 to-transparent p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-8 h-8 rounded-lg bg-brand-accent/20 flex items-center justify-center">
+          <Sparkles size={16} className="text-brand-accent" />
+        </div>
+        <div>
+          <h3 className="font-headline text-sm text-studio-text-primary">{advice.title}</h3>
+          <p className="text-[10px] text-studio-text-tertiary">
+            {isEstimate ? 'Na temelju benchmark podataka' : `Analiza za ${brandName}`}
+          </p>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {advice.insights.map((insight, idx) => {
+          const IconComp = insightIcons[insight.icon] || Lightbulb
+          const colors = {
+            success: 'text-green-400 bg-green-500/10',
+            warning: 'text-amber-400 bg-amber-500/10',
+            info: 'text-blue-400 bg-blue-500/10',
+          }
+          return (
+            <div key={idx} className="flex items-start gap-3">
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 ${colors[insight.type]}`}>
+                <IconComp size={12} />
+              </div>
+              <p className="text-xs text-studio-text-secondary leading-relaxed">{insight.text}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function AlertsBanner({ alerts }: { alerts: Alert[] }) {
+  if (alerts.length === 0) return null
+
+  const severityStyles = {
+    critical: 'border-red-500/20 bg-red-500/5',
+    warning: 'border-amber-500/20 bg-amber-500/5',
+    success: 'border-green-500/20 bg-green-500/5',
+  }
+  const severityIcons = {
+    critical: AlertTriangle,
+    warning: CreditCard,
+    success: TrendingUp,
+  }
+  const severityColors = {
+    critical: 'text-red-400',
+    warning: 'text-amber-400',
+    success: 'text-green-400',
+  }
+
+  return (
+    <div className="space-y-2">
+      {alerts.map((alert, idx) => {
+        const Icon = severityIcons[alert.severity] || AlertCircle
+        return (
+          <div
+            key={idx}
+            className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${severityStyles[alert.severity]}`}
+          >
+            <Icon size={16} className={`flex-shrink-0 mt-0.5 ${severityColors[alert.severity]}`} />
+            <div className="min-w-0">
+              <p className={`text-xs font-semibold ${severityColors[alert.severity]}`}>{alert.title}</p>
+              <p className="text-xs text-studio-text-secondary mt-0.5">{alert.message}</p>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function PlatformComparisonTable({ data }: { data: PlatformComparison[] }) {
+  if (data.length === 0) return null
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-4">
+        <PieChart size={16} className="text-brand-accent" />
+        <h3 className="font-headline text-sm tracking-wider text-studio-text-primary">USPOREDBA PLATFORMI</h3>
+      </div>
+      <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-studio-border">
+              <th className="text-left py-2.5 text-xs text-studio-text-tertiary font-medium">Platforma</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">Potrošnja</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">Udio</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">Klikovi</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">CTR</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">Konverzije</th>
+              <th className="text-right py-2.5 text-xs text-studio-text-tertiary font-medium">ROAS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((p) => (
+              <tr key={p.platform} className="border-b border-studio-border/50 hover:bg-white/[0.02] transition-colors">
+                <td className="py-3">
+                  <span className="text-studio-text-primary font-medium">{p.label}</span>
+                </td>
+                <td className="py-3 text-right font-mono text-studio-text-secondary">
+                  {formatCurrency(p.spend)}
+                </td>
+                <td className="py-3 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="w-16 bg-studio-surface-3 rounded-full h-1.5">
+                      <div className="bg-brand-accent h-1.5 rounded-full" style={{ width: `${p.spend_share}%` }} />
+                    </div>
+                    <span className="text-xs text-studio-text-tertiary font-mono w-10 text-right">{p.spend_share}%</span>
+                  </div>
+                </td>
+                <td className="py-3 text-right font-mono text-studio-text-secondary">{formatNumber(p.clicks)}</td>
+                <td className="py-3 text-right">
+                  <span className={`font-mono ${p.ctr > 2.5 ? 'text-green-400' : p.ctr > 1.5 ? 'text-amber-400' : 'text-red-400'}`}>
+                    {p.ctr}%
+                  </span>
+                </td>
+                <td className="py-3 text-right font-mono text-studio-text-secondary">{p.conversions}</td>
+                <td className="py-3 text-right">
+                  <span className="font-bold font-mono" style={{ color: roasColor(p.roas) }}>
+                    {p.roas}x
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main Component
 // ---------------------------------------------------------------------------
 
 export default function Campaigns() {
-  const { data: apiData, loading, refetch } = useApi<CampaignRow[]>('/campaigns')
-  const { hasConnectedChannels } = useChannelStatus()
+  const { data: pageData, loading, refetch } = useApi<PageData>('/campaigns/page-data')
   const { hasProjects } = useProjectStatus()
+  const { currentClient } = useClient()
   const navigate = useNavigate()
+  const brandName = currentClient?.client_name || 'Brend'
 
-  // Local campaigns state (for adding new ones)
-  const [localCampaigns, setLocalCampaigns] = useState<CampaignRow[]>([])
+  // Local state
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('sve')
@@ -117,17 +410,41 @@ export default function Campaigns() {
   const [wizardForm, setWizardForm] = useState<NewCampaignForm>(emptyForm)
 
   // Detail modal
-  const [detailCampaign, setDetailCampaign] = useState<CampaignRow | null>(null)
+  const [detailCampaign, setDetailCampaign] = useState<CampaignData | null>(null)
   const [campaignPerf, setCampaignPerf] = useState<CampaignPerformance | null>(null)
   const [perfLoading, setPerfLoading] = useState(false)
   const [refreshingCreative, setRefreshingCreative] = useState(false)
 
-  // Load campaign performance when detail modal opens
+  // Extract data from BFF
+  const campaigns = pageData?.campaigns ?? []
+  const summary = pageData?.summary ?? {
+    active_campaigns: 0, paused_campaigns: 0, total_campaigns: 0,
+    total_spend: 0, avg_roas: 0, avg_ctr: 0,
+    total_impressions: 0, total_clicks: 0,
+    total_conversions: 0, cost_per_conversion: 0,
+  }
+  const platformComparison = pageData?.platform_comparison ?? []
+  const monthlyTrend = pageData?.monthly_trend ?? []
+  const alerts = pageData?.alerts ?? []
+  const aiAdvice = pageData?.ai_advice ?? { title: 'AI Media Buyer', insights: [] }
+  const isEstimate = pageData?._meta?.is_estimate ?? false
+
+  // Filtered campaigns
+  const filteredCampaigns = useMemo(() => {
+    if (statusFilter === 'sve') return campaigns
+    if (statusFilter === 'aktivna') return campaigns.filter(c => c.status === 'active')
+    return campaigns.filter(c => c.status === 'paused')
+  }, [campaigns, statusFilter])
+
+  // Load campaign performance when detail modal opens (only for real campaigns)
   useEffect(() => {
     if (!detailCampaign) {
       setCampaignPerf(null)
       return
     }
+    // Estimate campaigns have local ad_variants, no need for API call
+    if (detailCampaign.id.startsWith('est_')) return
+
     const loadPerf = async () => {
       setPerfLoading(true)
       try {
@@ -147,7 +464,6 @@ export default function Campaigns() {
     try {
       await campaignsApi.refreshCreative(campaignId)
       addToast('Vizuali su uspješno regenerirani', 'success')
-      // Reload performance data
       const data = await campaignsApi.getPerformance(campaignId)
       setCampaignPerf(data as unknown as CampaignPerformance)
     } catch {
@@ -174,53 +490,17 @@ export default function Campaigns() {
   }, [])
 
   // -------------------------------------------------------------------------
-  // Campaign data
-  // -------------------------------------------------------------------------
-
-  // Map API campaigns (which have different field names) to CampaignRow
-  const mappedApi: CampaignRow[] = (apiData && apiData.length > 0)
-    ? (apiData as unknown as Record<string, unknown>[]).map(c => ({
-        id: String(c.id || ''),
-        name: String(c.name || ''),
-        platform: String(c.platform || 'meta'),
-        market: '',
-        status: String(c.status || 'draft') === 'active' ? 'aktivna' : String(c.status || 'draft') === 'paused' ? 'pauzirana' : String(c.status || 'draft'),
-        budget: Number(c.max_budget || c.daily_budget || 0),
-        spend: Number(c.total_spend || 0),
-        ctr: 0,
-        roas: 0,
-      }))
-    : []
-  const allCampaigns = [...mappedApi, ...localCampaigns]
-  const filteredCampaigns = statusFilter === 'sve'
-    ? allCampaigns
-    : allCampaigns.filter(c => {
-        if (statusFilter === 'aktivna') return c.status === 'aktivna' || c.status === 'active'
-        return c.status === 'pauzirana' || c.status === 'paused'
-      })
-
-  const totalSpend = allCampaigns.reduce((sum, c) => sum + c.spend, 0)
-  const avgRoas = allCampaigns.length > 0
-    ? allCampaigns.reduce((sum, c) => sum + c.roas, 0) / allCampaigns.length
-    : 0
-  const activeCampaignsCount = allCampaigns.filter(c => c.status === 'aktivna' || c.status === 'active').length
-
-  // -------------------------------------------------------------------------
-  // Pause / Resume with error handling
+  // Pause / Resume
   // -------------------------------------------------------------------------
 
   const handlePause = async (id: string) => {
     setActionLoading(id)
     try {
       await campaignsApi.pause(id)
-      // Update local campaigns if the paused campaign is local
-      setLocalCampaigns(prev =>
-        prev.map(c => c.id === id ? { ...c, status: 'pauzirana' } : c)
-      )
       refetch()
       addToast('Kampanja je pauzirana', 'success')
     } catch {
-      addToast('Greška pri pauziranju kampanje. Pokušajte ponovo.', 'error')
+      addToast('Greška pri pauziranju kampanje.', 'error')
     } finally {
       setActionLoading(null)
     }
@@ -230,13 +510,10 @@ export default function Campaigns() {
     setActionLoading(id)
     try {
       await campaignsApi.resume(id)
-      setLocalCampaigns(prev =>
-        prev.map(c => c.id === id ? { ...c, status: 'aktivna' } : c)
-      )
       refetch()
       addToast('Kampanja je nastavljena', 'success')
     } catch {
-      addToast('Greška pri nastavljanju kampanje. Pokušajte ponovo.', 'error')
+      addToast('Greška pri nastavljanju kampanje.', 'error')
     } finally {
       setActionLoading(null)
     }
@@ -252,9 +529,7 @@ export default function Campaigns() {
     setShowWizard(true)
   }
 
-  const closeWizard = () => {
-    setShowWizard(false)
-  }
+  const closeWizard = () => setShowWizard(false)
 
   const wizardCanNext = (): boolean => {
     if (wizardStep === 1) {
@@ -275,9 +550,7 @@ export default function Campaigns() {
   const submitWizard = async () => {
     setSubmitting(true)
     try {
-      // Determine platform string for backend
       const platform = wizardForm.platforms.meta ? 'meta' : wizardForm.platforms.tiktok ? 'tiktok' : 'meta'
-
       await campaignsApi.create({
         name: wizardForm.name,
         platform,
@@ -292,21 +565,7 @@ export default function Campaigns() {
       refetch()
       addToast(`Kampanja "${wizardForm.name}" je uspješno kreirana!`, 'success')
     } catch {
-      // Fallback to local if API fails
-      const newCampaign: CampaignRow = {
-        id: `local_${Date.now()}`,
-        name: wizardForm.name,
-        platform: platformLabel(wizardForm.platforms),
-        market: wizardForm.market,
-        status: 'aktivna',
-        budget: wizardForm.budget,
-        spend: 0,
-        ctr: 0,
-        roas: 0,
-      }
-      setLocalCampaigns(prev => [...prev, newCampaign])
-      closeWizard()
-      addToast(`Kampanja kreirana lokalno (API nedostupan)`, 'info')
+      addToast('Greška pri kreiranju kampanje. Pokušajte ponovo.', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -317,36 +576,67 @@ export default function Campaigns() {
   // -------------------------------------------------------------------------
 
   const columns = [
-    { key: 'name', header: 'Kampanja', render: (row: CampaignRow) => (
-      <div className="min-w-0">
-        <span className="text-studio-text-primary font-medium truncate block">{row.name}</span>
-        <p className="text-xs text-studio-text-secondary mt-0.5 truncate">{row.market}</p>
-      </div>
+    { key: 'name', header: 'Kampanja', render: (row: CampaignData) => {
+      const ObjIcon = objectiveIcon(row.objective)
+      return (
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-studio-surface-2 flex items-center justify-center flex-shrink-0">
+            <ObjIcon size={14} className="text-studio-text-secondary" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-studio-text-primary font-medium truncate block">{row.name}</span>
+            <p className="text-xs text-studio-text-tertiary mt-0.5 truncate">
+              {row.platform_label} · {objectiveLabel(row.objective)}
+            </p>
+          </div>
+        </div>
+      )
+    }},
+    { key: 'status', header: 'Status', render: (row: CampaignData) => (
+      <StatusBadge status={row.status === 'active' ? 'aktivna' : row.status === 'paused' ? 'pauzirana' : row.status} />
     )},
-    { key: 'platform', header: 'Platforma', render: (row: CampaignRow) => <span className="text-studio-text-secondary text-sm">{row.platform}</span> },
-    { key: 'status', header: 'Status', render: (row: CampaignRow) => <StatusBadge status={row.status} /> },
-    { key: 'budget', header: 'Budžet', render: (row: CampaignRow) => <span className="text-studio-text-secondary font-mono">EUR{row.budget.toLocaleString()}</span>, align: 'right' as const },
-    { key: 'spend', header: 'Potrošnja', render: (row: CampaignRow) => (
+    { key: 'health', header: 'AI Health', render: (row: CampaignData) => (
+      <div className="flex items-center gap-1.5">
+        <span className="text-sm">{healthEmoji(row.health_score)}</span>
+        <span className="text-xs font-mono text-studio-text-secondary">{row.health_score}%</span>
+      </div>
+    ), align: 'center' as const },
+    { key: 'budget', header: 'Budžet', render: (row: CampaignData) => (
       <div>
-        <span className="text-studio-text-primary font-mono">EUR{row.spend.toLocaleString()}</span>
-        <div className="w-full bg-studio-surface-3 rounded-full h-1 mt-1">
-          <div className="bg-brand-accent h-1 rounded-full transition-all" style={{ width: `${Math.min((row.spend / row.budget) * 100, 100)}%` }} />
+        <span className="text-studio-text-primary font-mono text-sm">{formatCurrency(row.max_budget)}</span>
+        <div className="flex items-center gap-2 mt-1">
+          <div className="w-16 bg-studio-surface-3 rounded-full h-1.5">
+            <div
+              className={`h-1.5 rounded-full transition-all ${
+                row.budget_utilization > 90 ? 'bg-red-500' : row.budget_utilization > 70 ? 'bg-amber-500' : 'bg-brand-accent'
+              }`}
+              style={{ width: `${Math.min(row.budget_utilization, 100)}%` }}
+            />
+          </div>
+          <span className="text-[10px] text-studio-text-tertiary font-mono">{row.budget_utilization}%</span>
         </div>
       </div>
     ), align: 'right' as const },
-    { key: 'ctr', header: 'CTR', render: (row: CampaignRow) => (
-      <span className={`font-mono ${row.ctr > 3 ? 'text-green-600' : row.ctr > 2 ? 'text-yellow-600' : 'text-studio-text-secondary'}`}>{row.ctr}%</span>
+    { key: 'spend', header: 'Potrošnja', render: (row: CampaignData) => (
+      <span className="text-studio-text-secondary font-mono text-sm">{formatCurrency(row.spend)}</span>
     ), align: 'right' as const },
-    { key: 'roas', header: 'ROAS', render: (row: CampaignRow) => (
-      <span className={`font-bold font-mono ${row.roas > 3 ? 'text-green-600' : row.roas > 2 ? 'text-yellow-600' : 'text-red-400'}`}>{row.roas}x</span>
+    { key: 'ctr', header: 'CTR', render: (row: CampaignData) => (
+      <span className={`font-mono text-sm ${row.ctr > 3 ? 'text-green-400' : row.ctr > 2 ? 'text-amber-400' : 'text-studio-text-secondary'}`}>
+        {row.ctr}%
+      </span>
     ), align: 'right' as const },
-    { key: 'actions', header: '', render: (row: CampaignRow) => (
+    { key: 'roas', header: 'ROAS', render: (row: CampaignData) => (
+      <span className="font-bold font-mono text-sm" style={{ color: roasColor(row.roas) }}>
+        {row.roas}x
+      </span>
+    ), align: 'right' as const },
+    { key: 'actions', header: '', render: (row: CampaignData) => (
       <div className="flex items-center gap-1">
-        {(row.status === 'aktivna' || row.status === 'active') ? (
+        {row.status === 'active' ? (
           <button
             onClick={(e) => { e.stopPropagation(); handlePause(row.id) }}
-            disabled={actionLoading === row.id}
-            className="p-1.5 hover:bg-amber-500/10 rounded text-yellow-600 disabled:opacity-50"
+            disabled={actionLoading === row.id || isEstimate}
+            className="p-1.5 hover:bg-amber-500/10 rounded text-amber-400 disabled:opacity-50"
             title="Pauziraj"
           >
             <Pause size={14} />
@@ -354,8 +644,8 @@ export default function Campaigns() {
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); handleResume(row.id) }}
-            disabled={actionLoading === row.id}
-            className="p-1.5 hover:bg-green-500/10 rounded text-green-600 disabled:opacity-50"
+            disabled={actionLoading === row.id || isEstimate}
+            className="p-1.5 hover:bg-green-500/10 rounded text-green-400 disabled:opacity-50"
             title="Nastavi"
           >
             <Play size={14} />
@@ -366,13 +656,13 @@ export default function Campaigns() {
   ]
 
   // -------------------------------------------------------------------------
-  // Render
+  // Render: Guards
   // -------------------------------------------------------------------------
 
   if (!hasProjects) {
     return (
       <div>
-        <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
+        <Header title="KAMPANJE" subtitle="AI Media Buyer — upravljanje kampanjama i performanse" />
         <div className="page-wrapper">
           <EmptyState
             icon={FolderKanban}
@@ -394,52 +684,118 @@ export default function Campaigns() {
     )
   }
 
-  if (!hasConnectedChannels) {
-    return (
-      <div>
-        <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
-        <div className="page-wrapper">
-          <EmptyState
-            icon={Rocket}
-            title="Nema aktivnih kampanja"
-            description="Povežite kanale i kreirajte prvu kampanju za praćenje performansi."
-            variant="hero"
-            action={
-              <button
-                onClick={() => navigate('/brand-profile?tab=mreze')}
-                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
-              >
-                <Link2 size={16} />
-                Poveži kanale
-              </button>
-            }
-          />
-        </div>
-      </div>
-    )
-  }
-
-  if (loading && !apiData) return (
+  if (loading && !pageData) return (
     <>
-      <Header title="KAMPANJE" subtitle="Upravljanje kampanjama" />
+      <Header title="KAMPANJE" subtitle="AI Media Buyer — upravljanje kampanjama i performanse" />
       <div className="page-wrapper space-y-6">
-        <CardSkeleton count={4} />
+        <CardSkeleton count={5} />
         <TableSkeleton rows={6} />
       </div>
     </>
   )
 
+  // -------------------------------------------------------------------------
+  // Render: Main
+  // -------------------------------------------------------------------------
+
   return (
     <div>
-      <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
+      <Header
+        title="KAMPANJE"
+        subtitle="AI Media Buyer — upravljanje kampanjama i performanse"
+        actions={
+          <button onClick={openWizard} className="btn-primary flex items-center gap-2 text-sm">
+            <Plus size={16} />
+            Nova kampanja
+          </button>
+        }
+      />
 
       <div className="page-wrapper space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard label="Aktivne kampanje" value={activeCampaignsCount} format="number" icon={Zap} />
-          <MetricCard label="Ukupna potrošnja" value={totalSpend} format="currency" icon={CreditCard} />
-          <MetricCard label="Prosj. ROAS" value={Number(avgRoas.toFixed(1))} format="number" icon={BarChart3} />
+        {/* Estimate banner */}
+        {isEstimate && <EstimateBanner />}
+
+        {/* KPI Cards — 5 metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <MetricCard label="Aktivne kampanje" value={summary.active_campaigns} format="number" icon={Zap} />
+          <MetricCard label="Ukupna potrošnja" value={summary.total_spend} format="currency" icon={CreditCard} />
+          <MetricCard label="Prosj. ROAS" value={summary.avg_roas} format="number" icon={BarChart3} />
+          <MetricCard label="Konverzije" value={summary.total_conversions} format="number" icon={Target} />
+          <MetricCard label="Cijena konverzije" value={summary.cost_per_conversion} format="currency" icon={DollarSign} />
         </div>
+
+        {/* Alerts */}
+        <AlertsBanner alerts={alerts} />
+
+        {/* Two-column: AI Advice + Monthly Trend */}
+        {(aiAdvice.insights.length > 0 || monthlyTrend.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* AI Advice */}
+            {aiAdvice.insights.length > 0 && (
+              <CampaignAIInsight advice={aiAdvice} isEstimate={isEstimate} brandName={brandName} />
+            )}
+
+            {/* Monthly Spend & ROAS Trend */}
+            {monthlyTrend.length > 0 && (
+              <div className="card">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp size={16} className="text-brand-accent" />
+                  <h3 className="font-headline text-sm tracking-wider text-studio-text-primary">TREND POTROŠNJE I ROAS-a</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={monthlyTrend}>
+                    <CartesianGrid {...GRID_STYLE} />
+                    <XAxis dataKey="month" {...AXIS_STYLE} />
+                    <YAxis {...AXIS_STYLE} tickFormatter={(v: number) => `€${v}`} />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(148,163,184,0.2)',
+                        borderRadius: '12px', fontSize: '12px', color: '#e2e8f0',
+                      }}
+                      formatter={(value: number, name: string) => [
+                        name === 'spend' ? `€${value.toFixed(0)}` : `${value}x`,
+                        name === 'spend' ? 'Potrošnja' : 'ROAS',
+                      ]}
+                    />
+                    <Bar
+                      dataKey="spend"
+                      radius={[4, 4, 0, 0]}
+                      animationDuration={CHART_ANIM.barDuration}
+                      animationEasing={CHART_ANIM.barEasing}
+                    >
+                      {monthlyTrend.map((_, idx) => (
+                        <Cell key={idx} fill="rgb(var(--brand-accent))" opacity={0.3 + (idx / monthlyTrend.length) * 0.7} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={80}>
+                  <LineChart data={monthlyTrend}>
+                    <XAxis dataKey="month" {...AXIS_STYLE} hide />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(148,163,184,0.2)',
+                        borderRadius: '12px', fontSize: '12px', color: '#e2e8f0',
+                      }}
+                      formatter={(value: number) => [`${value}x`, 'ROAS']}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="roas"
+                      stroke="#22c55e"
+                      strokeWidth={2}
+                      dot={{ fill: '#22c55e', r: 4 }}
+                      animationDuration={CHART_ANIM.lineDuration}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Platform Comparison */}
+        <PlatformComparisonTable data={platformComparison} />
 
         {/* Campaigns Table */}
         <div className="card overflow-hidden">
@@ -457,10 +813,10 @@ export default function Campaigns() {
             {(['sve', 'aktivna', 'pauzirana'] as StatusFilter[]).map((f) => {
               const label = f === 'sve' ? 'Sve' : f === 'aktivna' ? 'Aktivne' : 'Pauzirane'
               const count = f === 'sve'
-                ? allCampaigns.length
+                ? campaigns.length
                 : f === 'aktivna'
-                  ? allCampaigns.filter(c => c.status === 'aktivna' || c.status === 'active').length
-                  : allCampaigns.filter(c => c.status === 'pauzirana' || c.status === 'paused').length
+                  ? campaigns.filter(c => c.status === 'active').length
+                  : campaigns.filter(c => c.status === 'paused').length
               return (
                 <button
                   key={f}
@@ -477,14 +833,33 @@ export default function Campaigns() {
             })}
           </div>
 
-          <div className="overflow-x-auto -mx-5 px-5">
-            <DataTable
-              columns={columns}
-              data={filteredCampaigns}
-              onRowClick={(row) => setDetailCampaign(row)}
-              emptyMessage="Nema pronađenih kampanja"
-            />
-          </div>
+          {campaigns.length > 0 ? (
+            <div className="overflow-x-auto -mx-5 px-5">
+              <DataTable
+                columns={columns}
+                data={filteredCampaigns}
+                onRowClick={(row) => setDetailCampaign(row)}
+                emptyMessage="Nema pronađenih kampanja za ovaj filter"
+              />
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
+                <Rocket size={28} className="text-brand-accent" />
+              </div>
+              <h3 className="text-lg font-bold text-studio-text-primary mb-2">Pokrenite prvu kampanju</h3>
+              <p className="text-sm text-studio-text-secondary max-w-md mx-auto mb-6">
+                AI Media Buyer automatski kreira varijante oglasa, prati ROAS i predlaže optimizacije u realnom vremenu.
+              </p>
+              <button
+                onClick={openWizard}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-lg shadow-brand-accent/20"
+              >
+                <Plus size={16} />
+                Kreiraj prvu kampanju
+              </button>
+            </div>
+          )}
         </div>
 
       </div>
@@ -494,16 +869,13 @@ export default function Campaigns() {
       {/* ================================================================ */}
       {showWizard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeWizard} />
-
-          {/* Modal */}
           <div className="relative bg-studio-surface-1 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-studio-border">
               <div>
-                <h3 className="text-lg font-bold text-studio-text-primary">Nova kampanja</h3>
-                <p className="text-xs text-studio-text-secondary mt-0.5">Korak {wizardStep} od 3</p>
+                <h3 className="text-lg font-bold text-studio-text-primary">AI Campaign Builder</h3>
+                <p className="text-xs text-studio-text-secondary mt-0.5">Korak {wizardStep} od 3 — AI automatski kreira varijante i kopiju</p>
               </div>
               <button onClick={closeWizard} className="p-1.5 hover:bg-studio-surface-2 rounded-lg transition-colors">
                 <X size={18} className="text-studio-text-tertiary" />
@@ -540,7 +912,7 @@ export default function Campaigns() {
                       value={wizardForm.name}
                       onChange={e => setWizardForm(f => ({ ...f, name: e.target.value }))}
                       placeholder="npr. Proljetna promocija"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all bg-studio-surface-0 text-studio-text-primary"
                     />
                   </div>
 
@@ -557,7 +929,7 @@ export default function Campaigns() {
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-all ${
                             wizardForm.platforms[key]
                               ? 'border-brand-accent bg-brand-accent/5 text-brand-accent'
-                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
+                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-brand-accent/30'
                           }`}
                         >
                           <input
@@ -589,8 +961,16 @@ export default function Campaigns() {
                       value={wizardForm.market}
                       onChange={e => setWizardForm(f => ({ ...f, market: e.target.value }))}
                       placeholder="npr. HR, BA, DE"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all bg-studio-surface-0 text-studio-text-primary"
                     />
+                  </div>
+
+                  {/* AI hint */}
+                  <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-brand-accent/5 border border-brand-accent/10">
+                    <Sparkles size={14} className="text-brand-accent flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-studio-text-secondary">
+                      AI automatski kreira 3 varijante oglasa (A/B/C test), prilagođene profilu brenda <strong className="text-studio-text-primary">{brandName}</strong>.
+                    </p>
                   </div>
                 </>
               )}
@@ -599,15 +979,20 @@ export default function Campaigns() {
               {wizardStep === 2 && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-studio-text-primary mb-1.5">Budžet (EUR)</label>
+                    <label className="block text-sm font-medium text-studio-text-primary mb-1.5">Ukupni budžet (EUR)</label>
                     <input
                       type="number"
                       min={0}
                       value={wizardForm.budget || ''}
                       onChange={e => setWizardForm(f => ({ ...f, budget: Number(e.target.value) }))}
                       placeholder="npr. 3000"
-                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all font-mono"
+                      className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all font-mono bg-studio-surface-0 text-studio-text-primary"
                     />
+                    {wizardForm.budget > 0 && (
+                      <p className="text-xs text-studio-text-tertiary mt-1.5">
+                        ≈ {formatCurrency(Math.round(wizardForm.budget / 30))}/dan dnevni budžet
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -620,7 +1005,7 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.startDate}
                         onChange={e => setWizardForm(f => ({ ...f, startDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all bg-studio-surface-0 text-studio-text-primary"
                       />
                     </div>
                     <div>
@@ -632,7 +1017,7 @@ export default function Campaigns() {
                         type="date"
                         value={wizardForm.endDate}
                         onChange={e => setWizardForm(f => ({ ...f, endDate: e.target.value }))}
-                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all"
+                        className="w-full px-3 py-2.5 border border-studio-border rounded-xl text-sm focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent outline-none transition-all bg-studio-surface-0 text-studio-text-primary"
                       />
                     </div>
                   </div>
@@ -641,10 +1026,10 @@ export default function Campaigns() {
                     <label className="block text-sm font-medium text-studio-text-primary mb-2">Cilj kampanje</label>
                     <div className="grid grid-cols-3 gap-3">
                       {([
-                        { value: 'awareness' as const, label: 'Svijest', icon: Eye },
-                        { value: 'engagement' as const, label: 'Angažman', icon: MousePointerClick },
-                        { value: 'conversions' as const, label: 'Konverzije', icon: TrendingUp },
-                      ]).map(({ value, label, icon: Icon }) => (
+                        { value: 'awareness' as const, label: 'Svijest', desc: 'Doseg i prepoznatljivost', icon: Eye },
+                        { value: 'engagement' as const, label: 'Angažman', desc: 'Klikovi i interakcije', icon: MousePointerClick },
+                        { value: 'conversions' as const, label: 'Konverzije', desc: 'Prodaja i registracije', icon: TrendingUp },
+                      ]).map(({ value, label, desc, icon: Icon }) => (
                         <button
                           key={value}
                           type="button"
@@ -652,11 +1037,12 @@ export default function Campaigns() {
                           className={`flex flex-col items-center gap-2 p-4 rounded-xl border text-sm font-medium transition-all ${
                             wizardForm.objective === value
                               ? 'border-brand-accent bg-brand-accent/5 text-brand-accent'
-                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-studio-border'
+                              : 'border-studio-border bg-studio-surface-0 text-studio-text-secondary hover:border-brand-accent/30'
                           }`}
                         >
                           <Icon size={20} />
                           {label}
+                          <span className="text-[10px] text-studio-text-tertiary font-normal">{desc}</span>
                         </button>
                       ))}
                     </div>
@@ -685,7 +1071,11 @@ export default function Campaigns() {
                     <div className="border-t border-studio-border my-1" />
                     <div className="flex justify-between text-sm">
                       <span className="text-studio-text-secondary">Budžet</span>
-                      <span className="text-studio-text-primary font-medium font-mono">EUR{wizardForm.budget.toLocaleString()}</span>
+                      <span className="text-studio-text-primary font-medium font-mono">{formatCurrency(wizardForm.budget)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-studio-text-secondary">Dnevni budžet</span>
+                      <span className="text-studio-text-primary font-medium font-mono">{formatCurrency(Math.round(wizardForm.budget / 30))}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-studio-text-secondary">Početak</span>
@@ -699,6 +1089,14 @@ export default function Campaigns() {
                       <span className="text-studio-text-secondary">Cilj</span>
                       <span className="text-studio-text-primary font-medium">{objectiveLabel(wizardForm.objective)}</span>
                     </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-green-500/5 border border-green-500/10">
+                    <CheckCircle size={14} className="text-green-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-studio-text-secondary">
+                      AI će automatski kreirati <strong className="text-studio-text-primary">3 varijante oglasa</strong> s različitim kreativama i kopijama.
+                      A/B test se pokreće automatski.
+                    </p>
                   </div>
                 </div>
               )}
@@ -738,8 +1136,8 @@ export default function Campaigns() {
                   disabled={submitting}
                   className="btn-primary flex items-center gap-1.5 text-sm disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                  {submitting ? 'Kreiranje...' : 'Kreiraj kampanju'}
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Rocket size={16} />}
+                  {submitting ? 'AI kreira kampanju...' : 'Pokreni kampanju'}
                 </button>
               )}
             </div>
@@ -752,19 +1150,24 @@ export default function Campaigns() {
       {/* ================================================================ */}
       {detailCampaign && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDetailCampaign(null)} />
 
-          {/* Modal */}
           <div className="relative bg-studio-surface-1 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-studio-border">
               <div>
                 <h3 className="text-lg font-bold text-studio-text-primary">{detailCampaign.name}</h3>
-                <p className="text-xs text-studio-text-secondary mt-0.5">{detailCampaign.platform} &middot; {detailCampaign.market}</p>
+                <p className="text-xs text-studio-text-secondary mt-0.5">
+                  {detailCampaign.platform_label} · {objectiveLabel(detailCampaign.objective)} · {detailCampaign.days_running} dana aktivno
+                </p>
               </div>
               <div className="flex items-center gap-2">
-                <StatusBadge status={detailCampaign.status} />
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-studio-surface-2 text-xs">
+                  <span>{healthEmoji(detailCampaign.health_score)}</span>
+                  <span className="font-mono text-studio-text-secondary">{detailCampaign.health_score}%</span>
+                  <span className="text-studio-text-tertiary">{healthLabel(detailCampaign.health_score)}</span>
+                </div>
+                <StatusBadge status={detailCampaign.status === 'active' ? 'aktivna' : 'pauzirana'} />
                 <button onClick={() => setDetailCampaign(null)} className="p-1.5 hover:bg-studio-surface-2 rounded-lg transition-colors">
                   <X size={18} className="text-studio-text-tertiary" />
                 </button>
@@ -776,19 +1179,23 @@ export default function Campaigns() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-studio-surface-0 rounded-xl p-4">
                   <p className="text-xs text-studio-text-secondary mb-1">Budžet</p>
-                  <p className="text-lg font-bold text-studio-text-primary font-mono">EUR{detailCampaign.budget.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-studio-text-primary font-mono">{formatCurrency(detailCampaign.max_budget)}</p>
                 </div>
                 <div className="bg-studio-surface-0 rounded-xl p-4">
                   <p className="text-xs text-studio-text-secondary mb-1">Potrošeno</p>
-                  <p className="text-lg font-bold text-studio-text-primary font-mono">EUR{detailCampaign.spend.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-studio-text-primary font-mono">{formatCurrency(detailCampaign.spend)}</p>
                 </div>
                 <div className="bg-studio-surface-0 rounded-xl p-4">
                   <p className="text-xs text-studio-text-secondary mb-1">CTR</p>
-                  <p className={`text-lg font-bold font-mono ${detailCampaign.ctr > 3 ? 'text-green-600' : detailCampaign.ctr > 2 ? 'text-yellow-600' : 'text-studio-text-primary'}`}>{detailCampaign.ctr}%</p>
+                  <p className={`text-lg font-bold font-mono ${detailCampaign.ctr > 3 ? 'text-green-400' : detailCampaign.ctr > 2 ? 'text-amber-400' : 'text-studio-text-primary'}`}>
+                    {detailCampaign.ctr}%
+                  </p>
                 </div>
                 <div className="bg-studio-surface-0 rounded-xl p-4">
                   <p className="text-xs text-studio-text-secondary mb-1">ROAS</p>
-                  <p className={`text-lg font-bold font-mono ${detailCampaign.roas > 3 ? 'text-green-600' : detailCampaign.roas > 2 ? 'text-yellow-600' : 'text-red-400'}`}>{detailCampaign.roas}x</p>
+                  <p className="text-lg font-bold font-mono" style={{ color: roasColor(detailCampaign.roas) }}>
+                    {detailCampaign.roas}x
+                  </p>
                 </div>
               </div>
 
@@ -797,153 +1204,188 @@ export default function Campaigns() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-studio-text-primary">Napredak budžeta</span>
                   <span className="text-sm font-mono text-studio-text-secondary">
-                    {detailCampaign.budget > 0 ? Math.round((detailCampaign.spend / detailCampaign.budget) * 100) : 0}%
+                    {detailCampaign.budget_utilization}%
                   </span>
                 </div>
                 <div className="w-full bg-studio-surface-3 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full transition-all ${
-                      detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.9
-                        ? 'bg-red-500'
-                        : detailCampaign.budget > 0 && (detailCampaign.spend / detailCampaign.budget) > 0.7
-                          ? 'bg-yellow-500'
-                          : 'bg-brand-accent'
+                      detailCampaign.budget_utilization > 90 ? 'bg-red-500'
+                        : detailCampaign.budget_utilization > 70 ? 'bg-amber-500'
+                        : 'bg-brand-accent'
                     }`}
-                    style={{ width: `${detailCampaign.budget > 0 ? Math.min((detailCampaign.spend / detailCampaign.budget) * 100, 100) : 0}%` }}
+                    style={{ width: `${Math.min(detailCampaign.budget_utilization, 100)}%` }}
                   />
                 </div>
               </div>
 
-              {/* Ad Creatives / Variants Section */}
+              {/* Ad Variants — from estimate data OR API */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Image size={16} className="text-purple-600" />
-                    <h4 className="text-sm font-medium text-studio-text-primary">Ad varijante i vizuali</h4>
+                    <Image size={16} className="text-purple-400" />
+                    <h4 className="text-sm font-medium text-studio-text-primary">Ad varijante (A/B/C test)</h4>
                   </div>
-                  <button
-                    onClick={() => handleRefreshCreative(detailCampaign.id)}
-                    disabled={refreshingCreative}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-200 rounded-lg transition-all disabled:opacity-50"
-                  >
-                    <RefreshCw size={12} className={refreshingCreative ? 'animate-spin' : ''} />
-                    {refreshingCreative ? 'Generiranje...' : 'Regeneriraj vizuale'}
-                  </button>
+                  {!isEstimate && (
+                    <button
+                      onClick={() => handleRefreshCreative(detailCampaign.id)}
+                      disabled={refreshingCreative}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-lg transition-all disabled:opacity-50"
+                    >
+                      <RefreshCw size={12} className={refreshingCreative ? 'animate-spin' : ''} />
+                      {refreshingCreative ? 'Generiranje...' : 'Regeneriraj vizuale'}
+                    </button>
+                  )}
                 </div>
 
-                {perfLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 size={24} className="animate-spin text-studio-text-tertiary" />
-                  </div>
-                ) : campaignPerf?.ads && campaignPerf.ads.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {campaignPerf.ads.map((ad: AdPerformance) => (
-                      <div key={ad.ad_id} className="border border-studio-border rounded-xl overflow-hidden hover:shadow-md transition-all">
-                        {/* Visual preview */}
-                        <div className="aspect-square bg-studio-surface-2 relative">
-                          {ad.image_url ? (
-                            <img
-                              src={ad.image_url}
-                              alt={`Varijanta ${ad.variant_label}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-studio-text-tertiary">
-                              <Image size={32} />
+                {(() => {
+                  // Use estimate data variants or API performance data
+                  const variants = detailCampaign.ad_variants.length > 0
+                    ? detailCampaign.ad_variants
+                    : campaignPerf?.ads?.map((ad: AdPerformance) => ({
+                        variant_label: ad.variant_label,
+                        headline: ad.headline,
+                        description: ad.description,
+                        status: ad.status,
+                        impressions: ad.impressions,
+                        clicks: ad.clicks,
+                        ctr: ad.ctr,
+                        spend: ad.spend,
+                        conversions: ad.conversions,
+                        roas: ad.roas,
+                      })) ?? []
+
+                  if (perfLoading) {
+                    return (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 size={24} className="animate-spin text-studio-text-tertiary" />
+                      </div>
+                    )
+                  }
+
+                  if (variants.length === 0) {
+                    return (
+                      <div className="bg-studio-surface-0 rounded-xl p-6 text-center">
+                        <Image size={24} className="text-studio-text-disabled mx-auto mb-2" />
+                        <p className="text-sm text-studio-text-secondary">Nema podataka o varijantama</p>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {variants.map((ad) => (
+                        <div key={ad.variant_label} className="border border-studio-border rounded-xl overflow-hidden hover:border-brand-accent/30 transition-all">
+                          <div className="bg-studio-surface-2 p-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs px-2 py-0.5 bg-brand-accent/20 text-brand-accent rounded-full font-bold">
+                                {ad.variant_label}
+                              </span>
+                              {ad.status === 'winner' && (
+                                <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full flex items-center gap-1">
+                                  <Trophy size={10} /> Pobjednik
+                                </span>
+                              )}
                             </div>
-                          )}
-                          <span className="absolute top-2 left-2 text-xs px-2 py-0.5 bg-black/60 text-white rounded-full font-bold">
-                            {ad.variant_label}
-                          </span>
-                          {ad.status === 'winner' && (
-                            <span className="absolute top-2 right-2 text-xs px-2 py-0.5 bg-green-600 text-white rounded-full flex items-center gap-1">
-                              <Trophy size={10} /> Pobjednik
+                            <span className="font-bold font-mono text-xs" style={{ color: roasColor(ad.roas) }}>
+                              {ad.roas}x
                             </span>
-                          )}
-                        </div>
-                        {/* Ad info */}
-                        <div className="p-3 space-y-2">
-                          <p className="text-sm font-medium text-studio-text-primary line-clamp-1">{ad.headline}</p>
-                          {ad.description && (
-                            <p className="text-xs text-studio-text-secondary line-clamp-2">{ad.description}</p>
-                          )}
-                          <div className="grid grid-cols-2 gap-1 pt-1 border-t border-studio-border-subtle">
-                            <div>
-                              <p className="text-[10px] text-studio-text-tertiary">CTR</p>
-                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.ctr}%</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-studio-text-tertiary">Klikovi</p>
-                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.clicks.toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-studio-text-tertiary">Konverzije</p>
-                              <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.conversions}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-studio-text-tertiary">Potrošnja</p>
-                              <p className="text-xs font-mono font-bold text-studio-text-primary">EUR{ad.spend}</p>
+                          </div>
+                          <div className="p-3 space-y-2">
+                            <p className="text-sm font-medium text-studio-text-primary line-clamp-2">{ad.headline}</p>
+                            {ad.description && (
+                              <p className="text-xs text-studio-text-secondary line-clamp-2">{ad.description}</p>
+                            )}
+                            <div className="grid grid-cols-2 gap-1 pt-2 border-t border-studio-border/50">
+                              <div>
+                                <p className="text-[10px] text-studio-text-tertiary">CTR</p>
+                                <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.ctr}%</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-studio-text-tertiary">Klikovi</p>
+                                <p className="text-xs font-mono font-bold text-studio-text-primary">{formatNumber(ad.clicks)}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-studio-text-tertiary">Konverzije</p>
+                                <p className="text-xs font-mono font-bold text-studio-text-primary">{ad.conversions}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-studio-text-tertiary">Potrošnja</p>
+                                <p className="text-xs font-mono font-bold text-studio-text-primary">{formatCurrency(ad.spend)}</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-studio-surface-0 rounded-xl p-6 text-center">
-                    <Image size={24} className="text-studio-text-disabled mx-auto mb-2" />
-                    <p className="text-sm text-studio-text-secondary">Nema podataka o varijantama</p>
-                    <p className="text-xs text-studio-text-tertiary mt-1">Vizuali će se automatski generirati pri kreiranju kampanje</p>
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )
+                })()}
               </div>
 
               {/* Daily spend chart */}
-              <div>
-                <h4 className="text-sm font-medium text-studio-text-primary mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
-                <div className="flex items-end gap-2 h-32">
-                  {(campaignPerf?.ads?.[0]?.daily_metrics?.length
-                    ? campaignPerf.ads[0].daily_metrics.map(m => ({ day: m.date.slice(5), spend: m.spend }))
-                    : mockDailySpend
-                  ).map((d) => {
-                    const items = campaignPerf?.ads?.[0]?.daily_metrics?.length
-                      ? campaignPerf.ads[0].daily_metrics.map(m => m.spend)
-                      : mockDailySpend.map(m => m.spend)
-                    const maxSpend = Math.max(...items, 1)
-                    return (
-                      <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-[10px] font-mono text-studio-text-secondary">EUR{d.spend}</span>
-                        <div
-                          className="w-full bg-brand-accent/80 rounded-t-md transition-all hover:bg-brand-accent"
-                          style={{ height: `${(d.spend / maxSpend) * 80}px` }}
-                        />
-                        <span className="text-[10px] text-studio-text-tertiary">{d.day}</span>
-                      </div>
-                    )
-                  })}
+              {detailCampaign.daily_metrics.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-studio-text-primary mb-3">Dnevna potrošnja (zadnjih 7 dana)</h4>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <BarChart data={detailCampaign.daily_metrics}>
+                      <CartesianGrid {...GRID_STYLE} />
+                      <XAxis dataKey="day_label" {...AXIS_STYLE} />
+                      <YAxis {...AXIS_STYLE} tickFormatter={(v: number) => `€${v}`} />
+                      <Tooltip
+                        contentStyle={{
+                          background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(148,163,184,0.2)',
+                          borderRadius: '12px', fontSize: '12px', color: '#e2e8f0',
+                        }}
+                        formatter={(value: number) => [`€${value.toFixed(2)}`, 'Potrošnja']}
+                      />
+                      <Bar dataKey="spend" fill="rgb(var(--brand-accent))" radius={[4, 4, 0, 0]}
+                        animationDuration={CHART_ANIM.barDuration}
+                        animationEasing={CHART_ANIM.barEasing}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* Conversion metrics */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-studio-surface-0 rounded-xl p-3 text-center">
+                  <p className="text-[10px] text-studio-text-tertiary mb-1">Impresije</p>
+                  <p className="font-stats text-lg text-studio-text-primary">{formatNumber(detailCampaign.impressions)}</p>
+                </div>
+                <div className="bg-studio-surface-0 rounded-xl p-3 text-center">
+                  <p className="text-[10px] text-studio-text-tertiary mb-1">Klikovi</p>
+                  <p className="font-stats text-lg text-studio-text-primary">{formatNumber(detailCampaign.clicks)}</p>
+                </div>
+                <div className="bg-studio-surface-0 rounded-xl p-3 text-center">
+                  <p className="text-[10px] text-studio-text-tertiary mb-1">Konverzije</p>
+                  <p className="font-stats text-lg text-studio-text-primary">{detailCampaign.conversions}</p>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-studio-border bg-studio-surface-0 rounded-b-2xl">
-              {(detailCampaign.status === 'aktivna' || detailCampaign.status === 'active') ? (
-                <button
-                  onClick={() => { handlePause(detailCampaign.id); setDetailCampaign(null) }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-yellow-400 bg-amber-500/10 hover:bg-amber-500/20 border border-yellow-200 rounded-xl transition-all"
-                >
-                  <Pause size={14} />
-                  Pauziraj
-                </button>
-              ) : (
-                <button
-                  onClick={() => { handleResume(detailCampaign.id); setDetailCampaign(null) }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-200 rounded-xl transition-all"
-                >
-                  <Play size={14} />
-                  Nastavi
-                </button>
+              {!isEstimate && (
+                <>
+                  {detailCampaign.status === 'active' ? (
+                    <button
+                      onClick={() => { handlePause(detailCampaign.id); setDetailCampaign(null) }}
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl transition-all"
+                    >
+                      <Pause size={14} />
+                      Pauziraj
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { handleResume(detailCampaign.id); setDetailCampaign(null) }}
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-xl transition-all"
+                    >
+                      <Play size={14} />
+                      Nastavi
+                    </button>
+                  )}
+                </>
               )}
               <button
                 onClick={() => setDetailCampaign(null)}

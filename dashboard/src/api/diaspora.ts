@@ -6,4 +6,5 @@ export const diasporaApi = {
   adaptContent: (postId: string, targetLang: string) =>
     api.post(`/diaspora/adapt/${postId}`, null, { params: { target_lang: targetLang } }),
   getPopulations: () => api.get('/diaspora/populations'),
+  getPageData: () => api.get('/diaspora/page-data'),
 };

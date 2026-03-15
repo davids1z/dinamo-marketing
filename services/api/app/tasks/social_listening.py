@@ -72,6 +72,38 @@ TRENDING_TOPIC_POOL = [
 ]
 
 
+def _build_client_keywords(client) -> list[str]:
+    """Build brand keywords from client data instead of using hardcoded globals."""
+    keywords = [client.name]
+
+    # Extract handles from social_handles JSON
+    handles = getattr(client, "social_handles", None) or {}
+    if isinstance(handles, dict):
+        for platform, url_or_handle in handles.items():
+            if not isinstance(url_or_handle, str) or not url_or_handle:
+                continue
+            # Extract clean handle from URL
+            clean = url_or_handle.strip().rstrip("/")
+            if "://" in clean:
+                clean = clean.split("://", 1)[1]
+            parts = clean.split("/")
+            handle = parts[-1] if parts else ""
+            if handle and handle not in ("www", ""):
+                keywords.append(f"@{handle}")
+                keywords.append(f"#{handle}")
+
+    # Add brand name as hashtag (remove spaces)
+    clean_name = client.name.replace(" ", "")
+    if clean_name:
+        keywords.append(f"#{clean_name}")
+
+    # Fallback to global keywords if nothing useful was derived
+    if len(keywords) <= 1:
+        return BRAND_KEYWORDS
+
+    return keywords
+
+
 def _simulate_mention_scan(platform: str) -> list:
     """Simulate scanning a platform for brand mentions."""
     count = random.randint(5, 60)
@@ -208,8 +240,9 @@ def scan_brand_mentions(self):
             logger.info("  Processing client: %s (%s)", client.name, client.id)
             results["clients_processed"] += 1
 
-            # TODO: In production, use client-specific brand keywords
-            logger.info("  Tracking keywords: %s", ", ".join(BRAND_KEYWORDS))
+            # Build client-specific brand keywords from client data
+            client_keywords = _build_client_keywords(client)
+            logger.info("  Tracking keywords: %s", ", ".join(client_keywords))
 
             all_mentions = []
 

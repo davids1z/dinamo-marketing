@@ -1,56 +1,637 @@
-import { useNavigate } from 'react-router-dom'
+import { useState, useMemo } from 'react'
 import Header from '../components/layout/Header'
+import MetricCard from '../components/common/MetricCard'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
-import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
-import { useChannelStatus } from '../hooks/useChannelStatus'
 import { useProjectStatus } from '../hooks/useProjectStatus'
-import { Globe, Users, MapPin, Languages, Calendar, Link2, FolderKanban } from 'lucide-react'
+import { useClient } from '../contexts/ClientContext'
+import { formatNumber, formatCurrency } from '../utils/formatters'
+import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts'
+import {
+  Globe, Users, MapPin, Languages, Calendar, TrendingUp, TrendingDown,
+  DollarSign, Info, Zap, Sparkles, Search, ChevronDown, X,
+  FolderKanban, ArrowUpRight, Building2, Eye, Target,
+} from 'lucide-react'
 
-interface MarketRegion {
+/* ─────────── types ─────────── */
+
+interface CityData {
+  name: string
+  reach: number
+  active: number
+}
+
+interface Market {
+  id: string
   country: string
-  city: string
-  population: number
-  activeMembers: number
-  offices: number
-  engagement: number
+  code: string
   flag: string
+  region: string
+  language: string
+  reach: number
+  active_users: number
+  engagement: number
+  growth_7d: number
+  growth_30d: number
+  ad_cost_cpm: number
+  monthly_ad_spend: number
+  conversions: number
+  revenue: number
+  market_score: number
+  cities: CityData[]
+  offices: number
+}
+
+interface RegionComparison {
+  region: string
+  reach: number
+  active: number
+  countries: number
+  share: number
+  ad_spend: number
 }
 
 interface ContentItem {
-  id: number
+  id: string
   title: string
   languages: string[]
   platform: string
+  type: string
   date: string
+  due_date?: string
   status: string
   description: string
 }
 
-interface GeographicMarketsData {
-  communities: MarketRegion[]
-  contentPipeline: ContentItem[]
+interface HeatmapEntry {
+  code: string
+  country: string
+  intensity: number
+  reach: number
+  growth: number
 }
 
+interface AIInsightItem {
+  icon: string
+  text: string
+  type: 'success' | 'info' | 'warning'
+}
+
+interface PageData {
+  markets: Market[]
+  regionComparison: RegionComparison[]
+  contentPipeline: ContentItem[]
+  heatmapData: HeatmapEntry[]
+  summary: {
+    total_markets: number
+    total_reach: number
+    total_active: number
+    total_offices: number
+    total_ad_spend: number
+    total_conversions: number
+    total_revenue: number
+    avg_engagement: number
+    languages: string[]
+  }
+  aiInsights: {
+    title: string
+    insights: AIInsightItem[]
+  }
+  _meta?: {
+    is_estimate: boolean
+    connected_platforms?: string[]
+    analyzed_at: string | null
+  }
+}
+
+/* ─────────── helpers ─────────── */
 
 const langColors: Record<string, string> = {
-  HR: 'bg-red-500/10 text-red-400 border-red-200',
-  EN: 'bg-blue-500/10 text-blue-400 border-blue-200',
-  DE: 'bg-yellow-100 text-yellow-600 border-yellow-200',
+  HR: 'bg-red-500/10 text-red-400 border-red-500/20',
+  EN: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  DE: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+  hr: 'bg-red-500/10 text-red-400 border-red-500/20',
+  en: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  de: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
 }
 
-export default function GeographicMarkets() {
-  const { data: apiData, loading } = useApi<GeographicMarketsData>('/diaspora/populations')
-  const { hasConnectedChannels } = useChannelStatus()
-  const { hasProjects } = useProjectStatus()
-  const navigate = useNavigate()
-  const data = apiData || { communities: [], contentPipeline: [] }
+const langLabel: Record<string, string> = {
+  hr: 'Hrvatski', en: 'Engleski', de: 'Njemački',
+  HR: 'Hrvatski', EN: 'Engleski', DE: 'Njemački',
+}
 
+function scoreColor(score: number): string {
+  if (score >= 80) return 'text-green-400'
+  if (score >= 60) return 'text-blue-400'
+  if (score >= 40) return 'text-yellow-400'
+  return 'text-red-400'
+}
+
+function scoreBg(score: number): string {
+  if (score >= 80) return 'bg-green-500/10'
+  if (score >= 60) return 'bg-blue-500/10'
+  if (score >= 40) return 'bg-yellow-500/10'
+  return 'bg-red-500/10'
+}
+
+function growthBadge(growth: number) {
+  const isPositive = growth >= 0
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${
+      isPositive ? 'text-green-400' : 'text-red-400'
+    }`}>
+      {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+      {isPositive ? '+' : ''}{growth.toFixed(1)}%
+    </span>
+  )
+}
+
+const insightIconMap: Record<string, typeof TrendingUp> = {
+  TrendingUp,
+  Globe,
+  DollarSign,
+  Languages,
+}
+
+/* ─────────── EstimateBanner ─────────── */
+
+function EstimateBanner() {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+      <Info size={16} className="text-amber-500 flex-shrink-0" />
+      <p className="text-xs text-amber-400/80">
+        <span className="font-semibold text-amber-400">Procijenjeni podaci</span> — prikazani su benchmark rezultati temeljeni na sličnim brendovima. Analiza započinje automatski nakon prikupljanja prvih podataka.
+      </p>
+    </div>
+  )
+}
+
+/* ─────────── AI Geo-Intelligence Insight ─────────── */
+
+function GeoAIInsight({
+  aiInsights,
+  isEstimate,
+  brandName,
+}: {
+  aiInsights: PageData['aiInsights']
+  isEstimate: boolean
+  brandName: string
+}) {
+  const insight = useMemo(() => {
+    if (isEstimate) {
+      return {
+        icon: Zap,
+        color: '#f59e0b',
+        title: 'Analiziramo vaša tržišta',
+        text: `AI mapira geografsku prisutnost za ${brandName}. Prikazani su procijenjeni podaci na temelju benchmark podataka sličnih brendova u regiji.`,
+      }
+    }
+    return {
+      icon: Sparkles,
+      color: '#22c55e',
+      title: aiInsights.title || 'AI Geo-Intelligence',
+      text: aiInsights.insights?.[0]?.text || `${brandName} ima aktivnu prisutnost na više tržišta. Pogledajte AI preporuke ispod.`,
+    }
+  }, [isEstimate, brandName, aiInsights])
+
+  const InsightIcon = insight.icon
+
+  return (
+    <div
+      className="rounded-xl border border-white/5 p-5 relative overflow-hidden"
+      style={{ background: `linear-gradient(135deg, ${insight.color}08, ${insight.color}03)` }}
+    >
+      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20" style={{ background: insight.color }} />
+      <div className="relative flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${insight.color}20` }}>
+          <InsightIcon size={20} style={{ color: insight.color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: insight.color }}>AI Geo-Intelligence</span>
+            <span className="text-studio-text-tertiary">&middot;</span>
+            <span className="text-xs text-studio-text-tertiary">{insight.title}</span>
+          </div>
+          <p className="text-sm text-studio-text-secondary leading-relaxed">{insight.text}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── Market Heatmap (tile-based) ─────────── */
+
+function MarketHeatmap({ markets, onSelect }: { markets: Market[]; onSelect: (m: Market) => void }) {
+  const sorted = useMemo(() => [...markets].sort((a, b) => b.reach - a.reach), [markets])
+  const maxReach = sorted[0]?.reach ?? 1
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-5">
+        <Globe size={18} className="text-brand-accent" />
+        <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Mapa tržišta — Doseg po državama</h3>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {sorted.map((m) => {
+          const intensity = m.reach / maxReach
+          const opacity = 0.08 + intensity * 0.25
+          return (
+            <button
+              key={m.code}
+              onClick={() => onSelect(m)}
+              className="relative rounded-xl border border-studio-border-subtle p-4 text-left hover:border-brand-accent/30 hover:shadow-md transition-all group overflow-hidden"
+            >
+              <div
+                className="absolute inset-0 rounded-xl"
+                style={{ background: `rgba(var(--brand-accent-rgb, 184, 255, 0), ${opacity})` }}
+              />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">{m.flag}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg(m.market_score)} ${scoreColor(m.market_score)}`}>
+                    {m.market_score}
+                  </span>
+                </div>
+                <h4 className="text-sm font-semibold text-studio-text-primary mb-0.5">{m.country}</h4>
+                <p className="text-xs text-studio-text-secondary mb-2">{m.region}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-stats text-studio-text-primary">{formatNumber(m.reach)}</span>
+                  {growthBadge(m.growth_7d)}
+                </div>
+                {/* Intensity bar */}
+                <div className="mt-2 h-1 bg-studio-surface-3 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-brand-accent transition-all duration-700"
+                    style={{ width: `${Math.max(intensity * 100, 5)}%` }}
+                  />
+                </div>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-4 text-xs text-studio-text-tertiary">
+        <span>Intenzitet:</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-brand-accent/10" /> Nizak
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-brand-accent/25" /> Srednji
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-brand-accent/40" /> Visok
+        </span>
+        <span className="ml-auto">Klikni za detalje</span>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── Region Comparison Chart ─────────── */
+
+function RegionChart({ regions }: { regions: RegionComparison[] }) {
+  if (regions.length === 0) return null
+  const chartData = regions.map((r) => ({
+    name: r.region.replace('Dijaspora — ', ''),
+    reach: r.reach,
+    countries: r.countries,
+    share: r.share,
+  }))
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-5">
+        <Target size={18} className="text-brand-accent" />
+        <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Doseg po regijama</h3>
+      </div>
+      <ResponsiveContainer width="100%" height={280}>
+        <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 20, bottom: 0, left: 10 }}>
+          <CartesianGrid {...GRID_STYLE} horizontal={false} vertical />
+          <XAxis type="number" {...AXIS_STYLE} tickFormatter={(v: number) => formatNumber(v)} />
+          <YAxis type="category" dataKey="name" {...AXIS_STYLE} width={120} />
+          <Tooltip
+            contentStyle={{ background: '#1a1a2e', border: '1px solid #333', borderRadius: 12 }}
+            labelStyle={{ color: '#fff', fontWeight: 600 }}
+            formatter={(value: number) => [formatNumber(value), 'Doseg']}
+          />
+          <Bar
+            dataKey="reach"
+            radius={[0, 6, 6, 0]}
+            animationDuration={CHART_ANIM.barDuration}
+            animationEasing={CHART_ANIM.barEasing}
+          >
+            {chartData.map((_, idx) => (
+              <Cell key={idx} fill={idx === 0 ? 'rgb(var(--brand-accent-rgb, 184, 255, 0))' : `rgba(var(--brand-accent-rgb, 184, 255, 0), ${0.6 - idx * 0.1})`} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+      {/* Region share breakdown */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-studio-border-subtle">
+        {regions.map((r) => (
+          <div key={r.region} className="text-center">
+            <p className="text-lg font-stats text-studio-text-primary">{r.share}%</p>
+            <p className="text-[10px] text-studio-text-secondary truncate">{r.region}</p>
+            <p className="text-[10px] text-studio-text-tertiary">{r.countries} {r.countries === 1 ? 'država' : 'država'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── AI Insights Section ─────────── */
+
+function AIInsightsSection({ insights }: { insights: AIInsightItem[] }) {
+  if (insights.length === 0) return null
+
+  const defaultStyle = { bg: 'bg-blue-500/5', border: 'border-blue-500/15', icon: 'text-blue-400' }
+  const typeStyle: Record<string, { bg: string; border: string; icon: string }> = {
+    success: { bg: 'bg-green-500/5', border: 'border-green-500/15', icon: 'text-green-400' },
+    info: defaultStyle,
+    warning: { bg: 'bg-amber-500/5', border: 'border-amber-500/15', icon: 'text-amber-400' },
+  }
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-5">
+        <Sparkles size={18} className="text-brand-accent" />
+        <h3 className="font-headline text-base tracking-wider text-studio-text-primary">AI Geo-Intelligence — Preporuke</h3>
+      </div>
+      <div className="space-y-3">
+        {insights.map((item, idx) => {
+          const style = typeStyle[item.type] ?? defaultStyle
+          const Icon = insightIconMap[item.icon] ?? Globe
+          return (
+            <div key={idx} className={`flex items-start gap-3 p-4 rounded-xl border ${style.bg} ${style.border}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${style.bg}`}>
+                <Icon size={16} className={style.icon} />
+              </div>
+              <p className="text-sm text-studio-text-secondary leading-relaxed">{item.text}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── Market Detail Modal ─────────── */
+
+function MarketDetailModal({ market, onClose }: { market: Market; onClose: () => void }) {
+  const totalCityReach = market.cities.reduce((s, c) => s + c.reach, 0) || 1
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-studio-surface-1 border border-studio-border rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-studio-surface-1 border-b border-studio-border p-5 flex items-center justify-between rounded-t-2xl z-10">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{market.flag}</span>
+            <div>
+              <h2 className="text-lg font-headline tracking-wider text-studio-text-primary">{market.country}</h2>
+              <p className="text-xs text-studio-text-secondary">{market.region} · {langLabel[market.language] || market.language}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-bold px-3 py-1 rounded-full ${scoreBg(market.market_score)} ${scoreColor(market.market_score)}`}>
+              Score: {market.market_score}/100
+            </span>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-studio-surface-2 flex items-center justify-center hover:bg-studio-surface-3 transition-colors">
+              <X size={16} className="text-studio-text-secondary" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-studio-surface-0 rounded-xl p-3 border border-studio-border-subtle">
+              <p className="text-[10px] uppercase tracking-wider text-studio-text-secondary mb-1">Doseg</p>
+              <p className="text-lg font-stats text-studio-text-primary">{formatNumber(market.reach)}</p>
+            </div>
+            <div className="bg-studio-surface-0 rounded-xl p-3 border border-studio-border-subtle">
+              <p className="text-[10px] uppercase tracking-wider text-studio-text-secondary mb-1">Aktivni</p>
+              <p className="text-lg font-stats text-studio-text-primary">{formatNumber(market.active_users)}</p>
+            </div>
+            <div className="bg-studio-surface-0 rounded-xl p-3 border border-studio-border-subtle">
+              <p className="text-[10px] uppercase tracking-wider text-studio-text-secondary mb-1">Angažman</p>
+              <p className="text-lg font-stats text-studio-text-primary">{market.engagement}%</p>
+            </div>
+            <div className="bg-studio-surface-0 rounded-xl p-3 border border-studio-border-subtle">
+              <p className="text-[10px] uppercase tracking-wider text-studio-text-secondary mb-1">Uredi</p>
+              <p className="text-lg font-stats text-studio-text-primary">{market.offices}</p>
+            </div>
+          </div>
+
+          {/* Growth */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-studio-surface-0 rounded-xl p-4 border border-studio-border-subtle">
+              <p className="text-xs text-studio-text-secondary mb-2">Rast (7 dana)</p>
+              <div className="flex items-center gap-2">
+                {growthBadge(market.growth_7d)}
+                <span className="text-sm text-studio-text-primary font-stats">{market.growth_7d > 0 ? '+' : ''}{market.growth_7d}%</span>
+              </div>
+            </div>
+            <div className="bg-studio-surface-0 rounded-xl p-4 border border-studio-border-subtle">
+              <p className="text-xs text-studio-text-secondary mb-2">Rast (30 dana)</p>
+              <div className="flex items-center gap-2">
+                {growthBadge(market.growth_30d)}
+                <span className="text-sm text-studio-text-primary font-stats">{market.growth_30d > 0 ? '+' : ''}{market.growth_30d}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Financials */}
+          <div className="bg-studio-surface-0 rounded-xl p-4 border border-studio-border-subtle">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-studio-text-secondary mb-3">Financijski pregled</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <p className="text-[10px] text-studio-text-tertiary">CPM</p>
+                <p className="text-sm font-stats text-studio-text-primary">{formatCurrency(market.ad_cost_cpm)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-studio-text-tertiary">Mj. potrošnja</p>
+                <p className="text-sm font-stats text-studio-text-primary">{formatCurrency(market.monthly_ad_spend)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-studio-text-tertiary">Konverzije</p>
+                <p className="text-sm font-stats text-studio-text-primary">{market.conversions}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-studio-text-tertiary">Prihod</p>
+                <p className="text-sm font-stats text-green-400">{formatCurrency(market.revenue)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* City breakdown */}
+          {market.cities.length > 0 && (
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-studio-text-secondary mb-3">Gradovi</h4>
+              <div className="space-y-2">
+                {market.cities.map((city) => {
+                  const pct = (city.reach / totalCityReach) * 100
+                  return (
+                    <div key={city.name} className="flex items-center gap-3">
+                      <span className="text-sm text-studio-text-primary w-28 shrink-0 truncate">{city.name}</span>
+                      <div className="flex-1 bg-studio-surface-3 rounded-full h-2.5 overflow-hidden">
+                        <div className="h-full rounded-full bg-brand-accent/60 transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-xs text-studio-text-secondary w-16 text-right font-mono">{formatNumber(city.reach)}</span>
+                      <span className="text-xs text-studio-text-tertiary w-10 text-right">{pct.toFixed(0)}%</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action */}
+          <div className="flex gap-3 pt-2">
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-brand-accent text-brand-dark rounded-xl text-sm font-semibold hover:bg-brand-accent/90 transition-colors">
+              <Languages size={16} />
+              Lokaliziraj kampanju
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-studio-surface-2 text-studio-text-primary rounded-xl text-sm font-medium hover:bg-studio-surface-3 transition-colors">
+              <ArrowUpRight size={16} />
+              Kreiraj oglasnu kampanju
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── Ad Cost Comparison Table ─────────── */
+
+function AdCostTable({ markets }: { markets: Market[] }) {
+  const sorted = useMemo(() => [...markets].sort((a, b) => a.ad_cost_cpm - b.ad_cost_cpm), [markets])
+  const maxCpm = sorted[sorted.length - 1]?.ad_cost_cpm ?? 1
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-5">
+        <DollarSign size={18} className="text-brand-accent" />
+        <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Trošak oglašavanja po tržištima (CPM)</h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-studio-border">
+              <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Tržište</th>
+              <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">CPM</th>
+              <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden sm:table-cell">Mj. potrošnja</th>
+              <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Konverzije</th>
+              <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Prihod</th>
+              <th className="text-left py-3 px-4 text-studio-text-secondary font-medium w-40 hidden lg:table-cell">Relativni trošak</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((m) => (
+              <tr key={m.code} className="border-b border-studio-border-subtle hover:bg-studio-surface-1 transition-colors">
+                <td className="py-3 px-4">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">{m.flag}</span>
+                    <span className="text-studio-text-primary font-medium">{m.country}</span>
+                  </span>
+                </td>
+                <td className="py-3 px-4 text-right font-stats text-studio-text-primary">{formatCurrency(m.ad_cost_cpm)}</td>
+                <td className="py-3 px-4 text-right font-mono text-studio-text-secondary hidden sm:table-cell">{formatCurrency(m.monthly_ad_spend)}</td>
+                <td className="py-3 px-4 text-right font-mono text-studio-text-secondary hidden md:table-cell">{m.conversions}</td>
+                <td className="py-3 px-4 text-right font-mono text-green-400 hidden md:table-cell">{formatCurrency(m.revenue)}</td>
+                <td className="py-3 px-4 hidden lg:table-cell">
+                  <div className="h-2 bg-studio-surface-3 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-brand-accent/50 transition-all"
+                      style={{ width: `${(m.ad_cost_cpm / maxCpm) * 100}%` }}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Main Component
+   ═══════════════════════════════════════════════════════════════════ */
+
+export default function GeographicMarkets() {
+  const { data: apiData, loading } = useApi<PageData>('/diaspora/page-data')
+  const { hasProjects } = useProjectStatus()
+  const { currentClient } = useClient()
+  const navigate = (path: string) => { window.location.href = path }
+
+  const brandName = currentClient?.client_name || 'Vaš brend'
+
+  // State
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
+  const [regionFilter, setRegionFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<'reach' | 'growth' | 'score' | 'cpm'>('reach')
+
+  const data = apiData || {
+    markets: [], regionComparison: [], contentPipeline: [],
+    heatmapData: [], summary: {
+      total_markets: 0, total_reach: 0, total_active: 0, total_offices: 0,
+      total_ad_spend: 0, total_conversions: 0, total_revenue: 0, avg_engagement: 0, languages: [],
+    },
+    aiInsights: { title: '', insights: [] },
+  }
+
+  const isEstimate = apiData?._meta?.is_estimate ?? false
+  const markets = data.markets || []
+  const regions = data.regionComparison || []
+  const contentPipeline = data.contentPipeline || []
+  const summary = data.summary
+  const aiInsights = data.aiInsights
+
+  // Unique region names for filter
+  const uniqueRegions = useMemo(() => {
+    const set = new Set(markets.map((m) => m.region))
+    return Array.from(set)
+  }, [markets])
+
+  // Filtered & sorted markets
+  const filteredMarkets = useMemo(() => {
+    let result = [...markets]
+    if (regionFilter !== 'all') {
+      result = result.filter((m) => m.region === regionFilter)
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      result = result.filter(
+        (m) => m.country.toLowerCase().includes(q) || m.code.toLowerCase().includes(q)
+      )
+    }
+    switch (sortBy) {
+      case 'reach': result.sort((a, b) => b.reach - a.reach); break
+      case 'growth': result.sort((a, b) => b.growth_7d - a.growth_7d); break
+      case 'score': result.sort((a, b) => b.market_score - a.market_score); break
+      case 'cpm': result.sort((a, b) => a.ad_cost_cpm - b.ad_cost_cpm); break
+    }
+    return result
+  }, [markets, regionFilter, searchQuery, sortBy])
+
+  /* ─── Project guard ─── */
   if (!hasProjects) {
     return (
       <div>
-        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
+        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Globalna ekspanzija i regionalna analiza" />
         <div className="page-wrapper">
           <EmptyState
             icon={FolderKanban}
@@ -72,23 +653,38 @@ export default function GeographicMarkets() {
     )
   }
 
-  if (!hasConnectedChannels) {
+  /* ─── Loading ─── */
+  if (loading && !apiData) {
+    return (
+      <>
+        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Globalna ekspanzija i regionalna analiza" />
+        <div className="page-wrapper space-y-6">
+          <CardSkeleton count={5} cols="grid grid-cols-1 sm:grid-cols-5 gap-4" />
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+      </>
+    )
+  }
+
+  /* ─── No data at all ─── */
+  if (!apiData || (markets.length === 0 && !isEstimate)) {
     return (
       <div>
-        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
+        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Globalna ekspanzija i regionalna analiza" />
         <div className="page-wrapper">
           <EmptyState
             icon={Globe}
-            title="Nema podataka o geografskim tržištima"
-            description="Povežite kanale za praćenje dijaspore i međunarodnih tržišta."
+            title="Nema podataka o tržištima"
+            description="Unesite profile društvenih mreža u Profil brenda kako bi AI mogao analizirati vašu geografsku prisutnost."
             variant="hero"
             action={
               <button
                 onClick={() => navigate('/brand-profile?tab=mreze')}
                 className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
               >
-                <Link2 size={16} />
-                Poveži kanale
+                <Globe size={16} />
+                Postavi kanale
               </button>
             }
           />
@@ -97,135 +693,236 @@ export default function GeographicMarkets() {
     )
   }
 
-  if (loading && !apiData) return (
-    <>
-      <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
-      <div className="page-wrapper space-y-6">
-        <CardSkeleton count={4} cols="grid grid-cols-1 sm:grid-cols-4 gap-4" />
-        <ChartSkeleton />
-      </div>
-    </>
-  )
-
-  const regions = data.communities || []
-  const contentPipeline = data.contentPipeline || []
-
-  const regionComparison = regions.map(c => ({
-    name: c.country,
-    value: c.population,
-  }))
-
-  const totalPopulation = regions.reduce((sum, c) => sum + c.population, 0)
-  const totalActive = regions.reduce((sum, c) => sum + c.activeMembers, 0)
-  const totalOffices = regions.reduce((sum, c) => sum + c.offices, 0)
-
   return (
     <div>
-      <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
+      <Header
+        title="GEOGRAFSKA TRŽIŠTA"
+        subtitle="Globalna ekspanzija i regionalna analiza"
+        actions={
+          <button className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-brand-dark rounded-xl text-sm font-semibold hover:bg-brand-accent/90 transition-colors">
+            <Languages size={16} />
+            Lokaliziraj kampanju
+          </button>
+        }
+      />
 
       <div className="page-wrapper space-y-6">
 
+        {/* ── Estimate Banner ── */}
+        {isEstimate && <EstimateBanner />}
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        {/* ── AI Insight Card ── */}
+        <GeoAIInsight aiInsights={aiInsights} isEstimate={isEstimate} brandName={brandName} />
+
+        {/* ── KPI Cards ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 stagger-children">
+          <MetricCard label="Aktivna tržišta" value={summary.total_markets} icon={Globe} />
+          <MetricCard label="Ukupni doseg" value={summary.total_reach} icon={Users} />
+          <MetricCard label="Aktivni korisnici" value={summary.total_active} icon={Eye} />
+          <MetricCard label="Regionalni uredi" value={summary.total_offices} icon={Building2} />
+          <MetricCard label="Prosj. angažman" value={summary.avg_engagement} format="percent" icon={Target} />
+        </div>
+
+        {/* ── Market Heatmap ── */}
+        <MarketHeatmap markets={markets} onSelect={setSelectedMarket} />
+
+        {/* ── Region Comparison + Ad Cost side by side ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RegionChart regions={regions} />
+
+          {/* Language coverage */}
           <div className="card">
-            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Globe size={16} />Tržišta</div>
-            <p className="text-3xl font-bold text-studio-text-primary">{regions.length}</p>
-          </div>
-          <div className="card">
-            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Users size={16} />Ukupni doseg</div>
-            <p className="text-3xl font-bold text-studio-text-primary">{(totalPopulation / 1000).toFixed(0)}K</p>
-          </div>
-          <div className="card">
-            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><Users size={16} />Aktivni korisnici</div>
-            <p className="text-3xl font-bold text-studio-text-primary">{(totalActive / 1000).toFixed(1)}K</p>
-          </div>
-          <div className="card">
-            <div className="flex items-center gap-2 text-studio-text-secondary mb-1"><MapPin size={16} />Regionalni uredi</div>
-            <p className="text-3xl font-bold text-studio-text-primary">{totalOffices}</p>
+            <div className="flex items-center gap-2 mb-5">
+              <Languages size={18} className="text-brand-accent" />
+              <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Jezična pokrivenost</h3>
+            </div>
+            <div className="space-y-4">
+              {summary.languages.map((lang) => {
+                const langMarkets = markets.filter((m) => m.language === lang)
+                const langReach = langMarkets.reduce((s, m) => s + m.reach, 0)
+                const pct = summary.total_reach > 0 ? (langReach / summary.total_reach) * 100 : 0
+                return (
+                  <div key={lang}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-studio-surface-2 text-studio-text-secondary border-studio-border'}`}>
+                          {lang.toUpperCase()}
+                        </span>
+                        <span className="text-sm text-studio-text-primary font-medium">{langLabel[lang] || lang}</span>
+                      </div>
+                      <span className="text-sm font-stats text-studio-text-primary">{pct.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2.5 bg-studio-surface-3 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-brand-accent/60 transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <p className="text-[10px] text-studio-text-tertiary mt-1">{langMarkets.length} {langMarkets.length === 1 ? 'tržište' : 'tržišta'} · {formatNumber(langReach)} doseg</p>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Region Comparison */}
+        {/* ── Market Table with filters ── */}
         <div className="card">
-          <ComparisonBar data={regionComparison} title="Veličina tržišta po državama" valueLabel="Population" />
-        </div>
-
-        {/* Region List */}
-        <div className="card">
-          <h2 className="section-title mb-4">Detalji tržišta</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {regions.map((region) => (
-              <div key={region.country} className="bg-studio-surface-0 rounded-lg p-4 hover:bg-studio-surface-2 transition-colors border border-studio-border">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{region.flag}</span>
-                  <div>
-                    <h3 className="text-sm font-medium text-studio-text-primary">{region.country}</h3>
-                    <p className="text-xs text-studio-text-secondary">{region.city}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <p className="text-studio-text-secondary text-xs">Veličina tržišta</p>
-                    <p className="text-studio-text-primary font-mono">{(region.population / 1000).toFixed(0)}K</p>
-                  </div>
-                  <div>
-                    <p className="text-studio-text-secondary text-xs">Aktivni korisnici</p>
-                    <p className="text-studio-text-primary font-mono">{(region.activeMembers / 1000).toFixed(1)}K</p>
-                  </div>
-                  <div>
-                    <p className="text-studio-text-secondary text-xs">Uredi</p>
-                    <p className="text-studio-text-primary">{region.offices}</p>
-                  </div>
-                  <div>
-                    <p className="text-studio-text-secondary text-xs">Angažman</p>
-                    <p className="text-green-600">{region.engagement}%</p>
-                  </div>
-                </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+            <h3 className="font-headline text-base tracking-wider text-studio-text-primary flex items-center gap-2">
+              <MapPin size={18} className="text-brand-accent" />
+              Detalji tržišta
+            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                <input
+                  type="text"
+                  placeholder="Traži..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 bg-studio-surface-0 border border-studio-border-subtle rounded-lg text-xs text-studio-text-primary placeholder:text-studio-text-tertiary focus:outline-none focus:border-brand-accent/30 w-36"
+                />
               </div>
-            ))}
+              {/* Region filter */}
+              <div className="relative">
+                <select
+                  value={regionFilter}
+                  onChange={(e) => setRegionFilter(e.target.value)}
+                  className="appearance-none pl-3 pr-7 py-1.5 bg-studio-surface-0 border border-studio-border-subtle rounded-lg text-xs text-studio-text-primary cursor-pointer focus:outline-none focus:border-brand-accent/30"
+                >
+                  <option value="all">Sve regije</option>
+                  {uniqueRegions.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+                <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-studio-text-tertiary pointer-events-none" />
+              </div>
+              {/* Sort */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  className="appearance-none pl-3 pr-7 py-1.5 bg-studio-surface-0 border border-studio-border-subtle rounded-lg text-xs text-studio-text-primary cursor-pointer focus:outline-none focus:border-brand-accent/30"
+                >
+                  <option value="reach">Doseg ↓</option>
+                  <option value="growth">Rast ↓</option>
+                  <option value="score">Score ↓</option>
+                  <option value="cpm">CPM ↑</option>
+                </select>
+                <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-studio-text-tertiary pointer-events-none" />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Multi-Language Content Pipeline */}
-        <div className="card">
-          <div className="flex items-center gap-2 mb-4">
-            <Languages size={20} className="text-purple-600" />
-            <h2 className="section-title">Višejezični sadržajni pipeline</h2>
-          </div>
-          <div className="space-y-3">
-            {contentPipeline.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-studio-surface-0 rounded-lg hover:bg-studio-surface-2 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-medium text-studio-text-primary">{item.title}</h3>
-                    {item.languages.map((lang) => (
-                      <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-studio-surface-0 text-studio-text-secondary'}`}>
-                        {lang}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-studio-border">
+                  <th className="text-left py-3 px-4 text-studio-text-secondary font-medium">Tržište</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">Doseg</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden sm:table-cell">Angažman</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">Rast 7d</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium hidden md:table-cell">CPM</th>
+                  <th className="text-right py-3 px-4 text-studio-text-secondary font-medium">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMarkets.map((m, idx) => (
+                  <tr
+                    key={m.id}
+                    className={`border-b border-studio-border-subtle hover:bg-studio-surface-1 transition-colors cursor-pointer ${idx === 0 && sortBy === 'reach' ? 'bg-brand-accent/5' : ''}`}
+                    onClick={() => setSelectedMarket(m)}
+                  >
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{m.flag}</span>
+                        <div>
+                          <p className="text-studio-text-primary font-medium">{m.country}</p>
+                          <p className="text-[10px] text-studio-text-tertiary">{m.region}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-right font-stats text-studio-text-primary">{formatNumber(m.reach)}</td>
+                    <td className="py-3 px-4 text-right text-studio-text-primary hidden sm:table-cell">{m.engagement}%</td>
+                    <td className="py-3 px-4 text-right hidden md:table-cell">{growthBadge(m.growth_7d)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-studio-text-secondary hidden md:table-cell">{formatCurrency(m.ad_cost_cpm)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${scoreBg(m.market_score)} ${scoreColor(m.market_score)}`}>
+                        {m.market_score}
                       </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-studio-text-secondary mt-1">{item.description}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-studio-text-secondary">{item.platform}</span>
-                    <span className="text-xs text-studio-text-disabled">|</span>
-                    <span className="text-xs text-studio-text-secondary flex items-center gap-1"><Calendar size={10} />{item.date}</span>
-                  </div>
-                </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-4 ${
-                  item.status === 'Spremno' ? 'bg-green-500/10 text-green-400' :
-                  item.status === 'Zakazano' ? 'bg-blue-500/10 text-blue-400' :
-                  item.status === 'U produkciji' ? 'bg-purple-100 text-purple-600' :
-                  item.status === 'Pregled scenarija' ? 'bg-yellow-100 text-yellow-600' :
-                  'bg-studio-surface-0 text-studio-text-secondary'
-                }`}>
-                  {item.status}
-                </span>
-              </div>
-            ))}
+                    </td>
+                  </tr>
+                ))}
+                {filteredMarkets.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-sm text-studio-text-secondary">
+                      Nema rezultata za zadane filtere
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+
+        {/* ── Ad Cost Comparison ── */}
+        <AdCostTable markets={markets} />
+
+        {/* ── AI Insights ── */}
+        <AIInsightsSection insights={aiInsights.insights || []} />
+
+        {/* ── Multi-Language Content Pipeline ── */}
+        {contentPipeline.length > 0 && (
+          <div className="card">
+            <div className="flex items-center gap-2 mb-5">
+              <Languages size={18} className="text-purple-500" />
+              <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Višejezični sadržajni pipeline</h3>
+            </div>
+            <div className="space-y-3">
+              {contentPipeline.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-4 bg-studio-surface-0 rounded-xl hover:bg-studio-surface-2 transition-colors border border-studio-border-subtle"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h4 className="text-sm font-medium text-studio-text-primary">{item.title}</h4>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-studio-surface-2 text-studio-text-secondary border border-studio-border-subtle">
+                        {item.type}
+                      </span>
+                      {item.languages.map((lang) => (
+                        <span key={lang} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${langColors[lang] || 'bg-studio-surface-0 text-studio-text-secondary border-studio-border'}`}>
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-studio-text-secondary mb-1">{item.description}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-studio-text-tertiary">{item.platform}</span>
+                      <span className="text-studio-text-disabled">·</span>
+                      <span className="text-[10px] text-studio-text-tertiary flex items-center gap-1"><Calendar size={10} />{item.date}</span>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2.5 py-1 rounded-full shrink-0 ml-4 font-medium ${
+                    item.status === 'Spremno' ? 'bg-green-500/10 text-green-400' :
+                    item.status === 'Zakazano' ? 'bg-blue-500/10 text-blue-400' :
+                    item.status === 'U produkciji' ? 'bg-purple-500/10 text-purple-400' :
+                    item.status === 'Pregled' ? 'bg-yellow-500/10 text-yellow-500' :
+                    'bg-studio-surface-2 text-studio-text-secondary'
+                  }`}>
+                    {item.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
+
+      {/* ── Market Detail Modal ── */}
+      {selectedMarket && (
+        <MarketDetailModal market={selectedMarket} onClose={() => setSelectedMarket(null)} />
+      )}
     </div>
   )
 }

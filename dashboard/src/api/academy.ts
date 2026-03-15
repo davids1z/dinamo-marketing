@@ -7,4 +7,5 @@ export const academyApi = {
     api.post(`/academy/match-report/${matchId}`),
   getStats: () => api.get('/academy/stats'),
   getMatches: () => api.get('/academy/matches'),
+  getPageData: () => api.get('/academy/page-data'),
 };

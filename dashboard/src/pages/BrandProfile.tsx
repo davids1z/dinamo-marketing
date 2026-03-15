@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Building2, Palette, Globe, Sparkles, Save, Loader2, AlertTriangle,
   CheckCircle2, ShieldAlert, Link2, X, Plus, ChevronDown, ChevronUp,
+  Upload, RotateCcw,
 } from 'lucide-react'
 import Header from '../components/layout/Header'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSidebar } from '../components/layout/Layout'
 import api from '../api/client'
 import PlatformIcon from '../components/common/PlatformIcon'
 import { detectPlatformFromUrl, CONTENT_PILLARS } from '../utils/constants'
@@ -48,14 +50,14 @@ const BRAND_TABS: Array<{ id: BrandTab; label: string; icon: typeof Building2 }>
 ]
 
 const TONES = [
-  { value: 'professional', label: 'Profesionalan', emoji: '🎯' },
-  { value: 'friendly', label: 'Prijateljski', emoji: '👋' },
-  { value: 'bold', label: 'Hrabar i direktan', emoji: '🔥' },
-  { value: 'creative', label: 'Kreativan', emoji: '🎨' },
-  { value: 'formal', label: 'Formalan', emoji: '📋' },
-  { value: 'casual', label: 'Opušten', emoji: '☕' },
-  { value: 'inspirational', label: 'Inspirativan', emoji: '✨' },
-  { value: 'humorous', label: 'Humorističan', emoji: '😄' },
+  { value: 'professional', label: 'Profesionalan', emoji: '🎯', description: 'Stručan, pouzdan, autoritativan' },
+  { value: 'friendly', label: 'Prijateljski', emoji: '👋', description: 'Topao, pristupačan, konverzacijski' },
+  { value: 'bold', label: 'Hrabar i direktan', emoji: '🔥', description: 'Provokativan, snažan, bez uljepšavanja' },
+  { value: 'creative', label: 'Kreativan', emoji: '🎨', description: 'Inovativan, vizualan, neočekivan' },
+  { value: 'formal', label: 'Formalan', emoji: '📋', description: 'Službeni ton, strukturiran, ozbiljan' },
+  { value: 'casual', label: 'Opušten', emoji: '☕', description: 'Neformalan, lagan, svakodnevni jezik' },
+  { value: 'inspirational', label: 'Inspirativan', emoji: '✨', description: 'Motivacijski, vizionarski, pozitivan' },
+  { value: 'humorous', label: 'Humorističan', emoji: '😄', description: 'Duhovit, zabavan, satiričan' },
 ]
 
 const LANGUAGES = [
@@ -66,6 +68,36 @@ const LANGUAGES = [
   { code: 'sl', label: 'Slovenščina' },
 ]
 
+const TONE_LABELS: Record<string, string> = Object.fromEntries(TONES.map(t => [t.value, t.label]))
+
+const COLOR_LABELS: Record<string, string> = {
+  primary: 'Primarna boja',
+  accent: 'Naglasna boja (grafovi, gumbi)',
+  blue: 'Sekundarna boja',
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+function isValidUrl(str: string): boolean {
+  if (!str.trim()) return false
+  try {
+    const u = new URL(str)
+    return u.protocol === 'http:' || u.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function resolveLogoUrl(logoUrl: string): string {
+  if (!logoUrl) return ''
+  if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl
+  // Relative path like /media/logos/... — prefix with API URL in dev
+  const apiBase = import.meta.env.VITE_API_URL || ''
+  return `${apiBase}${logoUrl}`
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                           */
 /* ------------------------------------------------------------------ */
@@ -73,17 +105,26 @@ const LANGUAGES = [
 export default function BrandProfile() {
   const { currentClient, isClientAdmin, clientRole, refreshClient } = useClient()
   const { user } = useAuth()
+  const { collapsed } = useSidebar()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const isSuperadminVisitor = user?.is_superadmin && clientRole === 'superadmin'
   const canEdit = isClientAdmin && !isSuperadminVisitor
-  const canSeeAiOverride = isClientAdmin || user?.is_superadmin
+  const canSeeAiTab = isClientAdmin || user?.is_superadmin
+  const isSuperadmin = user?.is_superadmin === true
 
   const [data, setData] = useState<BrandData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // Dirty state tracking
+  const initialDataRef = useRef<BrandData | null>(null)
+  const isDirty = useMemo(() => {
+    if (!data || !initialDataRef.current) return false
+    return JSON.stringify(data) !== JSON.stringify(initialDataRef.current)
+  }, [data])
 
   // Tab state from URL
   const activeTab: BrandTab = (searchParams.get('tab') as BrandTab) || 'biznis'
@@ -92,6 +133,7 @@ export default function BrandProfile() {
   // Social handles local state
   const [socialInput, setSocialInput] = useState('')
   const [detectedPlatform, setDetectedPlatform] = useState<string | null>(null)
+  const [socialError, setSocialError] = useState('')
 
   // Hashtags local state
   const [hashtagInput, setHashtagInput] = useState('#')
@@ -103,14 +145,26 @@ export default function BrandProfile() {
   // AI settings collapsible
   const [aiExpanded, setAiExpanded] = useState(false)
 
+  // Logo upload
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+
   const clientId = currentClient?.client_id
+
+  // Sidebar width for sticky bar offset
+  const sidebarLeft = collapsed ? 72 : 256
 
   useEffect(() => {
     if (!clientId) { setLoading(false); return }
     setLoading(true)
     setError(false)
     api.get(`/clients/${clientId}`)
-      .then(res => { setData(res.data); setError(false) })
+      .then(res => {
+        setData(res.data)
+        initialDataRef.current = structuredClone(res.data)
+        setError(false)
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [clientId])
@@ -137,6 +191,8 @@ export default function BrandProfile() {
       })
       // Refresh client context so Dashboard / other pages see fresh data
       await refreshClient()
+      // Update baseline so isDirty clears
+      initialDataRef.current = structuredClone(data)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {
@@ -146,9 +202,52 @@ export default function BrandProfile() {
     }
   }
 
+  const handleDiscard = () => {
+    if (initialDataRef.current) {
+      setData(structuredClone(initialDataRef.current))
+    }
+  }
+
   const update = (field: keyof BrandData, value: unknown) => {
     if (!data) return
     setData({ ...data, [field]: value })
+  }
+
+  /* Logo upload handlers */
+  const uploadLogo = async (file: File) => {
+    if (!currentClient) return
+    setUploadingLogo(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await api.post(`/clients/${currentClient.client_id}/logo`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      update('logo_url', res.data.logo_url)
+      // Update baseline for this field so logo isn't "dirty"
+      if (initialDataRef.current) {
+        initialDataRef.current.logo_url = res.data.logo_url
+      }
+      await refreshClient()
+    } catch (err) {
+      console.error('Logo upload failed:', err)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const handleLogoDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) uploadLogo(file)
+  }
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadLogo(file)
+    // Reset input so same file can be re-selected
+    if (e.target) e.target.value = ''
   }
 
   /* Loading / error states */
@@ -172,7 +271,7 @@ export default function BrandProfile() {
           <button
             onClick={() => {
               setError(false); setLoading(true)
-              api.get(`/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false))
+              api.get(`/clients/${clientId}`).then(res => { setData(res.data); initialDataRef.current = structuredClone(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false))
             }}
             className="text-sm text-brand-accent hover:underline font-medium"
           >
@@ -191,6 +290,11 @@ export default function BrandProfile() {
   const socialEntries = Object.entries(data.social_handles || {}).filter(([, v]) => v && v.trim())
 
   const addSocialLink = (platform: string, url: string) => {
+    if (!isValidUrl(url)) {
+      setSocialError('Unesite puni URL profila (https://...)')
+      return
+    }
+    setSocialError('')
     update('social_handles', { ...(data.social_handles || {}), [platform]: url })
     setSocialInput('')
     setDetectedPlatform(null)
@@ -205,26 +309,17 @@ export default function BrandProfile() {
   /* Helpers for pillars */
   const pillars: string[] = (data.content_pillars as string[] | null) || []
 
+  /* Logo URL for display */
+  const logoFullUrl = resolveLogoUrl(data.logo_url)
+
   return (
     <>
       <Header
         title="PROFIL KLIJENTA"
         subtitle={data.name}
-        actions={
-          canEdit ? (
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-white rounded-xl text-sm font-bold hover:bg-brand-accent/90 transition-all disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saved ? 'Spremljeno!' : 'Spremi'}
-            </button>
-          ) : null
-        }
       />
 
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl">
+      <div className={`p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl ${isDirty && canEdit ? 'pb-28' : ''}`}>
         {/* Superadmin read-only banner */}
         {isSuperadminVisitor && (
           <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-4 flex items-center gap-3">
@@ -267,7 +362,7 @@ export default function BrandProfile() {
         {/* ---- Tab navigation ---- */}
         <div className="flex gap-1 bg-studio-surface-1 border border-studio-border rounded-xl p-1 overflow-x-auto">
           {BRAND_TABS.map(tab => {
-            if (tab.id === 'ai' && !canSeeAiOverride) return null
+            if (tab.id === 'ai' && !canSeeAiTab) return null
             const Icon = tab.icon
             const isActive = activeTab === tab.id
             return (
@@ -330,41 +425,33 @@ export default function BrandProfile() {
                 </div>
                 <div>
                   <label className={labelCls}>Ton komunikacije</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <p className="text-xs text-studio-text-tertiary mb-3">Odabrani ton utječe na stil svih AI generiranih sadržaja.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {TONES.map(t => (
                       <button
                         key={t.value}
                         type="button"
                         onClick={() => canEdit && update('tone_of_voice', t.value)}
                         disabled={!canEdit}
-                        className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left disabled:cursor-not-allowed ${
+                        className={`p-4 rounded-xl text-left transition-all border-2 disabled:cursor-not-allowed ${
                           data.tone_of_voice === t.value
-                            ? 'bg-brand-accent text-white ring-2 ring-brand-accent/30'
-                            : 'bg-studio-surface-1 text-studio-text-secondary hover:bg-studio-surface-2'
+                            ? 'border-brand-accent bg-brand-accent/5 ring-2 ring-brand-accent/20'
+                            : 'border-transparent bg-studio-surface-1 hover:border-brand-accent/20'
                         }`}
                       >
-                        <span className="mr-1.5">{t.emoji}</span>
-                        {t.label}
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">{t.emoji}</span>
+                          <span className="text-sm font-bold text-studio-text-primary">{t.label}</span>
+                          {data.tone_of_voice === t.value && <CheckCircle2 size={14} className="text-brand-accent ml-auto" />}
+                        </div>
+                        <p className="text-xs text-studio-text-tertiary">{t.description}</p>
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Web stranica</label>
-                    <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!canEdit} placeholder="https://..." />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Logo URL</label>
-                    <div className="flex items-center gap-2">
-                      <input className={`${inputCls} flex-1`} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!canEdit} placeholder="https://example.com/logo.png" />
-                      {data.logo_url && (
-                        <div className="w-10 h-10 rounded-lg border border-studio-border overflow-hidden flex-shrink-0 bg-studio-surface-1 flex items-center justify-center">
-                          <img src={data.logo_url} alt="" className="w-full h-full object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                <div>
+                  <label className={labelCls}>Web stranica</label>
+                  <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!canEdit} placeholder="https://..." />
                 </div>
               </div>
             </div>
@@ -376,13 +463,67 @@ export default function BrandProfile() {
         {/* ================================================================ */}
         {activeTab === 'identitet' && (
           <div className="space-y-6">
+            {/* Logo Upload */}
+            <div className={cardCls}>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-4">Logo</h3>
+              {canEdit && (
+                <div
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+                    isDragging
+                      ? 'border-brand-accent bg-brand-accent/5'
+                      : 'border-studio-border hover:border-brand-accent/30'
+                  }`}
+                  onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleLogoDrop}
+                  onClick={() => logoInputRef.current?.click()}
+                >
+                  {uploadingLogo ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
+                      <p className="text-sm text-studio-text-secondary">Uploading...</p>
+                    </div>
+                  ) : logoFullUrl ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <img src={logoFullUrl} alt="Logo" className="h-20 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                      <p className="text-xs text-studio-text-tertiary">Kliknite ili povucite novu datoteku za zamjenu</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="w-8 h-8 text-studio-text-tertiary" />
+                      <p className="text-sm text-studio-text-secondary">Povucite logo ovdje ili kliknite za upload</p>
+                      <p className="text-xs text-studio-text-tertiary">PNG, JPG, SVG ili WebP (max 2MB)</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!canEdit && logoFullUrl && (
+                <div className="flex items-center justify-center p-6 bg-studio-surface-1 rounded-xl">
+                  <img src={logoFullUrl} alt="Logo" className="h-20 object-contain" />
+                </div>
+              )}
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                className="hidden"
+                onChange={handleLogoFileChange}
+              />
+              {/* Fallback URL input */}
+              <div className="mt-3">
+                <label className={labelCls}>Ili unesite URL loga</label>
+                <input className={inputCls} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!canEdit} placeholder="https://example.com/logo.png" />
+              </div>
+            </div>
+
             {/* Brand Colors */}
             <div className={cardCls}>
-              <h3 className="text-sm font-bold text-studio-text-primary mb-4">Boje branda</h3>
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">Boje branda</h3>
+              <p className="text-xs text-studio-text-tertiary mb-4">Naglasna boja se koristi za grafove, gumbe i UI elemente na cijeloj platformi.</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {Object.entries(data.brand_colors || {}).map(([key, val]) => (
                   <div key={key}>
-                    <label className={labelCls}>{key}</label>
+                    <label className={labelCls}>{COLOR_LABELS[key] || key}</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -440,57 +581,75 @@ export default function BrandProfile() {
             {/* Social Handles */}
             <div className={cardCls}>
               <h3 className="text-sm font-bold text-studio-text-primary mb-1">Društvene mreže</h3>
-              <p className="text-xs text-studio-text-tertiary mb-4">Zalijepite linkove svojih profila — automatski prepoznajemo platformu.</p>
+              <p className="text-xs text-studio-text-tertiary mb-4">Zalijepite linkove svojih profila — automatski prepoznajemo platformu. Čim spremite, AI započinje analizu.</p>
 
               <div className="space-y-3">
                 {/* Existing links */}
-                {socialEntries.map(([platform, url]) => (
-                  <div key={platform} className="flex items-center gap-3 bg-studio-surface-1 border border-studio-border rounded-xl px-4 py-3 group">
-                    <PlatformIcon platform={platform} size="md" />
-                    <span className="text-sm text-studio-text-primary flex-1 truncate">{url}</span>
-                    {canEdit && (
-                      <button
-                        type="button"
-                        onClick={() => removeSocialLink(platform)}
-                        className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                {socialEntries.map(([platform, url]) => {
+                  const urlValid = isValidUrl(url)
+                  return (
+                    <div key={platform} className={`flex items-center gap-3 bg-studio-surface-1 border rounded-xl px-4 py-3 group ${urlValid ? 'border-studio-border' : 'border-red-300'}`}>
+                      <PlatformIcon platform={platform} size="md" />
+                      <span className="text-sm text-studio-text-primary flex-1 truncate">{url}</span>
+                      {urlValid && <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />}
+                      {!urlValid && <span title="Neispravan URL format"><AlertTriangle size={14} className="text-red-400 flex-shrink-0" /></span>}
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => removeSocialLink(platform)}
+                          className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
 
                 {/* Add new link */}
                 {canEdit && (
-                  <div className="relative">
-                    <Link2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
-                    <input
-                      type="url"
-                      value={socialInput}
-                      onChange={e => {
-                        setSocialInput(e.target.value)
-                        setDetectedPlatform(detectPlatformFromUrl(e.target.value))
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && socialInput.trim()) {
-                          e.preventDefault()
-                          addSocialLink(detectedPlatform || 'web', socialInput.trim())
-                        }
-                      }}
-                      className="w-full pl-10 pr-36 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-1"
-                      placeholder="https://instagram.com/vaš_brand"
-                    />
-                    {detectedPlatform && socialInput.trim() && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                        <PlatformIcon platform={detectedPlatform} size="sm" showLabel />
-                        <button
-                          type="button"
-                          onClick={() => addSocialLink(detectedPlatform, socialInput.trim())}
-                          className="px-3 py-1 bg-brand-accent text-white rounded-lg text-xs font-bold hover:bg-brand-accent-hover transition-colors"
-                        >
-                          Dodaj
-                        </button>
-                      </div>
+                  <div>
+                    <div className="relative">
+                      <Link2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                      <input
+                        type="url"
+                        value={socialInput}
+                        onChange={e => {
+                          setSocialInput(e.target.value)
+                          setDetectedPlatform(detectPlatformFromUrl(e.target.value))
+                          if (socialError) setSocialError('')
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && socialInput.trim()) {
+                            e.preventDefault()
+                            addSocialLink(detectedPlatform || 'web', socialInput.trim())
+                          }
+                        }}
+                        className={`w-full pl-10 pr-36 py-3 border rounded-xl focus:outline-none focus:ring-2 text-sm text-studio-text-primary bg-studio-surface-1 ${
+                          socialError
+                            ? 'border-red-300 focus:border-red-400 focus:ring-red-200/30'
+                            : 'border-studio-border focus:border-brand-accent/50 focus:ring-brand-accent/10'
+                        }`}
+                        placeholder="https://instagram.com/vaš_brand"
+                      />
+                      {detectedPlatform && socialInput.trim() && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                          <PlatformIcon platform={detectedPlatform} size="sm" showLabel />
+                          <button
+                            type="button"
+                            onClick={() => addSocialLink(detectedPlatform, socialInput.trim())}
+                            className="px-3 py-1 bg-brand-accent text-white rounded-lg text-xs font-bold hover:bg-brand-accent-hover transition-colors"
+                          >
+                            Dodaj
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {socialError && (
+                      <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
+                        <AlertTriangle size={12} />
+                        {socialError}
+                      </p>
                     )}
                   </div>
                 )}
@@ -659,58 +818,141 @@ export default function BrandProfile() {
         {/* ================================================================ */}
         {/*  TAB: AI Postavke (admin only)                                  */}
         {/* ================================================================ */}
-        {activeTab === 'ai' && canSeeAiOverride && (
+        {activeTab === 'ai' && canSeeAiTab && (
           <div className="space-y-6">
+            {/* AI Context Preview — visible to all admins */}
             <div className={cardCls}>
-              <button
-                type="button"
-                onClick={() => setAiExpanded(!aiExpanded)}
-                className="w-full flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-brand-accent" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="text-base font-bold text-studio-text-primary">AI System Prompt Override</h3>
-                    <p className="text-xs text-studio-text-tertiary">Potpuno custom AI prompt za ovog klijenta</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-brand-accent" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20 flex items-center gap-1">
-                    <ShieldAlert size={10} />
-                    Samo admin
-                  </span>
-                  {aiExpanded ? <ChevronUp size={16} className="text-studio-text-tertiary" /> : <ChevronDown size={16} className="text-studio-text-tertiary" />}
+                <div>
+                  <h3 className="text-base font-bold text-studio-text-primary">AI kontekst vašeg brenda</h3>
+                  <p className="text-xs text-studio-text-tertiary">Ovo su podaci koje AI koristi za generiranje sadržaja</p>
                 </div>
-              </button>
+              </div>
 
-              {aiExpanded && (
-                <div className="mt-5 space-y-4">
-                  {/* Warning */}
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
-                    <AlertTriangle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-amber-500">
-                      Ovo zamjenjuje kompletni AI system prompt. Pogrešna konfiguracija može degradirati kvalitetu generiranog sadržaja. Ostavite prazno za automatski generirani prompt.
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-studio-surface-1 rounded-xl p-4">
+                    <p className="text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-wider mb-1">Brand</p>
+                    <p className="text-sm font-medium text-studio-text-primary">{data.name || '—'}</p>
+                  </div>
+                  <div className="bg-studio-surface-1 rounded-xl p-4">
+                    <p className="text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-wider mb-1">Ton komunikacije</p>
+                    <p className="text-sm font-medium text-studio-text-primary">
+                      {data.tone_of_voice ? (TONE_LABELS[data.tone_of_voice] || data.tone_of_voice) : '—'}
                     </p>
                   </div>
-
-                  <div>
-                    <label className={labelCls}>Custom system prompt</label>
-                    <textarea
-                      className={`${inputCls} min-h-[150px] font-mono text-xs resize-none`}
-                      value={data.ai_system_prompt_override}
-                      onChange={e => update('ai_system_prompt_override', e.target.value)}
-                      disabled={!canEdit}
-                      placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
-                    />
-                  </div>
                 </div>
-              )}
+                <div className="bg-studio-surface-1 rounded-xl p-4">
+                  <p className="text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-wider mb-1">Ciljna publika</p>
+                  <p className="text-sm text-studio-text-primary leading-relaxed">
+                    {data.target_audience
+                      ? (data.target_audience.length > 150 ? data.target_audience.slice(0, 150) + '...' : data.target_audience)
+                      : '—'}
+                  </p>
+                </div>
+                {pillars.length > 0 && (
+                  <div className="bg-studio-surface-1 rounded-xl p-4">
+                    <p className="text-[10px] font-semibold text-studio-text-tertiary uppercase tracking-wider mb-2">Stupovi sadržaja</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {pillars.map(p => (
+                        <span key={p} className="px-2.5 py-1 bg-brand-accent/10 text-brand-accent rounded-full text-xs font-medium">{p}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-studio-text-tertiary">
+                  AI automatski koristi ove podatke za sve generirane kampanje i objave. Promijenite ih u tabovima iznad.
+                </p>
+              </div>
             </div>
+
+            {/* System Prompt Override — superadmin only */}
+            {isSuperadmin && (
+              <div className={cardCls}>
+                <button
+                  type="button"
+                  onClick={() => setAiExpanded(!aiExpanded)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                      <ShieldAlert className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-base font-bold text-studio-text-primary">System Prompt Override</h3>
+                      <p className="text-xs text-studio-text-tertiary">Skrivene instrukcije — korisnik ih ne vidi</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/20 flex items-center gap-1">
+                      <ShieldAlert size={10} />
+                      Superadmin
+                    </span>
+                    {aiExpanded ? <ChevronUp size={16} className="text-studio-text-tertiary" /> : <ChevronDown size={16} className="text-studio-text-tertiary" />}
+                  </div>
+                </button>
+
+                {aiExpanded && (
+                  <div className="mt-5 space-y-4">
+                    {/* Warning */}
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                      <AlertTriangle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-500">
+                        Ovo zamjenjuje kompletni AI system prompt. Pogrešna konfiguracija može degradirati kvalitetu generiranog sadržaja. Ostavite prazno za automatski generirani prompt.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className={labelCls}>Custom system prompt</label>
+                      <textarea
+                        className={`${inputCls} min-h-[150px] font-mono text-xs resize-none`}
+                        value={data.ai_system_prompt_override}
+                        onChange={e => update('ai_system_prompt_override', e.target.value)}
+                        disabled={!canEdit}
+                        placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* ================================================================ */}
+      {/*  Sticky Save Bar                                                 */}
+      {/* ================================================================ */}
+      {isDirty && canEdit && (
+        <div
+          className="fixed bottom-0 right-0 z-40 bg-studio-surface-0/95 backdrop-blur-xl border-t border-studio-border px-6 py-3 flex items-center justify-between animate-fade-in"
+          style={{ left: `${sidebarLeft}px` }}
+        >
+          <p className="text-sm text-studio-text-secondary hidden sm:block">
+            Imate nespremljene promjene
+          </p>
+          <div className="flex items-center gap-3 ml-auto">
+            <button
+              onClick={handleDiscard}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-studio-text-secondary bg-studio-surface-1 border border-studio-border rounded-xl hover:bg-studio-surface-2 transition-all"
+            >
+              <RotateCcw size={14} />
+              Odbaci
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 bg-brand-accent text-white rounded-xl text-sm font-bold hover:bg-brand-accent/90 transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saved ? 'Spremljeno!' : 'Spremi promjene'}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }

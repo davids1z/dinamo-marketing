@@ -193,6 +193,12 @@ async def complete_onboarding(
     client.onboarding_completed = True
     await db.commit()
     logger.info("Onboarding completed: %s by %s", client.slug, user.email)
+
+    # Trigger background intelligence initialization (seed all data)
+    from app.tasks.client_intelligence import initialize_client_intelligence
+    initialize_client_intelligence.delay(str(client.id))
+    logger.info("Triggered client intelligence init for %s", client.slug)
+
     return {"status": "onboarding_completed"}
 
 
@@ -209,7 +215,64 @@ async def update_client(
         setattr(client, key, value)
     await db.commit()
     logger.info("Client updated: %s by %s", client.slug, user.email)
+
+    # Re-run intelligence init if social handles changed
+    if "social_handles" in update_data:
+        from app.tasks.client_intelligence import initialize_client_intelligence
+        initialize_client_intelligence.delay(str(client.id))
+        logger.info("Triggered client intelligence re-init for %s (social_handles changed)", client.slug)
+
     return {"status": "updated"}
+
+
+# --- Logo Upload ---
+
+@router.post("/{client_id}/logo")
+async def upload_logo(
+    ctx: tuple = Depends(require_admin_role),
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a logo image for the client. Saves to media/logos/{client_id}/."""
+    import uuid as _uuid
+    from pathlib import Path
+    from app.config import settings
+
+    user, client, role = ctx
+
+    # Validate file type
+    allowed_types = {"image/png", "image/jpeg", "image/svg+xml", "image/webp"}
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Podržani formati: PNG, JPG, SVG, WebP")
+
+    # Read and validate size (max 2MB)
+    content = await file.read()
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Datoteka je prevelika (max 2MB)")
+
+    # Save to media/logos/{client_id}/
+    logo_dir = Path(settings.MEDIA_ROOT) / "logos" / str(client.id)
+    logo_dir.mkdir(parents=True, exist_ok=True)
+
+    ext = (file.filename or "logo.png").rsplit(".", 1)[-1] if "." in (file.filename or "") else "png"
+    filename = f"logo_{_uuid.uuid4().hex[:8]}.{ext}"
+    file_path = logo_dir / filename
+    file_path.write_bytes(content)
+
+    # Delete old logo if it was a local upload
+    old_logo = client.logo_url
+    if old_logo and old_logo.startswith("/media/logos/"):
+        old_relative = old_logo.lstrip("/")
+        old_path = Path(settings.MEDIA_ROOT).parent / old_relative
+        if old_path.exists() and old_path != file_path:
+            old_path.unlink(missing_ok=True)
+
+    # Update client record
+    client.logo_url = f"/media/logos/{client.id}/{filename}"
+    await db.commit()
+
+    logger.info("Logo uploaded for %s by %s: %s", client.slug, user.email, client.logo_url)
+    return {"logo_url": client.logo_url}
 
 
 # --- Magic Import (AI-powered brand profile extraction) ---

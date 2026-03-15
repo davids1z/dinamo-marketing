@@ -18,6 +18,7 @@ def run_campaign_research(self, campaign_id: str):
     from app.database import SyncSessionLocal
     from app.dependencies import get_web_research_client
     from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
+    from app.models.client import Client
     from app.services.campaign_research import CampaignResearchService
 
     logger.info("Starting campaign research for %s", campaign_id)
@@ -30,6 +31,18 @@ def run_campaign_research(self, campaign_id: str):
             logger.error("Campaign %s not found", campaign_id)
             return {"error": "Campaign not found"}
 
+        # Load client for brand context
+        brand_context = {}
+        if campaign.client_id:
+            client = db.query(Client).filter_by(id=campaign.client_id).first()
+            if client:
+                brand_context = {
+                    "name": client.name or "Brend",
+                    "description": client.business_description or "",
+                    "target_audience": client.target_audience or "",
+                    "tone": client.tone_of_voice or "profesionalan",
+                }
+
         service = CampaignResearchService(get_web_research_client())
         loop = asyncio.new_event_loop()
 
@@ -40,7 +53,7 @@ def run_campaign_research(self, campaign_id: str):
             logger.info("[%s] Phase 1: Analyzing brief...", campaign_id)
 
             brief = loop.run_until_complete(
-                service.extract_brief(campaign.uploaded_text or "")
+                service.extract_brief(campaign.uploaded_text or "", brand_context)
             )
             campaign.extracted_brief = brief
             db.commit()
@@ -50,7 +63,9 @@ def run_campaign_research(self, campaign_id: str):
             db.commit()
             logger.info("[%s] Phase 2: Researching...", campaign_id)
 
-            research = loop.run_until_complete(service.research_campaign(brief))
+            research = loop.run_until_complete(
+                service.research_campaign(brief, brand_context)
+            )
             campaign.research_data = research
             db.commit()
 
@@ -59,7 +74,9 @@ def run_campaign_research(self, campaign_id: str):
             db.commit()
             logger.info("[%s] Phase 3: Generating plan...", campaign_id)
 
-            plan = loop.run_until_complete(service.generate_plan(brief, research))
+            plan = loop.run_until_complete(
+                service.generate_plan(brief, research, brand_context)
+            )
             campaign.generated_plan = plan
             campaign.title = brief.get("title", campaign.title)
             campaign.campaign_type = brief.get("campaign_type", "other")

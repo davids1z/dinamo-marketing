@@ -23,6 +23,7 @@ celery_app = Celery(
         "app.tasks.fan_lifecycle",
         "app.tasks.content_visual",
         "app.tasks.campaign_research",
+        "app.tasks.client_intelligence",
     ],
 )
 

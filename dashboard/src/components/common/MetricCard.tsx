@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { TrendingUp, TrendingDown, type LucideIcon } from 'lucide-react'
 import { formatNumber, formatPercent, formatCurrency } from '../../utils/formatters'
+import DataSourceBadge from './DataSourceBadge'
 
 interface MetricCardProps {
   label: string
@@ -8,9 +9,10 @@ interface MetricCardProps {
   previousValue?: number
   format?: 'number' | 'currency' | 'percent'
   icon?: LucideIcon
+  dataSources?: string[]
 }
 
-export default function MetricCard({ label, value, previousValue, format = 'number', icon: Icon }: MetricCardProps) {
+export default function MetricCard({ label, value, previousValue, format = 'number', icon: Icon, dataSources }: MetricCardProps) {
   const formattedValue =
     format === 'currency' ? formatCurrency(value) :
     format === 'percent' ? formatPercent(value) :
@@ -43,6 +45,11 @@ export default function MetricCard({ label, value, previousValue, format = 'numb
             {isPositive ? '+' : ''}{trend.toFixed(1)}%
           </div>
           <span className="text-[11px] text-studio-text-tertiary">u odnosu na prošli period</span>
+        </div>
+      )}
+      {dataSources !== undefined && (
+        <div className="flex justify-end mt-2">
+          <DataSourceBadge platforms={dataSources} />
         </div>
       )}
     </div>

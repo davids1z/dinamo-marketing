@@ -37,4 +37,5 @@ export const campaignsApi = {
   getABTest: (id: string) => api.get(`/campaigns/${id}/ab-test`),
   refreshCreative: (id: string) => api.post(`/campaigns/${id}/refresh-creative`),
   getPerformance: (id: string) => api.get<CampaignPerformance>(`/campaigns/${id}/performance`),
+  getPageData: () => api.get('/campaigns/page-data'),
 };

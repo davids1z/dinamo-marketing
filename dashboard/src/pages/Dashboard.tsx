@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
+import DataSourceBadge from '../components/common/DataSourceBadge'
 import { formatNumber, formatPercent, formatCurrency } from '../utils/formatters'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { SentimentDonut } from '../components/charts/SentimentDonut'
@@ -45,6 +46,7 @@ interface ApiOverview {
   campaign_data?: Array<Record<string, unknown>>
   funnel?: Array<{ label: string; value: number; color: string }>
   top_posts?: Array<Record<string, unknown>>
+  _meta?: { last_refreshed: string | null; is_estimate?: boolean }
 }
 
 interface ActivityItem {
@@ -378,12 +380,14 @@ function AnimatedMetricCard({
   previousValue,
   format = 'number',
   icon,
+  dataSources,
 }: {
   label: string
   value: number
   previousValue?: number
   format?: 'number' | 'currency' | 'percent'
   icon?: LucideIcon
+  dataSources?: string[]
 }) {
   const animatedValue = useAnimatedNumber(value)
 
@@ -394,6 +398,7 @@ function AnimatedMetricCard({
       previousValue={previousValue}
       format={format}
       icon={icon}
+      dataSources={dataSources}
     />
   )
 }
@@ -405,6 +410,9 @@ function HeroMetricCard({
   format = 'number',
   icon,
   gradient,
+  dataSources,
+  syncing,
+  hint,
 }: {
   label: string
   value: number
@@ -412,6 +420,9 @@ function HeroMetricCard({
   format?: 'number' | 'currency' | 'percent'
   icon?: LucideIcon
   gradient: string
+  dataSources?: string[]
+  syncing?: boolean
+  hint?: string
 }) {
   const animatedValue = useAnimatedNumber(value)
 
@@ -432,7 +443,15 @@ function HeroMetricCard({
       <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/5 rounded-full" />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-white/70 uppercase tracking-wider">{label}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-white/70 uppercase tracking-wider">{label}</p>
+            {syncing && (
+              <span className="relative flex h-2 w-2" title="Sinkronizacija u tijeku...">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white/80" />
+              </span>
+            )}
+          </div>
           {Icon && (
             <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
               <Icon size={20} className="text-white/80" />
@@ -449,6 +468,14 @@ function HeroMetricCard({
               {isPositive ? '+' : ''}{trend.toFixed(1)}%
             </div>
             <span className="text-xs text-white/50">vs prošli period</span>
+          </div>
+        )}
+        {hint && (
+          <p className="text-[10px] text-white/40 mt-2">{hint}</p>
+        )}
+        {dataSources !== undefined && (
+          <div className="flex justify-end mt-3">
+            <DataSourceBadge platforms={dataSources} variant="light" />
           </div>
         )}
       </div>
@@ -686,15 +713,20 @@ export default function Dashboard() {
 
   // Period maps to days for the API
   const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
-  const { data: rawApi, loading } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
+  const { data: rawApi, loading, refetch: refetchOverview } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
   const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live' })
+
+  // Fetch sentiment data for the donut chart
+  const { data: sentimentApi } = useApi<{
+    positive: number; neutral: number; negative: number; hasData: boolean
+  }>('/sentiment/overview?days=30')
 
   const activeApi = liveData || rawApi
   const mapped = activeApi ? mapApiToOverview(activeApi) : {}
 
   // Hierarchical check: projects first, then channels
   const { hasProjects } = useProjectStatus()
-  const { hasConnectedChannels } = useChannelStatus()
+  const { hasConnectedChannels, connectedPlatforms } = useChannelStatus()
 
   const handlePeriodChange = useCallback((key: PeriodKey) => {
     setPeriod(key)
@@ -738,6 +770,14 @@ export default function Dashboard() {
   }
 
   // Build overview data from real API response
+  const sentimentBreakdown = sentimentApi && sentimentApi.hasData
+    ? { positive: sentimentApi.positive, neutral: sentimentApi.neutral, negative: sentimentApi.negative }
+    : { positive: 0, neutral: 0, negative: 0 }
+
+  const sentimentScore = sentimentBreakdown.positive > 0
+    ? sentimentBreakdown.positive
+    : 0
+
   const d: OverviewData = {
     total_followers: mapped.total_followers || 0,
     prev_followers: mapped.prev_followers || 0,
@@ -749,12 +789,16 @@ export default function Dashboard() {
     prev_ad_spend: mapped.prev_ad_spend || 0,
     roas: mapped.roas || 0,
     prev_roas: mapped.prev_roas || 0,
-    sentiment_score: 0,
+    sentiment_score: sentimentScore,
     prev_sentiment_score: 0,
     engagement_trend: mapped.engagement_trend || [],
-    sentiment_breakdown: { positive: 0, neutral: 0, negative: 0 },
+    sentiment_breakdown: sentimentBreakdown,
     recent_activity: [],
   }
+
+  // Check if data is still syncing (all zeros from analytics but channels exist)
+  const isDataSyncing = d.monthly_reach === 0 && d.total_followers === 0 && d.engagement_rate === 0
+  const isEstimate = activeApi?._meta?.is_estimate === true
 
   const sentiment = d.sentiment_breakdown
   const engagementData = d.engagement_trend
@@ -788,16 +832,33 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Syncing banner — channels connected but no data yet */}
-        {d.monthly_reach === 0 && d.total_followers === 0 && d.engagement_rate === 0 && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
-              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+        {/* Syncing / Estimate indicator — non-blocking, subtle */}
+        {(isDataSyncing || isEstimate) && (
+          <div className={`bg-gradient-to-r ${isEstimate ? 'from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20' : 'from-blue-500/10 via-violet-500/10 to-blue-500/10 border-blue-500/20'} border rounded-2xl p-4 flex items-center gap-3`}>
+            <div className={`relative w-8 h-8 rounded-lg ${isEstimate ? 'bg-amber-500/15' : 'bg-blue-500/15'} flex items-center justify-center flex-shrink-0`}>
+              <Sparkles className={`w-4 h-4 ${isEstimate ? 'text-amber-400' : 'text-blue-400'}`} />
+              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isEstimate ? 'bg-amber-400' : 'bg-blue-400'} opacity-75`} />
+                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isEstimate ? 'bg-amber-500' : 'bg-blue-500'}`} />
+              </span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-studio-text-primary">Čekamo prve podatke</p>
-              <p className="text-xs text-studio-text-tertiary">Kanali su povezani. Podaci će se pojaviti nakon prve sinkronizacije.</p>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-studio-text-primary">
+                {isEstimate ? 'Prikazane su AI procjene' : 'AI priprema vašu nadzornu ploču'}
+              </p>
+              <p className="text-xs text-studio-text-tertiary">
+                {isEstimate
+                  ? 'Podaci su procijenjeni na temelju vašeg profila. Stvarni podaci dolaze uskoro.'
+                  : 'Podaci se generiraju u pozadini. Osvježite za najnovije podatke.'}
+              </p>
             </div>
+            <button
+              onClick={() => refetchOverview()}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium ${isEstimate ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20' : 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20'} rounded-lg transition-colors flex-shrink-0`}
+            >
+              <Loader2 size={12} className="animate-spin" />
+              Osvježi
+            </button>
           </div>
         )}
 
@@ -810,6 +871,8 @@ export default function Dashboard() {
             format="number"
             icon={Eye}
             gradient="from-blue-600 via-blue-500 to-indigo-600"
+            dataSources={connectedPlatforms}
+            syncing={isDataSyncing}
           />
           <HeroMetricCard
             label="Stopa angažmana"
@@ -818,6 +881,8 @@ export default function Dashboard() {
             format="percent"
             icon={TrendingUp}
             gradient="from-violet-600 via-purple-500 to-fuchsia-600"
+            dataSources={connectedPlatforms}
+            syncing={isDataSyncing}
           />
           <HeroMetricCard
             label="ROAS"
@@ -826,14 +891,16 @@ export default function Dashboard() {
             format="number"
             icon={BarChart3}
             gradient="from-emerald-600 via-emerald-500 to-teal-600"
+            dataSources={connectedPlatforms}
+            hint={d.roas === 0 ? 'Povežite Ads račun za točne podatke' : undefined}
           />
         </div>
 
         {/* Secondary metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-cards">
-          <AnimatedMetricCard label="Ukupno pratitelja" value={d.total_followers} previousValue={d.prev_followers} format="number" icon={Users} />
-          <AnimatedMetricCard label="Potrošnja na oglase" value={d.ad_spend} previousValue={d.prev_ad_spend} format="currency" icon={CreditCard} />
-          <AnimatedMetricCard label="Ocjena sentimenta" value={d.sentiment_score} previousValue={d.prev_sentiment_score} format="percent" icon={Heart} />
+          <AnimatedMetricCard label="Ukupno pratitelja" value={d.total_followers} previousValue={d.prev_followers} format="number" icon={Users} dataSources={connectedPlatforms} />
+          <AnimatedMetricCard label="Potrošnja na oglase" value={d.ad_spend} previousValue={d.prev_ad_spend} format="currency" icon={CreditCard} dataSources={connectedPlatforms} />
+          <AnimatedMetricCard label="Ocjena sentimenta" value={d.sentiment_score} previousValue={d.prev_sentiment_score} format="percent" icon={Heart} dataSources={connectedPlatforms} />
         </div>
 
         {/* Charts */}
@@ -875,33 +942,58 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-          <div className="space-y-2">
-            {activities.map((item) => {
-              const iconInfo = (activityIcons[item.type] ?? activityIcons.report)!
-              const Icon = iconInfo.icon
-              const relativeTime = item.timestamp ? formatRelativeTime(item.timestamp) : item.time
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => item.link && navigate(item.link)}
-                  className={`flex items-start gap-3 p-3.5 rounded-xl bg-studio-surface-0 hover:bg-studio-surface-2 transition-all border border-studio-border border-l-[3px] ${iconInfo.border} ${item.link ? 'cursor-pointer group' : ''}`}
-                >
-                  <div className={`w-8 h-8 rounded-lg ${iconInfo.bg} flex items-center justify-center flex-shrink-0`}>
-                    <Icon size={15} className={iconInfo.color} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-studio-text-primary leading-snug">{item.text}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-[11px] text-studio-text-tertiary">{relativeTime}</p>
-                      {item.link && (
-                        <ExternalLink size={10} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors" />
-                      )}
+          {activities.length > 0 ? (
+            <div className="space-y-2">
+              {activities.map((item) => {
+                const iconInfo = (activityIcons[item.type] ?? activityIcons.report)!
+                const Icon = iconInfo.icon
+                const relativeTime = item.timestamp ? formatRelativeTime(item.timestamp) : item.time
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => item.link && navigate(item.link)}
+                    className={`flex items-start gap-3 p-3.5 rounded-xl bg-studio-surface-0 hover:bg-studio-surface-2 transition-all border border-studio-border border-l-[3px] ${iconInfo.border} ${item.link ? 'cursor-pointer group' : ''}`}
+                  >
+                    <div className={`w-8 h-8 rounded-lg ${iconInfo.bg} flex items-center justify-center flex-shrink-0`}>
+                      <Icon size={15} className={iconInfo.color} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-studio-text-primary leading-snug">{item.text}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[11px] text-studio-text-tertiary">{relativeTime}</p>
+                        {item.link && (
+                          <ExternalLink size={10} className="text-studio-text-disabled group-hover:text-brand-accent transition-colors" />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { icon: Plus, label: 'Kreiraj prvu objavu', desc: 'Koristite AI za generiranje sadržaja', to: '/content', color: 'text-brand-accent', bg: 'bg-brand-accent/10' },
+                { icon: Rocket, label: 'Pokreni kampanju', desc: 'Postavite prvu marketinšku kampanju', to: '/campaigns', color: 'text-violet-400', bg: 'bg-violet-500/10' },
+                { icon: Heart, label: 'Pogledaj sentiment', desc: 'Analiza percepcije vašeg brenda', to: '/sentiment', color: 'text-rose-400', bg: 'bg-rose-500/10' },
+              ].map((action) => {
+                const AIcon = action.icon
+                return (
+                  <button
+                    key={action.label}
+                    onClick={() => navigate(action.to)}
+                    className="text-left p-4 rounded-xl bg-studio-surface-0 border border-studio-border hover:border-brand-accent/30 hover:bg-studio-surface-2 transition-all group"
+                  >
+                    <div className={`w-8 h-8 rounded-lg ${action.bg} flex items-center justify-center mb-2`}>
+                      <AIcon size={15} className={action.color} />
+                    </div>
+                    <p className="text-sm font-medium text-studio-text-primary group-hover:text-brand-accent transition-colors">{action.label}</p>
+                    <p className="text-[11px] text-studio-text-tertiary mt-0.5">{action.desc}</p>
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
       </div>

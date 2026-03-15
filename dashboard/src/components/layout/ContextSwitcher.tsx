@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useClient } from '../../contexts/ClientContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { useChannelStatus } from '../../hooks/useChannelStatus'
+import SyncStatusBadge from '../common/SyncStatusBadge'
 
 type Panel = 'closed' | 'client' | 'project'
 
@@ -43,6 +45,7 @@ export default function ContextSwitcher() {
 
   // AI context is "active" when the client has completed onboarding
   const hasAiContext = currentClient.onboarding_completed
+  const { hasConnectedChannels } = useChannelStatus()
 
   // --- Client filtering ---
   const filteredClients = clientSearch
@@ -144,6 +147,12 @@ export default function ContextSwitcher() {
         <Sparkles size={11} />
         <span className="hidden lg:inline">{hasAiContext ? 'AI aktivan' : 'AI neaktivan'}</span>
       </div>
+
+      {/* Sync Status */}
+      <SyncStatusBadge
+        hasConnectedChannels={hasConnectedChannels}
+        hasData={hasAiContext}
+      />
 
       {/* Dropdown panel */}
       {panel !== 'closed' && (

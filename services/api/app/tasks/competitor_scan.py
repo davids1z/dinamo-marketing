@@ -151,6 +151,54 @@ COMPETITORS = [
 
 
 # ---------------------------------------------------------------------------
+# DB competitor loader
+# ---------------------------------------------------------------------------
+
+def _get_competitors_for_client(client_id) -> list[dict]:
+    """Load competitors from DB for a client, falling back to hardcoded list."""
+    from app.database import SyncSessionLocal
+    from app.models.competitor import Competitor as CompetitorModel
+    from sqlalchemy import select as sa_select
+
+    try:
+        with SyncSessionLocal() as session:
+            db_competitors = session.execute(
+                sa_select(CompetitorModel).where(CompetitorModel.client_id == client_id)
+            ).scalars().all()
+
+            if not db_competitors:
+                logger.info("    No DB competitors for client %s, using hardcoded fallback", client_id)
+                return COMPETITORS
+
+            result = []
+            for c in db_competitors:
+                result.append({
+                    "id": str(c.id),
+                    "name": c.name,
+                    "league": c.league,
+                    "rivalry": "direct",
+                    "social_handles": {
+                        "instagram": c.short_name.lower(),
+                        "facebook": c.short_name.lower(),
+                        "twitter_x": c.short_name.lower(),
+                    },
+                    "baseline_engagement_rate": 3.5,
+                    "baseline_weekly_posts": 12,
+                    "prev_followers": {
+                        "instagram": random.randint(10_000, 200_000),
+                        "facebook": random.randint(10_000, 200_000),
+                        "twitter_x": random.randint(5_000, 100_000),
+                    },
+                })
+            logger.info("    Loaded %d competitors from DB for client %s", len(result), client_id)
+            return result
+
+    except Exception as exc:
+        logger.warning("    Failed to load DB competitors: %s — using fallback", exc)
+        return COMPETITORS
+
+
+# ---------------------------------------------------------------------------
 # Mock platform scanning
 # ---------------------------------------------------------------------------
 
@@ -344,8 +392,8 @@ def scan_all_competitors(self):
             logger.info("  Processing client: %s (%s)", client.name, client.id)
             results["clients_processed"] += 1
 
-            # TODO: In production, query competitors from DB filtered by client_id
-            competitors = COMPETITORS
+            # Query competitors from DB for this client, fallback to hardcoded list
+            competitors = _get_competitors_for_client(client.id)
 
             logger.info("  Scanning %d competitors for client %s", len(competitors), client.name)
 
