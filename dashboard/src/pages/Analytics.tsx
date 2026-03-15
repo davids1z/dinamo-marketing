@@ -183,6 +183,33 @@ export default function Analytics() {
     </>
   )
 
+  // No analytics data available yet
+  const hasAnalyticsData = (reachData.length > 0) || (paid && paid.total_spend > 0) || (topPosts.length > 0)
+  if (!loading && !hasAnalyticsData) {
+    return (
+      <div>
+        <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={BarChart3}
+            variant="hero"
+            title="Analitika čeka podatke"
+            description="Povežite kanale i pokrenite prvu sinkronizaciju za uvid u performanse."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />

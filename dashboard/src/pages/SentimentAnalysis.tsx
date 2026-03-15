@@ -108,6 +108,33 @@ export default function SentimentAnalysis() {
     </>
   );
 
+  // No sentiment data available yet
+  const hasSentimentData = (data.positive > 0 || data.neutral > 0 || data.negative > 0) || data.topics.length > 0;
+  if (!hasSentimentData) {
+    return (
+      <div>
+        <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Heart}
+            variant="hero"
+            title="Analiza sentimenta čeka podatke"
+            description="Povežite kanale za praćenje sentimenta vaše publike."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />

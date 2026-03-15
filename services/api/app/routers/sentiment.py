@@ -51,7 +51,7 @@ async def get_sentiment_overview(
         neu_pct = round(neutral / total * 100)
         neg_pct = 100 - pos_pct - neu_pct
     else:
-        pos_pct, neu_pct, neg_pct = 65, 25, 10
+        pos_pct, neu_pct, neg_pct = 0, 0, 0
 
     # Get previous period for changes
     prev_overview = await service.get_sentiment_overview(db, days * 2)
@@ -64,7 +64,7 @@ async def get_sentiment_overview(
         neu_change = neu_pct - prev_neu_pct
         neg_change = neg_pct - prev_neg_pct
     else:
-        pos_change, neu_change, neg_change = 4.2, -2.1, 2.1
+        pos_change, neu_change, neg_change = 0.0, 0.0, 0.0
 
     # Get timeline data
     timeline_raw = await service.get_sentiment_timeline(db, min(days, 14))
@@ -82,8 +82,8 @@ async def get_sentiment_overview(
         else:
             timeline.append({
                 "date": day["date"],
-                "engagement": 65,
-                "reach": 10,
+                "engagement": 0,
+                "reach": 0,
             })
 
     # Get topics
@@ -133,21 +133,8 @@ async def get_sentiment_overview(
             "mentions": 0,
         })
 
-    # Fallback alerts if none in DB
-    if not alerts:
-        alerts = [
-            {
-                "id": 1,
-                "severity": "info",
-                "title": "Pozitivan trend: Sadržaj akademije",
-                "description": "Sadržaj o akademiji prima visok postotak pozitivnog sentimenta na svim platformama.",
-                "time": "danas",
-                "platform": "Sve platforme",
-                "mentions": total,
-            },
-        ]
-
     return {
+        "hasData": total > 0,
         "positive": pos_pct,
         "neutral": neu_pct,
         "negative": neg_pct,

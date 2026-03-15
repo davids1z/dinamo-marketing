@@ -222,6 +222,32 @@ export default function CustomerSegmentation() {
     )
   }
 
+  // No segment data available yet
+  if (customerSegments.length === 0) {
+    return (
+      <div>
+        <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Users}
+            variant="hero"
+            title="Segmentacija publike u pripremi"
+            description="Povežite kanale za analizu vaše publike i segmentaciju korisnika."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
+
   // Calculate totals for segment distribution
   const totalCustomers = customerSegments.reduce((sum, s) => sum + s.count, 0)
   const segmentDistribution = customerSegments.map((s, i) => ({

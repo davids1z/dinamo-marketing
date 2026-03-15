@@ -57,8 +57,8 @@ async def get_competitor_page_data(
         .limit(1)
     )
     own_ig_metric = own_ig_result.scalar_one_or_none()
-    own_ig = own_ig_metric.followers if own_ig_metric else 567000
-    own_engagement = own_ig_metric.engagement_rate if own_ig_metric else 3.2
+    own_ig = own_ig_metric.followers if own_ig_metric else 0
+    own_engagement = own_ig_metric.engagement_rate if own_ig_metric else 0.0
 
     # Get latest competitor metrics (grouped by competitor + platform)
     latest_subq = (
@@ -149,6 +149,7 @@ async def get_competitor_page_data(
     return {
         "competitors": competitors,
         "ownIg": own_ig,
+        "hasOwnData": own_ig_metric is not None,
         "summary": summary,
     }
 

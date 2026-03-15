@@ -12,7 +12,7 @@ import {
   MessageCircle, UserPlus, AlertTriangle, CheckCircle, Zap,
   Plus, Rocket, FileText, ChevronDown,
   ExternalLink, Clock, ArrowRight, Sparkles, TrendingDown,
-  LayoutDashboard, Link2, PenTool, Building2, ShieldAlert,
+  LayoutDashboard, Link2, PenTool, Building2, ShieldAlert, Loader2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useClient } from '../contexts/ClientContext'
@@ -784,6 +784,19 @@ export default function Dashboard() {
                 Superadmin pristup — promjene može raditi samo admin ovog klijenta.
                 {!actualOnboardingDone && ' Klijent još nije dovršio postavljanje profila.'}
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Syncing banner — channels connected but no data yet */}
+        {d.monthly_reach === 0 && d.total_followers === 0 && d.engagement_rate === 0 && (
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-studio-text-primary">Čekamo prve podatke</p>
+              <p className="text-xs text-studio-text-tertiary">Kanali su povezani. Podaci će se pojaviti nakon prve sinkronizacije.</p>
             </div>
           </div>
         )}

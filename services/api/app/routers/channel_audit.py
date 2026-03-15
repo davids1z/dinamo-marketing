@@ -112,17 +112,10 @@ async def get_channel_page_data(
         del fmt_data["count"]
         format_breakdown.append(fmt_data)
 
-    # If no format breakdown from DB, use defaults
-    if not format_breakdown:
-        format_breakdown = [
-            {"type": "Reels / Short Video", "share": 42, "posts": 126, "avgEngagement": 4.8},
-            {"type": "Static Image", "share": 24, "posts": 72, "avgEngagement": 2.1},
-            {"type": "Carousel", "share": 18, "posts": 54, "avgEngagement": 3.4},
-            {"type": "Stories", "share": 10, "posts": 30, "avgEngagement": 1.8},
-            {"type": "Long-form Video", "share": 6, "posts": 18, "avgEngagement": 2.9},
-        ]
+    has_data = len(platform_stats) > 0
 
     return {
+        "hasData": has_data,
         "platformStats": platform_stats,
         "engagementData30": engagement_data_30,
         "formatBreakdown": format_breakdown,

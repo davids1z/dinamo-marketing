@@ -195,6 +195,33 @@ export default function Competitors() {
   )
 
   const competitorList = data.competitors || []
+
+  // No competitor data available yet
+  if (competitorList.length === 0 && !data.ourIg && !data.ourTiktok) {
+    return (
+      <div>
+        <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={Target}
+            variant="hero"
+            title="Konkurencija nije postavljena"
+            description="Dodajte profile konkurenata za benchmarking analizu i usporedbu performansi."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
+
   const summary = data.summary || { directCount: 0, weLeadIn: 0, ourIgFormatted: '0', ourRank: '--', avgEngagementDirect: 0, ourEngagement: 0 }
   const ourIg = data.ourIg || 0
   const ourTiktok = data.ourTiktok ?? 0

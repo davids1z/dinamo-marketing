@@ -253,6 +253,33 @@ export default function ChannelAudit() {
     </>
   )
 
+  // No audit data available yet
+  const hasAuditData = apiData?.platformStats && apiData.platformStats.length > 0
+  if (!loading && !hasAuditData) {
+    return (
+      <div>
+        <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={BarChart3}
+            variant="hero"
+            title="Audit kanala u pripremi"
+            description="Povežite društvene mreže i pokrenite audit za detaljnu analizu performansi vaših kanala."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale za audit
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />

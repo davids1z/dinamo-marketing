@@ -234,6 +234,32 @@ export default function SocialListening() {
     </>
   );
 
+  // No mentions data available yet
+  if (!data.metrics.totalMentions && data.recentMentions.length === 0) {
+    return (
+      <div>
+        <Header title="SOCIAL LISTENING" subtitle="Pracenje brenda i spominjanja" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={MessageSquare}
+            variant="hero"
+            title="Praćenje spominjanja još nije aktivno"
+            description="Povežite kanale za praćenje što se govori o vašem brendu na društvenim mrežama."
+            action={
+              <button
+                onClick={() => navigate('/brand-profile?tab=mreze')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"
+              >
+                <Link2 size={16} />
+                Poveži kanale
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Header title="SOCIAL LISTENING" subtitle="Pracenje brenda i spominjanja" />
