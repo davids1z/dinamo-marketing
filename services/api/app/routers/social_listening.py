@@ -251,7 +251,7 @@ async def get_trending_page_data(
 
             return _generate_estimate_data(
                 client.id,
-                client.client_name or "Vaš brend",
+                client.name or "Vaš brend",
                 connected_platforms,
                 hashtags,
                 competitor_names,
@@ -440,7 +440,7 @@ async def get_trending_page_data(
             })
         # Add own brand
         competitor_mentions.insert(0, {
-            "name": client.client_name or "Vi",
+            "name": client.name or "Vi",
             "mentions": total_mentions,
             "color": "#0EA5E9",
         })
@@ -460,7 +460,7 @@ async def get_trending_page_data(
         "competitorMentions": competitor_mentions,
         "_meta": {
             "is_estimate": False,
-            "tracked_keywords": [client.client_name or ""] + [f"#{h.replace('#','')}" for h in hashtags[:5]],
+            "tracked_keywords": [client.name or ""] + [f"#{h.replace('#','')}" for h in hashtags[:5]],
             "analyzed_at": datetime.utcnow().isoformat(),
         },
     }

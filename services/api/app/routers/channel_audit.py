@@ -325,7 +325,7 @@ async def get_channel_page_data(
         if connected_platforms:
             return _generate_estimate_data(
                 client.id,
-                client.client_name or "Vaš brend",
+                client.name or "Vaš brend",
                 connected_platforms,
             )
 

@@ -181,7 +181,7 @@ async def get_sentiment_overview(
         if connected_platforms:
             is_estimate = True
             est = _generate_estimate_data(
-                client.id, client.client_name or "Vaš brend",
+                client.id, client.name or "Vaš brend",
                 connected_platforms, days,
             )
 

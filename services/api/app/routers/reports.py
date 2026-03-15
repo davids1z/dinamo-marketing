@@ -330,7 +330,7 @@ async def list_weekly_reports(
     if connected_platforms:
         return {
             "reports": _generate_estimate_weekly(
-                client.id, client.client_name or "Vaš brend", connected_platforms,
+                client.id, client.name or "Vaš brend", connected_platforms,
             ),
             "_meta": {
                 "is_estimate": True,
@@ -386,7 +386,7 @@ async def list_monthly_reports(
     if connected_platforms:
         return {
             "reports": _generate_estimate_monthly(
-                client.id, client.client_name or "Vaš brend", connected_platforms,
+                client.id, client.name or "Vaš brend", connected_platforms,
             ),
             "_meta": {
                 "is_estimate": True,
