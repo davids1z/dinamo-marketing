@@ -26,8 +26,11 @@ interface BrandData {
 }
 
 export default function BrandProfile() {
-  const { currentClient, isClientAdmin } = useClient()
+  const { currentClient, isClientAdmin, clientRole } = useClient()
   const { user } = useAuth()
+  // Superadmin can SEE everything but NOT edit — they're visitors, not owners
+  const isSuperadminVisitor = user?.is_superadmin && clientRole === 'superadmin'
+  const canEdit = isClientAdmin && !isSuperadminVisitor
   const canSeeAiOverride = isClientAdmin || user?.is_superadmin
   const [data, setData] = useState<BrandData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -45,7 +48,7 @@ export default function BrandProfile() {
     }
     setLoading(true)
     setError(false)
-    api.get(`/api/v1/clients/${clientId}`)
+    api.get(`/clients/${clientId}`)
       .then(res => { setData(res.data); setError(false) })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
@@ -55,7 +58,7 @@ export default function BrandProfile() {
     if (!data || !currentClient) return
     setSaving(true)
     try {
-      await api.put(`/api/v1/clients/${currentClient.client_id}`, {
+      await api.put(`/clients/${currentClient.client_id}`, {
         name: data.name,
         business_description: data.business_description,
         product_info: data.product_info,
@@ -103,7 +106,7 @@ export default function BrandProfile() {
         <div className="p-8 text-center">
           <p className="text-studio-text-secondary mb-3">Nije moguće učitati podatke klijenta.</p>
           <button
-            onClick={() => { setError(false); setLoading(true); api.get(`/api/v1/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false)) }}
+            onClick={() => { setError(false); setLoading(true); api.get(`/clients/${clientId}`).then(res => { setData(res.data); setError(false) }).catch(() => setError(true)).finally(() => setLoading(false)) }}
             className="text-sm text-brand-accent hover:underline font-medium"
           >
             Pokušaj ponovo
@@ -123,7 +126,7 @@ export default function BrandProfile() {
         title="Profil klijenta"
         subtitle={data.name}
         actions={
-          isClientAdmin ? (
+          canEdit ? (
             <button
               onClick={handleSave}
               disabled={saving}
@@ -137,6 +140,19 @@ export default function BrandProfile() {
       />
 
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl">
+        {/* Superadmin read-only banner */}
+        {isSuperadminVisitor && (
+          <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+              <ShieldAlert className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-studio-text-primary">Pregled klijenta (samo čitanje)</p>
+              <p className="text-xs text-studio-text-tertiary">Superadmin pristup — promjene može raditi samo admin ovog klijenta.</p>
+            </div>
+          </div>
+        )}
+
         {/* AI Context Status Banner */}
         {!data.business_description && !data.product_info ? (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 flex items-start gap-4">
@@ -148,7 +164,7 @@ export default function BrandProfile() {
               <p className="text-sm text-studio-text-secondary mb-3">
                 Opišite svoj posao i proizvode kako bi AI mogao generirati kampanje, sadržaj i analize prilagođene vašem brendu.
               </p>
-              {isClientAdmin && (
+              {canEdit && (
                 <p className="text-xs text-amber-400 font-medium">Ispunite polja ispod za aktivaciju AI konteksta.</p>
               )}
             </div>
@@ -180,24 +196,24 @@ export default function BrandProfile() {
           <div className="space-y-4">
             <div>
               <label className={labelCls}>Ime klijenta</label>
-              <input className={inputCls} value={data.name} onChange={e => update('name', e.target.value)} disabled={!isClientAdmin} />
+              <input className={inputCls} value={data.name} onChange={e => update('name', e.target.value)} disabled={!canEdit} />
             </div>
             <div>
               <label className={labelCls}>Opis poslovanja</label>
-              <textarea className={`${inputCls} min-h-[100px]`} value={data.business_description} onChange={e => update('business_description', e.target.value)} disabled={!isClientAdmin} placeholder="Opisi cime se tvoja firma bavi..." />
+              <textarea className={`${inputCls} min-h-[100px]`} value={data.business_description} onChange={e => update('business_description', e.target.value)} disabled={!canEdit} placeholder="Opisi cime se tvoja firma bavi..." />
             </div>
             <div>
               <label className={labelCls}>Proizvodi / Usluge</label>
-              <textarea className={`${inputCls} min-h-[80px]`} value={data.product_info} onChange={e => update('product_info', e.target.value)} disabled={!isClientAdmin} placeholder="Koji su tvoji glavni proizvodi ili usluge?" />
+              <textarea className={`${inputCls} min-h-[80px]`} value={data.product_info} onChange={e => update('product_info', e.target.value)} disabled={!canEdit} placeholder="Koji su tvoji glavni proizvodi ili usluge?" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Web stranica</label>
-                <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!isClientAdmin} placeholder="https://..." />
+                <input className={inputCls} value={data.website_url} onChange={e => update('website_url', e.target.value)} disabled={!canEdit} placeholder="https://..." />
               </div>
               <div>
                 <label className={labelCls}>Logo URL</label>
-                <input className={inputCls} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!isClientAdmin} />
+                <input className={inputCls} value={data.logo_url} onChange={e => update('logo_url', e.target.value)} disabled={!canEdit} />
               </div>
             </div>
           </div>
@@ -217,11 +233,11 @@ export default function BrandProfile() {
           <div className="space-y-4">
             <div>
               <label className={labelCls}>Ton komunikacije</label>
-              <input className={inputCls} value={data.tone_of_voice} onChange={e => update('tone_of_voice', e.target.value)} disabled={!isClientAdmin} placeholder="npr. Profesionalan, moderan, pristupacan" />
+              <input className={inputCls} value={data.tone_of_voice} onChange={e => update('tone_of_voice', e.target.value)} disabled={!canEdit} placeholder="npr. Profesionalan, moderan, pristupacan" />
             </div>
             <div>
               <label className={labelCls}>Ciljna publika</label>
-              <textarea className={`${inputCls} min-h-[80px]`} value={data.target_audience} onChange={e => update('target_audience', e.target.value)} disabled={!isClientAdmin} placeholder="Tko su tvoji idealni kupci?" />
+              <textarea className={`${inputCls} min-h-[80px]`} value={data.target_audience} onChange={e => update('target_audience', e.target.value)} disabled={!canEdit} placeholder="Tko su tvoji idealni kupci?" />
             </div>
           </div>
         </div>
@@ -246,10 +262,10 @@ export default function BrandProfile() {
                     type="color"
                     value={val}
                     onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })}
-                    disabled={!isClientAdmin}
+                    disabled={!canEdit}
                     className="w-10 h-10 rounded-lg border border-studio-border cursor-pointer"
                   />
-                  <input className={inputCls} value={val} onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })} disabled={!isClientAdmin} />
+                  <input className={inputCls} value={val} onChange={e => update('brand_colors', { ...data.brand_colors, [key]: e.target.value })} disabled={!canEdit} />
                 </div>
               </div>
             ))}
@@ -270,13 +286,13 @@ export default function BrandProfile() {
           <div className="space-y-4">
             <div>
               <label className={labelCls}>Jezici (razdvojeni zarezom)</label>
-              <input className={inputCls} value={(data.languages || []).join(', ')} onChange={e => update('languages', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!isClientAdmin} placeholder="hr, en, de" />
+              <input className={inputCls} value={(data.languages || []).join(', ')} onChange={e => update('languages', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!canEdit} placeholder="hr, en, de" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Object.entries(data.social_handles || {}).map(([platform, handle]) => (
                 <div key={platform}>
                   <label className={labelCls}>{platform}</label>
-                  <input className={inputCls} value={handle} onChange={e => update('social_handles', { ...data.social_handles, [platform]: e.target.value })} disabled={!isClientAdmin} />
+                  <input className={inputCls} value={handle} onChange={e => update('social_handles', { ...data.social_handles, [platform]: e.target.value })} disabled={!canEdit} />
                 </div>
               ))}
             </div>
@@ -296,7 +312,7 @@ export default function BrandProfile() {
           </div>
           <div>
             <label className={labelCls}>Hashtagovi (razdvojeni zarezom)</label>
-            <input className={inputCls} value={(data.hashtags || []).join(', ')} onChange={e => update('hashtags', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!isClientAdmin} placeholder="#MojBrand, #Inovacija" />
+            <input className={inputCls} value={(data.hashtags || []).join(', ')} onChange={e => update('hashtags', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} disabled={!canEdit} placeholder="#MojBrand, #Inovacija" />
           </div>
         </div>
 
@@ -322,7 +338,7 @@ export default function BrandProfile() {
                 className={`${inputCls} min-h-[150px] font-mono text-xs`}
                 value={data.ai_system_prompt_override}
                 onChange={e => update('ai_system_prompt_override', e.target.value)}
-                disabled={!isClientAdmin}
+                disabled={!canEdit}
                 placeholder="Ti si AI asistent za brand [ime]. Tvoj zadatak je..."
               />
             </div>

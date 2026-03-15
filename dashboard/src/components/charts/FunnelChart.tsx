@@ -16,7 +16,11 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
 
   return (
     <div>
-      {title && <h3 className="font-headline text-lg mb-4 text-studio-text-primary">{title}</h3>}
+      {title && (
+        <div className="mb-5">
+          <h3 className="font-headline text-base tracking-wider text-studio-text-primary">{title}</h3>
+        </div>
+      )}
       <div className="space-y-3">
         {steps.map((step, idx) => {
           const widthPct = Math.min((step.value / maxValue) * 100, 100)
@@ -25,7 +29,11 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
             : '100'
 
           return (
-            <div key={step.label}>
+            <div
+              key={step.label}
+              className="animate-chart-in group"
+              style={{ animationDelay: `${idx * 80}ms` }}
+            >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-studio-text-secondary">{step.label}</span>
                 <div className="flex items-center gap-2">
@@ -35,13 +43,19 @@ export function FunnelChart({ steps, title }: FunnelChartProps) {
                   )}
                 </div>
               </div>
-              <div className="w-full bg-white/5 rounded-full h-6 overflow-hidden">
+              <div className="w-full bg-white/5 rounded-lg h-7 overflow-hidden">
                 <div
-                  className="h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                  style={{ width: `${widthPct}%`, backgroundColor: step.color }}
+                  className="h-7 rounded-lg transition-all duration-300 flex items-center justify-end pr-2
+                    group-hover:scale-x-[1.02] group-hover:brightness-110 origin-left"
+                  style={{
+                    width: `${widthPct}%`,
+                    background: `linear-gradient(90deg, ${step.color}cc, ${step.color})`,
+                  }}
                 >
                   {widthPct > 15 && (
-                    <span className="text-[10px] font-bold text-white">{widthPct.toFixed(0)}%</span>
+                    <span className="text-[10px] font-bold text-white drop-shadow-sm">
+                      {widthPct.toFixed(0)}%
+                    </span>
                   )}
                 </div>
               </div>

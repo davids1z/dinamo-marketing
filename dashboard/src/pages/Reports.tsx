@@ -9,7 +9,6 @@ import {
   BarChart3, ArrowUpRight, ArrowDownRight, X, GitCompareArrows,
   Eye, ThumbsUp, Share2
 } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 type ReportTab = 'weekly' | 'monthly'
 
@@ -316,7 +315,7 @@ export default function Reports() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="IZVJEŠTAJI" subtitle="Automatsko generiranje izvještaja i arhiva" />
 
       <div className="page-wrapper space-y-6">
@@ -630,8 +629,6 @@ export default function Reports() {
             )}
           </div>
         </div>
-
-        <AiInsightsPanel pageKey="reports" pageData={{ totalReports, weeklyCount: weeklyData.reports.length, monthlyCount: monthlyData.reports.length, latestEngagement: latestCompleted?.engagementChange, latestFollowerGrowth: latestCompleted?.followerGrowth, latestReach: latestCompleted?.totalReach }} />
       </div>
 
       {/* Toast Notifications */}

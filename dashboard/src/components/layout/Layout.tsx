@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext } from 'react'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import Sidebar from './Sidebar'
-import NavigationProgress from './NavigationProgress'
+// NavigationProgress removed — user prefers instant transitions
 import { useAuth } from '../../contexts/AuthContext'
 
 interface SidebarContextType {
@@ -93,7 +93,7 @@ export default function Layout() {
           <div className="absolute -bottom-16 left-[30%] w-[350px] h-[120px] bg-white/35 rounded-[50%] blur-xl" />
           <div className="absolute -bottom-10 right-[10%] w-[380px] h-[130px] bg-white/40 rounded-[50%] blur-lg" />
         </div>
-        <NavigationProgress />
+        {/* NavigationProgress removed */}
         <Sidebar />
         {/* Mobile overlay */}
         {isMobile && mobileOpen && (

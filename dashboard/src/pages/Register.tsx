@@ -51,7 +51,7 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      className="fixed inset-0 flex flex-col overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #8ec5ed 0%, #a4d2f1 15%, #b5d9f4 30%, #c2e0f6 50%, #cde6f8 70%, #d4eafa 85%, #daedfb 100%)' }}
     >
       {/* Arc circles */}
@@ -81,16 +81,17 @@ export default function Register() {
         <div className="absolute bottom-44 right-[25%] w-[260px] h-[85px] bg-white/50 rounded-[50%] blur-xl" />
       </div>
 
-      {/* Logo top-left */}
-      <div className="absolute top-6 left-8 flex items-center gap-2.5 z-20">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-5 pt-4 sm:px-8 sm:pt-6 z-20 flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
           <span className="font-headline text-xs text-white font-bold">S1Z</span>
         </div>
         <span className="font-headline text-base tracking-wider text-slate-700 font-bold">ShiftOneZero</span>
       </div>
 
-      {/* Card with gradient border */}
-      <div className="w-full max-w-[420px] relative z-10">
+      {/* Card area — centered in remaining space */}
+      <div className="flex-1 flex items-center justify-center px-5 sm:px-4 z-10">
+      <div className="w-full max-w-[420px] relative">
         <div
           className="absolute -inset-[1px] rounded-[28px] opacity-60"
           style={{ background: 'linear-gradient(135deg, rgba(168,145,235,0.4) 0%, rgba(180,200,255,0.3) 30%, rgba(255,255,255,0.1) 60%, rgba(200,180,255,0.3) 100%)' }}
@@ -101,7 +102,7 @@ export default function Register() {
         />
 
         <div
-          className="relative rounded-[26px] px-10 py-10"
+          className="relative rounded-[26px] px-6 sm:px-10 py-5 sm:py-10"
           style={{
             background: 'rgba(255,255,255,0.55)',
             backdropFilter: 'blur(24px) saturate(1.4)',
@@ -110,14 +111,14 @@ export default function Register() {
             border: '1px solid rgba(255,255,255,0.5)',
           }}
         >
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-slate-100/80 flex items-center justify-center mb-5 shadow-sm">
+          <div className="flex flex-col items-center mb-4 sm:mb-6">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100/80 flex items-center justify-center mb-3 sm:mb-5 shadow-sm">
               <UserPlus className="w-5 h-5 text-slate-500" />
             </div>
-            <h2 className="text-[22px] font-semibold text-slate-800 tracking-[-0.01em]" style={{ fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'none' as const }}>
+            <h2 className="text-lg sm:text-[22px] font-semibold text-slate-800 tracking-[-0.01em]" style={{ fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'none' as const }}>
               Kreirajte račun
             </h2>
-            <p className="text-[13px] text-slate-400 mt-1.5 text-center leading-relaxed max-w-[280px]">
+            <p className="text-[13px] text-slate-400 mt-1 text-center leading-relaxed max-w-[280px]">
               Započnite s AI marketingom
             </p>
           </div>
@@ -128,7 +129,7 @@ export default function Register() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3.5">
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
               <input
@@ -136,7 +137,7 @@ export default function Register() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
+                className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={inputStyle}
                 placeholder="Ime i prezime"
               />
@@ -148,7 +149,7 @@ export default function Register() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
+                className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={inputStyle}
                 placeholder="E-mail adresa"
               />
@@ -161,7 +162,7 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
+                className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={inputStyle}
                 placeholder="Lozinka (min. 6 znakova)"
               />
@@ -173,7 +174,7 @@ export default function Register() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
+                className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={inputStyle}
                 placeholder="Potvrdi lozinku"
               />
@@ -192,7 +193,7 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="text-center text-[13px] text-slate-400 mt-6">
+          <p className="text-center text-[13px] text-slate-400 mt-4 sm:mt-6">
             {'Već imate račun? '}
             <Link to="/login" className="text-sky-500 hover:text-sky-600 font-medium hover:underline">
               Prijavite se
@@ -201,7 +202,9 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20">
+      </div>
+
+      <div className="py-4 text-center z-20 flex-shrink-0">
         <span className="text-[12px] text-slate-400/70 font-medium tracking-wide">ShiftOneZero</span>
       </div>
     </div>

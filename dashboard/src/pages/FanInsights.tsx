@@ -11,9 +11,10 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
-  PieChart, Pie, LineChart, Line,
+  PieChart, Pie, LineChart, Line, CartesianGrid,
 } from 'recharts'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
+import { ChartTooltip } from '../components/charts/ChartTooltip'
+import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig'
 
 interface CustomerSegment {
   stage: string
@@ -198,7 +199,7 @@ export default function CustomerSegmentation() {
   const highRiskCount = clvData.filter(c => c.churnRisk === 'Visoki').length
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="SEGMENTACIJA KORISNIKA" subtitle="Segmentacija kupaca, životni ciklus i analiza vrijednosti" />
 
       <div className="page-wrapper space-y-6">
@@ -295,16 +296,22 @@ export default function CustomerSegmentation() {
                     outerRadius={85}
                     paddingAngle={3}
                     dataKey="value"
+                    animationDuration={CHART_ANIM.pieDuration}
+                    animationEasing={CHART_ANIM.pieEasing}
+                    animationBegin={200}
                   >
                     {segmentDistribution.map((entry, idx) => (
                       <Cell key={`cell-${idx}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number, name: string) => [
-                      `${(value / 1000).toFixed(0)}K (${totalCustomers > 0 ? ((value / totalCustomers) * 100).toFixed(1) : 0}%)`,
-                      name,
-                    ]}
+                    content={
+                      <ChartTooltip
+                        formatter={(value: number) =>
+                          `${(value / 1000).toFixed(0)}K (${totalCustomers > 0 ? ((value / totalCustomers) * 100).toFixed(1) : 0}%)`
+                        }
+                      />
+                    }
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -330,14 +337,30 @@ export default function CustomerSegmentation() {
             </h2>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={fallbackGrowthTrend}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
-                <Tooltip formatter={(value: number) => [`${(value / 1000).toFixed(1)}K`, '']} />
-                <Line type="monotone" dataKey="casual" stroke="#3b82f6" strokeWidth={2} dot={false} name="Casual" />
-                <Line type="monotone" dataKey="engaged" stroke="#8b5cf6" strokeWidth={2} dot={false} name="Angažirani" />
-                <Line type="monotone" dataKey="loyal" stroke="#ec4899" strokeWidth={2} dot={false} name="Lojalni" />
-                <Line type="monotone" dataKey="vip" stroke="#f59e0b" strokeWidth={2} dot={false} name="VIP" />
-                <Line type="monotone" dataKey="ambassador" stroke="#10b981" strokeWidth={2} dot={false} name="Ambasadori" />
+                <CartesianGrid {...GRID_STYLE} />
+                <XAxis dataKey="month" {...AXIS_STYLE} dy={8} />
+                <YAxis {...AXIS_STYLE} dx={-4} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
+                <Tooltip content={<ChartTooltip formatter={(value: number) => `${(value / 1000).toFixed(1)}K`} />} />
+                <Line type="monotone" dataKey="casual" stroke="#3b82f6" strokeWidth={2.5}
+                  dot={{ r: 2, fill: '#3b82f6', stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
+                  name="Casual" animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} />
+                <Line type="monotone" dataKey="engaged" stroke="#8b5cf6" strokeWidth={2.5}
+                  dot={{ r: 2, fill: '#8b5cf6', stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2 }}
+                  name="Angažirani" animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={100} />
+                <Line type="monotone" dataKey="loyal" stroke="#ec4899" strokeWidth={2.5}
+                  dot={{ r: 2, fill: '#ec4899', stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#ec4899', stroke: '#fff', strokeWidth: 2 }}
+                  name="Lojalni" animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={200} />
+                <Line type="monotone" dataKey="vip" stroke="#f59e0b" strokeWidth={2.5}
+                  dot={{ r: 2, fill: '#f59e0b', stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
+                  name="VIP" animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={300} />
+                <Line type="monotone" dataKey="ambassador" stroke="#10b981" strokeWidth={2.5}
+                  dot={{ r: 2, fill: '#10b981', stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
+                  name="Ambasadori" animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={400} />
               </LineChart>
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-4 mt-3 justify-center">
@@ -417,10 +440,12 @@ export default function CustomerSegmentation() {
             <div className="flex justify-center">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fallbackChurnDistribution} layout="vertical">
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} tickFormatter={(v: number) => `${v}%`} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B6B6B', fontSize: 12 }} width={80} />
-                  <Tooltip formatter={(value: number) => [`${value}%`, 'Udio korisnika']} />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  <CartesianGrid {...GRID_STYLE} horizontal={false} vertical />
+                  <XAxis type="number" {...AXIS_STYLE} tickFormatter={(v: number) => `${v}%`} />
+                  <YAxis type="category" dataKey="name" {...AXIS_STYLE} width={80} />
+                  <Tooltip content={<ChartTooltip formatter={(value: number) => `${value}%`} />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                  <Bar dataKey="value" radius={[0, 6, 6, 0]}
+                    animationDuration={CHART_ANIM.barDuration} animationEasing={CHART_ANIM.barEasing}>
                     {fallbackChurnDistribution.map((entry, idx) => (
                       <Cell key={`bar-${idx}`} fill={entry.color} />
                     ))}
@@ -471,8 +496,6 @@ export default function CustomerSegmentation() {
             </div>
           </div>
         )}
-
-        <AiInsightsPanel pageKey="fan_insights" pageData={{ segments: customerSegments.map(s => ({ stage: s.stage, count: s.count, growth: s.growth })), clv: clvData, churn: churnPredictions }} />
       </div>
     </div>
   )

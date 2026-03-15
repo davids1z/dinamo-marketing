@@ -3,7 +3,6 @@ import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { Globe, Users, MapPin, Languages, Calendar } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 interface MarketRegion {
   country: string
@@ -125,7 +124,7 @@ export default function GeographicMarkets() {
   const totalOffices = regions.reduce((sum, c) => sum + c.offices, 0)
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
 
       <div className="page-wrapper space-y-6">
@@ -230,8 +229,6 @@ export default function GeographicMarkets() {
             ))}
           </div>
         </div>
-
-        <AiInsightsPanel pageKey="diaspora" pageData={{ communities: regions.map(c => ({ country: c.country, population: c.population, activeMembers: c.activeMembers, engagement: c.engagement })), pipeline: contentPipeline.map(c => ({ title: c.title, languages: c.languages, status: c.status })) }} />
       </div>
     </div>
   )

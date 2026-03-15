@@ -12,7 +12,6 @@ import {
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
   Filter, Loader2, Image, RefreshCw,
 } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -421,7 +420,7 @@ export default function Campaigns() {
   )
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
 
       <div className="page-wrapper space-y-6">
@@ -556,8 +555,6 @@ export default function Campaigns() {
             })}
           </div>
         </div>
-
-        <AiInsightsPanel pageKey="campaigns" pageData={{ campaigns: allCampaigns.slice(0, 5).map(c => ({ name: c.name, platform: c.platform, status: c.status, budget: c.budget, spend: c.spend, ctr: c.ctr, roas: c.roas })), totalSpend, avgRoas: Number(avgRoas.toFixed(1)), activeCampaigns: activeCampaignsCount }} />
       </div>
 
       {/* ================================================================ */}

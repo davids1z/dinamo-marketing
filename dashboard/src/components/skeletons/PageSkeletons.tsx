@@ -22,7 +22,7 @@ const CardSkeleton = ({ children, className = '' }: { children: React.ReactNode;
 // ---------------------------------------------------------------------------
 export function DashboardSkeleton() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 skeleton-delay">
       {/* Header area */}
       <div className="flex items-center justify-between">
         <div>
@@ -73,7 +73,7 @@ export function DashboardSkeleton() {
 // ---------------------------------------------------------------------------
 export function TablePageSkeleton() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 skeleton-delay">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -124,7 +124,7 @@ export function TablePageSkeleton() {
 // ---------------------------------------------------------------------------
 export function FormPageSkeleton() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl skeleton-delay">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -165,7 +165,7 @@ export function FormPageSkeleton() {
 // ---------------------------------------------------------------------------
 export function GenericPageSkeleton() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-in fade-in duration-200">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 skeleton-delay">
       <div>
         <Bone className="h-7 w-44 mb-2" />
         <Bone className="h-4 w-64" />

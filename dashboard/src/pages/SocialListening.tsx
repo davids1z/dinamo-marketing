@@ -10,12 +10,13 @@ import {
   ThumbsUp, ThumbsDown, Minus, AlertTriangle, ShieldCheck,
   Filter, Reply, Search,
 } from 'lucide-react';
-import AiInsightsPanel from '../components/common/AiInsightsPanel';
 import {
   LineChart, Line, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { SHIFTONEZERO_BRAND } from '../utils/constants';
+import { ChartTooltip } from '../components/charts/ChartTooltip';
+import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -303,7 +304,7 @@ export default function SocialListening() {
   );
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="SOCIAL LISTENING" subtitle="Pracenje brenda i spominjanja" />
 
       <div className="page-wrapper space-y-6">
@@ -379,30 +380,25 @@ export default function SocialListening() {
               <AreaChart data={data.mentionVolume} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="mentionGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0} />
+                    <stop offset="0%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={SHIFTONEZERO_BRAND.colors.blue} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1A1A1A',
-                    border: '1px solid #2A2A2A',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    padding: '8px 12px',
-                    fontSize: '13px',
-                  }}
-                  formatter={(value: number) => [value, 'Spominjanja']}
-                />
+                <CartesianGrid {...GRID_STYLE} />
+                <XAxis dataKey="date" {...AXIS_STYLE} dy={8} />
+                <YAxis {...AXIS_STYLE} dx={-4} />
+                <Tooltip content={<ChartTooltip />} />
                 <Area
                   type="monotone"
                   dataKey="mentions"
                   stroke={SHIFTONEZERO_BRAND.colors.blue}
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fill="url(#mentionGrad)"
+                  dot={{ r: 3, fill: SHIFTONEZERO_BRAND.colors.blue, stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 5, fill: SHIFTONEZERO_BRAND.colors.blue, stroke: '#fff', strokeWidth: 2 }}
+                  name="Spominjanja"
+                  animationDuration={CHART_ANIM.areaDuration}
+                  animationEasing={CHART_ANIM.areaEasing}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -418,26 +414,31 @@ export default function SocialListening() {
             <h3 className="font-headline text-base tracking-wider text-studio-text-primary mb-5">Kretanje sentimenta (14 dana)</h3>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={data.sentimentTimeline} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} unit="%" domain={[0, 100]} />
+                <CartesianGrid {...GRID_STYLE} />
+                <XAxis dataKey="date" {...AXIS_STYLE} dy={8} />
+                <YAxis {...AXIS_STYLE} dx={-4} unit="%" domain={[0, 100]} />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1A1A1A',
-                    border: '1px solid #2A2A2A',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    padding: '8px 12px',
-                    fontSize: '13px',
-                  }}
-                  formatter={(value: number, name: string) => {
-                    const labels: Record<string, string> = { positive: 'Pozitivno', neutral: 'Neutralno', negative: 'Negativno' };
-                    return [`${value}%`, labels[name] || name];
-                  }}
+                  content={
+                    <ChartTooltip
+                      formatter={(value: number) => `${value}%`}
+                    />
+                  }
                 />
-                <Line type="monotone" dataKey="positive" stroke={SHIFTONEZERO_BRAND.colors.positive} strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="neutral" stroke={SHIFTONEZERO_BRAND.colors.neutral} strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="negative" stroke={SHIFTONEZERO_BRAND.colors.negative} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="positive" stroke={SHIFTONEZERO_BRAND.colors.positive} strokeWidth={2.5}
+                  dot={{ r: 2, fill: SHIFTONEZERO_BRAND.colors.positive, stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: SHIFTONEZERO_BRAND.colors.positive, stroke: '#fff', strokeWidth: 2 }}
+                  name="Pozitivno"
+                  animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} />
+                <Line type="monotone" dataKey="neutral" stroke={SHIFTONEZERO_BRAND.colors.neutral} strokeWidth={2.5}
+                  dot={{ r: 2, fill: SHIFTONEZERO_BRAND.colors.neutral, stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: SHIFTONEZERO_BRAND.colors.neutral, stroke: '#fff', strokeWidth: 2 }}
+                  name="Neutralno"
+                  animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={200} />
+                <Line type="monotone" dataKey="negative" stroke={SHIFTONEZERO_BRAND.colors.negative} strokeWidth={2.5}
+                  dot={{ r: 2, fill: SHIFTONEZERO_BRAND.colors.negative, stroke: '#1e293b', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: SHIFTONEZERO_BRAND.colors.negative, stroke: '#fff', strokeWidth: 2 }}
+                  name="Negativno"
+                  animationDuration={CHART_ANIM.lineDuration} animationEasing={CHART_ANIM.lineEasing} animationBegin={400} />
               </LineChart>
             </ResponsiveContainer>
             <div className="flex items-center gap-5 mt-3">
@@ -614,21 +615,6 @@ export default function SocialListening() {
           </div>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* AI Insights Panel                                                */}
-        {/* ---------------------------------------------------------------- */}
-        <AiInsightsPanel
-          pageKey="social_listening"
-          pageData={{
-            metrics: data.metrics,
-            topics: data.trendingTopics.slice(0, 5),
-            mentions: data.recentMentions.slice(0, 3).map((m) => ({
-              author: m.author,
-              sentiment: m.sentiment,
-              reach: m.reach,
-            })),
-          }}
-        />
       </div>
     </div>
   );

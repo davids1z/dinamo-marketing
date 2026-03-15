@@ -4,7 +4,6 @@ import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner
 import MetricCard from '../components/common/MetricCard';
 import DataTable from '../components/common/DataTable';
 import { GraduationCap, DollarSign, Users, Star, Video, Calendar } from 'lucide-react';
-import AiInsightsPanel from '../components/common/AiInsightsPanel';
 
 interface PartnerRow extends Record<string, unknown> {
   id: number;
@@ -118,7 +117,7 @@ export default function PartnersCreators() {
   );
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="PARTNERI & KREATORI" subtitle="Upravljanje partnerima i sadržajni pipeline" />
 
       <div className="page-wrapper space-y-6">
@@ -172,8 +171,6 @@ export default function PartnersCreators() {
             ))}
           </div>
         </div>
-
-        <AiInsightsPanel pageKey="academy" pageData={{ metrics: data.metrics, topPartners: (data.partners || []).slice(0, 5).map(p => ({ name: p.name, category: p.category, reach: p.reach, conversions: p.conversions, socialMentions: p.socialMentions })), pipeline: (data.contentPipeline || []).map(c => ({ title: c.title, status: c.status })) }} />
       </div>
     </div>
   );

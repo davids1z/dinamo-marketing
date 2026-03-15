@@ -5,10 +5,14 @@ import {
   Building2, FolderKanban, Activity,
   ChevronDown, ChevronRight, Trash2, Globe, Palette,
   LogIn, FileText, Crown, Zap,
+  Plug, ToggleLeft, ToggleRight, Loader2, Settings,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import api from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
+import { useApi } from '../hooks/useApi'
+import { useToast } from '../hooks/useToast'
+import { settingsApi } from '../api/settings'
 import SystemHealth from '../components/settings/SystemHealth'
 import QuotaDisplay from '../components/settings/QuotaDisplay'
 
@@ -99,7 +103,7 @@ interface AuditEntry {
   created_at: string
 }
 
-type ViewKey = 'dashboard' | 'users' | 'clients' | 'audit'
+type ViewKey = 'dashboard' | 'users' | 'clients' | 'audit' | 'settings'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -557,13 +561,23 @@ function UsersView() {
                             <div>
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-xs font-semibold text-studio-text-tertiary uppercase tracking-wider">
-                                  Članstva ({userDetail.memberships.length} klijenata)
+                                  {userDetail.is_superadmin ? 'Uloga u sustavu' : `Članstva (${userDetail.memberships.length} klijenata)`}
                                 </h4>
                                 {userDetail.is_superadmin && (
                                   <span className={clsx('badge', ROLE_COLORS.superadmin)}>Superadmin</span>
                                 )}
                               </div>
-                              {userDetail.memberships.length === 0 ? (
+                              {userDetail.is_superadmin ? (
+                                <div className="flex items-center gap-3 p-3 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+                                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                                    <Crown className="w-4 h-4 text-purple-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-studio-text-primary">Superadmin — pristup svim klijentima</p>
+                                    <p className="text-xs text-studio-text-tertiary mt-0.5">Globalna uloga. Nije vezan za pojedinačne klijente kroz članstvo.</p>
+                                  </div>
+                                </div>
+                              ) : userDetail.memberships.length === 0 ? (
                                 <p className="text-sm text-studio-text-tertiary">Korisnik nije član nijednog klijenta</p>
                               ) : (
                                 <div className="space-y-2">
@@ -1199,6 +1213,218 @@ function AuditLogView() {
 }
 
 // ---------------------------------------------------------------------------
+// System Settings View
+// ---------------------------------------------------------------------------
+
+interface ApiServiceRecord {
+  id: string
+  name: string
+  description: string
+  enabled: boolean
+  mode: 'mock' | 'live'
+  icon: string
+}
+
+interface SettingsPayload {
+  apis: ApiServiceRecord[]
+  system: { version: string; environment: string; dataMode: string; lastUpdated: string }
+}
+
+const fallbackApis: ApiServiceRecord[] = [
+  { id: 'meta', name: 'Meta Graph API', description: 'Instagram i Facebook podaci', enabled: true, mode: 'mock', icon: '📘' },
+  { id: 'tiktok', name: 'TikTok API', description: 'TikTok analitika i objavljivanje', enabled: true, mode: 'mock', icon: '🎵' },
+  { id: 'youtube', name: 'YouTube Data API', description: 'YouTube kanal i video podaci', enabled: true, mode: 'mock', icon: '▶️' },
+  { id: 'ga4', name: 'Google Analytics 4', description: 'Promet web stranice i konverzije', enabled: true, mode: 'mock', icon: '📊' },
+  { id: 'market_data', name: 'Market Data API', description: 'Tržišni podaci i analitika industrije', enabled: true, mode: 'mock', icon: '📊' },
+  { id: 'claude', name: 'Claude AI', description: 'Generiranje sadržaja i analiza', enabled: true, mode: 'mock', icon: '🤖' },
+  { id: 'buffer', name: 'Buffer / Objavljivanje', description: 'Zakazivanje objava na društvenim mrežama', enabled: true, mode: 'mock', icon: '📅' },
+  { id: 'image_gen', name: 'Generiranje slika', description: 'AI kreiranje slika za sadržaj', enabled: true, mode: 'mock', icon: '🎨' },
+  { id: 'trends', name: 'Google Trends', description: 'Podaci o trendovima pretraživanja i uvidi', enabled: true, mode: 'mock', icon: '📈' },
+]
+
+const fallbackSystem = { version: '1.0.0-beta', environment: 'Razvoj', dataMode: 'Mock podaci', lastUpdated: 'Mar 5, 2026' }
+
+function SystemSettingsView() {
+  const { data: apiData, loading, refetch } = useApi<SettingsPayload>('/settings/api-status')
+  const { toasts, addToast, removeToast } = useToast()
+
+  const [localApis, setLocalApis] = useState<ApiServiceRecord[] | null>(null)
+  const [togglingApis, setTogglingApis] = useState<Set<string>>(new Set())
+
+  const apis = localApis || apiData?.apis || fallbackApis
+  const system = apiData?.system || fallbackSystem
+
+  const toggleApiMode = useCallback(async (id: string) => {
+    const current = apis.find(a => a.id === id)
+    if (!current) return
+
+    const newMode = current.mode === 'mock' ? 'live' : 'mock'
+    const useMock = newMode === 'mock'
+
+    setTogglingApis(prev => new Set(prev).add(id))
+    const updated = apis.map(a => a.id === id ? { ...a, mode: newMode as 'mock' | 'live' } : a)
+    setLocalApis(updated)
+
+    try {
+      const response = await settingsApi.toggleApi(id, useMock)
+      const msg = response.data.message || `${current.name} prebačen na ${newMode}`
+      addToast(msg, 'success')
+      refetch()
+    } catch (err) {
+      setLocalApis(apis.map(a => a.id === id ? { ...a, mode: current.mode } : a))
+      const errorMsg = err instanceof Error ? err.message : 'Nepoznata greška'
+      addToast(`Greška pri prebacivanju ${current.name}: ${errorMsg}`, 'error')
+    } finally {
+      setTogglingApis(prev => { const next = new Set(prev); next.delete(id); return next })
+    }
+  }, [apis, addToast, refetch])
+
+  const toggleEnabled = useCallback((id: string) => {
+    const updated = apis.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a)
+    setLocalApis(updated)
+  }, [apis])
+
+  const mockCount = apis.filter(a => a.mode === 'mock').length
+  const allMock = mockCount === apis.length
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+          <Settings className="w-5 h-5 text-red-400" />
+        </div>
+        <div>
+          <h1 className="section-title">Postavke sustava</h1>
+          <p className="text-sm text-studio-text-tertiary">Globalna konfiguracija i API integracije</p>
+        </div>
+      </div>
+
+      {/* System Health + Quotas */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SystemHealth />
+        <QuotaDisplay />
+      </div>
+
+      {/* API Integrations */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-6">
+          <Plug size={20} className="text-blue-400" />
+          <h2 className="section-title">API integracije</h2>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 ml-2">
+            {allMock ? 'Sve mock način' : `${mockCount}/${apis.length} mock`}
+          </span>
+        </div>
+
+        {loading && !apiData ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="card"><div className="skeleton h-20 w-full rounded" /></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {apis.map((svc) => (
+              <div
+                key={svc.id}
+                className={clsx(
+                  'rounded-lg border p-4 transition-colors',
+                  svc.enabled ? 'bg-studio-surface-0 border-studio-border' : 'bg-studio-surface-0 border-studio-border opacity-50'
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{svc.icon}</span>
+                    <div>
+                      <h3 className="text-sm font-medium text-studio-text-primary">{svc.name}</h3>
+                      <p className="text-xs text-studio-text-secondary mt-0.5">{svc.description}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => toggleEnabled(svc.id)} className="shrink-0 ml-2">
+                    {svc.enabled
+                      ? <ToggleRight size={28} className="text-blue-400" />
+                      : <ToggleLeft size={28} className="text-studio-text-secondary" />
+                    }
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  <button
+                    onClick={() => toggleApiMode(svc.id)}
+                    disabled={togglingApis.has(svc.id)}
+                    className={clsx(
+                      'text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait',
+                      svc.mode === 'mock'
+                        ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                        : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
+                    )}
+                  >
+                    {togglingApis.has(svc.id) ? (
+                      <span className="flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Spremanje...</span>
+                    ) : (
+                      svc.mode === 'mock' ? 'Mock' : 'Live'
+                    )}
+                  </button>
+                  <span className="text-xs text-studio-text-secondary">|</span>
+                  <span className="text-xs text-studio-text-secondary">
+                    {svc.mode === 'mock' ? 'API ključ nije potreban' : 'Povezano s API-jem'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* System Info */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <Shield size={20} className="text-studio-text-secondary" />
+          <h2 className="section-title">Informacije o sustavu</h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+          <div>
+            <p className="text-studio-text-secondary">Verzija</p>
+            <p className="text-studio-text-primary font-mono">{system.version}</p>
+          </div>
+          <div>
+            <p className="text-studio-text-secondary">Okruženje</p>
+            <p className="text-amber-400 font-mono">{system.environment}</p>
+          </div>
+          <div>
+            <p className="text-studio-text-secondary">Način podataka</p>
+            <p className="text-emerald-400 font-mono">{system.dataMode}</p>
+          </div>
+          <div>
+            <p className="text-studio-text-secondary">Zadnje ažurirano</p>
+            <p className="text-studio-text-primary font-mono">{system.lastUpdated}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Toast Notifications */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-[100] space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={clsx(
+                'flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl backdrop-blur-sm text-sm font-medium',
+                toast.type === 'success' ? 'bg-emerald-600 text-white'
+                  : toast.type === 'error' ? 'bg-red-600 text-white'
+                  : 'bg-brand-blue text-white'
+              )}
+            >
+              <span>{toast.message}</span>
+              <button onClick={() => removeToast(toast.id)} className="ml-2 opacity-70 hover:opacity-100 transition-opacity">x</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main Admin Page
 // ---------------------------------------------------------------------------
 
@@ -1210,6 +1436,7 @@ export default function Admin() {
     location.pathname === '/admin/users' ? 'users' :
     location.pathname === '/admin/clients' ? 'clients' :
     location.pathname === '/admin/audit' ? 'audit' :
+    location.pathname === '/admin/settings' ? 'settings' :
     'dashboard'
 
   if (!currentUser?.is_superadmin) {
@@ -1225,11 +1452,12 @@ export default function Admin() {
 
   return (
     <div className="page-wrapper space-y-6">
-      <div className="animate-fade-in">
+      <div>
         {view === 'dashboard' && <DashboardView />}
         {view === 'users' && <UsersView />}
         {view === 'clients' && <ClientsView />}
         {view === 'audit' && <AuditLogView />}
+        {view === 'settings' && <SystemSettingsView />}
       </div>
     </div>
   )

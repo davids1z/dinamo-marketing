@@ -4,7 +4,6 @@ import PlatformIcon from '../components/common/PlatformIcon'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 import { Trophy, TrendingUp, TrendingDown, Eye, BarChart3, ArrowUpRight, ArrowDownRight, Minus, Clock } from 'lucide-react'
 import { PLATFORMS } from '../utils/constants'
 
@@ -225,7 +224,7 @@ export default function ChannelAudit() {
   )
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
 
       <div className="page-wrapper space-y-6">
@@ -521,29 +520,6 @@ export default function ChannelAudit() {
           </div>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* AI Insights Panel                                                */}
-        {/* ---------------------------------------------------------------- */}
-        <AiInsightsPanel
-          pageKey="channel_audit"
-          pageData={{
-            platformStats: platformsWithHealth.map(p => ({
-              platform: p.platform,
-              followers: p.followers,
-              engagement: p.engagement,
-              reach: p.reach,
-              healthScore: p.healthScore,
-              followerGrowth: p.followerGrowth,
-            })),
-            formatBreakdown,
-            benchmarks: {
-              bestEngagementPlatform: benchmarks.bestEngagement.platform,
-              avgEngagement: benchmarks.avgEngagement,
-              totalReach: benchmarks.totalReach,
-              highestGrowthPlatform: benchmarks.highestGrowth.platform,
-            },
-          }}
-        />
       </div>
     </div>
   )

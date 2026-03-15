@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '../components/layout/Header'
 import DataTable from '../components/common/DataTable'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
@@ -8,13 +8,14 @@ import {
   TrendingUp, TrendingDown, Minus, Target, Shield, Zap,
   ArrowUpRight, ArrowDownRight,
 } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 import {
-  ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip,
+  XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie,
   BarChart, Bar, CartesianGrid,
 } from 'recharts'
 import { SHIFTONEZERO_BRAND } from '../utils/constants'
+import { ChartTooltip } from '../components/charts/ChartTooltip'
+import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,19 +99,6 @@ const threatBadge = (level: 'high' | 'medium' | 'low') => {
 }
 
 // ---------------------------------------------------------------------------
-// Tooltip style (shared)
-// ---------------------------------------------------------------------------
-
-const tooltipStyle = {
-  backgroundColor: '#1A1A1A',
-  border: '1px solid #2A2A2A',
-  borderRadius: '8px',
-  color: '#E5E5E5',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-  padding: '10px 14px',
-}
-
-// ---------------------------------------------------------------------------
 // Fallback data
 // ---------------------------------------------------------------------------
 
@@ -143,33 +131,6 @@ const fallbackData: CompetitorData = {
 }
 
 // ---------------------------------------------------------------------------
-// Positioning matrix custom tooltip
-// ---------------------------------------------------------------------------
-
-interface MatrixPayloadEntry {
-  payload?: {
-    company?: string
-    igFollowers?: number
-    igEngagement?: number
-    tiktokFollowers?: number
-    tier?: string
-  }
-}
-
-function MatrixTooltip({ active, payload }: { active?: boolean; payload?: MatrixPayloadEntry[] }) {
-  if (!active || !payload?.[0]?.payload) return null
-  const d = payload[0].payload
-  return (
-    <div style={tooltipStyle} className="text-sm">
-      <p className="font-bold text-studio-text-primary">{d.company}</p>
-      <p className="text-studio-text-secondary">IG: {formatFollowers(d.igFollowers ?? 0)} &middot; Angaz: {d.igEngagement}%</p>
-      <p className="text-studio-text-secondary">TikTok: {formatFollowers(d.tiktokFollowers ?? 0)}</p>
-      <p className="text-studio-text-tertiary text-xs mt-1">{tierLabel(d.tier ?? 'direct')}</p>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -179,6 +140,12 @@ export default function Competitors() {
   const { data: apiData, loading } = useApi<CompetitorData>('/competitors')
   const data = apiData || fallbackData
   const [platformTab, setPlatformTab] = useState<PlatformTab>('instagram')
+  const [chartRevealed, setChartRevealed] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setChartRevealed(true), 60)
+    return () => clearTimeout(timer)
+  }, [])
 
   if (loading && !apiData) return (
     <>
@@ -203,28 +170,6 @@ export default function Competitors() {
   const ourContentPerWeek = data.ourContentPerWeek ?? fallbackData.ourContentPerWeek
 
   const directCompetitors = competitorList.filter(c => c.tier === 'direct')
-
-  // ---- Positioning matrix data ----
-  const matrixData = [
-    {
-      company: 'ShiftOneZero',
-      igFollowers: ourIg,
-      igEngagement: ourEngagement,
-      tiktokFollowers: ourTiktok,
-      tier: 'ours',
-    },
-    ...competitorList.map(c => ({
-      company: c.company,
-      igFollowers: c.igFollowers,
-      igEngagement: c.igEngagement,
-      tiktokFollowers: c.tiktokFollowers,
-      tier: c.tier,
-    })),
-  ]
-
-  // Scale TikTok followers for Z-axis (bubble size)
-  const maxTiktok = Math.max(...matrixData.map(d => d.tiktokFollowers))
-  const tiktokRange: [number, number] = [60, 400]
 
   // ---- Share of voice (direct competitors) ----
   const sovData = [
@@ -299,11 +244,6 @@ export default function Competitors() {
     },
   ]
 
-  // ---- Follower comparison bar (kept from original) ----
-  const followerComparison = [
-    { name: 'ShiftOneZero', value: ourIg },
-    ...directCompetitors.map(c => ({ name: c.company, value: c.igFollowers })),
-  ]
 
   // ---- Enhanced table columns ----
   const columns = [
@@ -415,12 +355,12 @@ export default function Competitors() {
 
   // ---- Render ----
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
 
-      <div className="page-wrapper space-y-6">
+      <div className="page-wrapper space-y-6 stagger-sections">
         {/* ───── Summary cards ───── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-cards">
           <div className="card">
             <div className="flex items-center gap-2 text-sm text-studio-text-secondary">
               <Shield size={14} />
@@ -453,72 +393,36 @@ export default function Competitors() {
           </div>
         </div>
 
-        {/* ───── Competitive Positioning Matrix ───── */}
-        <div className="card">
-          <h2 className="section-title mb-2">Matrica pozicioniranja</h2>
-          <p className="text-xs text-studio-text-secondary mb-4">
-            X: Instagram pratitelji &middot; Y: Angaz. stopa &middot; Velicina kruga: TikTok pratitelji
-          </p>
-          <div className="flex flex-wrap gap-4 mb-4 text-xs">
-            {(['aspirational', 'stretch', 'direct'] as const).map(t => (
-              <div key={t} className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tierColor(t) }} />
-                <span className="text-studio-text-secondary">{tierLabel(t)}</span>
-              </div>
-            ))}
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full border-2" style={{ borderColor: SHIFTONEZERO_BRAND.colors.accent, backgroundColor: '#0A1A28' }} />
-              <span className="text-studio-text-secondary">ShiftOneZero</span>
-            </div>
+        {/* ───── Competitive Positioning — IG followers + engagement ───── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="card">
+            <ComparisonBar
+              data={[
+                { name: 'ShiftOneZero', value: ourIg, color: SHIFTONEZERO_BRAND.colors.accent },
+                ...competitorList.map(c => ({
+                  name: c.company,
+                  value: c.igFollowers,
+                  color: tierColor(c.tier),
+                })),
+              ].sort((a, b) => b.value - a.value)}
+              title="Instagram pratitelji — svi konkurenti"
+              valueLabel="Pratitelji"
+            />
           </div>
-          <ResponsiveContainer width="100%" height={380}>
-            <ScatterChart margin={{ top: 10, right: 30, bottom: 20, left: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
-              <XAxis
-                type="number"
-                dataKey="igFollowers"
-                name="IG pratitelji"
-                stroke="#6B6B6B"
-                fontSize={11}
-                tickFormatter={(v: number) => formatFollowers(v)}
-                label={{ value: 'Instagram pratitelji', position: 'insideBottom', offset: -10, fontSize: 11, fill: '#6B6B6B' }}
-                scale="log"
-                domain={['auto', 'auto']}
-              />
-              <YAxis
-                type="number"
-                dataKey="igEngagement"
-                name="Angaz. (%)"
-                stroke="#6B6B6B"
-                fontSize={11}
-                tickFormatter={(v: number) => `${v}%`}
-                label={{ value: 'Angaz. stopa (%)', angle: -90, position: 'insideLeft', offset: 5, fontSize: 11, fill: '#6B6B6B' }}
-                domain={[0, 'auto']}
-              />
-              <ZAxis
-                type="number"
-                dataKey="tiktokFollowers"
-                range={tiktokRange}
-                domain={[0, maxTiktok]}
-                name="TikTok"
-              />
-              <Tooltip content={<MatrixTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-              <Scatter data={matrixData} shape="circle">
-                {matrixData.map((entry, i) => {
-                  const isOurs = entry.tier === 'ours'
-                  return (
-                    <Cell
-                      key={i}
-                      fill={isOurs ? SHIFTONEZERO_BRAND.colors.primary : tierColor(entry.tier)}
-                      stroke={isOurs ? SHIFTONEZERO_BRAND.colors.accent : 'transparent'}
-                      strokeWidth={isOurs ? 3 : 0}
-                      fillOpacity={isOurs ? 1 : 0.75}
-                    />
-                  )
-                })}
-              </Scatter>
-            </ScatterChart>
-          </ResponsiveContainer>
+          <div className="card">
+            <ComparisonBar
+              data={[
+                { name: 'ShiftOneZero', value: ourEngagement, color: SHIFTONEZERO_BRAND.colors.accent },
+                ...competitorList.map(c => ({
+                  name: c.company,
+                  value: c.igEngagement,
+                  color: tierColor(c.tier),
+                })),
+              ].sort((a, b) => b.value - a.value)}
+              title="Stopa angažmana (%)"
+              valueLabel="Angažman %"
+            />
+          </div>
         </div>
 
         {/* ───── Share of Voice + Growth Velocity side by side ───── */}
@@ -538,14 +442,20 @@ export default function Competitors() {
                     dataKey="value"
                     strokeWidth={2}
                     stroke="#1A1A1A"
+                    animationDuration={CHART_ANIM.pieDuration}
+                    animationEasing={CHART_ANIM.pieEasing}
+                    animationBegin={300}
                   >
                     {sovData.map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={tooltipStyle}
-                    formatter={(value: number) => [formatFollowers(value), 'Pratitelji']}
+                    content={
+                      <ChartTooltip
+                        formatter={(value: number) => formatFollowers(value)}
+                      />
+                    }
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -647,64 +557,46 @@ export default function Competitors() {
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={Math.max(280, rankings.length * 36)}>
-            <BarChart data={rankings} layout="vertical" margin={{ left: 10, right: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" horizontal={false} />
-              <XAxis
-                type="number"
-                stroke="#6B6B6B"
-                fontSize={11}
-                tickFormatter={(v: number) => formatFollowers(v)}
-              />
-              <YAxis
-                dataKey="company"
-                type="category"
-                stroke="#6B6B6B"
-                fontSize={11}
-                width={130}
-                tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
-                  <text
-                    x={x}
-                    y={y}
-                    dy={4}
-                    textAnchor="end"
-                    fontSize={11}
-                    fill={payload.value === 'ShiftOneZero' ? SHIFTONEZERO_BRAND.colors.accent : '#6B6B6B'}
-                    fontWeight={payload.value === 'ShiftOneZero' ? 700 : 400}
-                  >
-                    {payload.value}
-                  </text>
-                )}
-              />
-              <Tooltip
-                contentStyle={tooltipStyle}
-                formatter={(value: number, name: string) => [formatFollowers(value), name]}
-              />
-              {platformTab === 'instagram' && (
-                <Bar dataKey="igFollowers" name="IG pratitelji" radius={[0, 4, 4, 0]}>
-                  {rankings.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
-                      fillOpacity={entry.isOurs ? 1 : 0.6}
-                    />
-                  ))}
-                </Bar>
-              )}
-              {platformTab === 'tiktok' && (
-                <Bar dataKey="tiktokFollowers" name="TikTok pratitelji" radius={[0, 4, 4, 0]}>
-                  {rankings.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : '#8B5CF6'}
-                      fillOpacity={entry.isOurs ? 1 : 0.6}
-                    />
-                  ))}
-                </Bar>
-              )}
-              {platformTab === 'overall' && (
-                <>
-                  <Bar dataKey="igFollowers" name="IG pratitelji" stackId="a" radius={[0, 0, 0, 0]}>
+          <div
+            style={{
+              clipPath: chartRevealed ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)',
+              transition: 'clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <ResponsiveContainer width="100%" height={Math.max(280, rankings.length * 36)}>
+              <BarChart data={rankings} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid {...GRID_STYLE} horizontal={false} vertical />
+                <XAxis
+                  type="number"
+                  {...AXIS_STYLE}
+                  tickFormatter={(v: number) => formatFollowers(v)}
+                />
+                <YAxis
+                  dataKey="company"
+                  type="category"
+                  {...AXIS_STYLE}
+                  width={130}
+                  tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
+                    <text
+                      x={x}
+                      y={y}
+                      dy={4}
+                      textAnchor="end"
+                      fontSize={11}
+                      fill={payload.value === 'ShiftOneZero' ? SHIFTONEZERO_BRAND.colors.accent : '#94a3b8'}
+                      fontWeight={payload.value === 'ShiftOneZero' ? 700 : 400}
+                    >
+                      {payload.value}
+                    </text>
+                  )}
+                />
+                <Tooltip
+                  content={<ChartTooltip formatter={(value: number) => formatFollowers(value)} />}
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                />
+                {platformTab === 'instagram' && (
+                  <Bar dataKey="igFollowers" name="IG pratitelji" radius={[0, 6, 6, 0]}
+                    isAnimationActive={false}>
                     {rankings.map((entry, i) => (
                       <Cell
                         key={i}
@@ -713,24 +605,46 @@ export default function Competitors() {
                       />
                     ))}
                   </Bar>
-                  <Bar dataKey="tiktokFollowers" name="TikTok pratitelji" stackId="a" radius={[0, 4, 4, 0]}>
+                )}
+                {platformTab === 'tiktok' && (
+                  <Bar dataKey="tiktokFollowers" name="TikTok pratitelji" radius={[0, 6, 6, 0]}
+                    isAnimationActive={false}>
                     {rankings.map((entry, i) => (
                       <Cell
                         key={i}
-                        fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.accent : '#8B5CF6'}
-                        fillOpacity={entry.isOurs ? 1 : 0.5}
+                        fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : '#8B5CF6'}
+                        fillOpacity={entry.isOurs ? 1 : 0.6}
                       />
                     ))}
                   </Bar>
-                </>
-              )}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* ───── Direct Competitor Comparison (original) ───── */}
-        <div className="card">
-          <ComparisonBar data={followerComparison} title="Instagram pratitelji — direktni konkurenti" valueLabel="Followers" />
+                )}
+                {platformTab === 'overall' && (
+                  <>
+                    <Bar dataKey="igFollowers" name="IG pratitelji" stackId="a" radius={[0, 0, 0, 0]}
+                      isAnimationActive={false}>
+                      {rankings.map((entry, i) => (
+                        <Cell
+                          key={i}
+                          fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.primary : SHIFTONEZERO_BRAND.colors.blue}
+                          fillOpacity={entry.isOurs ? 1 : 0.6}
+                        />
+                      ))}
+                    </Bar>
+                    <Bar dataKey="tiktokFollowers" name="TikTok pratitelji" stackId="a" radius={[0, 6, 6, 0]}
+                      isAnimationActive={false}>
+                      {rankings.map((entry, i) => (
+                        <Cell
+                          key={i}
+                          fill={entry.isOurs ? SHIFTONEZERO_BRAND.colors.accent : '#8B5CF6'}
+                          fillOpacity={entry.isOurs ? 1 : 0.5}
+                        />
+                      ))}
+                    </Bar>
+                  </>
+                )}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* ───── Enhanced Competitor Table ───── */}
@@ -741,26 +655,6 @@ export default function Competitors() {
           </div>
         </div>
 
-        {/* ───── AI Insights ───── */}
-        <AiInsightsPanel
-          pageKey="competitors"
-          pageData={{
-            competitors: competitorList.map(c => ({
-              company: c.company,
-              igFollowers: c.igFollowers,
-              igEngagement: c.igEngagement,
-              tiktokFollowers: c.tiktokFollowers,
-              tiktokEngagement: c.tiktokEngagement,
-              followerGrowth: c.followerGrowth,
-              tier: c.tier,
-            })),
-            ourIg,
-            ourTiktok,
-            ourEngagement,
-            ourFollowerGrowth,
-            summary,
-          }}
-        />
       </div>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useRef, useEffect, useCallback } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -113,7 +114,7 @@ const systemSections: NavSection[] = [
       { name: 'Klijenti', href: '/admin/clients', icon: Building2, requiredRole: 'superadmin' },
       { name: 'Korisnici', href: '/admin/users', icon: Users, requiredRole: 'superadmin' },
       { name: 'Audit Log', href: '/admin/audit', icon: FileText, requiredRole: 'superadmin' },
-      { name: 'Postavke', href: '/settings', icon: Settings, requiredRole: 'superadmin' },
+      { name: 'Postavke sustava', href: '/admin/settings', icon: Settings, requiredRole: 'superadmin' },
     ],
   },
 ]
@@ -125,12 +126,36 @@ export default function Sidebar() {
   const { user, logout } = useAuth()
   const { clients, currentClient, clientRole } = useClient()
 
+  // Floating indicator
+  const navRef = useRef<HTMLElement>(null)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+
+  const updateIndicator = useCallback(() => {
+    if (!navRef.current || !indicatorRef.current || collapsed) return
+    const active = navRef.current.querySelector<HTMLElement>('[data-active="true"]')
+    if (active) {
+      const navRect = navRef.current.getBoundingClientRect()
+      const activeRect = active.getBoundingClientRect()
+      indicatorRef.current.style.top = `${activeRect.top - navRect.top + navRef.current.scrollTop + 8}px`
+      indicatorRef.current.style.height = '20px'
+      indicatorRef.current.style.opacity = '1'
+    } else {
+      indicatorRef.current.style.opacity = '0'
+    }
+  }, [collapsed])
+
+  useEffect(() => {
+    updateIndicator()
+  }, [location.pathname, collapsed, updateIndicator])
+
   // Superadmin panel mode — auto-detect from URL
   const isSuperadmin = user?.is_superadmin ?? false
   const adminMode = location.pathname.startsWith('/admin')
 
   const handleNavClick = () => {
     if (mobileOpen) setMobileOpen(false)
+    // Scroll to top on every nav click
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const isMobileView = typeof window !== 'undefined' && window.innerWidth < 1024
@@ -205,7 +230,15 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 sidebar-scroll">
+        <nav ref={navRef} className="flex-1 overflow-y-auto py-3 px-2 sidebar-scroll relative">
+          {/* Floating active indicator */}
+          {!collapsed && (
+            <div
+              ref={indicatorRef}
+              className="absolute left-0 w-[3px] rounded-r-full bg-blue-600 transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
+              style={{ opacity: 0, top: 0, height: 20 }}
+            />
+          )}
           {activeSections.map((section, idx) => (
             <div key={idx}>
               {/* Section label */}
@@ -238,17 +271,15 @@ export default function Sidebar() {
                         onTouchStart={() => prefetchRoute(item.href)}
                         viewTransition
                         title={collapsed ? item.name : undefined}
+                        data-active={isActive ? 'true' : undefined}
                         className={clsx(
-                          'flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 relative group',
+                          'flex items-center gap-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group',
                           collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
                           isActive
-                            ? 'bg-sky-50 text-sky-600'
-                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'text-slate-800 hover:text-slate-950 hover:bg-slate-100'
                         )}
                       >
-                        {isActive && !collapsed && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-sky-500 rounded-r-full" />
-                        )}
                         <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
                         {!collapsed && <span className="truncate">{item.name}</span>}
                         {collapsed && (
@@ -269,8 +300,8 @@ export default function Sidebar() {
         <div className={clsx('p-3 border-t border-slate-200/70', collapsed && 'flex flex-col items-center gap-2')}>
           {!collapsed && user && (
             <div className="flex items-center gap-2.5 mb-3 px-1">
-              <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-sky-600">{user.full_name?.[0] || 'U'}</span>
+              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-blue-700">{user.full_name?.[0] || 'U'}</span>
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-slate-800 font-medium truncate">{user.full_name}</p>
@@ -289,7 +320,7 @@ export default function Sidebar() {
                 'relative group flex items-center gap-2 rounded-xl transition-all w-full mb-1 text-sm font-medium',
                 collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5',
                 adminMode
-                  ? 'text-sky-600 bg-sky-50 hover:bg-sky-100'
+                  ? 'text-blue-700 bg-blue-50 hover:bg-blue-100'
                   : 'text-red-500 bg-red-50/70 hover:bg-red-100'
               )}
             >
@@ -326,7 +357,7 @@ export default function Sidebar() {
       {!isMobileView && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center hover:border-sky-300 hover:bg-sky-50 hover:text-sky-600 text-slate-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
+          className="fixed top-1/2 -translate-y-1/2 z-[51] w-6 h-6 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 text-slate-400 transition-all duration-200 hover:shadow-lg hover:scale-110"
           style={{ left: collapsed ? 72 - 12 : 256 - 12 }}
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="transition-transform duration-200" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>

@@ -10,7 +10,6 @@ import {
   ArrowUpDown, ChevronUp, ChevronDown, Image, Download,
   Megaphone, Filter,
 } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 import { analyticsApi, type AdRow, type AllAdsResponse } from '../api/analytics'
 
 interface AnalyticsData {
@@ -175,7 +174,7 @@ export default function Analytics() {
   )
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
 
       <div className="page-wrapper space-y-6">
@@ -298,8 +297,6 @@ export default function Analytics() {
                 ))}
               </div>
             </div>
-
-            <AiInsightsPanel pageKey="analytics" pageData={{ top_posts: topPosts.slice(0, 3).map(p => ({ title: p.title, platform: p.platform, reach: p.reach, engRate: p.engRate })), funnel: funnelSteps, paid: paid || null }} />
           </>
         )}
 

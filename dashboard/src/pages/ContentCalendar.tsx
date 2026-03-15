@@ -330,12 +330,11 @@ function DraggablePostDot({ post, isPast }: { post: Post; isPast: boolean }) {
     <div
       ref={setNodeRef}
       {...(isDraggable ? { ...listeners, ...attributes } : {})}
-      className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${platformColors[post.platform]?.replace('bg-', 'bg-') || 'bg-studio-surface-2'} bg-opacity-10 ${isPast ? 'opacity-60' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''} transition-all hover:bg-opacity-20 group`}
+      className={`flex items-center gap-1.5 ${isPast ? 'opacity-40' : ''} ${isDragging ? 'opacity-30' : ''} ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
       title={`${post.platform} - ${post.type} - ${post.title}${isDraggable ? ' (povuci za premjestiti)' : ''}`}
     >
-      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDotColors[post.status] || 'bg-gray-400'}`} />
-      <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
-      <span className="text-[9px] text-studio-text-secondary truncate max-w-[60px] hidden sm:inline">{post.title.split(' ')[0]}</span>
+      <div className={`w-1 h-3.5 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
+      <span className="text-[10px] text-slate-500 truncate leading-tight">{post.title || post.type}</span>
     </div>
   )
 }
@@ -729,131 +728,126 @@ export default function ContentCalendar() {
   const daysWithContent = Object.keys(calendarData).length
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header
         title="KALENDAR SADRŽAJA"
         subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
-        actions={
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleGenerateWeek}
-              disabled={generatingWeek || generating}
-              className="flex items-center gap-2 text-sm px-4 py-2 bg-studio-surface-1 border border-studio-border text-studio-text-primary rounded-xl hover:bg-studio-surface-0 font-medium transition-colors disabled:opacity-50"
-            >
-              {generatingWeek ? <Loader2 size={16} className="animate-spin" /> : <CalendarDays size={16} />}
-              {generatingWeek ? 'Generiranje...' : 'Generiraj tjedan'}
-            </button>
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="btn-primary flex items-center gap-2 text-sm"
-            >
-              {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-              {generating ? 'Generiranje...' : 'AI Generiraj plan'}
-            </button>
-          </div>
-        }
       />
 
-      <div className="page-wrapper space-y-6">
-        {/* Tabs + View Mode */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1 border-b border-studio-border pb-1">
-            <button onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
-              <Calendar size={16} className="inline mr-2" />Kalendar
-            </button>
-            <button onClick={() => setActiveTab('approvals')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-studio-text-secondary hover:text-studio-text-primary'}`}>
-              <Clock size={16} className="inline mr-2" />Red za odobrenje
-              <span className="ml-2 text-xs bg-yellow-500 text-white px-1.5 py-0.5 rounded-full">{queue.length}</span>
-            </button>
-          </div>
-
-          {activeTab === 'calendar' && (
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 text-xs text-studio-text-secondary">
-                <BarChart3 size={14} />
-                <span>{totalPosts} objava</span>
-                <span>·</span>
-                <span>{daysWithContent}/{daysInMonth} dana</span>
-              </div>
-              <div className="flex items-center gap-1 bg-studio-surface-0 rounded-lg p-1">
-                {([['month', LayoutGrid, 'Mjesec'], ['week', List, 'Tjedan'], ['sixmonth', CalendarDays, '6 mjeseci']] as const).map(([mode, Icon, label]) => (
-                  <button key={mode} onClick={() => setViewMode(mode)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === mode ? 'bg-studio-surface-1 shadow-sm text-studio-text-primary' : 'text-studio-text-secondary hover:text-studio-text-primary'}`}>
-                    <Icon size={14} /><span className="hidden sm:inline">{label}</span>
-                  </button>
-                ))}
-              </div>
+      <div className="page-wrapper space-y-5">
+        {/* Tabs + Actions + View Mode */}
+        <div className="space-y-4">
+          {/* Top row: Tabs left, Actions right */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-1 border-b border-slate-200 pb-1">
+              <button onClick={() => setActiveTab('calendar')}
+                className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'calendar' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-700'}`}>
+                <Calendar size={16} className="inline mr-2" />Kalendar
+              </button>
+              <button onClick={() => setActiveTab('approvals')}
+                className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approvals' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-700'}`}>
+                <Clock size={16} className="inline mr-2" />Red za odobrenje
+                <span className="ml-2 text-xs bg-yellow-500 text-white px-1.5 py-0.5 rounded-full">{queue.length}</span>
+              </button>
             </div>
-          )}
+
+            <div className="flex items-center gap-3">
+              {activeTab === 'calendar' && (
+                <>
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400">
+                    <BarChart3 size={14} />
+                    <span>{totalPosts} objava</span>
+                    <span className="text-slate-300">·</span>
+                    <span>{daysWithContent}/{daysInMonth} dana</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                    {([['month', LayoutGrid, 'Mjesec'], ['week', List, 'Tjedan'], ['sixmonth', CalendarDays, '6 mjeseci']] as const).map(([mode, Icon, label]) => (
+                      <button key={mode} onClick={() => setViewMode(mode)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${viewMode === mode ? 'bg-white shadow-sm text-slate-800' : 'text-slate-400 hover:text-slate-700'}`}>
+                        <Icon size={14} /><span className="hidden sm:inline">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <button
+                onClick={handleGenerateWeek}
+                disabled={generatingWeek || generating}
+                className="flex items-center gap-2 text-xs px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-medium transition-colors disabled:opacity-50"
+              >
+                {generatingWeek ? <Loader2 size={14} className="animate-spin" /> : <CalendarDays size={14} />}
+                <span className="hidden sm:inline">{generatingWeek ? 'Generiranje...' : 'Generiraj tjedan'}</span>
+              </button>
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="flex items-center gap-2 text-xs px-3 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium transition-colors disabled:opacity-50"
+              >
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                <span className="hidden sm:inline">{generating ? 'Generiranje...' : 'AI Generiraj plan'}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Filter controls */}
         {activeTab === 'calendar' && (
-          <div className="card !py-3 !px-4">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3">
-              <div className="flex items-center gap-2 text-xs text-studio-text-secondary flex-shrink-0">
+          <div className="bg-white rounded-xl border border-slate-200 py-3 px-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 text-slate-400 mr-1">
                 <Filter size={14} />
-                <span className="font-medium">Filteri:</span>
+                <span className="font-semibold uppercase tracking-wider text-[10px]">Filteri:</span>
               </div>
 
               {/* Platform filter */}
-              <div className="flex items-center gap-1">
-                {PLATFORM_FILTER_OPTIONS.map(({ value, label, icon: Icon }) => (
-                  <button key={value} onClick={() => setPlatformFilter(value)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      platformFilter === value
-                        ? 'bg-brand-accent text-white shadow-sm'
-                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
-                    }`}>
-                    {Icon && <Icon size={12} />}
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {PLATFORM_FILTER_OPTIONS.map(({ value, label, icon: Icon }) => (
+                <button key={value} onClick={() => setPlatformFilter(value)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    platformFilter === value
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  }`}>
+                  {Icon && <Icon size={11} />}
+                  {label}
+                </button>
+              ))}
 
-              <div className="hidden lg:block w-px h-5 bg-studio-surface-3" />
+              <div className="w-px h-4 bg-slate-200 mx-1" />
 
               {/* Status filter */}
-              <div className="flex items-center gap-1">
-                {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
-                  <button key={value} onClick={() => setStatusFilter(value)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      statusFilter === value
-                        ? 'bg-brand-accent text-white shadow-sm'
-                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
-                    }`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+                <button key={value} onClick={() => setStatusFilter(value)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    statusFilter === value
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  }`}>
+                  {label}
+                </button>
+              ))}
 
-              <div className="hidden lg:block w-px h-5 bg-studio-surface-3" />
+              <div className="w-px h-4 bg-slate-200 mx-1" />
 
               {/* Type filter */}
-              <div className="flex items-center gap-1">
-                {TYPE_FILTER_OPTIONS.map(({ value, label }) => (
-                  <button key={value} onClick={() => setTypeFilter(value)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      typeFilter === value
-                        ? 'bg-brand-accent text-white shadow-sm'
-                        : 'bg-studio-surface-0 text-studio-text-secondary hover:bg-studio-surface-2'
-                    }`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {TYPE_FILTER_OPTIONS.map(({ value, label }) => (
+                <button key={value} onClick={() => setTypeFilter(value)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    typeFilter === value
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  }`}>
+                  {label}
+                </button>
+              ))}
 
               {/* Clear filters */}
               {(platformFilter !== 'all' || statusFilter !== 'all' || typeFilter !== 'all') && (
                 <button
                   onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setTypeFilter('all') }}
-                  className="ml-auto text-xs text-red-600 hover:text-red-400 font-medium flex items-center gap-1"
+                  className="ml-auto text-xs text-red-500 hover:text-red-600 font-medium flex items-center gap-1"
                 >
                   <X size={12} />
-                  Ocisti filtere
+                  Očisti
                 </button>
               )}
             </div>
@@ -946,19 +940,19 @@ export default function ContentCalendar() {
 
             {/* Calendar Grid */}
             <div ref={calendarRef} className="card min-w-0 flex-1">
-              <div className="flex items-center justify-between mb-6">
-                <button onClick={prevMonth} className="p-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-lg transition-colors"><ChevronLeft size={20} /></button>
-                <h2 className="text-xl font-bold text-studio-text-primary">{monthNames[currentMonth]!.toUpperCase()} {currentYear}</h2>
-                <button onClick={nextMonth} className="p-2 text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 rounded-lg transition-colors"><ChevronRight size={20} /></button>
+              <div className="flex items-center justify-between mb-4 px-1">
+                <button onClick={prevMonth} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"><ChevronLeft size={18} /></button>
+                <h2 className="text-lg font-bold text-slate-800 tracking-wide">{monthNames[currentMonth]!.toUpperCase()} {currentYear}</h2>
+                <button onClick={nextMonth} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"><ChevronRight size={18} /></button>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 mb-1">
+              <div className="grid grid-cols-7 border-b border-slate-200">
                 {DAYS_OF_WEEK.map((day) => (
-                  <div key={day} className="text-center text-xs text-studio-text-secondary font-medium py-2">{day}</div>
+                  <div key={day} className="text-center text-[11px] text-slate-400 font-semibold uppercase tracking-wider py-2.5">{day}</div>
                 ))}
               </div>
 
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 border-l border-slate-200">
                 {Array.from({ length: totalCells }, (_, i) => {
                   const dayNum = i - firstDayOffset + 1
                   const isValid = dayNum >= 1 && dayNum <= daysInMonth
@@ -970,31 +964,35 @@ export default function ContentCalendar() {
 
                   const cell = (
                     <div key={i} onClick={() => { if (isValid) { setSelectedDay(isSelected ? null : dayNum); setFocusedDay(dayNum) } }}
-                      className={`min-h-[72px] sm:min-h-[90px] p-2 rounded-lg border transition-all ${
-                        !isValid ? 'border-transparent bg-transparent pointer-events-none'
-                        : isSelected ? 'border-brand-accent bg-brand-accent/5 ring-1 ring-brand-accent/20 cursor-pointer'
-                        : isFocused ? 'border-brand-accent/50 bg-brand-accent/[0.02] cursor-pointer ring-1 ring-brand-accent/10'
-                        : isToday ? 'border-blue-400 bg-blue-500/10 cursor-pointer'
-                        : isPast ? 'border-studio-border bg-studio-surface-0/50 cursor-pointer'
-                        : 'border-studio-border bg-studio-surface-1 hover:bg-studio-surface-0 hover:border-studio-border cursor-pointer'
+                      className={`h-[130px] p-2.5 border-r border-b border-slate-200 overflow-hidden transition-colors ${
+                        !isValid ? 'bg-slate-50/50 pointer-events-none'
+                        : isSelected ? 'bg-blue-50 ring-2 ring-inset ring-blue-400 cursor-pointer'
+                        : isFocused ? 'bg-blue-50/50 ring-1 ring-inset ring-blue-300/50 cursor-pointer'
+                        : isToday ? 'bg-blue-50/70 cursor-pointer'
+                        : isPast ? 'bg-slate-50/30 cursor-pointer'
+                        : 'bg-white hover:bg-slate-50 cursor-pointer'
                       }`}>
                       {isValid && (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-xs font-medium ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-brand-accent font-bold' : isPast ? 'text-studio-text-tertiary' : 'text-studio-text-secondary'}`}>
+                        <div className="flex flex-col h-full">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`text-xs leading-none ${isToday ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold' : isSelected ? 'text-blue-600 font-bold' : isPast ? 'text-slate-300' : 'text-slate-500 font-medium'}`}>
                               {dayNum}
                             </span>
                             {posts.length > 0 && (
-                              <span className={`text-[10px] font-mono ${posts.length >= 3 ? 'text-green-400 font-bold' : 'text-studio-text-tertiary'}`}>{posts.length}</span>
+                              <span className={`text-[10px] font-semibold tabular-nums ${posts.length >= 3 ? 'text-emerald-500' : 'text-slate-400'}`}>{posts.length}</span>
                             )}
                           </div>
-                          <div className="flex flex-col gap-0.5 mt-1">
-                            {posts.slice(0, 3).map((post) => (
-                              <DraggablePostDot key={post.id} post={post} isPast={!!isPast} />
-                            ))}
-                            {posts.length > 3 && <span className="text-[9px] text-studio-text-tertiary pl-0.5">+{posts.length - 3} vise</span>}
-                          </div>
-                        </>
+                          {posts.length > 0 && (
+                            <div className="flex flex-col gap-1 flex-1 min-h-0">
+                              {posts.slice(0, 4).map((post) => (
+                                <DraggablePostDot key={post.id} post={post} isPast={!!isPast} />
+                              ))}
+                              {posts.length > 4 && (
+                                <span className="text-[9px] text-slate-400 font-medium">+{posts.length - 4}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   )
@@ -1005,20 +1003,20 @@ export default function ContentCalendar() {
                 })}
               </div>
 
-              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-studio-border flex-wrap">
-                <span className="text-xs text-studio-text-secondary font-medium">Platforme:</span>
+              <div className="flex items-center gap-5 mt-4 pt-4 border-t border-slate-100 flex-wrap">
+                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Platforme:</span>
                 {Object.entries(platformColors).slice(0, 4).map(([platform, color]) => (
                   <div key={platform} className="flex items-center gap-1.5">
-                    <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-                    <span className="text-xs text-studio-text-secondary capitalize">{platform}</span>
+                    <div className={`w-1 h-3 rounded-full ${color}`} />
+                    <span className="text-[11px] text-slate-500 capitalize">{platform}</span>
                   </div>
                 ))}
-                <span className="text-xs text-studio-text-disabled mx-1">|</span>
-                <span className="text-xs text-studio-text-secondary font-medium">Status:</span>
+                <div className="w-px h-4 bg-slate-200" />
+                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Status:</span>
                 {[['published', 'Objavljeno', 'bg-green-500'], ['scheduled', 'Zakazano', 'bg-blue-500'], ['draft', 'Draft', 'bg-yellow-500']].map(([status, label, color]) => (
                   <div key={status} className="flex items-center gap-1.5">
                     <div className={`w-2 h-2 rounded-full ${color}`} />
-                    <span className="text-xs text-studio-text-secondary">{label}</span>
+                    <span className="text-[11px] text-slate-500">{label}</span>
                   </div>
                 ))}
               </div>

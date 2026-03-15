@@ -5,7 +5,6 @@ import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { useApiMutation } from '../hooks/useApiMutation'
 import { Download, RefreshCw, ChevronDown, ChevronRight, Trophy, MapPin, Calendar, Target } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 import { marketResearchApi, type CountryEvents } from '../api/marketResearch'
 
 interface MarketRow {
@@ -179,15 +178,15 @@ export default function MarketResearch() {
   )
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header
         title="ISTRAŽIVANJE TRŽIŠTA"
         subtitle="Tržišna inteligencija i bodovanje prilika"
       />
 
-      <div className="page-wrapper space-y-6">
+      <div className="page-wrapper space-y-6 stagger-sections">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 stagger-cards">
           <div className="card flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
               <MapPin size={20} className="text-blue-600" />
@@ -375,8 +374,6 @@ export default function MarketResearch() {
             </div>
           </div>
         )}
-
-        <AiInsightsPanel pageKey="market_research" pageData={{ markets: marketData.slice(0, 5).map(m => ({ country: m.country, marketInterest: m.marketInterest, brandAwareness: m.brandAwareness, totalScore: m.totalScore, rank: m.rank })) }} />
       </div>
     </div>
   )

@@ -183,11 +183,11 @@
    Falls back to instant swap in older browsers (no-op).
    --------------------------------------------------------------------------- */
 ::view-transition-old(root) {
-  animation: vt-fade-out 120ms ease-in forwards;
+  animation: vt-fade-out 80ms ease-out forwards;
 }
 
 ::view-transition-new(root) {
-  animation: vt-fade-in 120ms ease-out forwards;
+  animation: vt-fade-in 150ms ease-out forwards;
 }
 
 @keyframes vt-fade-out {
@@ -200,10 +200,50 @@
   to { opacity: 1; }
 }
 
-/* Respect reduced motion */
+/* Delay Suspense skeleton visibility — avoids flash when chunk is already prefetched */
+.skeleton-delay {
+  opacity: 0;
+  animation: fade-in 0.2s ease-out 150ms forwards;
+}
+
+/* Quick subtle fade-in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-chart-in {
+  animation: fade-in 0.2s ease-out both;
+}
+.stagger-cards > * {
+  opacity: 0;
+  animation: fade-in 0.15s ease-out forwards;
+}
+.stagger-cards > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-cards > *:nth-child(2) { animation-delay: 30ms; }
+.stagger-cards > *:nth-child(3) { animation-delay: 60ms; }
+.stagger-cards > *:nth-child(4) { animation-delay: 90ms; }
+.stagger-cards > *:nth-child(5) { animation-delay: 120ms; }
+.stagger-cards > *:nth-child(6) { animation-delay: 150ms; }
+.animate-dropdown {
+  animation: fade-in 0.15s ease-out both;
+}
+
+/* Page section stagger — each direct child fades in with delay */
+.stagger-sections > * {
+  opacity: 0;
+  animation: fade-in 0.4s ease-out forwards;
+}
+.stagger-sections > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-sections > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-sections > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-sections > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-sections > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-sections > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-sections > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-sections > *:nth-child(8) { animation-delay: 420ms; }
+
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
+  .animate-chart-in, .stagger-cards > *, .animate-dropdown, .stagger-sections > * {
+    animation: none; opacity: 1;
   }
 }

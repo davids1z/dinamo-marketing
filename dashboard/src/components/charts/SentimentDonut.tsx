@@ -1,5 +1,8 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { useState } from 'react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts'
 import { SHIFTONEZERO_BRAND } from '../../utils/constants'
+import { ChartTooltip } from './ChartTooltip'
+import { CHART_ANIM } from './chartConfig'
 
 interface SentimentDonutProps {
   positive: number
@@ -8,7 +11,27 @@ interface SentimentDonutProps {
   title?: string
 }
 
+function renderActiveShape(props: any) {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius - 2}
+        outerRadius={outerRadius + 6}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        style={{ filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.15))', transition: 'all 0.2s ease-out' }}
+      />
+    </g>
+  )
+}
+
 export function SentimentDonut({ positive, neutral, negative, title }: SentimentDonutProps) {
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
+
   const data = [
     { name: 'Pozitivno', value: positive, color: SHIFTONEZERO_BRAND.colors.positive },
     { name: 'Neutralno', value: neutral, color: SHIFTONEZERO_BRAND.colors.neutral },
@@ -35,27 +58,51 @@ export function SentimentDonut({ positive, neutral, negative, title }: Sentiment
               outerRadius={72}
               dataKey="value"
               strokeWidth={0}
+              activeIndex={activeIndex}
+              activeShape={renderActiveShape}
+              onMouseEnter={(_, index) => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(undefined)}
+              animationDuration={CHART_ANIM.pieDuration}
+              animationEasing={CHART_ANIM.pieEasing}
+              animationBegin={200}
             >
               {data.map((entry, index) => (
-                <Cell key={index} fill={entry.color} />
+                <Cell
+                  key={index}
+                  fill={entry.color}
+                  style={{
+                    opacity: activeIndex !== undefined && activeIndex !== index ? 0.4 : 1,
+                    transition: 'opacity 0.2s ease-out',
+                  }}
+                />
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                backgroundColor: '#1A1A1A',
-                border: '1px solid #2A2A2A',
-                borderRadius: '12px',
-                color: '#111827',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                padding: '8px 12px',
-              }}
+              content={
+                <ChartTooltip
+                  formatter={(value: number) =>
+                    total > 0 ? `${((value / total) * 100).toFixed(1)}%` : '0%'
+                  }
+                />
+              }
             />
           </PieChart>
         </ResponsiveContainer>
         <div className="space-y-4">
-          {data.map((item) => (
-            <div key={item.name} className="flex items-center gap-3">
-              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+          {data.map((item, index) => (
+            <div
+              key={item.name}
+              className="flex items-center gap-3 cursor-default"
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(undefined)}
+            >
+              <div
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform duration-200"
+                style={{
+                  backgroundColor: item.color,
+                  transform: activeIndex === index ? 'scale(1.4)' : 'scale(1)',
+                }}
+              />
               <div>
                 <p className="text-xs text-studio-text-secondary leading-none">{item.name}</p>
                 <p className="font-stats text-lg text-studio-text-primary leading-tight mt-0.5">
