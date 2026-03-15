@@ -19,11 +19,7 @@ const WIZARD_STEPS = [
   { label: 'Projekt', icon: FolderKanban },
 ]
 
-const AI_STEPS = [
-  { label: 'Nahrani AI', icon: Brain },
-  { label: 'Identitet', icon: Palette },
-  { label: 'Projekt', icon: FolderKanban },
-]
+// AI_STEPS removed — always show all 4 steps for consistency across tabs
 
 const TONES = [
   { value: 'professional', label: 'Profesionalan', emoji: '🎯' },
@@ -68,10 +64,7 @@ export default function Onboarding() {
     return null
   }
 
-  const hasClient = !!currentClient
-
-  // If user already has a client, skip step 0 (organization creation)
-  const [step, setStep] = useState(hasClient ? 1 : 0)
+  const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
@@ -85,7 +78,7 @@ export default function Onboarding() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState<FormData>({
-    company_name: '',
+    company_name: currentClient?.client_name || '',
     business_description: '',
     product_info: '',
     target_audience: '',
@@ -147,9 +140,7 @@ export default function Onboarding() {
     }
   }
 
-  // Active steps depend on whether we need org creation
-  const steps = hasClient ? AI_STEPS : WIZARD_STEPS
-  const displayStep = hasClient ? step - 1 : step // map to steps array index
+  const steps = WIZARD_STEPS
 
   const handleCreateOrganization = async () => {
     if (!form.company_name.trim()) return
@@ -334,7 +325,7 @@ export default function Onboarding() {
                   Preskoči
                 </button>
               )}
-              <span className="text-sm text-studio-text-tertiary font-mono">{displayStep + 1} / {steps.length}</span>
+              <span className="text-sm text-studio-text-tertiary font-mono">{step + 1} / {steps.length}</span>
             </div>
           </div>
 
@@ -342,20 +333,19 @@ export default function Onboarding() {
           <div className="flex gap-2">
             {steps.map((s, i) => {
               const Icon = s.icon
-              const actualStep = hasClient ? i + 1 : i
               return (
                 <button
                   key={i}
-                  onClick={() => actualStep < step && setStep(actualStep)}
+                  onClick={() => i < step && setStep(i)}
                   className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    actualStep === step
+                    i === step
                       ? 'bg-brand-accent text-white'
-                      : actualStep < step
+                      : i < step
                         ? 'bg-brand-accent/20 text-brand-accent cursor-pointer'
                         : 'bg-studio-surface-2 text-studio-text-tertiary'
                   }`}
                 >
-                  {actualStep < step ? <Check size={16} /> : <Icon size={16} />}
+                  {i < step ? <Check size={16} /> : <Icon size={16} />}
                   <span className="hidden sm:inline">{s.label}</span>
                 </button>
               )
@@ -830,7 +820,7 @@ export default function Onboarding() {
           <div className="flex items-center justify-between mt-6">
             <button
               onClick={() => setStep(s => s - 1)}
-              disabled={step === 0 || (hasClient && step === 1)}
+              disabled={step === 0}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-studio-text-secondary hover:text-studio-text-primary hover:bg-studio-surface-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
