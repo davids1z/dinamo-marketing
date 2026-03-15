@@ -64,7 +64,7 @@ async def analyze_brand(text: str, api_key: str) -> dict:
             {"role": "user", "content": _USER_PROMPT.format(text=text)},
         ],
         "temperature": 0.3,
-        "max_tokens": 2000,
+        "max_tokens": 8192,
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
@@ -111,8 +111,35 @@ def _parse_response(content: str) -> dict:
         except json.JSONDecodeError:
             pass
 
+    # Try recovering truncated JSON (AI ran out of tokens mid-response)
+    if start != -1:
+        truncated = content[start:]
+        recovered = _recover_truncated_json(truncated)
+        if recovered:
+            logger.warning("Recovered truncated JSON response")
+            return _validate(recovered)
+
     logger.error("Failed to parse brand analysis response: %s", content[:500])
     raise ValueError("Could not parse AI response as JSON")
+
+
+def _recover_truncated_json(text: str) -> dict | None:
+    """Attempt to recover a truncated JSON response by extracting complete key-value pairs."""
+    expected_keys = ["business_description", "product_info", "target_audience", "tone_of_voice"]
+    result = {}
+    for key in expected_keys:
+        # Find "key": "value" patterns — handles multiline values
+        pattern = rf'"{key}"\s*:\s*"((?:[^"\\]|\\.)*)(?:"|$)'
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            value = match.group(1).replace('\\"', '"').replace("\\n", " ").strip()
+            result[key] = value
+    if result:
+        # Fill missing keys with empty string
+        for key in expected_keys:
+            result.setdefault(key, "")
+        return result
+    return None
 
 
 def _validate(data: dict) -> dict:

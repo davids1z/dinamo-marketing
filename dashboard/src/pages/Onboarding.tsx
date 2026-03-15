@@ -78,6 +78,7 @@ export default function Onboarding() {
 
   // Magic Import state
   const [magicLoading, setMagicLoading] = useState(false)
+  const [magicSource, setMagicSource] = useState<'url' | 'file' | null>(null)
   const [magicError, setMagicError] = useState('')
   const [magicDone, setMagicDone] = useState(false)
   const [magicUrl, setMagicUrl] = useState('')
@@ -109,6 +110,7 @@ export default function Onboarding() {
     if (!clientId) return
 
     setMagicLoading(true)
+    setMagicSource(source)
     setMagicError('')
     setMagicDone(false)
 
@@ -141,6 +143,7 @@ export default function Onboarding() {
       setMagicError(err.response?.data?.detail || 'AI analiza nije uspjela. Pokušajte ponovno.')
     } finally {
       setMagicLoading(false)
+      setMagicSource(null)
     }
   }
 
@@ -469,12 +472,12 @@ export default function Onboarding() {
                     disabled={!magicUrl.trim() || magicLoading}
                     className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-sm shadow-brand-accent/20"
                   >
-                    {magicLoading ? (
+                    {magicSource === 'url' ? (
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <Zap size={16} />
                     )}
-                    {magicLoading ? 'Analiziram...' : 'Analiziraj'}
+                    {magicSource === 'url' ? 'Analiziram...' : 'Analiziraj'}
                   </button>
                 </div>
 
@@ -502,12 +505,12 @@ export default function Onboarding() {
                   disabled={magicLoading}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-studio-border rounded-xl text-sm text-studio-text-secondary hover:border-brand-accent/30 hover:bg-studio-surface-2 transition-all disabled:opacity-50"
                 >
-                  {magicLoading ? (
+                  {magicSource === 'file' ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
                     <Upload size={16} />
                   )}
-                  <span>Uploadajte PDF, DOCX ili TXT</span>
+                  <span>{magicSource === 'file' ? 'Analiziram dokument...' : 'Uploadajte PDF, DOCX ili TXT'}</span>
                 </button>
 
                 {/* Magic import status messages */}
