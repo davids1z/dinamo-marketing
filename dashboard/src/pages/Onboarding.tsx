@@ -81,9 +81,10 @@ export default function Onboarding() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Step 2: Social links, hashtags, content pillars
+  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([])
   const [socialInput, setSocialInput] = useState('')
   const [detectedPlatform, setDetectedPlatform] = useState<string | null>(null)
-  const [hashtagInput, setHashtagInput] = useState('')
+  const [hashtagInput, setHashtagInput] = useState('#')
   const [showCustomPillar, setShowCustomPillar] = useState(false)
   const [customPillarInput, setCustomPillarInput] = useState('')
 
@@ -107,6 +108,20 @@ export default function Onboarding() {
   const updateField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [step])
+
+  // Sync socialLinks array → form.social_handles dict (last entry per platform wins)
+  useEffect(() => {
+    const handles: Record<string, string> = {}
+    for (const link of socialLinks) {
+      handles[link.platform] = link.url
+    }
+    updateField('social_handles', handles)
+  }, [socialLinks])
 
   const handleMagicImport = async (source: 'url' | 'file', file?: File) => {
     const clientId = currentClient?.client_id || localStorage.getItem('current_client_id')
@@ -726,21 +741,19 @@ export default function Onboarding() {
 
                 <div className="space-y-3">
                   {/* Added links list */}
-                  {Object.entries(form.social_handles)
-                    .filter(([, url]) => url)
-                    .map(([platform, url]) => (
-                      <div key={platform} className="flex items-center gap-3 bg-studio-surface-0 border border-studio-border rounded-xl px-4 py-3 group">
-                        <PlatformIcon platform={platform} size="md" />
-                        <span className="text-sm text-studio-text-primary flex-1 truncate">{url}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateField('social_handles', { ...form.social_handles, [platform]: '' })}
-                          className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
+                  {socialLinks.map((link, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-studio-surface-0 border border-studio-border rounded-xl px-4 py-3 group">
+                      <PlatformIcon platform={link.platform} size="md" />
+                      <span className="text-sm text-studio-text-primary flex-1 truncate">{link.url}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSocialLinks(prev => prev.filter((_, idx) => idx !== i))}
+                        className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
 
                   {/* Add new link input */}
                   <div className="relative">
@@ -756,7 +769,7 @@ export default function Onboarding() {
                         if (e.key === 'Enter' && socialInput.trim()) {
                           e.preventDefault()
                           const platform = detectedPlatform || 'web'
-                          updateField('social_handles', { ...form.social_handles, [platform]: socialInput.trim() })
+                          setSocialLinks(prev => [...prev, { platform, url: socialInput.trim() }])
                           setSocialInput('')
                           setDetectedPlatform(null)
                         }
@@ -770,7 +783,7 @@ export default function Onboarding() {
                         <button
                           type="button"
                           onClick={() => {
-                            updateField('social_handles', { ...form.social_handles, [detectedPlatform]: socialInput.trim() })
+                            setSocialLinks(prev => [...prev, { platform: detectedPlatform, url: socialInput.trim() }])
                             setSocialInput('')
                             setDetectedPlatform(null)
                           }}
@@ -818,22 +831,26 @@ export default function Onboarding() {
                         id="hashtag-input"
                         type="text"
                         value={hashtagInput}
-                        onChange={e => setHashtagInput(e.target.value)}
+                        onChange={e => {
+                          const v = e.target.value
+                          setHashtagInput(v.startsWith('#') ? v : '#' + v)
+                        }}
                         onKeyDown={e => {
-                          if ((e.key === 'Enter' || e.key === ',') && hashtagInput.trim()) {
+                          if ((e.key === 'Enter' || e.key === ',') && hashtagInput.trim().length > 1) {
                             e.preventDefault()
                             const tag = hashtagInput.trim().replace(/^#/, '')
                             if (tag && !form.hashtags.includes(tag)) {
                               updateField('hashtags', [...form.hashtags, tag])
                             }
-                            setHashtagInput('')
+                            setHashtagInput('#')
                           }
-                          if (e.key === 'Backspace' && !hashtagInput && form.hashtags.length > 0) {
-                            updateField('hashtags', form.hashtags.slice(0, -1))
+                          // Prevent deleting the # prefix
+                          if (e.key === 'Backspace' && hashtagInput === '#') {
+                            e.preventDefault()
                           }
                         }}
                         className="flex-1 min-w-[120px] bg-transparent outline-none text-sm text-studio-text-primary placeholder:text-studio-text-tertiary py-1"
-                        placeholder={form.hashtags.length === 0 ? 'Upišite hashtag i pritisnite Enter' : 'Dodaj još...'}
+                        placeholder={form.hashtags.length === 0 ? 'hashtag + Enter' : 'Dodaj još...'}
                       />
                     </div>
                   </div>
