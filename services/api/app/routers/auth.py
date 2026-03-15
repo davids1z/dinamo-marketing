@@ -336,15 +336,6 @@ async def create_organization(
     db.add(client)
     await db.flush()
 
-    # Create default project
-    project = Project(
-        client_id=client.id,
-        name="Default",
-        slug="default",
-        description="",
-    )
-    db.add(project)
-
     # Create membership (admin role)
     membership = UserClient(
         user_id=current_user.id,
@@ -361,7 +352,6 @@ async def create_organization(
 
     await db.commit()
     await db.refresh(client)
-    await db.refresh(project)
 
     logger.info("Organization created: %s (slug=%s) by %s", body.company_name, slug, current_user.email)
 
@@ -372,13 +362,7 @@ async def create_organization(
         "client_logo_url": client.logo_url,
         "role": "admin",
         "onboarding_completed": False,
-        "projects": [
-            {
-                "project_id": str(project.id),
-                "project_name": project.name,
-                "project_slug": project.slug,
-            }
-        ],
+        "projects": [],
     }
 
 

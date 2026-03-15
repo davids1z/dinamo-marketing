@@ -12,9 +12,10 @@ import {
 } from 'lucide-react'
 import { analyticsApi, type AdRow, type AllAdsResponse } from '../api/analytics'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import EmptyState from '../components/common/EmptyState'
 import { useNavigate } from 'react-router-dom'
-import { Link2 } from 'lucide-react'
+import { Link2, FolderKanban } from 'lucide-react'
 
 interface AnalyticsData {
   reach_data: Array<{ date: string; reach: number; impressions: number }>
@@ -41,6 +42,7 @@ const platformColors: Record<string, string> = {
 export default function Analytics() {
   const { data: apiData, loading, refetch } = useApi<AnalyticsData>('/analytics/overview')
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('pregled')
 
@@ -118,6 +120,31 @@ export default function Analytics() {
   const adsTotalClicks = ads.reduce((s, a) => s + a.clicks, 0)
   const adsTotalConversions = ads.reduce((s, a) => s + a.conversions, 0)
   const adsAvgCTR = ads.length > 0 ? ads.reduce((s, a) => s + a.ctr, 0) / ads.length : 0
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="ANALITIKA" subtitle="Dubinska analitika performansi i uvidi" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   // Empty state when no channels connected
   if (!hasConnectedChannels) {

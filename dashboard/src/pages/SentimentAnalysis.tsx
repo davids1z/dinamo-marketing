@@ -2,11 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import { useApi } from '../hooks/useApi';
 import { useChannelStatus } from '../hooks/useChannelStatus';
+import { useProjectStatus } from '../hooks/useProjectStatus';
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner';
 import EmptyState from '../components/common/EmptyState';
 import { SentimentDonut } from '../components/charts/SentimentDonut';
 import { EngagementChart } from '../components/charts/EngagementChart';
-import { AlertTriangle, TrendingUp, TrendingDown, Hash, Heart, Link2 } from 'lucide-react';
+import { AlertTriangle, TrendingUp, TrendingDown, Hash, Heart, Link2, FolderKanban } from 'lucide-react';
 
 interface SentimentOverview {
   positive: number;
@@ -43,8 +44,34 @@ const emptyData: SentimentOverview = {
 export default function SentimentAnalysis() {
   const { data: apiData, loading } = useApi<SentimentOverview>('/sentiment/overview');
   const { hasConnectedChannels } = useChannelStatus();
+  const { hasProjects } = useProjectStatus();
   const navigate = useNavigate();
   const data = apiData || emptyData;
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="ANALIZA SENTIMENTA" subtitle="Sentiment brenda i javna percepcija" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (!hasConnectedChannels) {
     return (

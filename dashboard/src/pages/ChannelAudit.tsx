@@ -6,8 +6,9 @@ import { EngagementChart } from '../components/charts/EngagementChart'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import EmptyState from '../components/common/EmptyState'
-import { Trophy, TrendingUp, TrendingDown, Eye, BarChart3, ArrowUpRight, ArrowDownRight, Minus, Clock, Link2 } from 'lucide-react'
+import { Trophy, TrendingUp, TrendingDown, Eye, BarChart3, ArrowUpRight, ArrowDownRight, Minus, Clock, Link2, FolderKanban } from 'lucide-react'
 import { PLATFORMS } from '../utils/constants'
 
 // ---------------------------------------------------------------------------
@@ -141,6 +142,7 @@ function generatePostingTimes(): PostingTimeSlot[] {
 export default function ChannelAudit() {
   const { data: apiData, loading } = useApi<ChannelData>('/channels')
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
   const data = apiData || { platformStats: [], engagementData30: [], formatBreakdown: [], postingTimes: [] }
 
@@ -188,6 +190,31 @@ export default function ChannelAudit() {
       return { ...f, recommendation }
     })
   }, [formatBreakdown])
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="AUDIT KANALA" subtitle="Performanse platformi i provjera zdravlja" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasConnectedChannels) {
     return (

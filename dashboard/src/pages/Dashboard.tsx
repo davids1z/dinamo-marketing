@@ -18,6 +18,9 @@ import type { LucideIcon } from 'lucide-react'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
+import EmptyState from '../components/common/EmptyState'
+import { FolderKanban } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -653,9 +656,9 @@ export default function Dashboard() {
   const activeApi = liveData || rawApi
   const mapped = activeApi ? mapApiToOverview(activeApi) : {}
 
-  // Show WelcomeHero when client hasn't connected any social channels yet.
+  // Hierarchical check: projects first, then channels
+  const { hasProjects } = useProjectStatus()
   const { hasConnectedChannels } = useChannelStatus()
-  const hasRealChannels = hasConnectedChannels
 
   const handlePeriodChange = useCallback((key: PeriodKey) => {
     setPeriod(key)
@@ -668,8 +671,33 @@ export default function Dashboard() {
   // Superadmin banner flag — show read-only notice when visiting another client
   const actualOnboardingDone = currentClient?.onboarding_completed_actual ?? currentClient?.onboarding_completed
 
-  // Show welcome/setup state when no real analytics data
-  if (!hasRealChannels && currentClient) {
+  // Show empty states based on setup progress
+  if (!hasProjects && currentClient) {
+    return (
+      <div>
+        <Header title="NADZORNA PLOČA" subtitle="Dobrodošli! Postavite svoj prostor." />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt da aktivirate Dashboard."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasConnectedChannels && currentClient) {
     return <WelcomeHero />
   }
 

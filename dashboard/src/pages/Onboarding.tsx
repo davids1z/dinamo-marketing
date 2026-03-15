@@ -215,15 +215,13 @@ export default function Onboarding() {
       // 2. Complete onboarding
       await api.post(`/clients/${clientId}/onboarding/complete`, {})
 
-      // 3. Create named project if user specified one
-      if (form.project_name.trim() && form.project_name.trim().toLowerCase() !== 'default') {
-        const slug = form.project_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-        await api.post('/projects/', {
-          name: form.project_name.trim(),
-          slug: slug || 'projekt-1',
-          description: form.project_description,
-        })
-      }
+      // 3. Create project (mandatory)
+      const slug = form.project_name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      await api.post('/projects/', {
+        name: form.project_name.trim(),
+        slug: slug || 'projekt-1',
+        description: form.project_description,
+      })
 
       // 4. Show "AI analyzing" magic moment
       setLoading(false)
@@ -251,6 +249,18 @@ export default function Onboarding() {
       if (Object.keys(partial).length > 0) {
         await api.put(`/clients/${clientId}`, partial)
       }
+      // Create a fallback project so the system is never without one
+      const fallbackName = (form.company_name.trim() || currentClient?.client_name || 'Moj') + ' — Projekt 1'
+      const fallbackSlug = fallbackName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'projekt-1'
+      try {
+        await api.post('/projects/', {
+          name: fallbackName,
+          slug: fallbackSlug,
+          description: '',
+        })
+      } catch {
+        // Project may already exist — ignore
+      }
       // Mark onboarding as completed
       await api.post(`/clients/${clientId}/onboarding/complete`, {})
       window.location.href = '/'
@@ -274,7 +284,7 @@ export default function Onboarding() {
       case 0: return form.company_name.trim().length >= 2
       case 1: return true // soft validation only — user can skip or fill later
       case 2: return true
-      case 3: return true
+      case 3: return form.project_name.trim().length >= 2
       default: return true
     }
   }
@@ -961,11 +971,9 @@ export default function Onboarding() {
                     <FolderKanban className="w-6 h-6 text-studio-ai-purple" />
                   </div>
                   <div>
-                    <h2 className="font-headline text-xl text-studio-text-primary mb-1">Kreirajte prvi projekt</h2>
+                    <h2 className="font-headline text-xl text-studio-text-primary mb-1">Imenujte svoj prvi projekt</h2>
                     <p className="text-sm text-studio-text-secondary leading-relaxed">
                       Projekti organiziraju kampanje, sadržaj i izvještaje. Svaki projekt može imati svoj AI kontekst.
-                      <br />
-                      <span className="text-studio-text-tertiary">Možete preskočiti ovaj korak — koristit ćete "Default" projekt.</span>
                     </p>
                   </div>
                 </div>
@@ -973,14 +981,21 @@ export default function Onboarding() {
 
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-studio-text-primary mb-1.5">Naziv projekta</label>
+                  <label className="block text-sm font-semibold text-studio-text-primary mb-1.5">
+                    Naziv projekta <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={form.project_name}
                     onChange={e => updateField('project_name', e.target.value)}
-                    className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
-                    placeholder="Npr. Q1 2026 Kampanja, Lansiranje proizvoda, Božićna kampanja..."
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0 ${
+                      form.project_name.trim().length === 0 ? 'border-red-300' : 'border-studio-border'
+                    }`}
+                    placeholder="Npr. Q2 Kampanja, Lansiranje proizvoda..."
                   />
+                  {form.project_name.trim().length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">Naziv projekta je obavezan</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-studio-text-primary mb-1.5">Opis projekta</label>
@@ -1067,7 +1082,7 @@ export default function Onboarding() {
             ) : (
               <button
                 onClick={handleFinish}
-                disabled={loading}
+                disabled={loading || !canProceed()}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-md shadow-brand-accent/20"
               >
                 {loading ? (

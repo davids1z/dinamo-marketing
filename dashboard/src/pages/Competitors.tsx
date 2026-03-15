@@ -7,9 +7,10 @@ import { CardSkeleton, ChartSkeleton, TableSkeleton } from '../components/common
 import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import {
   TrendingUp, TrendingDown, Minus, Target, Shield, Zap,
-  ArrowUpRight, ArrowDownRight, Link2,
+  ArrowUpRight, ArrowDownRight, Link2, FolderKanban,
 } from 'lucide-react'
 import {
   XAxis, YAxis, Tooltip,
@@ -110,6 +111,7 @@ type PlatformTab = 'instagram' | 'tiktok' | 'overall'
 export default function Competitors() {
   const { data: apiData, loading } = useApi<CompetitorData>('/competitors')
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
   const data: CompetitorData = apiData || {
     competitors: [],
@@ -129,6 +131,31 @@ export default function Competitors() {
     const timer = setTimeout(() => setChartRevealed(true), 60)
     return () => clearTimeout(timer)
   }, [])
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="KONKURENCIJA" subtitle="Usporedba s konkurencijom i analiza jaza" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasConnectedChannels) {
     return (

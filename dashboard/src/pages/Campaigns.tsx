@@ -8,12 +8,13 @@ import { CardSkeleton, TableSkeleton } from '../components/common/LoadingSpinner
 import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import { campaignsApi, type AdPerformance, type CampaignPerformance } from '../api/campaigns'
 import {
   Zap, CreditCard, BarChart3, Plus, Pause, Play,
   X, Check, ChevronRight, ChevronLeft, Calendar, Trophy,
   TrendingUp, Eye, MousePointerClick, AlertCircle, CheckCircle,
-  Filter, Loader2, Image, RefreshCw, Rocket, Link2,
+  Filter, Loader2, Image, RefreshCw, Rocket, Link2, FolderKanban,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -101,6 +102,7 @@ function objectiveLabel(o: string): string {
 export default function Campaigns() {
   const { data: apiData, loading, refetch } = useApi<CampaignRow[]>('/campaigns')
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
 
   // Local campaigns state (for adding new ones)
@@ -366,6 +368,31 @@ export default function Campaigns() {
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="KAMPANJE" subtitle="Upravljanje kampanjama i performanse" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasConnectedChannels) {
     return (

@@ -5,12 +5,13 @@ import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner
 import EmptyState from '../components/common/EmptyState'
 import { useApi } from '../hooks/useApi'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import { reportsApi } from '../api/reports'
 import {
   FileText, Download, Calendar, Clock, CheckCircle, Loader2,
   AlertCircle, Plus, Mail, TrendingUp, TrendingDown, Users,
   BarChart3, ArrowUpRight, ArrowDownRight, X, GitCompareArrows,
-  Eye, ThumbsUp, Share2, Link2
+  Eye, ThumbsUp, Share2, Link2, FolderKanban
 } from 'lucide-react'
 
 type ReportTab = 'weekly' | 'monthly'
@@ -116,6 +117,7 @@ export default function Reports() {
   const [localReports, setLocalReports] = useState<Record<ReportTab, Report[]>>({ weekly: [], monthly: [] })
   const [comparisonId, setComparisonId] = useState<number | null>(null)
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
 
   // Backend returns arrays of report objects, not the ReportsData wrapper
@@ -193,6 +195,31 @@ export default function Reports() {
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="IZVJEŠTAJI" subtitle="Automatsko generiranje izvještaja i arhiva" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasConnectedChannels) {
     return (

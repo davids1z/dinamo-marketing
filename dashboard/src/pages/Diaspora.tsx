@@ -5,7 +5,8 @@ import EmptyState from '../components/common/EmptyState'
 import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { useChannelStatus } from '../hooks/useChannelStatus'
-import { Globe, Users, MapPin, Languages, Calendar, Link2 } from 'lucide-react'
+import { useProjectStatus } from '../hooks/useProjectStatus'
+import { Globe, Users, MapPin, Languages, Calendar, Link2, FolderKanban } from 'lucide-react'
 
 interface MarketRegion {
   country: string
@@ -42,8 +43,34 @@ const langColors: Record<string, string> = {
 export default function GeographicMarkets() {
   const { data: apiData, loading } = useApi<GeographicMarketsData>('/diaspora/populations')
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const navigate = useNavigate()
   const data = apiData || { communities: [], contentPipeline: [] }
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header title="GEOGRAFSKA TRŽIŠTA" subtitle="Analiza i pristup regionalnim tržištima" />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasConnectedChannels) {
     return (

@@ -5,11 +5,12 @@ import PlatformIcon from '../components/common/PlatformIcon'
 import EmptyState from '../components/common/EmptyState'
 import { contentApi } from '../api/content'
 import { useChannelStatus } from '../hooks/useChannelStatus'
+import { useProjectStatus } from '../hooks/useProjectStatus'
 import {
   Calendar, ChevronLeft, ChevronRight, Check, X, Clock, Sparkles,
   Eye, Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown,
   LayoutGrid, List, CalendarDays, Loader2, BarChart3, Target, Zap,
-  Film, Filter, Send, Instagram, Facebook, Youtube, Music2, Link2,
+  Film, Filter, Send, Instagram, Facebook, Youtube, Music2, Link2, FolderKanban,
 } from 'lucide-react'
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useClient } from '../contexts/ClientContext'
@@ -177,6 +178,7 @@ export default function ContentCalendar() {
   const navigate = useNavigate()
   const { canModerate } = useClient()
   const { hasConnectedChannels } = useChannelStatus()
+  const { hasProjects } = useProjectStatus()
   const [activeTab, setActiveTab] = useState<TabMode>('calendar')
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentMonth, setCurrentMonth] = useState(2) // March 2026 (0-indexed)
@@ -550,6 +552,34 @@ export default function ContentCalendar() {
 
   // Show empty state when no content exists
   const hasAnyPosts = Object.values(calendarData).some(posts => posts && posts.length > 0)
+
+  if (!hasProjects) {
+    return (
+      <div>
+        <Header
+          title="KALENDAR SADRŽAJA"
+          subtitle={`${monthNames[currentMonth]} ${currentYear} — Planiranje i odobrenja`}
+        />
+        <div className="page-wrapper">
+          <EmptyState
+            icon={FolderKanban}
+            variant="hero"
+            title="Kreirajte prvi projekt"
+            description="Projekti organiziraju kampanje, sadržaj i izvještaje. Kreirajte projekt za pristup ovoj stranici."
+            action={
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+              >
+                <FolderKanban size={16} />
+                Kreiraj projekt
+              </button>
+            }
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!hasAnyPosts && !generating) {
     // If channels not connected, suggest connecting first

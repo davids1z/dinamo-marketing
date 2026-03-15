@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Building2, FolderKanban, Sparkles, Search, ArrowRight } from 'lucide-react'
+import { ChevronDown, Building2, FolderKanban, Sparkles, Search, ArrowRight, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useClient } from '../../contexts/ClientContext'
 import { useProject } from '../../contexts/ProjectContext'
@@ -121,9 +121,9 @@ export default function ContextSwitcher() {
           onClick={() => setPanel(panel === 'project' ? 'closed' : 'project')}
           className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-studio-surface-2 transition-colors group"
         >
-          <FolderKanban size={13} className="text-studio-text-tertiary flex-shrink-0" />
-          <span className="text-sm text-studio-text-secondary truncate max-w-[140px]">
-            {currentProject?.project_name || 'Odaberi projekt'}
+          <FolderKanban size={13} className={`flex-shrink-0 ${projects.length === 0 ? 'text-amber-500' : 'text-studio-text-tertiary'}`} />
+          <span className={`text-sm truncate max-w-[140px] ${projects.length === 0 ? 'text-amber-600 font-medium' : 'text-studio-text-secondary'}`}>
+            {currentProject?.project_name || (projects.length === 0 ? 'Nema projekta' : 'Odaberi projekt')}
           </span>
           <ChevronDown
             size={12}
@@ -235,9 +235,21 @@ export default function ContextSwitcher() {
                   {filteredProjects.length === 0 ? (
                     <div className="px-4 py-8 text-center">
                       <FolderKanban className="w-6 h-6 text-studio-text-disabled mx-auto mb-2" />
-                      <p className="text-sm text-studio-text-secondary">
+                      <p className="text-sm text-studio-text-secondary mb-3">
                         {projectSearch ? 'Nema rezultata' : 'Nema projekata'}
                       </p>
+                      {!projectSearch && (
+                        <button
+                          onClick={() => {
+                            setPanel('closed')
+                            navigate('/onboarding')
+                          }}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent text-white text-xs font-bold hover:bg-brand-accent-hover transition-all"
+                        >
+                          <Plus size={14} />
+                          Kreiraj prvi projekt
+                        </button>
+                      )}
                     </div>
                   ) : (
                     filteredProjects.map((p) => (
@@ -273,6 +285,23 @@ export default function ContextSwitcher() {
             </div>
 
             {/* Footer links */}
+            {panel === 'project' && projects.length > 0 && (
+              <div className="border-t border-studio-border">
+                <button
+                  onClick={() => {
+                    setPanel('closed')
+                    navigate('/onboarding')
+                  }}
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm text-sky-600 hover:bg-sky-50 transition-colors font-medium"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Plus size={14} />
+                    Novi projekt
+                  </span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
             {panel === 'client' && (
               <div className="border-t border-studio-border">
                 <button
