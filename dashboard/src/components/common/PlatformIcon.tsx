@@ -1,4 +1,4 @@
-import { Instagram, Facebook, Youtube, Globe, Music2, Twitter } from 'lucide-react'
+import { Instagram, Facebook, Youtube, Globe, Music2, Twitter, Linkedin } from 'lucide-react'
 import { clsx } from 'clsx'
 import { PLATFORMS } from '../../utils/constants'
 
@@ -13,6 +13,7 @@ const icons: Record<string, React.ElementType> = {
   facebook: Facebook,
   youtube: Youtube,
   tiktok: Music2,
+  linkedin: Linkedin,
   web: Globe,
   twitter: Twitter,
 }

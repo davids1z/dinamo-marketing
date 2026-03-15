@@ -13,9 +13,9 @@ export default {
           'blue-dark': '#004080',
           'blue-light': '#E8F1FA',
           'blue-hover': '#0068C8',
-          accent: '#0EA5E9',
-          'accent-hover': '#0284C7',
-          'accent-dark': '#0369A1',
+          accent: 'rgb(var(--brand-accent) / <alpha-value>)',
+          'accent-hover': 'rgb(var(--brand-accent-hover) / <alpha-value>)',
+          'accent-dark': 'rgb(var(--brand-accent-dark) / <alpha-value>)',
           muted: '#64748B',
           // Sidebar dark surfaces
           'sidebar': '#0A1A28',

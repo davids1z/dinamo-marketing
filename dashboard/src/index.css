@@ -5,6 +5,13 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Dynamic brand accent — RGB channels (overridden per-client via JS) */
+    --brand-accent: 14 165 233;       /* #0EA5E9 */
+    --brand-accent-hover: 2 132 199;  /* #0284C7 */
+    --brand-accent-dark: 3 105 161;   /* #0369A1 */
+  }
+
   body {
     @apply bg-studio-bg text-studio-text-primary antialiased;
     font-family: 'Inter', sans-serif;

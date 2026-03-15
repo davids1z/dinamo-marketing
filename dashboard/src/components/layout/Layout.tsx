@@ -4,6 +4,24 @@ import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import Sidebar from './Sidebar'
 // NavigationProgress removed — user prefers instant transitions
 import { useAuth } from '../../contexts/AuthContext'
+import { useClient } from '../../contexts/ClientContext'
+
+/** Convert hex color to space-separated RGB channels for CSS variable use */
+function hexToRgbChannels(hex: string): string | null {
+  const m = hex.replace('#', '').match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  if (!m || !m[1] || !m[2] || !m[3]) return null
+  return `${parseInt(m[1], 16)} ${parseInt(m[2], 16)} ${parseInt(m[3], 16)}`
+}
+
+/** Darken a hex color by a fraction (0-1) and return space-separated RGB channels */
+function darkenHexToRgb(hex: string, amount: number): string | null {
+  const m = hex.replace('#', '').match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  if (!m || !m[1] || !m[2] || !m[3]) return null
+  const r = Math.max(0, Math.round(parseInt(m[1], 16) * (1 - amount)))
+  const g = Math.max(0, Math.round(parseInt(m[2], 16) * (1 - amount)))
+  const b = Math.max(0, Math.round(parseInt(m[3], 16) * (1 - amount)))
+  return `${r} ${g} ${b}`
+}
 
 interface SidebarContextType {
   collapsed: boolean
@@ -27,6 +45,7 @@ export function useSidebar() {
 
 export default function Layout() {
   const { user, impersonating, stopImpersonating } = useAuth()
+  const { currentClient } = useClient()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
@@ -50,6 +69,35 @@ export default function Layout() {
   useEffect(() => {
     if (mobileOpen) setMobileOpen(false)
   }, [])
+
+  // Dynamic brand theming — inject client accent color as CSS variable
+  useEffect(() => {
+    const colors = currentClient?.brand_colors
+    if (!colors) return
+
+    // brand_colors can be string[] (from onboarding) or Record<string,string> (from BrandProfile)
+    let accentHex: string | undefined
+    if (Array.isArray(colors) && colors[1]) {
+      accentHex = colors[1] // [0]=primary, [1]=accent, [2]=blue
+    } else if (typeof colors === 'object' && !Array.isArray(colors)) {
+      accentHex = (colors as Record<string, string>).accent || Object.values(colors)[1]
+    }
+
+    if (!accentHex) return
+    const rgb = hexToRgbChannels(accentHex)
+    if (!rgb) return
+
+    const el = document.documentElement
+    el.style.setProperty('--brand-accent', rgb)
+    el.style.setProperty('--brand-accent-hover', darkenHexToRgb(accentHex, 0.12) || rgb)
+    el.style.setProperty('--brand-accent-dark', darkenHexToRgb(accentHex, 0.25) || rgb)
+
+    return () => {
+      el.style.removeProperty('--brand-accent')
+      el.style.removeProperty('--brand-accent-hover')
+      el.style.removeProperty('--brand-accent-dark')
+    }
+  }, [currentClient?.client_id, currentClient?.brand_colors])
 
   const toggleSidebar = () => {
     if (isMobile) {

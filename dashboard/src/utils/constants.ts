@@ -31,19 +31,38 @@ export const PLATFORMS = {
   facebook: { name: 'Facebook', color: '#1877F2', icon: 'facebook' },
   tiktok: { name: 'TikTok', color: '#000000', icon: 'music-2' },
   youtube: { name: 'YouTube', color: '#FF0000', icon: 'youtube' },
+  linkedin: { name: 'LinkedIn', color: '#0A66C2', icon: 'linkedin' },
   web: { name: 'Web stranica', color: '#0057A8', icon: 'globe' },
   twitter: { name: 'X / Twitter', color: '#1DA1F2', icon: 'twitter' },
 } as const
 
 export const CONTENT_PILLARS = [
-  { id: 'match_highlights', name: 'Highlights utakmica', color: '#EF4444' },
-  { id: 'player_interviews', name: 'Intervjui s igračima', color: '#F59E0B' },
-  { id: 'behind_scenes', name: 'Iza kulisa', color: '#8B5CF6' },
-  { id: 'academy', name: 'Akademija', color: '#22C55E' },
-  { id: 'tactical', name: 'Taktička analiza', color: '#3B82F6' },
-  { id: 'fan_engagement', name: 'Angažman navijača', color: '#EC4899' },
-  { id: 'lifestyle', name: 'Lifestyle i kultura', color: '#14B8A6' },
+  { id: 'edukacija', name: 'Edukacija', color: '#3B82F6' },
+  { id: 'prodaja', name: 'Prodaja', color: '#22C55E' },
+  { id: 'iza_kulisa', name: 'Iza kulisa', color: '#8B5CF6' },
+  { id: 'zabava', name: 'Zabava', color: '#EC4899' },
+  { id: 'inspiracija', name: 'Inspiracija', color: '#F59E0B' },
+  { id: 'produkt', name: 'Produkt', color: '#EF4444' },
+  { id: 'vijesti', name: 'Vijesti', color: '#0EA5E9' },
+  { id: 'lifestyle', name: 'Lifestyle', color: '#14B8A6' },
 ] as const
+
+/* URL-to-platform auto-detection for social link input */
+const PLATFORM_URL_PATTERNS: Array<{ platform: string; patterns: RegExp[] }> = [
+  { platform: 'instagram', patterns: [/instagram\.com/i, /instagr\.am/i] },
+  { platform: 'facebook', patterns: [/facebook\.com/i, /fb\.com/i, /fb\.me/i] },
+  { platform: 'twitter', patterns: [/twitter\.com/i, /x\.com/i] },
+  { platform: 'linkedin', patterns: [/linkedin\.com/i] },
+  { platform: 'tiktok', patterns: [/tiktok\.com/i] },
+  { platform: 'youtube', patterns: [/youtube\.com/i, /youtu\.be/i] },
+]
+
+export function detectPlatformFromUrl(url: string): string | null {
+  for (const { platform, patterns } of PLATFORM_URL_PATTERNS) {
+    if (patterns.some(p => p.test(url))) return platform
+  }
+  return null
+}
 
 export const LIFECYCLE_STAGES = [
   { id: 'new', name: 'Novi navijač', color: '#6B7280' },

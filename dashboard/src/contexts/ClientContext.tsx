@@ -18,6 +18,7 @@ export interface ClientMembership {
   onboarding_completed_actual?: boolean
   business_description?: string
   tone_of_voice?: string
+  brand_colors?: string[] | Record<string, string> | null
   projects: ProjectInfo[]
 }
 

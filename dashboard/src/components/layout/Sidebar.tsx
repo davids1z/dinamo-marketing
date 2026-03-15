@@ -198,16 +198,24 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-slate-200/70 justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={clsx(
-              'w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm',
-              adminMode && isSuperadmin ? 'bg-red-500' : 'bg-brand-accent'
-            )}>
-              {adminMode && isSuperadmin ? (
+            {adminMode && isSuperadmin ? (
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm bg-red-500">
                 <Shield className="w-4 h-4 text-white" />
-              ) : (
-                <span className="font-headline text-sm text-white font-bold">S1Z</span>
-              )}
-            </div>
+              </div>
+            ) : currentClient?.client_logo_url ? (
+              <img
+                src={currentClient.client_logo_url}
+                alt={currentClient.client_name}
+                className="w-9 h-9 rounded-xl object-cover flex-shrink-0 shadow-sm"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm bg-brand-accent">
+                <span className="font-headline text-sm text-white font-bold">
+                  {currentClient?.client_name?.[0]?.toUpperCase() || 'S1Z'}
+                </span>
+              </div>
+            )}
             {!collapsed && (
               <div className="min-w-0">
                 <h1 className="font-headline text-lg tracking-wider text-slate-800 leading-none font-bold truncate">

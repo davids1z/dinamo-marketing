@@ -79,6 +79,7 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "onboarding_completed_actual": c.onboarding_completed,
                 "business_description": c.business_description,
                 "tone_of_voice": c.tone_of_voice,
+                "brand_colors": c.brand_colors,
                 "projects": projects_by_client.get(str(c.id), []),
             }
             for c in all_clients  # noqa: F821
@@ -94,6 +95,7 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "onboarding_completed": c.onboarding_completed,
                 "business_description": c.business_description,
                 "tone_of_voice": c.tone_of_voice,
+                "brand_colors": c.brand_colors,
                 "projects": projects_by_client.get(str(uc.client_id), []),
             }
             for uc, c in memberships  # noqa: F821

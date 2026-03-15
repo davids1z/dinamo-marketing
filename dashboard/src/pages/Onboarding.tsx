@@ -3,10 +3,13 @@ import {
   Brain, Palette, FolderKanban, ChevronRight, ChevronLeft, Check,
   Sparkles, Zap, BarChart3, MessageSquare, Building2,
   Globe, Upload, Loader2, CheckCircle2, AlertCircle, SkipForward,
+  X, Plus, Link2,
 } from 'lucide-react'
 import api from '../api/client'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
+import PlatformIcon from '../components/common/PlatformIcon'
+import { CONTENT_PILLARS, detectPlatformFromUrl } from '../utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  4-step onboarding wizard (Step 0: org creation if no client)       */
@@ -76,6 +79,13 @@ export default function Onboarding() {
   const [magicDone, setMagicDone] = useState(false)
   const [magicUrl, setMagicUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Step 2: Social links, hashtags, content pillars
+  const [socialInput, setSocialInput] = useState('')
+  const [detectedPlatform, setDetectedPlatform] = useState<string | null>(null)
+  const [hashtagInput, setHashtagInput] = useState('')
+  const [showCustomPillar, setShowCustomPillar] = useState(false)
+  const [customPillarInput, setCustomPillarInput] = useState('')
 
   const [form, setForm] = useState<FormData>({
     company_name: currentClient?.client_name || '',
@@ -622,11 +632,13 @@ export default function Onboarding() {
           {/* ---- STEP 2: Vizualni identitet + mreže ---- */}
           {step === 2 && (
             <div className="space-y-6">
+              {/* --- Visual Identity: Colors, Logo, Languages --- */}
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
                 <h2 className="font-headline text-xl text-studio-text-primary mb-1">Vizualni identitet</h2>
                 <p className="text-sm text-studio-text-tertiary mb-5">Boje, logo i jezici vašeg brenda.</p>
 
                 <div className="space-y-5">
+                  {/* Brand Colors */}
                   <div>
                     <label className="block text-sm font-medium text-studio-text-secondary mb-2">Boje brenda</label>
                     <div className="flex gap-4">
@@ -648,17 +660,32 @@ export default function Onboarding() {
                     </div>
                   </div>
 
+                  {/* Logo URL with live preview */}
                   <div>
-                    <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">Logo URL</label>
-                    <input
-                      type="url"
-                      value={form.logo_url}
-                      onChange={e => updateField('logo_url', e.target.value)}
-                      className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
-                      placeholder="https://example.com/logo.png"
-                    />
+                    <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">Logo</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="url"
+                        value={form.logo_url}
+                        onChange={e => updateField('logo_url', e.target.value)}
+                        className="flex-1 px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
+                        placeholder="https://example.com/logo.png"
+                      />
+                      {form.logo_url && (
+                        <div className="w-12 h-12 rounded-xl border border-studio-border overflow-hidden flex-shrink-0 bg-studio-surface-2 flex items-center justify-center">
+                          <img
+                            src={form.logo_url}
+                            alt="Logo preview"
+                            className="w-full h-full object-contain"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            onLoad={e => { (e.target as HTMLImageElement).style.display = 'block' }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
+                  {/* Languages */}
                   <div>
                     <label className="block text-sm font-medium text-studio-text-secondary mb-2">Jezici sadržaja</label>
                     <div className="flex flex-wrap gap-2">
@@ -692,50 +719,216 @@ export default function Onboarding() {
                 </div>
               </div>
 
+              {/* --- Social Links: Auto-Detect from URL --- */}
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
                 <h2 className="font-headline text-xl text-studio-text-primary mb-1">Društvene mreže</h2>
-                <p className="text-sm text-studio-text-tertiary mb-5">Vaši profili i strategija sadržaja.</p>
+                <p className="text-sm text-studio-text-tertiary mb-4">Zalijepite linkove svojih profila — automatski prepoznajemo platformu.</p>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    {(['instagram', 'facebook', 'twitter', 'linkedin'] as const).map(platform => (
-                      <div key={platform}>
-                        <label className="block text-sm font-medium text-studio-text-secondary mb-1.5 capitalize">{platform}</label>
-                        <input
-                          type="text"
-                          value={form.social_handles[platform] || ''}
-                          onChange={e => updateField('social_handles', { ...form.social_handles, [platform]: e.target.value })}
-                          className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
-                          placeholder={`@vaš_${platform}`}
-                        />
+                <div className="space-y-3">
+                  {/* Added links list */}
+                  {Object.entries(form.social_handles)
+                    .filter(([, url]) => url)
+                    .map(([platform, url]) => (
+                      <div key={platform} className="flex items-center gap-3 bg-studio-surface-0 border border-studio-border rounded-xl px-4 py-3 group">
+                        <PlatformIcon platform={platform} size="md" />
+                        <span className="text-sm text-studio-text-primary flex-1 truncate">{url}</span>
+                        <button
+                          type="button"
+                          onClick={() => updateField('social_handles', { ...form.social_handles, [platform]: '' })}
+                          className="text-studio-text-tertiary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
                     ))}
+
+                  {/* Add new link input */}
+                  <div className="relative">
+                    <Link2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                    <input
+                      type="url"
+                      value={socialInput}
+                      onChange={e => {
+                        setSocialInput(e.target.value)
+                        setDetectedPlatform(detectPlatformFromUrl(e.target.value))
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && socialInput.trim()) {
+                          e.preventDefault()
+                          const platform = detectedPlatform || 'web'
+                          updateField('social_handles', { ...form.social_handles, [platform]: socialInput.trim() })
+                          setSocialInput('')
+                          setDetectedPlatform(null)
+                        }
+                      }}
+                      className="w-full pl-10 pr-36 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
+                      placeholder="https://instagram.com/vaš_brand"
+                    />
+                    {detectedPlatform && socialInput.trim() && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        <PlatformIcon platform={detectedPlatform} size="sm" showLabel />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateField('social_handles', { ...form.social_handles, [detectedPlatform]: socialInput.trim() })
+                            setSocialInput('')
+                            setDetectedPlatform(null)
+                          }}
+                          className="px-3 py-1 bg-brand-accent text-white rounded-lg text-xs font-bold hover:bg-brand-accent-hover transition-colors"
+                        >
+                          Dodaj
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-studio-text-tertiary">Instagram, Facebook, X/Twitter, LinkedIn, TikTok, YouTube — automatski prepoznajemo platformu iz linka.</p>
+                </div>
+              </div>
+
+              {/* --- Hashtags: Tag Input --- */}
+              <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
+                <h2 className="font-headline text-xl text-studio-text-primary mb-1">Strategija sadržaja</h2>
+                <p className="text-sm text-studio-text-tertiary mb-4">Hashtags i stupovi sadržaja koje AI koristi za generiranje.</p>
+
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-studio-text-secondary mb-2">Hashtags</label>
+                    <div className="flex flex-wrap gap-2 p-3 border border-studio-border rounded-xl bg-studio-surface-0 min-h-[48px] focus-within:border-brand-accent/50 focus-within:ring-2 focus-within:ring-brand-accent/10 transition-all cursor-text"
+                      onClick={() => document.getElementById('hashtag-input')?.focus()}
+                    >
+                      {form.hashtags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-brand-accent/10 text-brand-accent rounded-full text-sm font-medium"
+                        >
+                          #{tag.replace(/^#/, '')}
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.stopPropagation()
+                              updateField('hashtags', form.hashtags.filter((_, idx) => idx !== i))
+                            }}
+                            className="hover:text-red-500 transition-colors ml-0.5"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        id="hashtag-input"
+                        type="text"
+                        value={hashtagInput}
+                        onChange={e => setHashtagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if ((e.key === 'Enter' || e.key === ',') && hashtagInput.trim()) {
+                            e.preventDefault()
+                            const tag = hashtagInput.trim().replace(/^#/, '')
+                            if (tag && !form.hashtags.includes(tag)) {
+                              updateField('hashtags', [...form.hashtags, tag])
+                            }
+                            setHashtagInput('')
+                          }
+                          if (e.key === 'Backspace' && !hashtagInput && form.hashtags.length > 0) {
+                            updateField('hashtags', form.hashtags.slice(0, -1))
+                          }
+                        }}
+                        className="flex-1 min-w-[120px] bg-transparent outline-none text-sm text-studio-text-primary placeholder:text-studio-text-tertiary py-1"
+                        placeholder={form.hashtags.length === 0 ? 'Upišite hashtag i pritisnite Enter' : 'Dodaj još...'}
+                      />
+                    </div>
                   </div>
 
+                  {/* --- Content Pillars: Selectable Chips --- */}
                   <div>
-                    <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">
-                      Hashtags <span className="text-studio-text-tertiary font-normal">(razdvojeno zarezom)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={form.hashtags.join(', ')}
-                      onChange={e => updateField('hashtags', e.target.value.split(',').map(h => h.trim()).filter(Boolean))}
-                      className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
-                      placeholder="#brand, #marketing, #digital"
-                    />
-                  </div>
+                    <label className="block text-sm font-medium text-studio-text-secondary mb-2">Stupovi sadržaja</label>
+                    <p className="text-xs text-studio-text-tertiary mb-3">Odaberite teme o kojima AI smije generirati sadržaj za vaš brand.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {CONTENT_PILLARS.map(pillar => {
+                        const isSelected = form.content_pillars.includes(pillar.name)
+                        return (
+                          <button
+                            key={pillar.id}
+                            type="button"
+                            onClick={() => {
+                              const pillars = isSelected
+                                ? form.content_pillars.filter(p => p !== pillar.name)
+                                : [...form.content_pillars, pillar.name]
+                              updateField('content_pillars', pillars)
+                            }}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                              isSelected
+                                ? 'bg-brand-accent text-white border-brand-accent shadow-sm'
+                                : 'bg-studio-surface-0 text-studio-text-secondary border-studio-border hover:border-brand-accent/30 hover:bg-brand-accent/5'
+                            }`}
+                          >
+                            {pillar.name}
+                          </button>
+                        )
+                      })}
 
-                  <div>
-                    <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">
-                      Stupovi sadržaja <span className="text-studio-text-tertiary font-normal">(razdvojeno zarezom)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={form.content_pillars.join(', ')}
-                      onChange={e => updateField('content_pillars', e.target.value.split(',').map(p => p.trim()).filter(Boolean))}
-                      className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0"
-                      placeholder="Edukacija, Inspiracija, Produkt, Zabava"
-                    />
+                      {/* Custom pillars (non-preset) shown as removable chips */}
+                      {form.content_pillars
+                        .filter(p => !CONTENT_PILLARS.some(cp => cp.name === p))
+                        .map(customPillar => (
+                          <span
+                            key={customPillar}
+                            className="inline-flex items-center gap-1 px-4 py-2 bg-brand-accent text-white rounded-full text-sm font-medium border border-brand-accent shadow-sm"
+                          >
+                            {customPillar}
+                            <button
+                              type="button"
+                              onClick={() => updateField('content_pillars', form.content_pillars.filter(p => p !== customPillar))}
+                              className="hover:text-red-200 transition-colors ml-0.5"
+                            >
+                              <X size={12} />
+                            </button>
+                          </span>
+                        ))}
+
+                      {/* Add custom pillar */}
+                      {showCustomPillar ? (
+                        <input
+                          type="text"
+                          value={customPillarInput}
+                          onChange={e => setCustomPillarInput(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && customPillarInput.trim()) {
+                              e.preventDefault()
+                              if (!form.content_pillars.includes(customPillarInput.trim())) {
+                                updateField('content_pillars', [...form.content_pillars, customPillarInput.trim()])
+                              }
+                              setCustomPillarInput('')
+                              setShowCustomPillar(false)
+                            }
+                            if (e.key === 'Escape') {
+                              setShowCustomPillar(false)
+                              setCustomPillarInput('')
+                            }
+                          }}
+                          onBlur={() => {
+                            if (customPillarInput.trim()) {
+                              if (!form.content_pillars.includes(customPillarInput.trim())) {
+                                updateField('content_pillars', [...form.content_pillars, customPillarInput.trim()])
+                              }
+                            }
+                            setCustomPillarInput('')
+                            setShowCustomPillar(false)
+                          }}
+                          autoFocus
+                          className="px-4 py-2 rounded-full text-sm border border-brand-accent/50 bg-studio-surface-0 focus:outline-none focus:ring-2 focus:ring-brand-accent/10 w-40"
+                          placeholder="Naziv stupca..."
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomPillar(true)}
+                          className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-studio-border text-studio-text-tertiary hover:border-brand-accent/30 hover:text-brand-accent transition-all"
+                        >
+                          <Plus size={14} />
+                          Prilagođen
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
