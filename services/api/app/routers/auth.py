@@ -65,6 +65,9 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
             })
 
     if user.is_superadmin:
+        # For superadmins, always report onboarding_completed=True so the
+        # frontend ProtectedRoute never redirects them to the onboarding wizard.
+        # The real value is exposed as onboarding_completed_actual for UI display.
         return [
             {
                 "client_id": str(c.id),
@@ -72,7 +75,10 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "client_slug": c.slug,
                 "client_logo_url": c.logo_url,
                 "role": "superadmin",
-                "onboarding_completed": c.onboarding_completed,
+                "onboarding_completed": True,
+                "onboarding_completed_actual": c.onboarding_completed,
+                "business_description": c.business_description,
+                "tone_of_voice": c.tone_of_voice,
                 "projects": projects_by_client.get(str(c.id), []),
             }
             for c in all_clients  # noqa: F821
@@ -86,6 +92,8 @@ async def _build_client_list(db: AsyncSession, user: "User") -> list[dict]:
                 "client_logo_url": c.logo_url,
                 "role": uc.role,
                 "onboarding_completed": c.onboarding_completed,
+                "business_description": c.business_description,
+                "tone_of_voice": c.tone_of_voice,
                 "projects": projects_by_client.get(str(uc.client_id), []),
             }
             for uc, c in memberships  # noqa: F821
@@ -237,24 +245,68 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     )
 
 
-@router.post("/create-organization", status_code=201)
+@router.post("/create-organization")
 async def create_organization(
     body: CreateOrganizationRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create an organization (client) for the current user during onboarding."""
+    """Create or return an organization (client) for the current user during onboarding.
+
+    Uses upsert logic: if user already has a client, update its name and return it
+    so navigating back/forward in the stepper never blocks the user.
+    """
     import re
 
     from app.models.client import Client, UserClient
     from app.models.project import Project
 
-    # Check if user already has a client (prevent duplicate org creation)
-    existing_membership = await db.execute(
-        select(UserClient).where(UserClient.user_id == current_user.id)
+    # Check if user already has a client
+    existing_result = await db.execute(
+        select(UserClient, Client)
+        .join(Client, UserClient.client_id == Client.id)
+        .where(UserClient.user_id == current_user.id)
     )
-    if existing_membership.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Već imate organizaciju")
+    existing = existing_result.first()
+
+    if existing:
+        # User already has an org — update name if changed and return it
+        uc, client = existing
+        if client.name != body.company_name:
+            client.name = body.company_name
+            new_slug = re.sub(r"[^a-z0-9]+", "-", body.company_name.lower()).strip("-") or "company"
+            # Only update slug if the name actually changed
+            slug_check = await db.execute(
+                select(Client).where(Client.slug == new_slug, Client.id != client.id)
+            )
+            if not slug_check.scalar_one_or_none():
+                client.slug = new_slug
+            await db.commit()
+            await db.refresh(client)
+
+        # Fetch project
+        proj_result = await db.execute(
+            select(Project).where(Project.client_id == client.id).order_by(Project.created_at)
+        )
+        project = proj_result.scalars().first()
+
+        return {
+            "client_id": str(client.id),
+            "client_name": client.name,
+            "client_slug": client.slug,
+            "client_logo_url": client.logo_url,
+            "role": uc.role,
+            "onboarding_completed": client.onboarding_completed,
+            "projects": [
+                {
+                    "project_id": str(project.id),
+                    "project_name": project.name,
+                    "project_slug": project.slug,
+                }
+            ] if project else [],
+        }
+
+    # --- No org yet: create one ---
 
     # Generate slug from company name
     slug = re.sub(r"[^a-z0-9]+", "-", body.company_name.lower()).strip("-")

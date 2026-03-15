@@ -14,6 +14,10 @@ export interface ClientMembership {
   client_logo_url: string
   role: 'viewer' | 'moderator' | 'admin' | 'superadmin'
   onboarding_completed: boolean
+  /** Real onboarding status — only present for superadmin (onboarding_completed is always true for superadmin to prevent routing issues) */
+  onboarding_completed_actual?: boolean
+  business_description?: string
+  tone_of_voice?: string
   projects: ProjectInfo[]
 }
 

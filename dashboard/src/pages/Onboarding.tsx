@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Brain, Palette, FolderKanban, ChevronRight, ChevronLeft, Check,
   Sparkles, Zap, BarChart3, MessageSquare, Building2,
+  Globe, Upload, Loader2, CheckCircle2, AlertCircle,
 } from 'lucide-react'
 import api from '../api/client'
 import { useClient } from '../contexts/ClientContext'
+import { useAuth } from '../contexts/AuthContext'
 
 /* ------------------------------------------------------------------ */
 /*  4-step onboarding wizard (Step 0: org creation if no client)       */
@@ -57,6 +59,15 @@ interface FormData {
 
 export default function Onboarding() {
   const { currentClient } = useClient()
+  const { user } = useAuth()
+
+  // Superadmin must NEVER see onboarding — they are visitors, not owners.
+  // This is a safety net in case ProtectedRoute guard was bypassed (e.g. SW cache).
+  if (user?.is_superadmin) {
+    window.location.replace('/')
+    return null
+  }
+
   const hasClient = !!currentClient
 
   // If user already has a client, skip step 0 (organization creation)
@@ -64,6 +75,13 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
+
+  // Magic Import state
+  const [magicLoading, setMagicLoading] = useState(false)
+  const [magicError, setMagicError] = useState('')
+  const [magicDone, setMagicDone] = useState(false)
+  const [magicUrl, setMagicUrl] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState<FormData>({
     company_name: '',
@@ -86,6 +104,46 @@ export default function Onboarding() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
+  const handleMagicImport = async (source: 'url' | 'file', file?: File) => {
+    const clientId = currentClient?.client_id || localStorage.getItem('current_client_id')
+    if (!clientId) return
+
+    setMagicLoading(true)
+    setMagicError('')
+    setMagicDone(false)
+
+    try {
+      const formData = new FormData()
+      if (source === 'url' && magicUrl.trim()) {
+        formData.append('url', magicUrl.trim())
+      } else if (source === 'file' && file) {
+        formData.append('file', file)
+      } else {
+        setMagicError('Unesite URL ili odaberite datoteku')
+        setMagicLoading(false)
+        return
+      }
+
+      const res = await api.post(`/clients/${clientId}/magic-import`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 120000,
+      })
+
+      const s = res.data.suggestions
+      if (s.business_description) updateField('business_description', s.business_description)
+      if (s.product_info) updateField('product_info', s.product_info)
+      if (s.target_audience) updateField('target_audience', s.target_audience)
+      if (s.tone_of_voice) updateField('tone_of_voice', s.tone_of_voice)
+      if (source === 'url' && magicUrl.trim()) updateField('website_url', magicUrl.trim())
+
+      setMagicDone(true)
+    } catch (err: any) {
+      setMagicError(err.response?.data?.detail || 'AI analiza nije uspjela. Pokušajte ponovno.')
+    } finally {
+      setMagicLoading(false)
+    }
+  }
+
   // Active steps depend on whether we need org creation
   const steps = hasClient ? AI_STEPS : WIZARD_STEPS
   const displayStep = hasClient ? step - 1 : step // map to steps array index
@@ -95,10 +153,11 @@ export default function Onboarding() {
     setLoading(true)
     setError('')
     try {
+      // Upsert: creates org if none exists, returns existing if already created
       const res = await api.post('/auth/create-organization', {
         company_name: form.company_name.trim(),
       })
-      // Set the new client in context
+      // Set the client in context (works for both new and existing)
       localStorage.setItem('current_client_id', res.data.client_id)
       if (res.data.projects?.[0]) {
         localStorage.setItem('current_project_id', res.data.projects[0].project_id)
@@ -331,6 +390,104 @@ export default function Onboarding() {
                 </div>
               </div>
 
+              {/* Magic Import — AI auto-fill */}
+              <div className={`bg-studio-surface-1 rounded-2xl p-6 border transition-colors ${
+                magicDone ? 'border-brand-accent/40 bg-brand-accent/5' : 'border-studio-border'
+              }`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles size={16} className="text-brand-accent" />
+                  <h3 className="text-sm font-semibold text-studio-text-primary">Magic Import</h3>
+                  {magicDone && (
+                    <span className="ml-auto flex items-center gap-1 text-xs text-brand-accent font-medium">
+                      <CheckCircle2 size={14} />
+                      AI je popunio polja
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-studio-text-tertiary mb-4">
+                  Unesite URL web stranice ili uploadajte dokument — AI automatski popunjava polja ispod.
+                </p>
+
+                {/* URL input */}
+                <div className="flex gap-2 mb-3">
+                  <div className="relative flex-1">
+                    <Globe size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-text-tertiary" />
+                    <input
+                      type="url"
+                      value={magicUrl}
+                      onChange={e => setMagicUrl(e.target.value)}
+                      disabled={magicLoading}
+                      className="w-full pl-10 pr-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0 disabled:opacity-50"
+                      placeholder="https://www.vaša-stranica.hr"
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && magicUrl.trim()) {
+                          e.preventDefault()
+                          handleMagicImport('url')
+                        }
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleMagicImport('url')}
+                    disabled={!magicUrl.trim() || magicLoading}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-brand-accent text-white hover:bg-brand-accent-hover transition-all disabled:opacity-50 shadow-sm shadow-brand-accent/20"
+                  >
+                    {magicLoading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Zap size={16} />
+                    )}
+                    {magicLoading ? 'Analiziram...' : 'Analiziraj'}
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 my-3">
+                  <div className="flex-1 h-px bg-studio-border" />
+                  <span className="text-xs text-studio-text-tertiary font-medium">ili</span>
+                  <div className="flex-1 h-px bg-studio-border" />
+                </div>
+
+                {/* File upload */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx,.txt"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0]
+                    if (file) handleMagicImport('file', file)
+                    e.target.value = ''
+                  }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={magicLoading}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-studio-border rounded-xl text-sm text-studio-text-secondary hover:border-brand-accent/30 hover:bg-studio-surface-2 transition-all disabled:opacity-50"
+                >
+                  {magicLoading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Upload size={16} />
+                  )}
+                  <span>Uploadajte PDF, DOCX ili TXT</span>
+                </button>
+
+                {/* Magic import status messages */}
+                {magicError && (
+                  <div className="mt-3 flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400">
+                    <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                    <span>{magicError}</span>
+                  </div>
+                )}
+                {magicLoading && (
+                  <div className="mt-3 flex items-center gap-2 p-3 bg-brand-accent/5 border border-brand-accent/10 rounded-xl text-xs text-brand-accent">
+                    <Loader2 size={14} className="animate-spin flex-shrink-0" />
+                    <span>AI analizira sadržaj i popunjava polja... Ovo može potrajati do 30 sekundi.</span>
+                  </div>
+                )}
+              </div>
+
               {/* Main textarea — big and prominent */}
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
                 <label className="block text-sm font-semibold text-studio-text-primary mb-2">
@@ -363,6 +520,22 @@ export default function Onboarding() {
                   <span className="text-xs text-studio-text-tertiary font-mono">{charCount}</span>
                 </div>
               </div>
+
+              {/* Product info */}
+              {form.product_info && (
+                <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border">
+                  <label className="block text-sm font-medium text-studio-text-secondary mb-1.5">
+                    Proizvodi / usluge
+                  </label>
+                  <textarea
+                    value={form.product_info}
+                    onChange={e => updateField('product_info', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-studio-border rounded-xl focus:outline-none focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10 text-sm text-studio-text-primary bg-studio-surface-0 resize-none"
+                    placeholder="Proizvodi ili usluge koje nudite..."
+                  />
+                </div>
+              )}
 
               {/* Secondary fields */}
               <div className="bg-studio-surface-1 rounded-2xl p-6 border border-studio-border space-y-4">

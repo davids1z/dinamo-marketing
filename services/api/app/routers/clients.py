@@ -1,8 +1,9 @@
 """Client management router: CRUD for clients and user memberships."""
 
+import io
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -209,6 +210,114 @@ async def update_client(
     await db.commit()
     logger.info("Client updated: %s by %s", client.slug, user.email)
     return {"status": "updated"}
+
+
+# --- Magic Import (AI-powered brand profile extraction) ---
+
+
+def _extract_text_from_file(content: bytes, filename: str) -> str:
+    """Extract text from uploaded file (PDF, DOCX, TXT)."""
+    ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+
+    if ext == "pdf":
+        try:
+            import pdfplumber
+
+            text_parts = []
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+            return "\n\n".join(text_parts)
+        except Exception:
+            return ""
+    elif ext == "docx":
+        try:
+            import docx
+
+            doc = docx.Document(io.BytesIO(content))
+            return "\n\n".join(p.text for p in doc.paragraphs if p.text.strip())
+        except Exception:
+            return ""
+    else:
+        # Plain text fallback
+        try:
+            return content.decode("utf-8", errors="ignore")
+        except Exception:
+            return ""
+
+
+@router.post("/{client_id}/magic-import")
+async def magic_import(
+    ctx: tuple = Depends(require_admin_role),
+    url: str = Form(None),
+    file: UploadFile = File(None),
+):
+    """AI-powered brand profile extraction from URL or document.
+
+    Accepts a URL or file upload, extracts text, and uses AI to suggest
+    brand profile fields. Returns suggestions for user review (not auto-saved).
+    """
+    from app.config import settings
+    from app.services.brand_analyzer import analyze_brand
+    from app.utils.scraper import scrape_url
+
+    user, client, role = ctx
+
+    api_key = settings.OPENROUTER_API_KEY
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENROUTER_API_KEY nije konfiguriran",
+        )
+
+    text = ""
+
+    if url:
+        try:
+            scraped = await scrape_url(url.strip())
+            parts = []
+            if scraped["title"]:
+                parts.append(f"Naslov: {scraped['title']}")
+            if scraped["meta_description"]:
+                parts.append(f"Opis: {scraped['meta_description']}")
+            if scraped["text"]:
+                parts.append(scraped["text"])
+            text = "\n\n".join(parts)
+        except Exception as e:
+            logger.warning("URL scraping failed for %s: %s", url, e)
+            raise HTTPException(
+                status_code=400,
+                detail=f"Nije moguće dohvatiti sadržaj s URL-a: {e}",
+            )
+    elif file:
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Datoteka je prazna")
+        text = _extract_text_from_file(content, file.filename or "upload.txt")
+        if not text.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="Nije moguće izvući tekst iz datoteke",
+            )
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Potreban je URL ili datoteka",
+        )
+
+    try:
+        suggestions = await analyze_brand(text, api_key)
+    except Exception as e:
+        logger.error("Brand analysis failed: %s", e)
+        raise HTTPException(
+            status_code=502,
+            detail="AI analiza nije uspjela. Pokušajte ponovno.",
+        )
+
+    logger.info("Magic import completed for %s by %s", client.slug, user.email)
+    return {"suggestions": suggestions}
 
 
 # --- Membership management ---

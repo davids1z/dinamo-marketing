@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
+import { formatNumber, formatPercent, formatCurrency } from '../utils/formatters'
 import { EngagementChart } from '../components/charts/EngagementChart'
 import { SentimentDonut } from '../components/charts/SentimentDonut'
 import { useApi } from '../hooks/useApi'
@@ -10,12 +11,12 @@ import {
   Users, Eye, TrendingUp, CreditCard, BarChart3, Heart,
   MessageCircle, UserPlus, AlertTriangle, CheckCircle, Zap,
   Plus, Rocket, FileText, ChevronDown,
-  ExternalLink, Calendar, Clock, ArrowRight, Sparkles, TrendingDown,
-  LayoutDashboard, Link2, PenTool, Building2,
+  ExternalLink, Clock, ArrowRight, Sparkles, TrendingDown,
+  LayoutDashboard, Link2, PenTool, Building2, ShieldAlert,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import AiInsightsPanel from '../components/common/AiInsightsPanel'
 import { useClient } from '../contexts/ClientContext'
+import { useAuth } from '../contexts/AuthContext'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -68,18 +69,6 @@ interface OverviewData {
   recent_activity: ActivityItem[]
 }
 
-interface Recommendation {
-  id: number
-  icon: LucideIcon
-  iconColor: string
-  iconBg: string
-  title: string
-  description: string
-  action: string
-  actionLink: string
-  priority: 'high' | 'medium' | 'low'
-}
-
 type PeriodKey = '7d' | '30d' | 'month' | 'quarter'
 
 interface PeriodOption {
@@ -98,111 +87,16 @@ const PERIOD_OPTIONS: PeriodOption[] = [
   { key: 'quarter', label: 'Ovaj kvartal' },
 ]
 
-const fallbackOverview: OverviewData = {
-  total_followers: 1121000, prev_followers: 1050000,
-  monthly_reach: 4200000, prev_reach: 3800000,
-  engagement_rate: 2.8, prev_engagement_rate: 2.5,
-  ad_spend: 12450, prev_ad_spend: 11200,
-  roas: 3.2, prev_roas: 2.8,
-  sentiment_score: 78, prev_sentiment_score: 72,
-  engagement_trend: [
-    { date: '27.02', engagement: 4200, reach: 125000 },
-    { date: '28.02', engagement: 5100, reach: 142000 },
-    { date: '01.03', engagement: 6800, reach: 198000 },
-    { date: '02.03', engagement: 4900, reach: 137000 },
-    { date: '03.03', engagement: 7200, reach: 215000 },
-    { date: '04.03', engagement: 5600, reach: 168000 },
-    { date: '05.03', engagement: 6100, reach: 182000 },
-  ],
-  sentiment_breakdown: { positive: 65, neutral: 25, negative: 10 },
-  recent_activity: [
-    {
-      id: 1, type: 'follow',
-      text: '+2.340 novih pratitelja na Instagramu ovaj tjedan',
-      time: 'prije 2 sata',
-      timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
-      link: '/analytics',
-    },
-    {
-      id: 2, type: 'comment',
-      text: '148 novih komentara na promotivni video sadržaj',
-      time: 'prije 4 sata',
-      timestamp: new Date(Date.now() - 4 * 3600000).toISOString(),
-      link: '/content',
-    },
-    {
-      id: 3, type: 'campaign',
-      text: 'TikTok kampanja premasila ciljani CTR za 18%',
-      time: 'prije 6 sati',
-      timestamp: new Date(Date.now() - 6 * 3600000).toISOString(),
-      link: '/campaigns',
-    },
-    {
-      id: 4, type: 'alert',
-      text: 'Detektiran porast negativnog sentimenta na Facebooku',
-      time: 'prije 8 sati',
-      timestamp: new Date(Date.now() - 8 * 3600000).toISOString(),
-      link: '/sentiment',
-    },
-    {
-      id: 5, type: 'report',
-      text: 'Mjesečni izvještaj generiran i poslan klijentima',
-      time: 'prije 12 sati',
-      timestamp: new Date(Date.now() - 12 * 3600000).toISOString(),
-      link: '/reports',
-    },
-    {
-      id: 6, type: 'campaign',
-      text: 'Nova Instagram Stories kampanja pokrenuta za lansiranje proizvoda',
-      time: 'prije 1 dan',
-      timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
-      link: '/campaigns',
-    },
-    {
-      id: 7, type: 'follow',
-      text: 'YouTube kanal prešao 50K pretplatnika',
-      time: 'prije 1 dan',
-      timestamp: new Date(Date.now() - 28 * 3600000).toISOString(),
-      link: '/analytics',
-    },
-  ],
+const TONE_LABELS: Record<string, string> = {
+  professional: 'Profesionalan',
+  friendly: 'Prijateljski',
+  bold: 'Hrabar i direktan',
+  creative: 'Kreativan',
+  formal: 'Formalan',
+  casual: 'Opušten',
+  inspirational: 'Inspirativan',
+  humorous: 'Humorističan',
 }
-
-const RECOMMENDATIONS: Recommendation[] = [
-  {
-    id: 1,
-    icon: TrendingDown,
-    iconColor: 'text-amber-600',
-    iconBg: 'bg-amber-500/10',
-    title: 'Engagement rate pao 5%',
-    description: 'Razmotrite video sadržaj u petak navečer — analize pokazuju da video postovi dobivaju 3x više interakcija u tom terminu.',
-    action: 'Kreiraj video objavu',
-    actionLink: '/content',
-    priority: 'high',
-  },
-  {
-    id: 2,
-    icon: TrendingUp,
-    iconColor: 'text-emerald-600',
-    iconBg: 'bg-emerald-500/10',
-    title: 'TikTok publika raste',
-    description: 'TikTok pratitelji porasli 23% ovaj mjesec. Povećajte objave s 3 na 5 tjedno kako biste iskoristili algoritamski momentum.',
-    action: 'Planiraj TikTok sadržaj',
-    actionLink: '/content',
-    priority: 'medium',
-  },
-  {
-    id: 3,
-    icon: Calendar,
-    iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-500/10',
-    title: 'Lansiranje kampanje za 3 dana',
-    description: 'Pripremite sadržaj unaprijed — countdown objave, teaser video i plan promocije za maksimalni doseg.',
-    action: 'Pripremi kampanju',
-    actionLink: '/campaigns',
-    priority: 'high',
-  },
-]
 
 const activityIcons: Record<string, { icon: LucideIcon; color: string; bg: string; border: string }> = {
   follow: { icon: UserPlus, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-l-emerald-400' },
@@ -210,12 +104,6 @@ const activityIcons: Record<string, { icon: LucideIcon; color: string; bg: strin
   campaign: { icon: TrendingUp, color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-l-violet-400' },
   alert: { icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-l-amber-400' },
   report: { icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-l-emerald-400' },
-}
-
-const PRIORITY_BADGES: Record<string, { label: string; className: string }> = {
-  high: { label: 'Visoki', className: 'bg-red-500/10 text-red-400 border-red-500/20' },
-  medium: { label: 'Srednji', className: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  low: { label: 'Niski', className: 'bg-studio-surface-0 text-studio-text-secondary border-studio-border' },
 }
 
 // ---------------------------------------------------------------------------
@@ -326,7 +214,7 @@ function MetricCardSkeleton() {
 
 function DashboardLoadingSkeleton() {
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
       <div className="page-wrapper space-y-6 sm:space-y-8">
         {/* Quick actions skeleton */}
@@ -505,44 +393,66 @@ function AnimatedMetricCard({
   )
 }
 
-function RecommendationCard({ rec }: { rec: Recommendation }) {
-  const navigate = useNavigate()
-  const Icon = rec.icon
-  const badge = PRIORITY_BADGES[rec.priority]
+function HeroMetricCard({
+  label,
+  value,
+  previousValue,
+  format = 'number',
+  icon,
+  gradient,
+}: {
+  label: string
+  value: number
+  previousValue?: number
+  format?: 'number' | 'currency' | 'percent'
+  icon?: LucideIcon
+  gradient: string
+}) {
+  const animatedValue = useAnimatedNumber(value)
+
+  const formattedValue =
+    format === 'currency' ? formatCurrency(animatedValue) :
+    format === 'percent' ? formatPercent(animatedValue) :
+    formatNumber(animatedValue)
+
+  const trend = previousValue !== undefined && previousValue > 0
+    ? ((value - previousValue) / previousValue) * 100
+    : null
+  const isPositive = trend !== null && trend >= 0
+  const Icon = icon
 
   return (
-    <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-5 shadow-studio-panel hover:shadow-card-hover hover:border-studio-border-hover hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
-      <div className="flex items-start gap-3 mb-3">
-        <div className={`w-10 h-10 rounded-xl ${rec.iconBg} flex items-center justify-center flex-shrink-0`}>
-          <Icon size={18} className={rec.iconColor} />
+    <div className={`relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br ${gradient} shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300`}>
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full" />
+      <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/5 rounded-full" />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-medium text-white/70 uppercase tracking-wider">{label}</p>
+          {Icon && (
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
+              <Icon size={20} className="text-white/80" />
+            </div>
+          )}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h3 className="text-sm font-semibold text-studio-text-primary">{rec.title}</h3>
-            {badge && (
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badge.className}`}>
-                {badge.label}
-              </span>
-            )}
+        <p className="text-3xl font-bold text-white font-stats tracking-tight">{formattedValue}</p>
+        {trend !== null && (
+          <div className="flex items-center gap-2 mt-3">
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+              isPositive ? 'bg-white/15 text-emerald-200' : 'bg-white/15 text-red-200'
+            }`}>
+              {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {isPositive ? '+' : ''}{trend.toFixed(1)}%
+            </div>
+            <span className="text-xs text-white/50">vs prošli period</span>
           </div>
-          <p className="text-xs text-studio-text-secondary leading-relaxed">{rec.description}</p>
-        </div>
-      </div>
-      <div className="mt-auto pt-3">
-        <button
-          onClick={() => navigate(rec.actionLink)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-brand-accent hover:text-brand-accent/80 transition-colors group"
-        >
-          {rec.action}
-          <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-        </button>
+        )}
       </div>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Welcome / Empty State Hero — shown to new clients without data
+// Welcome / Empty State Hero — shown when no real channels are connected
 // ---------------------------------------------------------------------------
 
 function WelcomeHero() {
@@ -574,7 +484,7 @@ function WelcomeHero() {
   ]
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="NADZORNA PLOČA" subtitle="Dobrodošli! Postavite svoj prostor." />
       <div className="page-wrapper space-y-8">
         {/* Hero */}
@@ -597,6 +507,29 @@ function WelcomeHero() {
           {/* Decorative gradient blob */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none" />
         </div>
+
+        {/* Brand Profile Summary — confirms onboarding data saved */}
+        {currentClient?.business_description && (
+          <div className="bg-studio-surface-1 border border-studio-border rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles size={16} className="text-brand-accent" />
+              <h2 className="section-title">Vaš brand profil</h2>
+            </div>
+            <p className="text-sm text-studio-text-secondary leading-relaxed mb-3">
+              {currentClient.business_description.length > 200
+                ? currentClient.business_description.slice(0, 200) + '...'
+                : currentClient.business_description}
+            </p>
+            {currentClient.tone_of_voice && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-studio-text-tertiary">Ton komunikacije:</span>
+                <span className="text-xs font-medium text-brand-accent bg-brand-accent/10 px-2.5 py-1 rounded-full">
+                  {TONE_LABELS[currentClient.tone_of_voice] || currentClient.tone_of_voice}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Setup steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -667,7 +600,9 @@ function WelcomeHero() {
 export default function Dashboard() {
   const [period, setPeriod] = useState<PeriodKey>('7d')
   const navigate = useNavigate()
-  const { currentClient } = useClient()
+  const { currentClient, clientRole } = useClient()
+  const { user } = useAuth()
+  const isSuperadminVisitor = user?.is_superadmin && clientRole === 'superadmin'
 
   // Period maps to days for the API
   const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
@@ -676,31 +611,53 @@ export default function Dashboard() {
 
   const activeApi = liveData || rawApi
   const mapped = activeApi ? mapApiToOverview(activeApi) : {}
-  const hasRealData = activeApi?.organic && (activeApi.organic.reach > 0 || activeApi.organic.impressions > 0)
-  const d: OverviewData = hasRealData ? { ...fallbackOverview, ...mapped } : fallbackOverview
+
+  // Real channel data will be used once social accounts are connected (Phase 3).
+  // Until then, show the WelcomeHero with zero metrics instead of fake data.
+  const hasRealChannels = !!(mapped.monthly_reach && mapped.monthly_reach > 0)
 
   const handlePeriodChange = useCallback((key: PeriodKey) => {
     setPeriod(key)
   }, [])
 
-  // On API error, fall through to render with fallback data instead of showing error page
-
   if (loading && !rawApi) {
     return <DashboardLoadingSkeleton />
   }
 
-  // Show welcome/setup state for clients with no real analytics data
-  if (!hasRealData && currentClient) {
+  // Superadmin banner flag — show read-only notice when visiting another client
+  const actualOnboardingDone = currentClient?.onboarding_completed_actual ?? currentClient?.onboarding_completed
+
+  // Show welcome/setup state when no real analytics data
+  if (!hasRealChannels && currentClient) {
     return <WelcomeHero />
   }
 
-  const sentiment = d.sentiment_breakdown || { positive: 65, neutral: 25, negative: 10 }
-  const engagementData = d.engagement_trend || fallbackOverview.engagement_trend
-  const activities = d.recent_activity || fallbackOverview.recent_activity
+  // Build overview data from real API response
+  const d: OverviewData = {
+    total_followers: mapped.total_followers || 0,
+    prev_followers: mapped.prev_followers || 0,
+    monthly_reach: mapped.monthly_reach || 0,
+    prev_reach: mapped.prev_reach || 0,
+    engagement_rate: mapped.engagement_rate || 0,
+    prev_engagement_rate: mapped.prev_engagement_rate || 0,
+    ad_spend: mapped.ad_spend || 0,
+    prev_ad_spend: mapped.prev_ad_spend || 0,
+    roas: mapped.roas || 0,
+    prev_roas: mapped.prev_roas || 0,
+    sentiment_score: 0,
+    prev_sentiment_score: 0,
+    engagement_trend: mapped.engagement_trend || [],
+    sentiment_breakdown: { positive: 0, neutral: 0, negative: 0 },
+    recent_activity: [],
+  }
+
+  const sentiment = d.sentiment_breakdown
+  const engagementData = d.engagement_trend
+  const activities = d.recent_activity
   const periodLabel = PERIOD_OPTIONS.find(o => o.key === period)?.label || ''
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
 
       <div className="page-wrapper space-y-6 sm:space-y-8">
@@ -710,13 +667,54 @@ export default function Dashboard() {
           <PeriodSelector selected={period} onChange={handlePeriodChange} />
         </div>
 
-        {/* Metric Cards with animated counters */}
-        <div className="metric-grid">
+        {/* Superadmin read-only banner */}
+        {isSuperadminVisitor && (
+          <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+              <ShieldAlert className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-studio-text-primary">Pregled klijenta (samo čitanje)</p>
+              <p className="text-xs text-studio-text-tertiary">
+                Superadmin pristup — promjene može raditi samo admin ovog klijenta.
+                {!actualOnboardingDone && ' Klijent još nije dovršio postavljanje profila.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Hero Metrics — gradient cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-cards">
+          <HeroMetricCard
+            label="Mjesečni doseg"
+            value={d.monthly_reach}
+            previousValue={d.prev_reach}
+            format="number"
+            icon={Eye}
+            gradient="from-blue-600 via-blue-500 to-indigo-600"
+          />
+          <HeroMetricCard
+            label="Stopa angažmana"
+            value={d.engagement_rate}
+            previousValue={d.prev_engagement_rate}
+            format="percent"
+            icon={TrendingUp}
+            gradient="from-violet-600 via-purple-500 to-fuchsia-600"
+          />
+          <HeroMetricCard
+            label="ROAS"
+            value={d.roas}
+            previousValue={d.prev_roas}
+            format="number"
+            icon={BarChart3}
+            gradient="from-emerald-600 via-emerald-500 to-teal-600"
+          />
+        </div>
+
+        {/* Secondary metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-cards">
           <AnimatedMetricCard label="Ukupno pratitelja" value={d.total_followers} previousValue={d.prev_followers} format="number" icon={Users} />
-          <AnimatedMetricCard label="Mjesečni doseg" value={d.monthly_reach} previousValue={d.prev_reach} format="number" icon={Eye} />
-          <AnimatedMetricCard label="Stopa angažmana" value={d.engagement_rate} previousValue={d.prev_engagement_rate} format="percent" icon={TrendingUp} />
           <AnimatedMetricCard label="Potrošnja na oglase" value={d.ad_spend} previousValue={d.prev_ad_spend} format="currency" icon={CreditCard} />
-          <AnimatedMetricCard label="ROAS" value={d.roas} previousValue={d.prev_roas} format="number" icon={BarChart3} />
           <AnimatedMetricCard label="Ocjena sentimenta" value={d.sentiment_score} previousValue={d.prev_sentiment_score} format="percent" icon={Heart} />
         </div>
 
@@ -788,25 +786,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* AI Recommendations */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/10 to-blue-500/10 flex items-center justify-center">
-              <Sparkles size={16} className="text-violet-600" />
-            </div>
-            <div>
-              <h2 className="section-title">Preporuke</h2>
-              <p className="text-xs text-studio-text-tertiary -mt-0.5">AI uvidi i prijedlozi za poboljšanje</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {RECOMMENDATIONS.map(rec => (
-              <RecommendationCard key={rec.id} rec={rec} />
-            ))}
-          </div>
-        </div>
-
-        <AiInsightsPanel pageKey="dashboard" pageData={{ metrics: { followers: d.total_followers, reach: d.monthly_reach, engagement_rate: d.engagement_rate, ad_spend: d.ad_spend, roas: d.roas, sentiment: d.sentiment_score }, activities: activities.slice(0, 5).map(a => ({ type: a.type, text: a.text })) }} />
       </div>
     </div>
   )
