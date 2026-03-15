@@ -11,6 +11,7 @@ import { useApiMutation } from '../hooks/useApiMutation'
 // import { useChannelStatus } from '../hooks/useChannelStatus'
 import { useProjectStatus } from '../hooks/useProjectStatus'
 import { useClient } from '../contexts/ClientContext'
+import { useToast } from '../hooks/useToast'
 import { competitorsApi } from '../api/competitors'
 import {
   TrendingUp, TrendingDown, Minus, Target, Shield, Zap,
@@ -361,9 +362,17 @@ export default function Competitors() {
 
   const competitorList = data.competitors || []
 
+  const { addToast } = useToast()
+
   // --- AI Discover handler ---
   const handleDiscover = async () => {
-    await discoverMutation.mutate()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await discoverMutation.mutate() as any
+    if (result?.discovered) {
+      addToast(`AI je pronašao ${result.discovered} konkurenata!`, 'success')
+    } else if (result) {
+      addToast('Analiza pokrenuta', 'info')
+    }
     refetch()
   }
 

@@ -351,16 +351,17 @@ def initialize_client_intelligence(self, client_id: str):
         _step_d_discover_competitors(cid, business_description, target_audience, results)
 
         # ------------------------------------------------------------------
-        # Step E: Create seed BrandMentions + SentimentRecords
+        # Step E: BrandMentions + SentimentRecords — SKIPPED
+        # Real mentions/sentiments come from social listening integrations,
+        # not seed data. Fabricated data is misleading.
         # ------------------------------------------------------------------
-        logger.info("  Step E: Creating seed BrandMentions + SentimentRecords...")
-        _step_e_create_mentions_and_sentiments(cid, client_name, social_handles, results)
+        logger.info("  Step E: Skipped (no fake seed mentions)")
 
         # ------------------------------------------------------------------
-        # Step F: Create seed TrendingTopics
+        # Step F: TrendingTopics — SKIPPED
+        # Real trending topics come from social listening integrations.
         # ------------------------------------------------------------------
-        logger.info("  Step F: Creating seed TrendingTopics...")
-        _step_f_create_trending_topics(cid, client_name, content_pillars, results)
+        logger.info("  Step F: Skipped (no fake seed topics)")
 
         # ------------------------------------------------------------------
         # Summary

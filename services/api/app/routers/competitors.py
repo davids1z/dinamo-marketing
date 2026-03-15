@@ -63,7 +63,9 @@ async def discover_competitors(
             delete(CompetitorAlert).where(CompetitorAlert.competitor_id == comp.id)
         )
         await db.delete(comp)
-    await db.flush()
+    # MUST commit (not flush) — _step_d opens its own sync session
+    # which can't see uncommitted changes from this async session
+    await db.commit()
 
     # Run AI discovery synchronously (it uses its own sync session)
     results: dict = {"competitors_created": 0, "competitor_metrics_created": 0}
@@ -75,6 +77,8 @@ async def discover_competitors(
     )
 
     # Fetch the newly created competitors to return to the frontend
+    # Expire cached state since _step_d committed via a separate sync session
+    db.expire_all()
     new_comps = (
         await db.execute(select(Competitor).where(Competitor.client_id == client.id))
     ).scalars().all()

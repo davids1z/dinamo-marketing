@@ -5,6 +5,7 @@ import { ComparisonBar } from '../components/charts/ComparisonBar'
 import { useApi } from '../hooks/useApi'
 import { useApiMutation } from '../hooks/useApiMutation'
 import { useClient } from '../contexts/ClientContext'
+import { useToast } from '../hooks/useToast'
 import {
   Download, RefreshCw, ChevronDown, ChevronRight, Trophy, MapPin,
   Calendar, Target, Sparkles, AlertTriangle, Globe, TrendingUp,
@@ -382,8 +383,14 @@ export default function MarketResearch() {
     value: m.totalScore || 0,
   }))
 
+  const { addToast } = useToast()
+
   const handleScan = async () => {
-    await scanMutation.mutate()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await scanMutation.mutate() as any
+    if (result?.message) {
+      addToast(result.message, result.hasData ? 'success' : 'info')
+    }
     refetch()
   }
 
