@@ -493,13 +493,29 @@ async def get_page_data(
             "_meta": {"is_estimate": False, "connected_platforms": [], "analyzed_at": datetime.utcnow().isoformat()},
         }
 
-    return _generate_estimate_data(
-        str(client.id),
-        client.name or "Brend",
-        connected,
-        client_desc=client.business_description or "",
-        client_audience=client.target_audience or "",
-    )
+    return {
+        "markets": [],
+        "regionComparison": [],
+        "contentPipeline": [],
+        "heatmapData": [],
+        "summary": {
+            "total_markets": 0,
+            "total_reach": 0,
+            "total_active": 0,
+            "total_offices": 0,
+            "total_ad_spend": 0,
+            "total_conversions": 0,
+            "total_revenue": 0,
+            "avg_engagement": 0,
+            "languages": [],
+        },
+        "aiInsights": {"title": "AI Geo-Intelligence", "insights": []},
+        "_meta": {
+            "is_estimate": False,
+            "connected_platforms": connected,
+            "analyzed_at": datetime.utcnow().isoformat(),
+        },
+    }
 
 
 # ---------------------------------------------------------------------------

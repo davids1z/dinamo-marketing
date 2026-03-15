@@ -354,11 +354,25 @@ async def get_segmentation_page_data(
                     connected_platforms.append(platform)
 
         if connected_platforms:
-            return _generate_estimate_data(
-                client.id,
-                client.name or "Vaš brend",
-                connected_platforms,
-            )
+            # No real data — return empty structure instead of fake estimates
+            return {
+                "fanSegments": [],
+                "funnelSteps": [],
+                "clvData": [],
+                "churnPredictions": [],
+                "churnDistribution": [],
+                "growthTrend": [],
+                "targeting": [],
+                "monetaryValues": [],
+                "aiAdvice": None,
+                "churnAlert": None,
+                "totalUsers": 0,
+                "_meta": {
+                    "is_estimate": False,
+                    "connected_platforms": connected_platforms,
+                    "analyzed_at": datetime.utcnow().isoformat(),
+                },
+            }
 
     # Try CLV data
     try:

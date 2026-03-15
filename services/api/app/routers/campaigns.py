@@ -562,7 +562,30 @@ async def get_page_data(
             },
         }
 
-    return _generate_estimate_data(str(client.id), client.name or "Brend", connected)
+    return {
+        "campaigns": [],
+        "summary": {
+            "active_campaigns": 0,
+            "paused_campaigns": 0,
+            "total_campaigns": 0,
+            "total_spend": 0,
+            "avg_roas": 0,
+            "avg_ctr": 0,
+            "total_impressions": 0,
+            "total_clicks": 0,
+            "total_conversions": 0,
+            "cost_per_conversion": 0,
+        },
+        "platform_comparison": [],
+        "monthly_trend": [],
+        "alerts": [],
+        "ai_advice": {"title": "AI Media Buyer", "insights": []},
+        "_meta": {
+            "is_estimate": False,
+            "connected_platforms": connected,
+            "analyzed_at": datetime.utcnow().isoformat(),
+        },
+    }
 
 
 # ---------------------------------------------------------------------------

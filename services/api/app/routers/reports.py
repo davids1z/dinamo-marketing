@@ -327,25 +327,13 @@ async def list_weekly_reports(
             if url and isinstance(url, str) and url.strip():
                 connected_platforms.append(platform)
 
-    if connected_platforms:
-        return {
-            "reports": _generate_estimate_weekly(
-                client.id, client.name or "Vaš brend", connected_platforms,
-            ),
-            "_meta": {
-                "is_estimate": True,
-                "next_scheduled": _next_monday(),
-                "schedule_note": "Automatsko generiranje svakog ponedjeljka u 08:00",
-                "connected_platforms": connected_platforms,
-            },
-        }
-
     return {
         "reports": [],
         "_meta": {
             "is_estimate": False,
             "next_scheduled": _next_monday(),
             "schedule_note": "Automatsko generiranje svakog ponedjeljka u 08:00",
+            "connected_platforms": connected_platforms,
         },
     }
 
@@ -383,25 +371,13 @@ async def list_monthly_reports(
             if url and isinstance(url, str) and url.strip():
                 connected_platforms.append(platform)
 
-    if connected_platforms:
-        return {
-            "reports": _generate_estimate_monthly(
-                client.id, client.name or "Vaš brend", connected_platforms,
-            ),
-            "_meta": {
-                "is_estimate": True,
-                "next_scheduled": _first_of_next_month(),
-                "schedule_note": "Automatsko generiranje 1. u mjesecu u 06:00",
-                "connected_platforms": connected_platforms,
-            },
-        }
-
     return {
         "reports": [],
         "_meta": {
             "is_estimate": False,
             "next_scheduled": _first_of_next_month(),
             "schedule_note": "Automatsko generiranje 1. u mjesecu u 06:00",
+            "connected_platforms": connected_platforms,
         },
     }
 

@@ -666,7 +666,9 @@ def _step_e_create_mentions_and_sentiments(
             return
 
         now = datetime.now(timezone.utc)
-        platforms = ["instagram", "twitter_x", "facebook", "tiktok", "reddit", "youtube"]
+        platforms = [p.lower().strip() for p in social_handles.keys() if social_handles[p]]
+        if not platforms:
+            platforms = ["web"]
 
         # Create BrandMentions (25 records)
         for _ in range(25):

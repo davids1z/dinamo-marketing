@@ -545,13 +545,30 @@ async def get_page_data(
             },
         }
 
-    return _generate_estimate_data(
-        str(client.id),
-        client.name or "Brend",
-        connected,
-        client_desc=client.business_description or "",
-        client_audience=client.target_audience or "",
-    )
+    return {
+        "partners": [],
+        "contentPipeline": [],
+        "discoveries": [],
+        "summary": {
+            "active_collaborations": 0,
+            "total_partners": 0,
+            "total_revenue": 0,
+            "total_cost": 0,
+            "total_roi": 0,
+            "avg_match_score": 0,
+            "total_reach": 0,
+            "total_conversions": 0,
+            "pending_content": 0,
+            "active_programs": 0,
+        },
+        "tier_comparison": [],
+        "ai_advice": {"title": "AI Matchmaking", "insights": []},
+        "_meta": {
+            "is_estimate": False,
+            "connected_platforms": connected,
+            "analyzed_at": datetime.utcnow().isoformat(),
+        },
+    }
 
 
 # ---------------------------------------------------------------------------

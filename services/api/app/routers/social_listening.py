@@ -238,25 +238,31 @@ async def get_trending_page_data(
                     connected_platforms.append(platform)
 
         if connected_platforms:
-            # Get competitor names if available
-            from app.models.competitor import Competitor
-            comp_result = await db.execute(
-                select(Competitor.name)
-                .where(Competitor.client_id == client.id)
-                .limit(4)
-            )
-            competitor_names = [row[0] for row in comp_result.all()]
-
-            hashtags = client.hashtags if client.hashtags and isinstance(client.hashtags, list) else []
-
-            return _generate_estimate_data(
-                client.id,
-                client.name or "Vaš brend",
-                connected_platforms,
-                hashtags,
-                competitor_names,
-                days,
-            )
+            # No real data — return empty structure instead of fake estimates
+            return {
+                "metrics": {
+                    "totalMentions": 0,
+                    "prevMentions": 0,
+                    "shareOfVoice": 0,
+                    "prevShareOfVoice": 0,
+                    "trendingCount": 0,
+                    "sentimentPositive": 0,
+                    "sentimentNeutral": 0,
+                    "sentimentNegative": 0,
+                },
+                "recentMentions": [],
+                "trendingTopics": [],
+                "sentimentTimeline": [],
+                "mentionVolume": [],
+                "competitorMentions": [],
+                "sourceBreakdown": [],
+                "_meta": {
+                    "is_estimate": False,
+                    "connected_platforms": connected_platforms,
+                    "tracked_keywords": [],
+                    "analyzed_at": datetime.utcnow().isoformat(),
+                },
+            }
 
     # --- Real data flow ---
     # Total mentions (previous period)

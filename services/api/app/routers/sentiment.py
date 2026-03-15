@@ -179,28 +179,23 @@ async def get_sentiment_overview(
                     connected_platforms.append(platform)
 
         if connected_platforms:
-            is_estimate = True
-            est = _generate_estimate_data(
-                client.id, client.name or "Vaš brend",
-                connected_platforms, days,
-            )
-
+            # No real data — return empty structure instead of fake estimates
             return {
-                "hasData": True,
-                "positive": est["pos_pct"],
-                "neutral": est["neu_pct"],
-                "negative": est["neg_pct"],
-                "positiveChange": "+2.3%",
-                "neutralChange": "-1.1%",
-                "negativeChange": "-1.2%",
-                "timeline": est["timeline"],
-                "topics": est["topics"],
+                "hasData": False,
+                "positive": 0,
+                "neutral": 0,
+                "negative": 0,
+                "positiveChange": "+0.0%",
+                "neutralChange": "+0.0%",
+                "negativeChange": "+0.0%",
+                "timeline": [],
+                "topics": [],
                 "alerts": [],
-                "wordCloud": est["word_cloud"],
-                "sampleComments": est["sample_comments"],
-                "totalComments": est["total_comments"],
+                "wordCloud": [],
+                "sampleComments": {"positive": [], "negative": [], "neutral": []},
+                "totalComments": 0,
                 "_meta": {
-                    "is_estimate": True,
+                    "is_estimate": False,
                     "connected_platforms": connected_platforms,
                     "analyzed_at": datetime.utcnow().isoformat(),
                 },
