@@ -64,7 +64,7 @@ export default function AiInsightsPanel({ pageKey, pageData }: AiInsightsPanelPr
   }
 
   return (
-    <div className="bg-[#0A1A28] border border-[#1a3a5c] rounded-xl p-5">
+    <div className="bg-brand-dark border border-white/10 rounded-xl p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

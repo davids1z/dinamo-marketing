@@ -151,7 +151,7 @@ async def health_check():
         "status": "healthy",
         "app": settings.APP_NAME,
         "version": "1.0.0",
-        "mock_mode": settings.SOZ_USE_MOCK_APIS,
+        "environment": getattr(settings, 'SENTRY_ENVIRONMENT', 'development'),
     }
 
 
