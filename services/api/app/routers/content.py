@@ -226,6 +226,54 @@ async def update_post(
     return post
 
 
+
+@router.post("/posts")
+async def create_post(
+    body: dict = Body(...),
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a standalone draft ContentPost (e.g. from Campaign Research)."""
+    from app.models.content import ContentPost
+    from datetime import datetime, timezone, timedelta
+
+    user, client, project, role = ctx
+
+    # Required field — default to instagram if not provided
+    platform = body.get("platform", "instagram")
+    title = body.get("title", "")
+
+    # scheduled_at: accept ISO string or fall back to 7 days from now
+    scheduled_at_raw = body.get("scheduled_at")
+    if scheduled_at_raw:
+        try:
+            scheduled_at = datetime.fromisoformat(scheduled_at_raw.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            scheduled_at = datetime.now(timezone.utc) + timedelta(days=7)
+    else:
+        scheduled_at = datetime.now(timezone.utc) + timedelta(days=7)
+
+    post = ContentPost(
+        client_id=client.id,
+        project_id=project.id,
+        title=title,
+        platform=platform,
+        status=body.get("status", "draft"),
+        caption_hr=body.get("caption_hr", body.get("body", "")),
+        caption_en=body.get("caption_en", ""),
+        caption_de=body.get("caption_de", ""),
+        content_pillar=body.get("content_pillar", "campaign"),
+        scheduled_at=scheduled_at,
+        visual_brief=body.get("visual_brief", ""),
+        cta_text=body.get("cta_text", ""),
+        hashtags=body.get("hashtags"),
+    )
+    db.add(post)
+    await db.commit()
+    await db.refresh(post)
+    return post
+
+
 @router.post("/posts/{post_id}/publish")
 async def publish_post_now(
     post_id: UUID,

@@ -423,3 +423,34 @@ async def get_api_quotas(
     from app.services.quota_tracker import quota_tracker
 
     return await quota_tracker.get_all_usage()
+
+
+# ---------- AI Generation Quota ----------
+
+@router.get("/ai-quota")
+async def get_ai_quota(
+    ctx: tuple = Depends(get_current_client),
+):
+    """Return AI generation credits used vs total for the current client."""
+    from datetime import datetime, timezone
+
+    user, client, role = ctx
+
+    used = client.ai_credits_used or 0
+    total = client.ai_credits_total or 50
+
+    # Calculate first day of next month as reset date
+    now = datetime.now(timezone.utc)
+    if now.month == 12:
+        reset_dt = now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    else:
+        reset_dt = now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    pct = round((used / total) * 100) if total > 0 else 0
+
+    return {
+        "used": used,
+        "total": total,
+        "percent": pct,
+        "reset_date": reset_dt.strftime("1. %B %Y"),
+    }

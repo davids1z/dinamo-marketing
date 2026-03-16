@@ -38,6 +38,17 @@ export const contentApi = {
   getTemplates: () => api.get('/content/templates'),
   reschedulePost: (id: string, data: { day: number; month: number; year: number }) =>
     api.patch(`/content/posts/${id}/reschedule`, data),
+  createPost: (data: {
+    title: string
+    caption_hr: string
+    platform: string
+    scheduled_at?: string
+    status?: string
+    content_pillar?: string
+    visual_brief?: string
+    cta_text?: string
+    hashtags?: string[]
+  }) => api.post('/content/posts', data),
   // 6-Month Strategy
   generateStrategy: (data: { start_month: number; start_year: number; context?: Record<string, unknown> }) =>
     api.post('/content/strategy/generate', data),

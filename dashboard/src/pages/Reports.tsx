@@ -7,6 +7,7 @@ import { useApi } from '../hooks/useApi'
 import { useProjectStatus } from '../hooks/useProjectStatus'
 import { useClient } from '../contexts/ClientContext'
 import { reportsApi } from '../api/reports'
+import { printReportAsPdf } from '../utils/printReportPdf'
 import { formatNumber } from '../utils/formatters'
 import {
   FileText, Download, Calendar, Clock, CheckCircle, Loader2,
@@ -440,11 +441,32 @@ export default function Reports() {
 
   const handleDownload = async (reportId: string) => {
     setDownloadingId(reportId)
+    const report = allReports.find(r => r.id === reportId)
+    if (!report) {
+      setDownloadingId(null)
+      return
+    }
+
+    // For local (offline) reports or as primary path: generate a rich print PDF
+    const isLocal = reportId.startsWith('local-')
+    if (!isLocal) {
+      // Try the API blob download first for persisted reports
+      try {
+        await reportsApi.downloadPdf(reportId, activeTab)
+        addToast('PDF izvještaj preuzet!', 'success')
+        setDownloadingId(null)
+        return
+      } catch {
+        // Fall through to print-based generation
+      }
+    }
+
+    // Print-based PDF: build a rich HTML document and open the browser print dialog
     try {
-      await reportsApi.downloadPdf(reportId, activeTab)
-      addToast('PDF izvještaj preuzet!', 'success')
+      printReportAsPdf(report, brandName)
+      addToast('Otvoreno za ispis / spremanje kao PDF', 'success')
     } catch {
-      addToast('Greška pri preuzimanju PDF-a', 'error')
+      addToast('Greška pri generiranju PDF-a', 'error')
     } finally {
       setDownloadingId(null)
     }

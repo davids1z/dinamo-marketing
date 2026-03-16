@@ -4,7 +4,7 @@ import Header from '../components/layout/Header'
 import { CardSkeleton } from '../components/common/LoadingSpinner'
 import { useApi } from '../hooks/useApi'
 import { useToast } from '../hooks/useToast'
-import { settingsApi } from '../api/settings'
+import { settingsApi, type AiQuotaResponse } from '../api/settings'
 import { teamApi, type TeamMember } from '../api/team'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -390,6 +390,7 @@ function TeamSection() {
 
 export default function Settings() {
   const { data: apiData, loading, refetch } = useApi<SettingsData>('/settings/api-status')
+  const { data: aiQuota } = useApi<AiQuotaResponse>('/settings/ai-quota')
   const { toasts, addToast, removeToast } = useToast()
   const { currentClient, isClientAdmin, isViewer } = useClient()
   const { user } = useAuth()
@@ -789,13 +790,34 @@ export default function Settings() {
                   </div>
                   <div className="p-4 bg-studio-surface-0 rounded-xl border border-studio-border text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
-                      <Zap size={14} className="text-brand-accent" />
+                      <Zap size={14} className={
+                        aiQuota
+                          ? aiQuota.percent >= 80 ? 'text-red-400'
+                          : aiQuota.percent >= 50 ? 'text-amber-400'
+                          : 'text-brand-accent'
+                          : 'text-brand-accent'
+                      } />
                     </div>
-                    <p className="text-lg font-bold text-studio-text-primary font-headline">15 / 50</p>
+                    <p className="text-lg font-bold text-studio-text-primary font-headline">
+                      {aiQuota ? `${aiQuota.used} / ${aiQuota.total}` : '— / —'}
+                    </p>
                     <p className="text-[11px] text-studio-text-tertiary mt-0.5">AI generiranja</p>
                     <div className="w-full bg-studio-surface-3 rounded-full h-1 mt-2">
-                      <div className="bg-brand-accent h-1 rounded-full" style={{ width: '30%' }} />
+                      <div
+                        className={clsx('h-1 rounded-full transition-all', aiQuota
+                          ? aiQuota.percent >= 80 ? 'bg-red-400'
+                          : aiQuota.percent >= 50 ? 'bg-amber-400'
+                          : 'bg-brand-accent'
+                          : 'bg-brand-accent'
+                        )}
+                        style={{ width: `${aiQuota ? aiQuota.percent : 0}%` }}
+                      />
                     </div>
+                    {aiQuota && (
+                      <p className="text-[10px] text-studio-text-tertiary mt-1.5 leading-tight">
+                        Resetira se {aiQuota.reset_date}
+                      </p>
+                    )}
                   </div>
                 </div>
 

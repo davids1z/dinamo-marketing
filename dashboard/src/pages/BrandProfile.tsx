@@ -51,13 +51,13 @@ const BRAND_TABS: Array<{ id: BrandTab; label: string; icon: typeof Building2 }>
 
 const TONES = [
   { value: 'professional', label: 'Profesionalan', emoji: '🎯', description: 'Stručan, pouzdan, autoritativan' },
-  { value: 'friendly', label: 'Prijateljski', emoji: '👋', description: 'Topao, pristupačan, konverzacijski' },
   { value: 'bold', label: 'Hrabar i direktan', emoji: '🔥', description: 'Provokativan, snažan, bez uljepšavanja' },
-  { value: 'creative', label: 'Kreativan', emoji: '🎨', description: 'Inovativan, vizualan, neočekivan' },
-  { value: 'formal', label: 'Formalan', emoji: '📋', description: 'Službeni ton, strukturiran, ozbiljan' },
-  { value: 'casual', label: 'Opušten', emoji: '☕', description: 'Neformalan, lagan, svakodnevni jezik' },
-  { value: 'inspirational', label: 'Inspirativan', emoji: '✨', description: 'Motivacijski, vizionarski, pozitivan' },
   { value: 'humorous', label: 'Humorističan', emoji: '😄', description: 'Duhovit, zabavan, satiričan' },
+  { value: 'inspirational', label: 'Inspirativan', emoji: '✨', description: 'Motivirajući, vizionarski, emotivan' },
+  { value: 'educational', label: 'Edukacijski', emoji: '📚', description: 'Informativan, detaljan, koristan' },
+  { value: 'casual', label: 'Opušten', emoji: '😊', description: 'Prijateljski, neformalan, autentičan' },
+  { value: 'luxury', label: 'Luksuzni', emoji: '💎', description: 'Ekskluzivan, sofisticiran, prestižan' },
+  { value: 'minimalist', label: 'Minimalistički', emoji: '⚡', description: 'Jednostavan, čist, fokusiran' },
 ]
 
 const LANGUAGES = [
@@ -81,7 +81,7 @@ const COLOR_LABELS: Record<string, string> = {
 /* ------------------------------------------------------------------ */
 
 function isValidUrl(str: string): boolean {
-  if (!str.trim()) return false
+  if (!str.trim()) return true // empty is OK
   try {
     const u = new URL(str)
     return u.protocol === 'http:' || u.protocol === 'https:'

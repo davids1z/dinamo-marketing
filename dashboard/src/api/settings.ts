@@ -12,6 +12,13 @@ export interface NotificationToggleResponse {
   message: string;
 }
 
+export interface AiQuotaResponse {
+  used: number;
+  total: number;
+  percent: number;
+  reset_date: string;
+}
+
 export const settingsApi = {
   getHealth: () => api.get('/settings/health'),
   getApiStatus: () => api.get('/settings/api-status'),
@@ -24,5 +31,6 @@ export const settingsApi = {
     api.put('/settings/brand', data),
   getNotifications: () => api.get('/settings/notifications'),
   getQuotas: () => api.get('/settings/quotas'),
+  getAiQuota: () => api.get<AiQuotaResponse>('/settings/ai-quota'),
   getSystemHealth: () => api.get('/settings/health'),
 };

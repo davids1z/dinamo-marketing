@@ -1,13 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Upload, FileText, Search, Sparkles, Loader2, CheckCircle2,
   XCircle, Clock, Trash2, Globe, Target,
   Calendar, DollarSign, AlertTriangle, TrendingUp, ExternalLink,
   Zap, Megaphone, Eye, MousePointerClick, ArrowRight,
   Copy, BarChart3, Lightbulb, ShieldAlert, ChevronDown, ChevronUp,
+  CheckCircle, AlertCircle, X,
 } from 'lucide-react'
 import Header from '../components/layout/Header'
 import { campaignResearchApi, type CampaignResearchItem } from '../api/campaignResearch'
+import { contentApi } from '../api/content'
+import { useToast } from '../hooks/useToast'
 
 /* ─────────── Constants ─────────── */
 
@@ -275,8 +279,12 @@ export default function CampaignResearch() {
   const [textInput, setTextInput] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const [showCalendar, setShowCalendar] = useState(true)
+  const [addingToCalendar, setAddingToCalendar] = useState(false)
+  const [addedToCalendar, setAddedToCalendar] = useState<Set<string>>(new Set())
   const fileRef = useRef<HTMLInputElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const navigate = useNavigate()
+  const { toasts, addToast, removeToast } = useToast()
 
   // Load campaigns list
   const loadCampaigns = useCallback(async () => {
@@ -380,6 +388,58 @@ export default function CampaignResearch() {
     }
   }
 
+  // Add campaign research result to Content Calendar as a draft post
+  const handleAddToCalendar = async (item: CampaignResearchItem) => {
+    if (addingToCalendar || addedToCalendar.has(item.id)) return
+    setAddingToCalendar(true)
+    try {
+      const plan = item.generated_plan as Record<string, any> | null
+
+      // Derive title: use item title or executive summary headline
+      const title = item.title ||
+        (plan?.executive_summary ? String(plan.executive_summary).slice(0, 120) : 'Kampanja iz istraživanja')
+
+      // Derive body: executive summary or first recommendation
+      const body = plan?.executive_summary
+        ? String(plan.executive_summary)
+        : plan?.recommendations?.length
+          ? String(plan.recommendations[0])
+          : ''
+
+      // Derive platform: first platform from content_calendar if available
+      let platform = 'instagram'
+      if (plan?.content_calendar?.length) {
+        const firstPost = plan.content_calendar[0]?.posts?.[0]
+        if (firstPost?.platform) platform = String(firstPost.platform).toLowerCase()
+      }
+
+      // Derive scheduled_at: 7 days from now, or parse from plan if available
+      const scheduledAt = new Date()
+      scheduledAt.setDate(scheduledAt.getDate() + 7)
+
+      await contentApi.createPost({
+        title,
+        caption_hr: body,
+        platform,
+        scheduled_at: scheduledAt.toISOString(),
+        status: 'draft',
+        content_pillar: 'campaign',
+        visual_brief: plan?.creative_direction ? String(plan.creative_direction).slice(0, 500) : '',
+      })
+
+      setAddedToCalendar(prev => new Set([...prev, item.id]))
+      addToast('Kampanja dodana u kalendar kao nacrt', 'success')
+    } catch (err: any) {
+      console.error('Add to calendar failed', err)
+      addToast(
+        err?.response?.data?.detail || 'Greška pri dodavanju u kalendar',
+        'error',
+      )
+    } finally {
+      setAddingToCalendar(false)
+    }
+  }
+
   // Render the detail/plan view
   const renderDetail = () => {
     if (!selected) return null
@@ -403,9 +463,19 @@ export default function CampaignResearch() {
               <p className="text-xs text-studio-text-tertiary mt-0.5">{selected.title}</p>
             </div>
             {selected.status === 'complete' && (
-              <button className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-brand-dark rounded-xl text-xs font-semibold hover:bg-brand-accent/90 transition-colors">
-                <Calendar size={14} />
-                Prebaci u kalendar
+              <button
+                onClick={() => selected && handleAddToCalendar(selected)}
+                disabled={addingToCalendar || (selected ? addedToCalendar.has(selected.id) : false)}
+                className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-brand-dark rounded-xl text-xs font-semibold hover:bg-brand-accent/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {addingToCalendar ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : selected && addedToCalendar.has(selected.id) ? (
+                  <CheckCircle size={14} />
+                ) : (
+                  <Calendar size={14} />
+                )}
+                {selected && addedToCalendar.has(selected.id) ? 'Dodano' : 'Prebaci u kalendar'}
               </button>
             )}
           </div>
@@ -694,10 +764,29 @@ export default function CampaignResearch() {
         {/* Bottom Actions */}
         {selected.status === 'complete' && (
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-brand-dark rounded-xl text-sm font-semibold hover:bg-brand-accent/90 transition-colors">
-              <Calendar size={16} />
-              Prebaci u kalendar
+            <button
+              onClick={() => selected && handleAddToCalendar(selected)}
+              disabled={addingToCalendar || (selected ? addedToCalendar.has(selected.id) : false)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-brand-dark rounded-xl text-sm font-semibold hover:bg-brand-accent/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {addingToCalendar ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : selected && addedToCalendar.has(selected.id) ? (
+                <CheckCircle size={16} />
+              ) : (
+                <Calendar size={16} />
+              )}
+              {selected && addedToCalendar.has(selected.id) ? 'Dodano u kalendar' : 'Prebaci u kalendar'}
             </button>
+            {selected && addedToCalendar.has(selected.id) && (
+              <button
+                onClick={() => navigate('/content')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-studio-surface-2 text-brand-accent rounded-xl text-sm font-medium hover:bg-studio-surface-3 transition-colors border border-brand-accent/30"
+              >
+                <ExternalLink size={16} />
+                Otvori kalendar
+              </button>
+            )}
             <button className="flex items-center gap-2 px-5 py-2.5 bg-studio-surface-2 text-studio-text-primary rounded-xl text-sm font-medium hover:bg-studio-surface-3 transition-colors">
               <Copy size={16} />
               Kopiraj plan
@@ -865,6 +954,39 @@ export default function CampaignResearch() {
           </div>
         </div>
       </div>
+      {/* Toast Notifications */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-[100] space-y-2">
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className={`flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl backdrop-blur-sm text-sm font-medium ${
+                t.type === 'success'
+                  ? 'bg-emerald-600 text-white'
+                  : t.type === 'error'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-brand-blue text-white'
+              }`}
+            >
+              {t.type === 'success' && <CheckCircle size={16} />}
+              {t.type === 'error' && <AlertCircle size={16} />}
+              {t.type === 'info' && <Loader2 size={16} className="animate-spin" />}
+              <span>{t.message}</span>
+              {t.type === 'success' && (
+                <button
+                  onClick={() => navigate('/content')}
+                  className="ml-1 underline opacity-80 hover:opacity-100 text-xs whitespace-nowrap"
+                >
+                  Otvori kalendar
+                </button>
+              )}
+              <button onClick={() => removeToast(t.id)} className="ml-2 opacity-70 hover:opacity-100">
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   )
 }
