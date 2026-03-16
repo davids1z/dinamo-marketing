@@ -31,21 +31,26 @@ export default function ContextSwitcher() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Auto-focus search input when panel opens
+  // Auto-focus search input when panel opens; reset search when closed
   useEffect(() => {
     if (panel !== 'closed') {
       setTimeout(() => searchInputRef.current?.focus(), 50)
     } else {
-      setClientSearch('')
-      setProjectSearch('')
+      // Defer setState to avoid calling it synchronously within an effect
+      const resetTimer = setTimeout(() => {
+        setClientSearch('')
+        setProjectSearch('')
+      }, 0)
+      return () => clearTimeout(resetTimer)
     }
   }, [panel])
+
+  const { hasConnectedChannels } = useChannelStatus()
 
   if (!currentClient) return null
 
   // AI context is "active" when the client has completed onboarding
   const hasAiContext = currentClient.onboarding_completed
-  const { hasConnectedChannels } = useChannelStatus()
 
   // --- Client filtering ---
   const filteredClients = clientSearch

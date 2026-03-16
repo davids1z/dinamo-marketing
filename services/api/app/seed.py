@@ -527,8 +527,13 @@ async def main():
             # 3. Create admin user with client membership
             await seed_admin_user(session, default_client)
 
-            # 3b. Create demo team members
-            await seed_demo_users(session, default_client)
+            # 3b. Create demo team members (dev/staging only — skip in production)
+            import os as _os
+            _env = _os.getenv("SENTRY_ENVIRONMENT", "development")
+            if _env != "production":
+                await seed_demo_users(session, default_client)
+            else:
+                logger.info("Production environment detected — skipping demo user seeding")
 
             # 4. Seed data (all scoped to default client)
             await seed_countries(session, client_id)

@@ -3,12 +3,13 @@
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel as PydanticBase
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel as PydanticBase, Field, validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.middleware.rate_limit import limiter
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.services.auth_service import (
@@ -131,8 +132,14 @@ class TokenResponse(PydanticBase):
 
 class RegisterRequest(PydanticBase):
     email: str
-    password: str
+    password: str = Field(..., min_length=8, max_length=128)
     full_name: str
+
+    @validator('password')
+    def password_strength(cls, v):
+        if not any(c.isdigit() or c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter or digit')
+        return v
 
 
 class CreateOrganizationRequest(PydanticBase):
@@ -142,8 +149,14 @@ class CreateOrganizationRequest(PydanticBase):
 class AcceptInviteRequest(PydanticBase):
     token: str
     email: str
-    password: str
+    password: str = Field(..., min_length=8, max_length=128)
     full_name: str
+
+    @validator('password')
+    def password_strength(cls, v):
+        if not any(c.isdigit() or c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter or digit')
+        return v
 
 
 class UserOut(PydanticBase):
@@ -157,7 +170,8 @@ class UserOut(PydanticBase):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends(get_db)):
     """Authenticate with email + password, return JWT token."""
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
@@ -231,7 +245,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         email=body.email,
         hashed_password=hash_password(body.password),
         full_name=body.full_name,
-        role="admin",
+        role="viewer",
         is_active=True,
         is_superadmin=False,
     )

@@ -97,54 +97,68 @@ export default function Login() {
           {/* Icon */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-12 h-12 rounded-xl bg-slate-100/80 flex items-center justify-center mb-5 shadow-sm">
-              <LogIn className="w-5 h-5 text-slate-500" />
+              <LogIn className="w-5 h-5 text-slate-500" aria-hidden="true" />
             </div>
-            <h2
+            <h1
               className="text-[22px] font-semibold text-slate-800 tracking-[-0.01em]"
               style={{ fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'none' as const }}
             >
               Prijavite se
-            </h2>
+            </h1>
             <p className="text-[13px] text-slate-400 mt-1.5 text-center leading-relaxed max-w-[280px]">
               Upravljajte marketingom uz pomoć AI-ja
             </p>
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 bg-red-50/80 border border-red-200/60 rounded-xl text-sm text-red-600 font-medium backdrop-blur-sm">
+            <div
+              id="login-error"
+              role="alert"
+              className="mb-5 p-3.5 bg-red-50/80 border border-red-200/60 rounded-xl text-sm text-red-600 font-medium backdrop-blur-sm"
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
+              <label htmlFor="login-email" className="sr-only">E-mail adresa</label>
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" aria-hidden="true" />
               <input
+                id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-required="true"
+                aria-describedby={error ? 'login-error' : undefined}
                 className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={{
                   background: 'rgba(241,245,249,0.7)',
                   border: '1px solid rgba(226,232,240,0.6)',
                 }}
                 placeholder="E-mail adresa"
+                autoComplete="email"
               />
             </div>
             <div className="relative">
-              <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
+              <label htmlFor="login-password" className="sr-only">Lozinka</label>
+              <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" aria-hidden="true" />
               <input
+                id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                aria-required="true"
+                aria-describedby={error ? 'login-error' : undefined}
                 className="w-full pl-11 pr-4 py-4 rounded-xl text-base sm:text-sm text-slate-800 transition-all placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300/50 focus:border-sky-300"
                 style={{
                   background: 'rgba(241,245,249,0.7)',
                   border: '1px solid rgba(226,232,240,0.6)',
                 }}
                 placeholder="Lozinka"
+                autoComplete="current-password"
               />
             </div>
 

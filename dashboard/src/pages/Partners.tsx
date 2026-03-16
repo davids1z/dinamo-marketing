@@ -135,7 +135,27 @@ export default function Partners() {
 
   const { data, loading, error } = useApi<PartnersData>('/partners/')
 
-  // Guard: no project selected
+  // Filter + search + sort (always called — uses data?.partners ?? [] when data not yet loaded)
+  const filtered = useMemo(() => {
+    const partners = data?.partners ?? []
+    let rows = [...partners]
+    if (filterStatus !== 'all') rows = rows.filter(p => p.status === filterStatus)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      rows = rows.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.handle.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      )
+    }
+    rows.sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
+      return (b[sortBy] as number) - (a[sortBy] as number)
+    })
+    return rows
+  }, [data, filterStatus, search, sortBy])
+
+    // Guard: no project selected
   if (!hasProjects) {
     return (
       <div className="page-container">
@@ -188,25 +208,6 @@ export default function Partners() {
   }
 
   const { partners, summary } = data
-
-  // Filter + search + sort
-  const filtered = useMemo(() => {
-    let rows = [...partners]
-    if (filterStatus !== 'all') rows = rows.filter(p => p.status === filterStatus)
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      rows = rows.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.handle.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
-      )
-    }
-    rows.sort((a, b) => {
-      if (sortBy === 'name') return a.name.localeCompare(b.name)
-      return (b[sortBy] as number) - (a[sortBy] as number)
-    })
-    return rows
-  }, [partners, filterStatus, search, sortBy])
 
   const STATUS_FILTERS: { key: FilterStatus; label: string }[] = [
     { key: 'all', label: 'Svi' },

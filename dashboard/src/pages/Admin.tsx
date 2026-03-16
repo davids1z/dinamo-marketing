@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import api from '../api/client'
+import { isAxiosError } from 'axios'
 import { useAuth } from '../contexts/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { useToast } from '../hooks/useToast'
@@ -339,8 +340,9 @@ function UsersView() {
       setShowCreate(false)
       setCreateForm({ email: '', password: '', full_name: '', role: 'viewer' })
       fetchUsers()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri kreiranju korisnika')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri kreiranju korisnika')
     }
   }
 
@@ -351,8 +353,9 @@ function UsersView() {
       setEditingId(null)
       fetchUsers()
       if (expandedUserId === id) fetchUserDetail(id)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri ažuriranju')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri ažuriranju')
     }
   }
 
@@ -362,8 +365,9 @@ function UsersView() {
       await api.delete(`/admin/users/${id}`)
       fetchUsers()
       if (expandedUserId === id) fetchUserDetail(id)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri deaktivaciji')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri deaktivaciji')
     }
   }
 
@@ -379,8 +383,9 @@ function UsersView() {
       const { access_token, user: userData } = res.data
       impersonate(access_token, userData)
       navigate('/')
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri impersonaciji')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri impersonaciji')
     }
   }
 
@@ -390,8 +395,9 @@ function UsersView() {
       await api.put(`/admin/memberships/${membershipId}/role`, { role: membershipRole })
       setEditingMembershipId(null)
       if (expandedUserId) fetchUserDetail(expandedUserId)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri promjeni role')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri promjeni role')
     }
   }
 
@@ -401,8 +407,9 @@ function UsersView() {
       await api.delete(`/admin/memberships/${membershipId}`)
       setConfirmRemoveMembership(null)
       if (expandedUserId) fetchUserDetail(expandedUserId)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri uklanjanju članstva')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri uklanjanju članstva')
     }
   }
 
@@ -747,8 +754,9 @@ function ClientsView() {
       setEditingSub(false)
       fetchClientDetail(expandedClientId)
       fetchClients()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri ažuriranju pretplate')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri ažuriranju pretplate')
     }
   }
 

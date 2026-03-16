@@ -1,5 +1,6 @@
 """Modul 15: Cross-Platform Analytics Aggregator service."""
 
+import asyncio
 import logging
 from datetime import datetime, timedelta
 from uuid import UUID
@@ -347,7 +348,7 @@ class AnalyticsAggregatorService:
         ]
 
     async def get_funnel_data(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> list[dict]:
-        """Get conversion funnel: impressions → engagements → clicks → conversions."""
+        """Get conversion funnel: impressions -> engagements -> clicks -> conversions."""
         cutoff = datetime.utcnow() - timedelta(days=days)
 
         # Organic funnel
@@ -393,12 +394,35 @@ class AnalyticsAggregatorService:
         import random
         from app.models.content import ContentPost
 
-        kpis = await self.get_overview_kpis(db, days, client_id)
-        reach_data = await self.get_daily_reach_series(db, days, client_id)
-        funnel = await self.get_funnel_data(db, days, client_id)
+        # Parallelise the four independent DB fan-out calls
+        results = await asyncio.gather(
+            self.get_overview_kpis(db, days, client_id),
+            self.get_daily_reach_series(db, days, client_id),
+            self.get_funnel_data(db, days, client_id),
+            self.get_platform_breakdown(db, client_id=client_id),
+            self.get_content_rankings(db, limit=5, client_id=client_id),
+            return_exceptions=True,
+        )
+
+        # Unpack and handle any individual gather exceptions
+        kpis, reach_data, funnel, platform_data, rankings = results
+        for r in results:
+            if isinstance(r, Exception):
+                logger.error(f"Analytics gather error: {r}")
+
+        # Safe defaults if a gather call raised
+        if isinstance(kpis, Exception):
+            kpis = {}
+        if isinstance(reach_data, Exception):
+            reach_data = []
+        if isinstance(funnel, Exception):
+            funnel = []
+        if isinstance(platform_data, Exception):
+            platform_data = {}
+        if isinstance(rankings, Exception):
+            rankings = []
 
         # Campaign data by platform
-        platform_data = await self.get_platform_breakdown(db, client_id=client_id)
         campaign_data = []
         for p_name, p_metrics in platform_data.get("platforms", {}).items():
             if p_metrics.get("impressions", 0) > 0:
@@ -410,7 +434,6 @@ class AnalyticsAggregatorService:
                 })
 
         # Top posts
-        rankings = await self.get_content_rankings(db, limit=5, client_id=client_id)
         top_posts = []
         for r in rankings:
             if r.get("post_id"):

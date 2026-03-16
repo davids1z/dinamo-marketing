@@ -4,7 +4,7 @@ import uuid as uuid_mod
 
 from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from uuid import UUID
 
 from app.database import get_db
@@ -115,16 +115,31 @@ async def generate_monthly_plan(
 
 @router.get("/plans")
 async def list_plans(
+    skip: int = Query(default=0, ge=0, description="Number of records to skip"),
+    limit: int = Query(default=50, ge=1, le=200, description="Max records to return"),
     ctx: tuple = Depends(get_current_project),
     db: AsyncSession = Depends(get_db),
 ):
     user, client, project, role = ctx
     from app.models import ContentPlan
 
-    query = select(ContentPlan).where(ContentPlan.client_id == client.id, ContentPlan.project_id == project.id).order_by(ContentPlan.created_at.desc())
+    base_where = [ContentPlan.client_id == client.id, ContentPlan.project_id == project.id]
+
+    total_result = await db.execute(
+        select(func.count(ContentPlan.id)).where(*base_where)
+    )
+    total = total_result.scalar() or 0
+
+    query = (
+        select(ContentPlan)
+        .where(*base_where)
+        .order_by(ContentPlan.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
     res = await db.execute(query)
     plans = res.scalars().all()
-    return plans
+    return {"total": total, "skip": skip, "limit": limit, "items": plans}
 
 
 @router.get("/plans/{plan_id}")
@@ -168,6 +183,43 @@ async def get_approval_queue(
     service = _get_service()
     result = await service.get_approval_queue(db)
     return result
+
+
+@router.get("/posts")
+async def list_posts(
+    skip: int = Query(default=0, ge=0, description="Number of records to skip"),
+    limit: int = Query(default=50, ge=1, le=200, description="Max records to return"),
+    platform: str | None = Query(default=None, description="Filter by platform"),
+    status: str | None = Query(default=None, description="Filter by status"),
+    ctx: tuple = Depends(get_current_project),
+    db: AsyncSession = Depends(get_db),
+):
+    """List posts with pagination and optional platform/status filters."""
+    from app.models.content import ContentPost
+
+    user, client, project, role = ctx
+
+    conditions = [ContentPost.client_id == client.id, ContentPost.project_id == project.id]
+    if platform:
+        conditions.append(ContentPost.platform == platform)
+    if status:
+        conditions.append(ContentPost.status == status)
+
+    total_result = await db.execute(
+        select(func.count(ContentPost.id)).where(*conditions)
+    )
+    total = total_result.scalar() or 0
+
+    query = (
+        select(ContentPost)
+        .where(*conditions)
+        .order_by(ContentPost.scheduled_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    res = await db.execute(query)
+    posts = res.scalars().all()
+    return {"total": total, "skip": skip, "limit": limit, "items": posts}
 
 
 @router.patch("/posts/{post_id}/approve")
@@ -438,13 +490,28 @@ async def get_strategy_overview(
 
 @router.get("/templates")
 async def list_templates(
+    skip: int = Query(default=0, ge=0, description="Number of records to skip"),
+    limit: int = Query(default=50, ge=1, le=200, description="Max records to return"),
     ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
 ):
     user, client, role = ctx
     from app.models import ContentTemplate
 
-    query = select(ContentTemplate).where(ContentTemplate.client_id == client.id).order_by(ContentTemplate.created_at.desc())
+    base_where = [ContentTemplate.client_id == client.id]
+
+    total_result = await db.execute(
+        select(func.count(ContentTemplate.id)).where(*base_where)
+    )
+    total = total_result.scalar() or 0
+
+    query = (
+        select(ContentTemplate)
+        .where(*base_where)
+        .order_by(ContentTemplate.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
     res = await db.execute(query)
     templates = res.scalars().all()
-    return templates
+    return {"total": total, "skip": skip, "limit": limit, "items": templates}

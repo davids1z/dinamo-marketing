@@ -57,11 +57,36 @@ function truncateCountry(name: string, maxLen = 18): string {
   return abbrevs[name] || name.slice(0, maxLen - 1) + '…'
 }
 
+
+interface RawMarketData {
+  id?: string
+  country?: string
+  name?: string
+  code?: string
+  region?: string
+  region_type?: string
+  population?: number | string
+  market_interest?: number
+  marketInterest?: number
+  internet_penetration?: number
+  brand_awareness?: number
+  brandAwareness?: number
+  football_popularity_index?: number
+  trends_score?: number
+  trendsScore?: number
+  total_score?: number
+  totalScore?: number
+  rank?: number
+  // Allow extra fields from API
+  [key: string]: unknown
+}
+
 // Map API response to frontend interface
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapApiData(raw: any[]): MarketRow[] | null {
+function mapApiData(raw: RawMarketData[]): MarketRow[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null
-  if (raw[0].country && raw[0].totalScore !== undefined) return raw as MarketRow[]
+  const firstItem = raw[0]
+  if (!firstItem) return null
+  if (firstItem.country !== undefined && firstItem.totalScore !== undefined) return raw as unknown as MarketRow[]
   const mapped = raw.map((r, i) => ({
     id: r.id,
     country: r.name || r.country || '',
@@ -351,10 +376,18 @@ function LanguagePriorityBadge({ languages, countryCode }: { languages: string[]
 // Main component
 // ---------------------------------------------------------------------------
 
+
+interface ScanResponse {
+  message?: string
+  hasData?: boolean
+  discovered?: number
+  [key: string]: unknown
+}
+
 export default function MarketResearch() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: apiRaw, loading, refetch } = useApi<any[]>('/market-research/countries')
-  const scanMutation = useApiMutation('/market-research/scan', 'post')
+  const scanMutation = useApiMutation<ScanResponse>('/market-research/scan', 'post')
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null)
   const { currentClient } = useClient()
 
@@ -386,8 +419,7 @@ export default function MarketResearch() {
   const { addToast } = useToast()
 
   const handleScan = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await scanMutation.mutate() as any
+    const result = await scanMutation.mutate() as ScanResponse | null
     if (result?.message) {
       addToast(result.message, result.hasData ? 'success' : 'info')
     }

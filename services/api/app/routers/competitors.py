@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
 from datetime import date, timedelta
@@ -124,10 +124,60 @@ async def remove_competitor(
     return {"deleted": True, "id": str(competitor_id), "name": comp.name}
 
 
-@router.get("/")
-async def get_competitor_page_data(
+@router.get("/list")
+async def list_competitors(
+    skip: int = Query(default=0, ge=0, description="Number of records to skip"),
+    limit: int = Query(default=50, ge=1, le=200, description="Max records to return"),
     ctx: tuple = Depends(get_current_client),
     db: AsyncSession = Depends(get_db),
+    response: Response = None,
+):
+    """Paginated list of competitors for a client."""
+    user, client, role = ctx
+
+    total_result = await db.execute(
+        select(func.count(Competitor.id)).where(Competitor.client_id == client.id)
+    )
+    total = total_result.scalar() or 0
+
+    query = (
+        select(Competitor)
+        .where(Competitor.client_id == client.id)
+        .order_by(Competitor.name)
+        .offset(skip)
+        .limit(limit)
+    )
+    result = await db.execute(query)
+    competitors = result.scalars().all()
+
+    if response is not None:
+        response.headers["X-Total-Count"] = str(total)
+
+    return {
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "items": [
+            {
+                "id": str(c.id),
+                "name": c.name,
+                "short_name": c.short_name,
+                "country": c.country,
+                "website": c.website,
+                "client_id": str(c.client_id),
+            }
+            for c in competitors
+        ],
+    }
+
+
+@router.get("/")
+async def get_competitor_page_data(
+    skip: int = Query(default=0, ge=0, description="Number of competitors to skip"),
+    limit: int = Query(default=50, ge=1, le=200, description="Max competitors to return"),
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+    response: Response = None,
 ):
     """BFF endpoint: returns {competitors, ownIg, summary} for the Competitors page."""
     user, client, role = ctx
@@ -164,6 +214,14 @@ async def get_competitor_page_data(
     own_tiktok = own_tt_metric.followers if own_tt_metric else 0
     own_tiktok_engagement = own_tt_metric.engagement_rate if own_tt_metric else 0.0
 
+    # Total competitors count for pagination header
+    total_result = await db.execute(
+        select(func.count(Competitor.id)).where(Competitor.client_id == client.id)
+    )
+    total_competitors = total_result.scalar() or 0
+    if response is not None:
+        response.headers["X-Total-Count"] = str(total_competitors)
+
     # Get latest competitor metrics (grouped by competitor + platform)
     latest_subq = (
         select(
@@ -187,6 +245,8 @@ async def get_competitor_page_data(
             & (CompetitorMetric.platform == latest_subq.c.platform)
             & (CompetitorMetric.date == latest_subq.c.max_date),
         )
+        .offset(skip)
+        .limit(limit)
     )
     rows = result.all()
 
@@ -212,7 +272,7 @@ async def get_competitor_page_data(
             # Estimate weekly content from content_formats if available
             if metric.content_formats and isinstance(metric.content_formats, dict):
                 total_content = sum(metric.content_formats.values())
-                comp_data[comp.name]["contentPerWeek"] = round(total_content / 4, 1)  # monthly → weekly
+                comp_data[comp.name]["contentPerWeek"] = round(total_content / 4, 1)  # monthly -> weekly
         elif metric.platform == "tiktok":
             comp_data[comp.name]["tiktokFollowers"] = metric.followers
             comp_data[comp.name]["tiktokEngagement"] = round(metric.engagement_rate, 1)
@@ -295,6 +355,7 @@ async def get_competitor_page_data(
         "hasOwnData": own_ig_metric is not None,
         "contentGap": content_gap,
         "summary": summary,
+        "_pagination": {"total": total_competitors, "skip": skip, "limit": limit},
     }
 
 

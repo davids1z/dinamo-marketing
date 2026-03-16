@@ -67,6 +67,12 @@ async def lifespan(app: FastAPI):
             logger.warning("sentry-sdk not installed, skipping Sentry init")
 
     logger.info("ShiftOneZero Marketing Platform started")
+
+    if settings.APP_SECRET_KEY == "change-this-to-a-random-secret-key":
+        logger.critical("FATAL: APP_SECRET_KEY is still the default! Set a secure random key in production.")
+        if getattr(settings, 'SENTRY_ENVIRONMENT', 'development') == "production":
+            raise RuntimeError("Cannot start in production with default APP_SECRET_KEY")
+
     yield
     # Shutdown
     from app.database import engine

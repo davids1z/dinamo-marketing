@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: shiftonezero
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-soz_prod_2026}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: shiftonezero
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -47,8 +47,8 @@ services:
     ports:
       - "127.0.0.1:3301:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
-      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -61,6 +61,8 @@ services:
       LOG_LEVEL: "INFO"
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: "production"
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://shiftonezero.xyler.ai}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/live"]
       interval: 15s
@@ -86,8 +88,8 @@ services:
       context: ./services/api
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
-      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -96,6 +98,8 @@ services:
       LOG_LEVEL: "INFO"
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: "production"
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://shiftonezero.xyler.ai}
     healthcheck:
       test: ["CMD", "celery", "-A", "app.tasks.celery_app", "inspect", "ping", "--timeout", "5"]
       interval: 30s
@@ -122,14 +126,16 @@ services:
       context: ./services/api
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
-      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD:-soz_prod_2026}@db:5432/shiftonezero
+      DATABASE_URL: postgresql+asyncpg://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
+      DATABASE_URL_SYNC: postgresql://shiftonezero:${DB_PASSWORD}@db:5432/shiftonezero
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
       SOZ_USE_MOCK_APIS: "true"
       LOG_FORMAT: "json"
       LOG_LEVEL: "INFO"
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://shiftonezero.xyler.ai}
     depends_on:
       db:
         condition: service_healthy

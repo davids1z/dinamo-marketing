@@ -342,13 +342,21 @@ function ContentGapCard({ gap, competitors }: { gap: ContentGap | null; competit
 
 type PlatformTab = 'instagram' | 'tiktok' | 'overall'
 
+
+interface DiscoverResponse {
+  discovered?: number
+  message?: string
+  [key: string]: unknown
+}
+
 export default function Competitors() {
   const { data: apiData, loading, refetch } = useApi<CompetitorData>('/competitors')
-  const discoverMutation = useApiMutation('/competitors/discover', 'post')
+  const discoverMutation = useApiMutation<DiscoverResponse>('/competitors/discover', 'post')
   // const { hasConnectedChannels } = useChannelStatus()
   const { hasProjects } = useProjectStatus()
   const { currentClient } = useClient()
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [platformTab, setPlatformTab] = useState<PlatformTab>('instagram')
   const [chartRevealed, setChartRevealed] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -415,12 +423,9 @@ export default function Competitors() {
 
   const competitorList = data.competitors || []
 
-  const { addToast } = useToast()
-
   // --- AI Discover handler ---
   const handleDiscover = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await discoverMutation.mutate() as any
+    const result = await discoverMutation.mutate()
     if (result?.discovered) {
       addToast(`AI je pronašao ${result.discovered} konkurenata!`, 'success')
     } else if (result) {

@@ -6,6 +6,7 @@ import {
   X, Plus, Link2,
 } from 'lucide-react'
 import api from '../api/client'
+import { isAxiosError } from 'axios'
 import { useClient } from '../contexts/ClientContext'
 import { useAuth } from '../contexts/AuthContext'
 import PlatformIcon from '../components/common/PlatformIcon'
@@ -60,13 +61,6 @@ export default function Onboarding() {
   const { currentClient } = useClient()
   const { user } = useAuth()
 
-  // Superadmin must NEVER see onboarding — they are visitors, not owners.
-  // This is a safety net in case ProtectedRoute guard was bypassed (e.g. SW cache).
-  if (user?.is_superadmin) {
-    window.location.replace('/')
-    return null
-  }
-
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
@@ -108,6 +102,14 @@ export default function Onboarding() {
   const updateField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }
+
+  // Superadmin must NEVER see onboarding — they are visitors, not owners.
+  // This is a safety net in case ProtectedRoute guard was bypassed (e.g. SW cache).
+  useEffect(() => {
+    if (user?.is_superadmin) {
+      window.location.replace('/')
+    }
+  }, [user])
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -157,8 +159,9 @@ export default function Onboarding() {
       if (source === 'url' && magicUrl.trim()) updateField('website_url', magicUrl.trim())
 
       setMagicDone(true)
-    } catch (err: any) {
-      setMagicError(err.response?.data?.detail || 'AI analiza nije uspjela. Pokušajte ponovno.')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setMagicError(detail || 'AI analiza nije uspjela. Pokušajte ponovno.')
     } finally {
       setMagicLoading(false)
       setMagicSource(null)
@@ -183,8 +186,9 @@ export default function Onboarding() {
       }
       // Move to next step
       setStep(1)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri kreiranju organizacije')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri kreiranju organizacije')
     } finally {
       setLoading(false)
     }
@@ -227,8 +231,9 @@ export default function Onboarding() {
       setLoading(false)
       setAnalyzing(true)
 
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri spremanju. Pokušajte ponovno.')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri spremanju. Pokušajte ponovno.')
       setLoading(false)
     }
   }
@@ -264,8 +269,9 @@ export default function Onboarding() {
       // Mark onboarding as completed
       await api.post(`/clients/${clientId}/onboarding/complete`, {})
       window.location.href = '/'
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška. Pokušajte ponovno.')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška. Pokušajte ponovno.')
       setLoading(false)
     }
   }
@@ -278,6 +284,9 @@ export default function Onboarding() {
     }, 3000)
     return () => clearTimeout(timer)
   }, [analyzing])
+
+  // Guard: superadmin cannot access onboarding (placed after ALL hooks)
+  if (user?.is_superadmin) return null
 
   const canProceed = () => {
     switch (step) {

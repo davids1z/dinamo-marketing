@@ -377,14 +377,69 @@ function MonetaryValueTable({ values }: { values: MonetaryValue[] }) {
 
 /* ─────────── Page ─────────── */
 
+
+/* ─────────── Raw API response shape ─────────── */
+
+interface RawSegment {
+  stage?: string
+  count?: number
+  icon_name?: string
+  iconName?: string
+  color?: string
+  growth?: number
+  description?: string
+}
+
+interface RawFunnelStep {
+  label?: string
+  value?: number
+  color?: string
+}
+
+interface RawClvRow {
+  segment?: string
+  clv?: string
+  retention?: string
+  churn_risk?: string
+  churnRisk?: string
+}
+
+interface RawChurnPrediction {
+  metric?: string
+  value?: string | number
+  trend?: string
+  change?: string
+  description?: string
+}
+
+interface RawFanData {
+  fanSegments?: RawSegment[]
+  fan_segments?: RawSegment[]
+  funnelSteps?: RawFunnelStep[]
+  funnel_steps?: RawFunnelStep[]
+  clvData?: RawClvRow[]
+  churnPredictions?: RawChurnPrediction[]
+  churnDistribution?: ChurnDistItem[]
+  growthTrend?: GrowthTrendPoint[]
+  targeting?: TargetingItem[]
+  monetaryValues?: MonetaryValue[]
+  aiAdvice?: string | null
+  churnAlert?: ChurnAlert | null
+  totalUsers?: number
+  _meta?: {
+    is_estimate: boolean
+    connected_platforms?: string[]
+    analyzed_at: string | null
+  }
+}
+
 export default function CustomerSegmentation() {
   const navigate = useNavigate()
   const { hasProjects } = useProjectStatus()
   const { currentClient } = useClient()
   const brandName = currentClient?.client_name || 'Vaš brend'
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: rawData, loading, error, refetch } = useApi<any>('/fans/')
+  const { data: rawData, loading, error, refetch } = useApi<RawFanData>('/fans/')
 
   // Transform API data
   const pageData: SegmentationData | null = useMemo(() => {
@@ -392,8 +447,7 @@ export default function CustomerSegmentation() {
 
     // BFF endpoint returns camelCase keys
     const segments: CustomerSegment[] = (rawData.fanSegments || rawData.fan_segments || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (s: any) => ({
+      (s: RawSegment) => ({
         stage: String(s.stage ?? ''),
         count: Number(s.count ?? 0),
         iconName: String(s.icon_name ?? s.iconName ?? 'Users'),
@@ -404,8 +458,7 @@ export default function CustomerSegmentation() {
     )
 
     const funnel: FunnelStep[] = (rawData.funnelSteps || rawData.funnel_steps || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (f: any) => ({
+      (f: RawFunnelStep) => ({
         label: String(f.label ?? ''),
         value: Number(f.value ?? 0),
         color: String(f.color ?? '#3b82f6'),
@@ -413,8 +466,7 @@ export default function CustomerSegmentation() {
     )
 
     const clv: ClvRow[] = (rawData.clvData || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (r: any) => ({
+      (r: RawClvRow) => ({
         segment: String(r.segment ?? ''),
         clv: String(r.clv ?? ''),
         retention: String(r.retention ?? ''),
@@ -423,8 +475,7 @@ export default function CustomerSegmentation() {
     )
 
     const churn: ChurnPrediction[] = (rawData.churnPredictions || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (c: any) => ({
+      (c: RawChurnPrediction) => ({
         metric: String(c.metric ?? ''),
         value: String(c.value ?? '0'),
         trend: String(c.trend ?? 'up'),

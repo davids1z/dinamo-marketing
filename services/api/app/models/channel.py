@@ -3,7 +3,7 @@
 import uuid
 from datetime import date
 
-from sqlalchemy import Date, Float, ForeignKey, Integer, String
+from sqlalchemy import Date, Float, ForeignKey, Index, Integer, String
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,6 +33,9 @@ class SocialChannel(BaseModel):
 
 class ChannelMetric(BaseModel):
     __tablename__ = "channel_metrics"
+    __table_args__ = (
+        Index("ix_channel_metrics_channel_date", "channel_id", "date"),
+    )
 
     channel_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("social_channels.id"), nullable=False

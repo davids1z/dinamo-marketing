@@ -12,6 +12,7 @@ import Header from '../components/layout/Header'
 import { campaignResearchApi, type CampaignResearchItem } from '../api/campaignResearch'
 import { contentApi } from '../api/content'
 import { useToast } from '../hooks/useToast'
+import { isAxiosError } from 'axios'
 
 /* ─────────── Constants ─────────── */
 
@@ -131,10 +132,44 @@ function ProcessingSteps({ currentStep }: { currentStep: number }) {
   )
 }
 
+
+/* ─────────── AI-generated data shapes ─────────── */
+
+interface ResearchResult {
+  title: string
+  snippet?: string
+  url?: string
+}
+
+interface CalendarPost {
+  platform: string
+  title: string
+  day: string
+  best_time: string
+  format: string
+  hashtags?: string[]
+}
+
+interface CalendarWeek {
+  week: number
+  theme: string
+  posts?: CalendarPost[]
+}
+
 /* ─────────── Predicted Results Card ─────────── */
 
-function PredictedResults({ results }: { results: Record<string, any> }) {
-  const metrics = [
+interface PredictedResultsData {
+  estimated_reach?: string | number
+  estimated_engagement_rate?: string | number
+  estimated_conversions?: string | number
+  estimated_ctr?: string | number
+  estimated_roas?: string | number
+  confidence?: string
+  reasoning?: string
+}
+
+function PredictedResults({ results }: { results: PredictedResultsData }) {
+  const metrics: Array<{ key: keyof PredictedResultsData; label: string; icon: React.ElementType; color: string }> = [
     { key: 'estimated_reach', label: 'Očekivani doseg', icon: Eye, color: 'text-blue-400' },
     { key: 'estimated_engagement_rate', label: 'Stopa angažmana', icon: TrendingUp, color: 'text-emerald-400' },
     { key: 'estimated_conversions', label: 'Konverzije', icon: MousePointerClick, color: 'text-purple-400' },
@@ -149,7 +184,7 @@ function PredictedResults({ results }: { results: Record<string, any> }) {
   }
 
   const defaultConf = { label: 'Srednja pouzdanost', color: 'text-amber-400 bg-amber-500/10' }
-  const conf = confidenceMap[results.confidence as string] ?? defaultConf
+  const conf = confidenceMap[results.confidence ?? ''] ?? defaultConf
 
   return (
     <div className="card border border-brand-accent/15 bg-gradient-to-br from-brand-accent/5 to-transparent">
@@ -167,7 +202,7 @@ function PredictedResults({ results }: { results: Record<string, any> }) {
         {metrics.map(({ key, label, icon: Icon, color }) => (
           <div key={key} className="bg-studio-surface-0 rounded-xl p-3 border border-studio-border-subtle text-center">
             <Icon size={16} className={`${color} mx-auto mb-1.5`} />
-            <p className="text-lg font-stats text-studio-text-primary">{results[key] || '—'}</p>
+            <p className="text-lg font-stats text-studio-text-primary">{String(results[key] ?? '—')}</p>
             <p className="text-[10px] text-studio-text-tertiary mt-0.5">{label}</p>
           </div>
         ))}
@@ -429,10 +464,11 @@ export default function CampaignResearch() {
 
       setAddedToCalendar(prev => new Set([...prev, item.id]))
       addToast('Kampanja dodana u kalendar kao nacrt', 'success')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Add to calendar failed', err)
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
       addToast(
-        err?.response?.data?.detail || 'Greška pri dodavanju u kalendar',
+        detail || 'Greška pri dodavanju u kalendar',
         'error',
       )
     } finally {
@@ -494,7 +530,7 @@ export default function CampaignResearch() {
         )}
 
         {/* Predicted Results */}
-        {plan?.predicted_results && <PredictedResults results={plan.predicted_results} />}
+        {plan?.predicted_results && <PredictedResults results={plan.predicted_results as PredictedResultsData} />}
 
         {/* Executive Summary */}
         {plan?.executive_summary && (
@@ -640,7 +676,7 @@ export default function CampaignResearch() {
               </p>
             )}
             <div className="space-y-2">
-              {(selected.research_data.results || []).slice(0, 8).map((r: any, i: number) => (
+              {(selected.research_data.results as ResearchResult[] || []).slice(0, 8).map((r: ResearchResult, i: number) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl hover:bg-studio-surface-1 transition-colors group">
                   <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0 text-xs font-bold text-purple-400">
                     {i + 1}
@@ -683,7 +719,7 @@ export default function CampaignResearch() {
 
             {showCalendar && (
               <div className="space-y-3">
-                {plan!.content_calendar.map((week: any) => (
+                {(plan!.content_calendar as CalendarWeek[]).map((week: CalendarWeek) => (
                   <div key={week.week} className="border border-studio-border rounded-xl overflow-hidden">
                     <div className="bg-studio-surface-0 px-4 py-2.5 border-b border-studio-border flex items-center justify-between">
                       <p className="text-xs font-bold text-studio-text-secondary">
@@ -694,7 +730,7 @@ export default function CampaignResearch() {
                       </span>
                     </div>
                     <div className="divide-y divide-studio-border-subtle">
-                      {(week.posts || []).map((post: any, pi: number) => {
+                      {(week.posts || []).map((post: CalendarPost, pi: number) => {
                         const plat = PLATFORM_BADGE[post.platform] ?? { bg: 'bg-gray-600', label: post.platform?.slice(0, 2).toUpperCase() }
                         return (
                           <div key={pi} className="px-4 py-3 flex items-center gap-3 hover:bg-studio-surface-1 transition-colors">
@@ -707,7 +743,7 @@ export default function CampaignResearch() {
                                 {post.day} &middot; {post.best_time} &middot; {post.format}
                               </p>
                             </div>
-                            {post.hashtags?.length > 0 && (
+                            {post.hashtags && post.hashtags.length > 0 && (
                               <div className="hidden sm:flex gap-1">
                                 {post.hashtags.slice(0, 2).map((h: string, hi: number) => (
                                   <span key={hi} className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">

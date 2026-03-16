@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Lock, Mail, KeyRound, User, UserPlus } from 'lucide-react'
 import api from '../api/client'
+import { isAxiosError } from 'axios'
 
 const bgStyle = { background: 'linear-gradient(180deg, #8ec5ed 0%, #a4d2f1 15%, #b5d9f4 30%, #c2e0f6 50%, #cde6f8 70%, #d4eafa 85%, #daedfb 100%)' }
 const inputStyle = { background: 'rgba(241,245,249,0.7)', border: '1px solid rgba(226,232,240,0.6)' }
@@ -86,8 +87,9 @@ export default function InviteAccept() {
       }
       setSuccess(true)
       setTimeout(() => { window.location.href = '/' }, 1500)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Greška pri prihvaćanju poziva')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail || 'Greška pri prihvaćanju poziva')
     } finally {
       setLoading(false)
     }

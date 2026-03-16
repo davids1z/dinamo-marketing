@@ -16,6 +16,7 @@ class PostMetric(BaseModel):
         Index("ix_post_metrics_post_id", "post_id"),
         Index("ix_post_metrics_timestamp", "timestamp"),
         Index("ix_post_metrics_engagement_rate", "engagement_rate"),
+        Index("ix_post_metrics_client_timestamp", "client_id", "timestamp"),
     )
 
     post_id: Mapped[uuid.UUID] = mapped_column(
@@ -47,6 +48,7 @@ class AdMetric(BaseModel):
     __table_args__ = (
         Index("ix_ad_metrics_ad_id", "ad_id"),
         Index("ix_ad_metrics_timestamp", "timestamp"),
+        Index("ix_ad_metrics_client_timestamp", "client_id", "timestamp"),
     )
 
     ad_id: Mapped[uuid.UUID] = mapped_column(

@@ -29,9 +29,19 @@ jobs:
         run: npm ci
         working-directory: dashboard
 
-      - name: Build dashboard
+      - name: Frontend lint check
+        working-directory: ./dashboard
+        run: |
+          npm ci
+          npm run lint -- --max-warnings 50
+
+      - name: Frontend type check
+        working-directory: ./dashboard
+        run: npx tsc --noEmit
+
+      - name: Frontend build check
+        working-directory: ./dashboard
         run: npx vite build
-        working-directory: dashboard
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -40,10 +50,8 @@ jobs:
 
       - name: Python syntax check
         run: |
-          python -c "import py_compile, glob; files = glob.glob('services/api/app/**/*.py', recursive=True); [py_compile.compile(f, doraise=True) for f in files]; print(f'{len(files)} files OK')" 2>&1 || {
-            echo "Python syntax check failed"
-            exit 1
-          }
+          find services/api/app -name "*.py" | xargs python3 -m py_compile
+          echo "All Python files syntax OK"
 
   deploy:
     name: Deploy to Production

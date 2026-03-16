@@ -227,7 +227,7 @@ function MetricCardSkeleton() {
 
 function DashboardLoadingSkeleton() {
   return (
-    <div>
+    <main aria-label="Nadzorna ploča — učitavanje">
       <Header title="NADZORNA PLOČA" subtitle="Pregled svih metrika u realnom vremenu" />
       <div className="page-wrapper space-y-6 sm:space-y-8">
         {/* Quick actions skeleton */}
@@ -297,7 +297,7 @@ function DashboardLoadingSkeleton() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 
@@ -310,6 +310,7 @@ function PeriodSelector({
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const selectedOption = PERIOD_OPTIONS.find(o => o.key === selected)!
 
   useEffect(() => {
@@ -322,22 +323,62 @@ function PeriodSelector({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const handleTriggerKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Escape') {
+      setOpen(false)
+    } else if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setOpen(true)
+      setTimeout(() => {
+        const idx = PERIOD_OPTIONS.findIndex(o => o.key === selected)
+        optionRefs.current[idx >= 0 ? idx : 0]?.focus()
+      }, 0)
+    }
+  }
+
+  const handleOptionKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, idx: number) => {
+    if (e.key === 'Escape') {
+      setOpen(false)
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      optionRefs.current[Math.min(idx + 1, PERIOD_OPTIONS.length - 1)]?.focus()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      optionRefs.current[Math.max(idx - 1, 0)]?.focus()
+    }
+  }
+
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
+        onKeyDown={handleTriggerKeyDown}
+        role="combobox"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-controls="period-listbox"
+        aria-label={`Odabir perioda: ${selectedOption.label}`}
         className="flex items-center gap-2 px-4 py-2 bg-studio-surface-1 border border-studio-border rounded-xl text-sm font-medium text-studio-text-secondary hover:border-brand-accent/30 hover:bg-studio-surface-2 transition-all shadow-sm"
       >
-        <Clock size={15} className="text-studio-text-tertiary" />
+        <Clock size={15} className="text-studio-text-tertiary" aria-hidden="true" />
         {selectedOption.label}
-        <ChevronDown size={14} className={`text-studio-text-tertiary transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={14} className={`text-studio-text-tertiary transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1.5 w-52 bg-studio-surface-2 border border-studio-border rounded-xl shadow-studio-dropdown z-20 py-1 animate-fade-in">
-          {PERIOD_OPTIONS.map(opt => (
+        <div
+          id="period-listbox"
+          role="listbox"
+          aria-label="Odaberite period"
+          className="absolute right-0 mt-1.5 w-52 bg-studio-surface-2 border border-studio-border rounded-xl shadow-studio-dropdown z-20 py-1 animate-fade-in"
+        >
+          {PERIOD_OPTIONS.map((opt, idx) => (
             <button
               key={opt.key}
+              ref={el => { optionRefs.current[idx] = el }}
+              role="option"
+              aria-selected={opt.key === selected}
               onClick={() => { onChange(opt.key); setOpen(false) }}
+              onKeyDown={(e) => handleOptionKeyDown(e, idx)}
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                 opt.key === selected
                   ? 'bg-brand-accent/10 text-brand-accent font-medium'
@@ -535,7 +576,7 @@ function WelcomeHero() {
   const allStepsDone = steps.every(s => s.done)
 
   return (
-    <div>
+    <main aria-label="Nadzorna ploča — postavljanje">
       <Header title="NADZORNA PLOČA" subtitle="Dobrodošli! Postavite svoj prostor." />
       <div className="page-wrapper space-y-8">
         {/* Hero */}
@@ -546,9 +587,9 @@ function WelcomeHero() {
                 <LayoutDashboard size={24} className="text-brand-accent" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-studio-text-primary font-headline uppercase tracking-wide">
+                <h1 className="text-xl font-bold text-studio-text-primary font-headline uppercase tracking-wide">
                   {allStepsDone ? 'Platforma spremna!' : 'Započnite s platformom'}
-                </h2>
+                </h1>
                 <p className="text-sm text-studio-text-secondary">
                   {allStepsDone
                     ? 'Vaš profil je postavljen. Povežite kanale za puni pregled metrika.'
@@ -702,7 +743,7 @@ function WelcomeHero() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 
@@ -748,7 +789,7 @@ export default function Dashboard() {
   // Show empty states based on setup progress
   if (!hasProjects && currentClient) {
     return (
-      <div>
+      <main aria-label="Nadzorna ploča — kreirajte projekt">
         <Header title="NADZORNA PLOČA" subtitle="Dobrodošli! Postavite svoj prostor." />
         <div className="page-wrapper">
           <EmptyState
@@ -760,14 +801,15 @@ export default function Dashboard() {
               <button
                 onClick={() => navigate('/onboarding')}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-accent text-white text-sm font-bold hover:bg-brand-accent-hover transition-all shadow-md shadow-brand-accent/20"
+                aria-label="Kreiraj prvi projekt"
               >
-                <FolderKanban size={16} />
+                <FolderKanban size={16} aria-hidden="true" />
                 Kreiraj projekt
               </button>
             }
           />
         </div>
-      </div>
+      </main>
     )
   }
 
@@ -869,7 +911,7 @@ export default function Dashboard() {
         )}
 
         {/* Hero Metrics — gradient cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-cards">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-cards" role="region" aria-label="Ključne metrike">
           <HeroMetricCard
             label="Mjesečni doseg"
             value={d.monthly_reach}

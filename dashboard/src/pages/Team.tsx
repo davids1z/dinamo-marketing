@@ -6,6 +6,7 @@ import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useClient } from '../contexts/ClientContext'
 import { teamApi, type TeamMember } from '../api/team'
+import { isAxiosError } from 'axios'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -88,8 +89,9 @@ export default function Team() {
       const res = await teamApi.inviteMember(currentClient.client_id, '', inviteRole)
       setInviteUrl(res.data.invite_url)
       showToast('Pozivni link generiran')
-    } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Greška pri pozivanju', 'error')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      showToast(detail || 'Greška pri pozivanju', 'error')
     } finally {
       setInviting(false)
     }
@@ -136,8 +138,9 @@ export default function Team() {
       setEditingId(null)
       fetchMembers()
       showToast('Uloga ažurirana')
-    } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Greška pri ažuriranju uloge', 'error')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      showToast(detail || 'Greška pri ažuriranju uloge', 'error')
     }
   }
 
@@ -153,8 +156,9 @@ export default function Team() {
       setRemovingMember(null)
       fetchMembers()
       showToast('Član uklonjen')
-    } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Greška pri uklanjanju člana', 'error')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      showToast(detail || 'Greška pri uklanjanju člana', 'error')
     } finally {
       setRemoving(false)
     }
