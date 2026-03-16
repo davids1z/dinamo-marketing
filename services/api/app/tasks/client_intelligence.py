@@ -86,14 +86,79 @@ def _random_date_in_range(start: datetime, end: datetime) -> datetime:
     return start + timedelta(seconds=random_seconds)
 
 
-def _mock_post_metrics_dict() -> dict:
-    """Generate realistic random metrics (mirrors metrics_pull._mock_post_metrics)."""
-    impressions = random.randint(5_000, 120_000)
+def _estimate_brand_size(business_description: str, target_audience: str = "") -> str:
+    """Estimate brand size (small/medium/large) from text description.
+
+    Returns 'small', 'medium', or 'large' — used to scale seed mock data
+    so a local bakery doesn't show 2M impressions.
+    """
+    desc = (business_description + " " + target_audience).lower()
+
+    large_keywords = [
+        "međunarodn", "international", "national", "globalni", "global",
+        "milijun", "million", "large", "enterprise", "holding", "korporacij",
+        "multinacional", "multinational", "vodec", "leading", "premier",
+    ]
+    small_keywords = [
+        "startup", "mali", "small", "lokalni", "local", "kvart", "malo",
+        "obrtni", "freelance", "solo", "jedinstven", "obiteljsk", "family",
+        "malen", "microbrend", "boutique",
+    ]
+
+    score_large = sum(1 for k in large_keywords if k in desc)
+    score_small = sum(1 for k in small_keywords if k in desc)
+
+    if score_large > score_small and score_large >= 1:
+        return "large"
+    if score_small > score_large and score_small >= 1:
+        return "small"
+    return "medium"
+
+
+# Seed scale factors per brand size
+_BRAND_SCALE: dict[str, dict] = {
+    "small": {
+        "followers_min": 1_000, "followers_max": 10_000,
+        "impressions_min": 500, "impressions_max": 8_000,
+        "likes_min": 10, "likes_max": 400,
+        "comments_min": 1, "comments_max": 40,
+        "shares_min": 0, "shares_max": 60,
+        "saves_min": 0, "saves_max": 30,
+        "clicks_min": 2, "clicks_max": 80,
+        "new_followers_min": 0, "new_followers_max": 10,
+    },
+    "medium": {
+        "followers_min": 10_000, "followers_max": 100_000,
+        "impressions_min": 5_000, "impressions_max": 60_000,
+        "likes_min": 100, "likes_max": 3_000,
+        "comments_min": 10, "comments_max": 200,
+        "shares_min": 5, "shares_max": 400,
+        "saves_min": 2, "saves_max": 150,
+        "clicks_min": 10, "clicks_max": 300,
+        "new_followers_min": 0, "new_followers_max": 30,
+    },
+    "large": {
+        "followers_min": 100_000, "followers_max": 2_000_000,
+        "impressions_min": 20_000, "impressions_max": 500_000,
+        "likes_min": 1_000, "likes_max": 50_000,
+        "comments_min": 50, "comments_max": 3_000,
+        "shares_min": 100, "shares_max": 10_000,
+        "saves_min": 50, "saves_max": 3_000,
+        "clicks_min": 100, "clicks_max": 5_000,
+        "new_followers_min": 10, "new_followers_max": 500,
+    },
+}
+
+
+def _mock_post_metrics_dict(brand_size: str = "medium") -> dict:
+    """Generate realistic random metrics scaled to brand size."""
+    s = _BRAND_SCALE.get(brand_size, _BRAND_SCALE["medium"])
+    impressions = random.randint(s["impressions_min"], s["impressions_max"])
     reach = int(impressions * random.uniform(0.6, 0.85))
-    likes = random.randint(100, 8_000)
-    comments = random.randint(10, 600)
-    shares = random.randint(5, 1_200)
-    saves = random.randint(2, 300)
+    likes = random.randint(s["likes_min"], s["likes_max"])
+    comments = random.randint(s["comments_min"], s["comments_max"])
+    shares = random.randint(s["shares_min"], s["shares_max"])
+    saves = random.randint(s["saves_min"], s["saves_max"])
     total_eng = likes + comments + shares + saves
     eng_rate = round((total_eng / reach * 100) if reach > 0 else 0, 2)
 
@@ -104,9 +169,9 @@ def _mock_post_metrics_dict() -> dict:
         "comments": comments,
         "shares": shares,
         "saves": saves,
-        "clicks": random.randint(10, 500),
+        "clicks": random.randint(s["clicks_min"], s["clicks_max"]),
         "engagement_rate": eng_rate,
-        "new_followers_attributed": random.randint(0, 50),
+        "new_followers_attributed": random.randint(s["new_followers_min"], s["new_followers_max"]),
     }
 
 
@@ -306,6 +371,10 @@ def initialize_client_intelligence(self, client_id: str):
             content_pillars = client.content_pillars or []
             cid = client.id
 
+            # Estimate brand size from description for scaled seed data
+            brand_size = _estimate_brand_size(business_description, target_audience)
+            logger.info("  Brand size estimate: %s", brand_size)
+
             # Get or create default project
             from app.models.project import Project
 
@@ -336,13 +405,13 @@ def initialize_client_intelligence(self, client_id: str):
         # Step A: Create SocialChannel records
         # ------------------------------------------------------------------
         logger.info("  Step A: Creating SocialChannels...")
-        channel_ids = _step_a_create_channels(cid, social_handles, results)
+        channel_ids = _step_a_create_channels(cid, social_handles, results, brand_size)
 
         # ------------------------------------------------------------------
         # Step B+C: Create seed ContentPosts + PostMetrics
         # ------------------------------------------------------------------
         logger.info("  Step B+C: Creating seed ContentPosts + PostMetrics...")
-        _step_bc_create_posts_and_metrics(cid, project_id, channel_ids, results)
+        _step_bc_create_posts_and_metrics(cid, project_id, channel_ids, results, brand_size)
 
         # ------------------------------------------------------------------
         # Step D: AI-Powered Competitor Discovery
@@ -392,7 +461,7 @@ def initialize_client_intelligence(self, client_id: str):
 # ---------------------------------------------------------------------------
 
 def _step_a_create_channels(
-    client_id: uuid.UUID, social_handles: dict, results: dict
+    client_id: uuid.UUID, social_handles: dict, results: dict, brand_size: str = "medium"
 ) -> list[uuid.UUID]:
     """Create SocialChannel + ChannelMetric records from social_handles."""
     from sqlalchemy import select as sa_select
@@ -442,8 +511,9 @@ def _step_a_create_channels(
             results["channels_created"] += 1
             logger.info("    Created channel: %s/%s", platform_key, handle)
 
-            # Create ChannelMetric records for last 14 days
-            base_followers = random.randint(5_000, 200_000)
+            # Create ChannelMetric records for last 14 days (scaled to brand size)
+            s = _BRAND_SCALE.get(brand_size, _BRAND_SCALE["medium"])
+            base_followers = random.randint(s["followers_min"], s["followers_max"])
             for day_offset in range(14):
                 metric_date = date.today() - timedelta(days=day_offset)
                 followers = base_followers + random.randint(-500, 500)
@@ -468,6 +538,7 @@ def _step_bc_create_posts_and_metrics(
     project_id: uuid.UUID,
     channel_ids: list[uuid.UUID],
     results: dict,
+    brand_size: str = "medium",
 ):
     """Create seed ContentPost + PostMetric records."""
     from sqlalchemy import select as sa_select
@@ -484,7 +555,7 @@ def _step_bc_create_posts_and_metrics(
             .where(ContentPost.client_id == client_id, ContentPost.status == "published")
         ).scalars().all()
 
-        if len(existing_count) >= 5:
+        if len(existing_count) >= 10:
             logger.info("    Posts already seeded (%d existing), skipping", len(existing_count))
             return
 
@@ -515,7 +586,7 @@ def _step_bc_create_posts_and_metrics(
         ]
 
         for channel in channels:
-            for i in range(5):
+            for i in range(10):  # 10 posts/channel × ~3 channels = ~30 data points over 30 days
                 published_at = _random_date_in_range(
                     now - timedelta(days=30),
                     now - timedelta(hours=2),
@@ -537,10 +608,12 @@ def _step_bc_create_posts_and_metrics(
                 session.flush()
                 results["posts_created"] += 1
 
-                # Immediately create a PostMetric
-                metrics = _mock_post_metrics_dict()
+                # Create PostMetric — CRITICAL: set timestamp=published_at
+                # so metrics spread across 30 days (not clustered on seed date)
+                metrics = _mock_post_metrics_dict(brand_size)
                 metric = PostMetric(
                     post_id=post.id,
+                    timestamp=published_at,  # Spread across 30 days for charts!
                     impressions=metrics["impressions"],
                     reach=metrics["reach"],
                     likes=metrics["likes"],
