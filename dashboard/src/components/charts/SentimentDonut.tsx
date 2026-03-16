@@ -11,6 +11,7 @@ interface SentimentDonutProps {
   title?: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts internal type, no public type available
 function renderActiveShape(props: any) {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props
   return (

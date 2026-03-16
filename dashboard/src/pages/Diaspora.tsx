@@ -814,7 +814,8 @@ export default function GeographicMarkets() {
   }
 
   const isEstimate = apiData?._meta?.is_estimate ?? false
-  const markets = data.markets || []
+  // useMemo prevents a new array reference on every render (react-hooks/exhaustive-deps)
+  const markets = useMemo(() => data.markets || [], [data.markets])
   const regions = data.regionComparison || []
   const contentPipeline = data.contentPipeline || []
   const summary = data.summary

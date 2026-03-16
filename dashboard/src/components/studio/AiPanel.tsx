@@ -144,6 +144,7 @@ export default function AiPanel({
     if (!generating) {
       // Reset when done
       if (genStepIndex > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setGenStepIndex(0)
         setGenElapsed(0)
       }
@@ -179,6 +180,7 @@ export default function AiPanel({
   // ---- Detect generation completion ----
   useEffect(() => {
     if (!generating && scenes.length > 0 && scenes.length !== prevScenesLen && prevScenesLen === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowSuccess(true)
       const timer = setTimeout(() => setShowSuccess(false), 5000)
       return () => clearTimeout(timer)

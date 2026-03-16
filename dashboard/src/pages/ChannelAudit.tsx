@@ -404,9 +404,10 @@ export default function ChannelAudit() {
   const brandName = currentClient?.client_name || 'Vaš brend'
 
   const data = apiData || { platformStats: [], engagementData30: [], formatBreakdown: [] }
-  const platformStats = data.platformStats || []
+  // useMemo prevents new array references on every render (react-hooks/exhaustive-deps)
+  const platformStats = useMemo(() => data.platformStats || [], [data.platformStats])
   const engagementData30 = data.engagementData30 || []
-  const formatBreakdown = data.formatBreakdown || []
+  const formatBreakdown = useMemo(() => data.formatBreakdown || [], [data.formatBreakdown])
   const postingTimes = data.postingTimes || generatePostingTimes()
   const checklist = data.checklist || []
   const aiAdvice = data.aiAdvice || ''

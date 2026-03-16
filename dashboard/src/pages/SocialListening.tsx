@@ -25,6 +25,19 @@ import { ChartTooltip } from '../components/charts/ChartTooltip'
 import { CHART_ANIM, AXIS_STYLE, GRID_STYLE } from '../components/charts/chartConfig'
 import { formatNumber } from '../utils/formatters'
 
+/* ─────────── helpers (module-level) ─────────── */
+
+function getTimeAgo(analyzedAt: string | null): string | null {
+  if (!analyzedAt) return null
+  const diff = Date.now() - new Date(analyzedAt).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'upravo'
+  if (mins < 60) return `prije ${mins} min`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `prije ${hrs}h`
+  return `prije ${Math.floor(hrs / 24)}d`
+}
+
 /* ─────────── types ─────────── */
 
 interface SentimentDay {
@@ -317,16 +330,7 @@ function MetadataBar({
   analyzedAt: string | null
   isEstimate: boolean
 }) {
-  const timeAgo = useMemo(() => {
-    if (!analyzedAt) return null
-    const diff = Date.now() - new Date(analyzedAt).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 1) return 'upravo'
-    if (mins < 60) return `prije ${mins} min`
-    const hrs = Math.floor(mins / 60)
-    if (hrs < 24) return `prije ${hrs}h`
-    return `prije ${Math.floor(hrs / 24)}d`
-  }, [analyzedAt])
+  const timeAgo = getTimeAgo(analyzedAt)
 
   return (
     <div className="flex items-center gap-4 flex-wrap text-xs text-studio-text-tertiary">

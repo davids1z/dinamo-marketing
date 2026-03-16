@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+// Standard pattern: context + hook exported together from same file
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react'
 import { useAuth } from './AuthContext'
 
 export interface ProjectInfo {
@@ -87,7 +89,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const [recentClientIds, setRecentClientIds] = useState<string[]>(getRecentClientIds)
   const [refreshSignal, setRefreshSignal] = useState(0)
 
-  const clients = user?.clients || []
+  const clients = useMemo(() => user?.clients || [], [user?.clients])
 
   const currentClient = clients.find(c => c.client_id === currentClientId) || clients[0] || null
 
@@ -96,11 +98,15 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     const first = clients[0]
     if (first && !clients.find(c => c.client_id === currentClientId)) {
       // Current client not in list, select first one
-      setCurrentClientId(first.client_id)
-      localStorage.setItem('current_client_id', first.client_id)
+      setTimeout(() => {
+        setCurrentClientId(first.client_id)
+        localStorage.setItem('current_client_id', first.client_id)
+      }, 0)
     } else if (currentClient && currentClientId !== currentClient.client_id) {
-      setCurrentClientId(currentClient.client_id)
-      localStorage.setItem('current_client_id', currentClient.client_id)
+      setTimeout(() => {
+        setCurrentClientId(currentClient.client_id)
+        localStorage.setItem('current_client_id', currentClient.client_id)
+      }, 0)
     }
   }, [clients, currentClientId, currentClient])
 
@@ -108,7 +114,9 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (currentClient) {
       saveRecentClientId(currentClient.client_id)
-      setRecentClientIds(getRecentClientIds())
+      setTimeout(() => {
+        setRecentClientIds(getRecentClientIds())
+      }, 0)
     }
   }, [currentClient])
 

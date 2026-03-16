@@ -6,8 +6,11 @@ export interface CampaignResearchItem {
   campaign_type: string | null
   status: 'uploaded' | 'analyzing' | 'researching' | 'generating' | 'complete' | 'failed'
   uploaded_filename: string | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended JSON blob from API, shape varies per campaign
   extracted_brief: Record<string, any> | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended JSON blob from API, shape varies per campaign
   research_data: Record<string, any> | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended JSON blob from API, shape varies per campaign
   generated_plan: Record<string, any> | null
   error_message: string | null
   created_at: string

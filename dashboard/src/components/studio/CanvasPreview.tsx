@@ -51,7 +51,7 @@ export default function CanvasPreview({
 }: CanvasPreviewProps) {
   const outerRef = useRef<HTMLDivElement>(null)
   const [autoScale, setAutoScale] = useState(0.25)
-  const [prevSceneIndex, setPrevSceneIndex] = useState(currentSceneIndex)
+  const prevSceneIndexRef = useRef(currentSceneIndex)
   const [transitionKey, setTransitionKey] = useState(0)
 
   const scene = scenes[currentSceneIndex]
@@ -93,11 +93,12 @@ export default function CanvasPreview({
   // ------- scene transition tracking -------
 
   useEffect(() => {
-    if (currentSceneIndex !== prevSceneIndex) {
-      setPrevSceneIndex(currentSceneIndex)
+    if (currentSceneIndex !== prevSceneIndexRef.current) {
+      prevSceneIndexRef.current = currentSceneIndex
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTransitionKey((k) => k + 1)
     }
-  }, [currentSceneIndex, prevSceneIndex])
+  }, [currentSceneIndex])
 
   // Scaled visual size
   const visW = dims.width * effectiveScale

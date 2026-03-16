@@ -337,6 +337,7 @@ export default function ContentCalendar() {
         }).catch(() => {})
       })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- metrics/status are set inside this effect; including them would cause a loop
   }, [selectedPost?.id])
 
   useEffect(() => {
@@ -346,7 +347,8 @@ export default function ContentCalendar() {
   }, [selectedPost])
 
   const queue: QueueItem[] = []
-  const rawCalendarData = generatedData || {}
+  // useMemo prevents a new object reference on every render (react-hooks/exhaustive-deps)
+  const rawCalendarData = useMemo(() => generatedData || {}, [generatedData])
 
   const calendarData = useMemo(() => {
     if (platformFilter === 'all' && statusFilter === 'all' && typeFilter === 'all') return rawCalendarData

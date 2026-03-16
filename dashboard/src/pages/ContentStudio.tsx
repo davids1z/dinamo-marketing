@@ -426,6 +426,7 @@ export default function ContentStudio() {
       }
     }
     loadData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- routerPost is only used to seed initial state, re-running on every router change would reset user edits
   }, [postId, addToast])
 
   // -----------------------------------------------------------------------

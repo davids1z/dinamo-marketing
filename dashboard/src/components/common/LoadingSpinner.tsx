@@ -1,5 +1,8 @@
 import { clsx } from 'clsx'
 
+const CHART_BAR_HEIGHTS = Array.from({ length: 12 }, () => Math.round(30 + Math.random() * 60))
+const TABLE_COLUMN_WIDTHS = [120, 80, 60, 80, 60].map(w => Math.round(w + Math.random() * 20))
+
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
@@ -63,7 +66,7 @@ export function ChartSkeleton({ height = 300 }: { height?: number }) {
           <div
             key={i}
             className="flex-1 bg-studio-surface-3 rounded-t"
-            style={{ height: `${30 + Math.random() * 60}%` }}
+            style={{ height: `${CHART_BAR_HEIGHTS[i]}%` }}
           />
         ))}
       </div>
@@ -83,8 +86,8 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
         </div>
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="flex gap-4 py-2">
-            {[120, 80, 60, 80, 60].map((w, j) => (
-              <div key={j} className="h-3 bg-studio-surface-2 rounded" style={{ width: w + Math.random() * 20 }} />
+            {TABLE_COLUMN_WIDTHS.map((colWidth, j) => (
+              <div key={j} className="h-3 bg-studio-surface-2 rounded" style={{ width: colWidth }} />
             ))}
           </div>
         ))}

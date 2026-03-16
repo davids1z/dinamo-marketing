@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+// Standard pattern: context + hook exported together from same file
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import api from '../api/client'
 import type { ClientMembership } from './ClientContext'
@@ -76,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .finally(() => setLoading(false))
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

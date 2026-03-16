@@ -30,11 +30,14 @@ const sessionStorageMock = (() => {
 Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock })
 
 // Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+Object.defineProperty(window, 'ResizeObserver', {
+  value: vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  })),
+  writable: true,
+})
 
 // Mock window.location (prevent JSDOM navigation errors)
 Object.defineProperty(window, 'location', {

@@ -100,6 +100,7 @@ interface AuditEntry {
   action: string
   entity_type: string
   entity_id: string | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended audit log payload, shape varies per action
   details: Record<string, any> | null
   created_at: string
 }

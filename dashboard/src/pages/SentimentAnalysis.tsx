@@ -17,6 +17,17 @@ import {
 } from 'lucide-react'
 import { formatNumber } from '../utils/formatters'
 
+/* Module-level helper — avoids calling Date.now() during render (react-hooks/purity) */
+function getSentimentTimeAgo(analyzedAt: string | null): string {
+  if (!analyzedAt) return ''
+  const diff = Date.now() - new Date(analyzedAt).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'upravo sada'
+  if (mins < 60) return `prije ${mins} minuta`
+  const hrs = Math.floor(mins / 60)
+  return hrs < 24 ? `prije ${hrs} sati` : `prije ${Math.floor(hrs / 24)} dana`
+}
+
 /* ─────────── types ─────────── */
 
 interface SentimentOverview {
@@ -354,17 +365,7 @@ function MetadataBar({
   analyzedAt: string | null
   isEstimate: boolean
 }) {
-  let timeAgo = ''
-  if (analyzedAt) {
-    const diff = Date.now() - new Date(analyzedAt).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 1) timeAgo = 'upravo sada'
-    else if (mins < 60) timeAgo = `prije ${mins} minuta`
-    else {
-      const hrs = Math.floor(mins / 60)
-      timeAgo = hrs < 24 ? `prije ${hrs} sati` : `prije ${Math.floor(hrs / 24)} dana`
-    }
-  }
+  const timeAgo = getSentimentTimeAgo(analyzedAt)
 
   return (
     <div className="flex flex-wrap items-center gap-4 text-[11px] text-studio-text-tertiary">

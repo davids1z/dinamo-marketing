@@ -19,6 +19,9 @@ export function useWebSocket<T = unknown>({
   const wsRef = useRef<WebSocket | null>(null)
   const retriesRef = useRef(0)
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  // Holds the latest connect function so ws.onclose can schedule reconnects
+  // without a forward-reference — assigned after useCallback below.
+  const connectRef = useRef<() => void>()
 
   const connect = useCallback(() => {
     const token = localStorage.getItem('auth_token')
@@ -60,7 +63,7 @@ export function useWebSocket<T = unknown>({
 
       if (retriesRef.current < maxRetries) {
         retriesRef.current += 1
-        reconnectTimerRef.current = setTimeout(connect, reconnectInterval)
+        reconnectTimerRef.current = setTimeout(() => connectRef.current?.(), reconnectInterval)
       }
     }
 
@@ -68,6 +71,12 @@ export function useWebSocket<T = unknown>({
       // onclose will fire after onerror
     }
   }, [url, clientId, reconnectInterval, maxRetries])
+
+  // Keep ref in sync whenever the connect callback identity changes.
+  // This must run in an effect — refs cannot be mutated during render.
+  useEffect(() => {
+    connectRef.current = connect
+  }, [connect])
 
   useEffect(() => {
     connect()

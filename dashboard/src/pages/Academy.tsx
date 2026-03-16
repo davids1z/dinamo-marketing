@@ -355,7 +355,8 @@ export default function PartnersCreators() {
   const [detailPartner, setDetailPartner] = useState<PartnerData | null>(null)
 
   // Extract data
-  const partners = pageData?.partners ?? []
+  // useMemo prevents a new array reference on every render (react-hooks/exhaustive-deps)
+  const partners = useMemo(() => pageData?.partners ?? [], [pageData?.partners])
   const contentPipeline = pageData?.contentPipeline ?? []
   const discoveries = pageData?.discoveries ?? []
   const summary = pageData?.summary ?? {

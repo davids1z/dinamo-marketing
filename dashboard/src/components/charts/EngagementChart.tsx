@@ -16,11 +16,13 @@ interface EngagementChartProps {
 }
 
 /* Custom tooltip — dark glass style */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts internal type, no public type available
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-[#0f172a]/95 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 shadow-2xl">
       <p className="text-[11px] text-white/50 font-medium mb-1.5">{label}</p>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts internal type, no public type available */}
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />

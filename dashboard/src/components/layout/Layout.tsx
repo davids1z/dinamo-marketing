@@ -1,4 +1,6 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+/* eslint-disable react-refresh/only-export-components */
+// Sidebar context and useScrolled hook are co-located with Layout by design
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext } from 'react'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import Sidebar from './Sidebar'
@@ -47,6 +49,7 @@ export default function Layout() {
   const { user, impersonating, stopImpersonating } = useAuth()
   const { currentClient } = useClient()
   const navigate = useNavigate()
+  const location = useLocation()
   const [collapsed, setCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved === 'true'
@@ -68,7 +71,8 @@ export default function Layout() {
   // Close mobile menu on route change
   useEffect(() => {
     if (mobileOpen) setMobileOpen(false)
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]) // Close mobile menu on route change
 
   // Dynamic brand theming — inject client accent color as CSS variable
   useEffect(() => {

@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+// Helper constants are co-located with this component by design
 import { useRef, useEffect, useCallback } from 'react'
 import { Plus, Copy, Trash2 } from 'lucide-react'
 import type { Scene } from '../../types/studio'

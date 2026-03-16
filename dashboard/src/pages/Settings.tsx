@@ -445,6 +445,7 @@ export default function Settings() {
 
   const visibleTabs = useMemo(() =>
     TABS.filter(t => !t.requireAdmin || isClientAdmin || isSuperadmin),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TABS is a stable constant defined in this scope
     [isClientAdmin, isSuperadmin]
   )
 

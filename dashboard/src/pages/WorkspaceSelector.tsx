@@ -21,7 +21,7 @@ export default function WorkspaceSelector() {
       localStorage.setItem('current_project_id', client.projects[0].project_id)
     }
     // Don't use switchClient here (it reloads). Navigate instead.
-    window.location.href = '/'
+    window.location.assign('/')
   }
 
   const handleCreateNew = () => {

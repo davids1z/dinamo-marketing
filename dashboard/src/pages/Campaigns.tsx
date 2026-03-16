@@ -416,7 +416,8 @@ export default function Campaigns() {
   const [refreshingCreative, setRefreshingCreative] = useState(false)
 
   // Extract data from BFF
-  const campaigns = pageData?.campaigns ?? []
+  // useMemo prevents a new array reference on every render (react-hooks/exhaustive-deps)
+  const campaigns = useMemo(() => pageData?.campaigns ?? [], [pageData?.campaigns])
   const summary = pageData?.summary ?? {
     active_campaigns: 0, paused_campaigns: 0, total_campaigns: 0,
     total_spend: 0, avg_roas: 0, avg_ctr: 0,
@@ -457,6 +458,7 @@ export default function Campaigns() {
       }
     }
     loadPerf()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally depends on id only, not the full object
   }, [detailCampaign?.id])
 
   const handleRefreshCreative = async (campaignId: string) => {

@@ -428,6 +428,7 @@ export default function CampaignResearch() {
     if (addingToCalendar || addedToCalendar.has(item.id)) return
     setAddingToCalendar(true)
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended JSON blob, shape unknown at compile time
       const plan = item.generated_plan as Record<string, any> | null
 
       // Derive title: use item title or executive summary headline
@@ -484,6 +485,7 @@ export default function CampaignResearch() {
     const statusCfg = STATUS_CONFIG[selected.status] ?? defaultStatus
     const StatusIcon = statusCfg.icon
     const isProcessing = ['analyzing', 'researching', 'generating'].includes(selected.status)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- open-ended JSON blob, shape unknown at compile time
     const plan = selected.generated_plan as Record<string, any> | null
 
     return (
