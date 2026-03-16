@@ -68,12 +68,12 @@ const fallbackNotifications = [
 // ─── Integration Cards ───────────────────────────────────────────────────────
 
 const INTEGRATIONS = [
-  { id: 'facebook', name: 'Facebook Ads', icon: '📘', description: 'Upravljanje kampanjama, ciljanje publike, praćenje konverzija', color: 'from-blue-600/10 to-blue-600/5', status: 'available' as const },
-  { id: 'instagram', name: 'Instagram API', icon: '📸', description: 'Automatsko objavljivanje, analitika postova, praćenje hashtag-ova', color: 'from-pink-500/10 to-purple-500/5', status: 'available' as const },
-  { id: 'tiktok', name: 'TikTok API', icon: '🎵', description: 'Video analitika, praćenje trendova, kreatorske statistike', color: 'from-cyan-500/10 to-pink-500/5', status: 'coming_soon' as const },
-  { id: 'google_analytics', name: 'Google Analytics', icon: '📊', description: 'Web promet, konverzije, korisničko ponašanje, UTM praćenje', color: 'from-amber-500/10 to-orange-500/5', status: 'available' as const },
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', description: 'Company page analitika, B2B kampanje, employee advocacy', color: 'from-blue-700/10 to-blue-500/5', status: 'coming_soon' as const },
-  { id: 'mailchimp', name: 'Mailchimp', icon: '📧', description: 'Email kampanje, automatizacija, liste kontakata', color: 'from-yellow-500/10 to-yellow-600/5', status: 'coming_soon' as const },
+  { id: 'facebook', name: 'Facebook Ads', icon: '📘', description: 'Upravljanje kampanjama, ciljanje publike, praćenje konverzija', color: 'from-blue-600/10 to-blue-600/5', status: 'available' as const, badge: 'sandbox' as const },
+  { id: 'instagram', name: 'Instagram API', icon: '📸', description: 'Automatsko objavljivanje, analitika postova, praćenje hashtag-ova', color: 'from-pink-500/10 to-purple-500/5', status: 'available' as const, badge: 'sandbox' as const },
+  { id: 'tiktok', name: 'TikTok API', icon: '🎵', description: 'Video analitika, praćenje trendova, kreatorske statistike', color: 'from-cyan-500/10 to-pink-500/5', status: 'coming_soon' as const, badge: null },
+  { id: 'google_analytics', name: 'Google Analytics', icon: '📊', description: 'Web promet, konverzije, korisničko ponašanje, UTM praćenje', color: 'from-amber-500/10 to-orange-500/5', status: 'available' as const, badge: 'beta' as const },
+  { id: 'linkedin', name: 'LinkedIn', icon: '💼', description: 'Company page analitika, B2B kampanje, employee advocacy', color: 'from-blue-700/10 to-blue-500/5', status: 'coming_soon' as const, badge: null },
+  { id: 'mailchimp', name: 'Mailchimp', icon: '📧', description: 'Email kampanje, automatizacija, liste kontakata', color: 'from-yellow-500/10 to-yellow-600/5', status: 'coming_soon' as const, badge: null },
 ]
 
 // ─── Billing Plans ───────────────────────────────────────────────────────────
@@ -884,14 +884,31 @@ export default function Settings() {
                         </span>
                       ) : (
                         <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
-                          Dostupno
+                          Aktivno
                         </span>
                       )}
                     </div>
-                    <h3 className="text-sm font-bold text-studio-text-primary mb-1">{integration.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-sm font-bold text-studio-text-primary">{integration.name}</h3>
+                      {integration.badge === 'beta' && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20">
+                          Beta
+                        </span>
+                      )}
+                      {integration.badge === 'sandbox' && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+                          Sandbox
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-studio-text-tertiary leading-relaxed mb-4">{integration.description}</p>
                     <button
                       disabled={integration.status === 'coming_soon' || !isClientAdmin}
+                      onClick={() => {
+                        if (integration.status === 'available' && isClientAdmin) {
+                          addToast('Integracija u pripremi — dostupno uskoro.', 'info')
+                        }
+                      }}
                       className={clsx(
                         'w-full text-xs font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5',
                         integration.status === 'coming_soon' || !isClientAdmin

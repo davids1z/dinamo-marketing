@@ -1,15 +1,42 @@
 """Modul 3: Competitor Intelligence Hub service."""
 
+import json
 import logging
+import re
 from datetime import date, datetime, timedelta
 from uuid import UUID
 
+import httpx
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.competitor import Competitor, CompetitorAlert, CompetitorMetric
 
 logger = logging.getLogger(__name__)
+
+# OpenRouter config (same pattern as client_intelligence.py)
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_MODEL = "google/gemini-2.5-pro"
+
+_SWOT_SYSTEM_PROMPT = """Ti si marketinški strateg s iskustvom u digitalnom marketingu i konkurentskoj analizi.
+Tvoj zadatak je napraviti SWOT analizu za zadanu tvrtku.
+Odgovori ISKLJUČIVO u JSON formatu — bez teksta oko njega."""
+
+_SWOT_USER_PROMPT = """Napravi SWOT analizu za kompaniju "{competitor_name}" koja je u industriji "{industry}" u usporedbi s brendom "{our_brand}".
+
+Kontekst o našem brendu:
+{brand_context}
+
+Vrati ISKLJUČIVO JSON:
+{{
+  "strengths": ["...", "..."],
+  "weaknesses": ["...", "..."],
+  "opportunities": ["...", "..."],
+  "threats": ["...", "..."]
+}}
+
+Svaka kategorija mora imati 3-5 stavki. Stavke moraju biti konkretne i specifične za zadane tvrtke.
+SAMO JSON, bez teksta."""
 
 # Engagement spike threshold: 2x the 30-day average
 SPIKE_THRESHOLD = 2.0
@@ -25,6 +52,17 @@ DEFAULT_COMPETITORS = [
     "Ferencvaros",
     "Malmo FF",
 ]
+
+
+def _validate_swot(data: dict) -> dict:
+    """Ensure SWOT dict has the expected shape with string lists."""
+    validated = {}
+    for key in ("strengths", "weaknesses", "opportunities", "threats"):
+        items = data.get(key, [])
+        if not isinstance(items, list):
+            items = [str(items)] if items else []
+        validated[key] = [str(item) for item in items]
+    return validated
 
 
 class CompetitorIntelService:
@@ -102,6 +140,117 @@ class CompetitorIntelService:
         await db.flush()
         logger.info(f"Scanned {len(scan_results)} competitors")
         return scan_results
+
+    async def generate_swot(self, competitor, client) -> dict:
+        """Generate AI SWOT analysis for a competitor using OpenRouter (Gemini 2.5 Pro).
+
+        Args:
+            competitor: Competitor model instance
+            client: Client model instance (our brand)
+
+        Returns:
+            dict with keys: strengths, weaknesses, opportunities, threats
+        """
+        from app.config import settings
+
+        api_key = settings.OPENROUTER_API_KEY
+        if not api_key:
+            logger.warning("No OPENROUTER_API_KEY configured, returning placeholder SWOT")
+            return {
+                "strengths": ["API ključ nije konfiguriran — SWOT analiza nije dostupna"],
+                "weaknesses": [],
+                "opportunities": [],
+                "threats": [],
+            }
+
+        brand_context = (
+            f"Naziv: {client.name}\n"
+            f"Opis: {client.business_description or 'Nije definirano'}\n"
+            f"Ciljna publika: {client.target_audience or 'Nije definirano'}\n"
+            f"Ton: {client.tone_of_voice or 'Profesionalan'}"
+        )
+
+        user_prompt = _SWOT_USER_PROMPT.format(
+            competitor_name=competitor.name,
+            industry=competitor.league,  # league field stores industry/sector
+            our_brand=client.name,
+            brand_context=brand_context,
+        )
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://shiftonezero.xyler.ai",
+            "X-Title": "ShiftOneZero Marketing Platform",
+        }
+
+        payload = {
+            "model": OPENROUTER_MODEL,
+            "messages": [
+                {"role": "system", "content": _SWOT_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": 0.4,
+            "max_tokens": 4096,
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as http_client:
+                response = await http_client.post(
+                    OPENROUTER_URL, json=payload, headers=headers
+                )
+                response.raise_for_status()
+
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            logger.info(
+                "SWOT response for %s: %d chars", competitor.name, len(content)
+            )
+
+            swot = self._parse_swot_response(content)
+            return swot
+
+        except Exception as exc:
+            logger.error("SWOT generation failed for %s: %s", competitor.name, exc)
+            raise
+
+    @staticmethod
+    def _parse_swot_response(content: str) -> dict:
+        """Parse AI SWOT response, handling markdown fences and quirks."""
+        content = content.strip()
+
+        # Strip markdown fences
+        if content.startswith("```"):
+            first_newline = content.index("\n")
+            content = content[first_newline + 1:]
+        if content.endswith("```"):
+            content = content[:-3]
+        content = content.strip()
+
+        # Remove trailing commas before ] or }
+        content = re.sub(r",\s*([}\]])", r"\1", content)
+
+        # Try direct parse
+        try:
+            result = json.loads(content)
+            if isinstance(result, dict):
+                return _validate_swot(result)
+        except json.JSONDecodeError:
+            pass
+
+        # Try extracting JSON object
+        start = content.find("{")
+        end = content.rfind("}")
+        if start != -1 and end != -1:
+            try:
+                result = json.loads(content[start : end + 1])
+                if isinstance(result, dict):
+                    return _validate_swot(result)
+            except json.JSONDecodeError:
+                pass
+
+        logger.error("Failed to parse SWOT response: %s", content[:500])
+        raise ValueError("Could not parse AI SWOT response as JSON")
 
     async def get_competitor_comparison(self, db: AsyncSession) -> dict:
         """Generate a gap analysis comparing the brand vs all competitors."""

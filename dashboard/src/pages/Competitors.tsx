@@ -12,12 +12,13 @@ import { useApiMutation } from '../hooks/useApiMutation'
 import { useProjectStatus } from '../hooks/useProjectStatus'
 import { useClient } from '../contexts/ClientContext'
 import { useToast } from '../hooks/useToast'
-import { competitorsApi } from '../api/competitors'
+import { competitorsApi, SwotAnalysis } from '../api/competitors'
 import {
   TrendingUp, TrendingDown, Minus, Target, Shield, Zap,
   ArrowUpRight, ArrowDownRight, FolderKanban, Sparkles,
   Radar, X, AlertTriangle, BarChart3,
-  RefreshCw, Search, Eye, Info,
+  RefreshCw, Search, Eye, Info, Brain,
+  ChevronUp, Loader2,
 } from 'lucide-react'
 import {
   XAxis, YAxis, Tooltip,
@@ -212,6 +213,55 @@ function GhostEmptyState({ onDiscover, discovering }: { onDiscover: () => void; 
 }
 
 // ---------------------------------------------------------------------------
+// SWOT Analysis Display
+// ---------------------------------------------------------------------------
+
+const SWOT_CONFIG = {
+  strengths:      { label: 'Snage',       color: 'bg-green-50 dark:bg-green-500/10', border: 'border-green-200 dark:border-green-500/20', icon: '💪', textColor: 'text-green-700 dark:text-green-400' },
+  weaknesses:     { label: 'Slabosti',    color: 'bg-red-50 dark:bg-red-500/10',     border: 'border-red-200 dark:border-red-500/20',     icon: '⚠️', textColor: 'text-red-700 dark:text-red-400' },
+  opportunities:  { label: 'Prilike',     color: 'bg-blue-50 dark:bg-blue-500/10',   border: 'border-blue-200 dark:border-blue-500/20',   icon: '🚀', textColor: 'text-blue-700 dark:text-blue-400' },
+  threats:        { label: 'Prijetnje',   color: 'bg-orange-50 dark:bg-orange-500/10', border: 'border-orange-200 dark:border-orange-500/20', icon: '🔥', textColor: 'text-orange-700 dark:text-orange-400' },
+} as const
+
+function SwotQuadrant({ type, items }: { type: keyof typeof SWOT_CONFIG; items: string[] }) {
+  const cfg = SWOT_CONFIG[type]
+  return (
+    <div className={`rounded-xl border ${cfg.border} ${cfg.color} p-4`}>
+      <h4 className={`text-sm font-semibold mb-3 ${cfg.textColor}`}>
+        {cfg.icon} {cfg.label}
+      </h4>
+      <ul className="space-y-2">
+        {items.map((item, i) => (
+          <li key={i} className="text-sm text-studio-text-primary flex items-start gap-2">
+            <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${
+              type === 'strengths' ? 'bg-green-500' :
+              type === 'weaknesses' ? 'bg-red-500' :
+              type === 'opportunities' ? 'bg-blue-500' :
+              'bg-orange-500'
+            }`} />
+            {item}
+          </li>
+        ))}
+        {items.length === 0 && (
+          <li className="text-sm text-studio-text-tertiary italic">Nema podataka</li>
+        )}
+      </ul>
+    </div>
+  )
+}
+
+function SwotDisplay({ swot }: { swot: SwotAnalysis }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+      <SwotQuadrant type="strengths" items={swot.strengths} />
+      <SwotQuadrant type="weaknesses" items={swot.weaknesses} />
+      <SwotQuadrant type="opportunities" items={swot.opportunities} />
+      <SwotQuadrant type="threats" items={swot.threats} />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Content Gap Analysis Card
 // ---------------------------------------------------------------------------
 
@@ -302,6 +352,9 @@ export default function Competitors() {
   const [platformTab, setPlatformTab] = useState<PlatformTab>('instagram')
   const [chartRevealed, setChartRevealed] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [swotData, setSwotData] = useState<Record<string, SwotAnalysis>>({})
+  const [swotLoading, setSwotLoading] = useState<Record<string, boolean>>({})
+  const [swotExpanded, setSwotExpanded] = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setChartRevealed(true), 60)
@@ -386,6 +439,45 @@ export default function Competitors() {
       // silently fail
     } finally {
       setRemovingId(null)
+    }
+  }
+
+  // --- SWOT handler ---
+  const handleSwotToggle = async (id: string) => {
+    // Collapse if already expanded
+    if (swotExpanded === id) {
+      setSwotExpanded(null)
+      return
+    }
+
+    // Expand
+    setSwotExpanded(id)
+
+    // Already cached in state? Don't re-fetch
+    if (swotData[id]) return
+
+    // Try to get cached SWOT from server first
+    setSwotLoading(prev => ({ ...prev, [id]: true }))
+    try {
+      const cachedRes = await competitorsApi.getSwot(id)
+      const cached = cachedRes.data
+      if (cached.swot) {
+        setSwotData(prev => ({ ...prev, [id]: cached.swot! }))
+        setSwotLoading(prev => ({ ...prev, [id]: false }))
+        return
+      }
+
+      // No cached SWOT — generate via AI
+      const genRes = await competitorsApi.generateSwot(id)
+      const result = genRes.data
+      if (result.swot) {
+        setSwotData(prev => ({ ...prev, [id]: result.swot! }))
+        addToast('SWOT analiza generirana', 'success')
+      }
+    } catch {
+      addToast('Greška pri generiranju SWOT analize', 'error')
+    } finally {
+      setSwotLoading(prev => ({ ...prev, [id]: false }))
     }
   }
 
@@ -583,14 +675,31 @@ export default function Competitors() {
       key: 'actions',
       header: '',
       render: (row: CompetitorRow) => row.id ? (
-        <button
-          onClick={(e) => { e.stopPropagation(); handleRemove(row.id!) }}
-          disabled={removingId === row.id}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 text-studio-text-tertiary hover:text-red-500"
-          title="Ukloni konkurenta"
-        >
-          {removingId === row.id ? <RefreshCw size={14} className="animate-spin" /> : <X size={14} />}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleSwotToggle(row.id!) }}
+            className={`p-1 rounded transition-colors ${
+              swotExpanded === row.id
+                ? 'bg-blue-100 text-blue-600'
+                : 'opacity-0 group-hover:opacity-100 text-studio-text-tertiary hover:bg-blue-50 hover:text-blue-500'
+            }`}
+            title="SWOT analiza"
+          >
+            {swotLoading[row.id!] ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Brain size={14} />
+            )}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleRemove(row.id!) }}
+            disabled={removingId === row.id}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 text-studio-text-tertiary hover:text-red-500"
+            title="Ukloni konkurenta"
+          >
+            {removingId === row.id ? <RefreshCw size={14} className="animate-spin" /> : <X size={14} />}
+          </button>
+        </div>
       ) : null,
     },
   ]
@@ -865,6 +974,41 @@ export default function Competitors() {
           <div className="overflow-x-auto">
             <DataTable columns={columns} data={competitorList} emptyMessage="Nema praćenih konkurenata" />
           </div>
+
+          {/* SWOT Expansion Panel */}
+          {swotExpanded && (
+            <div className="mt-4 border-t border-studio-border pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Brain size={16} className="text-blue-500" />
+                  <h3 className="text-sm font-semibold text-studio-text-primary">
+                    SWOT analiza: {competitorList.find(c => c.id === swotExpanded)?.company}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setSwotExpanded(null)}
+                  className="p-1 rounded hover:bg-studio-surface-2 text-studio-text-tertiary"
+                >
+                  <ChevronUp size={16} />
+                </button>
+              </div>
+
+              {swotLoading[swotExpanded] ? (
+                <div className="flex items-center justify-center gap-3 py-12">
+                  <Loader2 size={20} className="animate-spin text-blue-500" />
+                  <span className="text-sm text-studio-text-secondary">
+                    AI generira SWOT analizu...
+                  </span>
+                </div>
+              ) : swotData[swotExpanded] ? (
+                <SwotDisplay swot={swotData[swotExpanded]} />
+              ) : (
+                <div className="text-sm text-studio-text-tertiary text-center py-8">
+                  Kliknite za generiranje SWOT analize
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

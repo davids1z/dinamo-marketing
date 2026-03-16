@@ -298,6 +298,42 @@ async def get_competitor_page_data(
     }
 
 
+@router.get("/{competitor_id}/swot")
+async def get_competitor_swot(
+    competitor_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get cached SWOT analysis for a competitor (if available)."""
+    user, client, role = ctx
+    comp = await db.get(Competitor, competitor_id)
+    if not comp or comp.client_id != client.id:
+        raise HTTPException(status_code=404, detail="Competitor not found")
+
+    if comp.swot_analysis:
+        return {"swot": comp.swot_analysis, "cached": True}
+    return {"swot": None, "cached": False}
+
+
+@router.post("/{competitor_id}/swot")
+async def generate_competitor_swot(
+    competitor_id: UUID,
+    ctx: tuple = Depends(get_current_client),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate AI SWOT analysis for a competitor and cache it."""
+    user, client, role = ctx
+    comp = await db.get(Competitor, competitor_id)
+    if not comp or comp.client_id != client.id:
+        raise HTTPException(status_code=404, detail="Competitor not found")
+
+    service = _get_service()
+    swot = await service.generate_swot(comp, client)
+    comp.swot_analysis = swot
+    await db.commit()
+    return {"swot": swot, "cached": False}
+
+
 @router.get("/alerts")
 async def check_competitor_alerts(
     ctx: tuple = Depends(get_current_client),

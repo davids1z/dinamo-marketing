@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import api from '../api/client'
+import { useClient } from '../contexts/ClientContext'
 
 interface UseApiResult<T> {
   data: T | null
@@ -117,6 +118,11 @@ function resolveCache(key: string): { data: unknown; timestamp: number } | null 
 // Main hook
 // ---------------------------------------------------------------------------
 export function useApi<T>(url: string, immediate = true, ttl = DEFAULT_TTL): UseApiResult<T> {
+  // refreshSignal increments whenever the user saves their brand profile.
+  // We use it as a dependency so every active useApi instance busts its cache
+  // and re-fetches fresh data without requiring a full page reload.
+  const { refreshSignal } = useClient()
+
   const key = cacheKey(url)
   const cached = resolveCache(key)
   const [data, setData] = useState<T | null>(cached ? (cached.data as T) : null)
@@ -161,6 +167,14 @@ export function useApi<T>(url: string, immediate = true, ttl = DEFAULT_TTL): Use
     if (!immediate) return
 
     const k = cacheKey(url)
+
+    // When refreshSignal > 0 a profile save has occurred — discard stale cache
+    // so this fetch always goes to the network rather than serving old data.
+    if (refreshSignal > 0) {
+      cache.delete(k)
+      removeFromStorage(k)
+    }
+
     const entry = resolveCache(k)
     if (entry) {
       // Serve cached data immediately (zero wait)
@@ -175,7 +189,7 @@ export function useApi<T>(url: string, immediate = true, ttl = DEFAULT_TTL): Use
     }
 
     return () => { mountedRef.current = false }
-  }, [fetchData, immediate, url, ttl])
+  }, [fetchData, immediate, url, ttl, refreshSignal])
 
   const refetch = useCallback(() => {
     const k = cacheKey(url)

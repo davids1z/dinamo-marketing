@@ -36,6 +36,12 @@ interface ClientContextType {
   switchClient: (clientId: string) => void
   /** Re-fetch user data from API to refresh currentClient without page reload */
   refreshClient: () => Promise<void>
+  /**
+   * Increments by 1 every time refreshClient() completes successfully.
+   * Data hooks that depend on brand profile (useApi) watch this value so they
+   * automatically refetch and bust their cache after a profile save.
+   */
+  refreshSignal: number
   clientRole: string | null
   isClientAdmin: boolean
   canModerate: boolean
@@ -65,6 +71,7 @@ const ClientContext = createContext<ClientContextType>({
   currentClient: null,
   switchClient: () => {},
   refreshClient: async () => {},
+  refreshSignal: 0,
   clientRole: null,
   isClientAdmin: false,
   canModerate: false,
@@ -78,6 +85,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem('current_client_id')
   )
   const [recentClientIds, setRecentClientIds] = useState<string[]>(getRecentClientIds)
+  const [refreshSignal, setRefreshSignal] = useState(0)
 
   const clients = user?.clients || []
 
@@ -115,6 +123,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   const refreshClient = useCallback(async () => {
     await refreshUser()
+    setRefreshSignal(prev => prev + 1)  // Signal all data hooks to refetch
   }, [refreshUser])
 
   const clientRole = currentClient?.role || null
@@ -124,7 +133,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   return (
     <ClientContext.Provider value={{
-      clients, currentClient, switchClient, refreshClient, clientRole, isClientAdmin, canModerate, isViewer,
+      clients, currentClient, switchClient, refreshClient, refreshSignal, clientRole, isClientAdmin, canModerate, isViewer,
       recentClientIds,
     }}>
       {children}

@@ -23,6 +23,9 @@ class Competitor(BaseModel):
         UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True
     )
 
+    # AI-generated SWOT analysis (cached)
+    swot_analysis: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     metrics: Mapped[list["CompetitorMetric"]] = relationship(back_populates="competitor")
     alerts: Mapped[list["CompetitorAlert"]] = relationship(back_populates="competitor")
 

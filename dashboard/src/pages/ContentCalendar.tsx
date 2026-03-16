@@ -454,16 +454,38 @@ export default function ContentCalendar() {
   }
 
   if (!hasAnyPosts && !generating) {
-    if (!profileReady) {
-      const missingChecks = profileChecks.filter(c => !c.done)
-      return (<div><Header title="KALENDAR SADRŽAJA" subtitle={`${monthNames[currentMonth]} ${currentYear} — Od strategije do objave`} /><div className="page-wrapper space-y-6"><StrategyInsight posts={[]} brandName={brandName} isGenerating={false} /><EmptyState icon={AlertTriangle} title="Dovršite profil brenda" description={`Profil brenda je ${profilePercent}% gotov. AI treba više konteksta za kvalitetno generiranje sadržaja.`} variant="hero" action={<div className="flex flex-col items-center gap-4"><div className="text-left space-y-1.5">{missingChecks.slice(0, 5).map(c => (<div key={c.id} className="flex items-center gap-2 text-xs text-studio-text-secondary"><X size={12} className="text-red-400 flex-shrink-0" /><span>{c.label}</span></div>))}</div><button onClick={() => navigate('/brand-profile')} className="flex items-center gap-2 px-5 py-2.5 bg-brand-accent text-white rounded-xl text-sm font-medium hover:bg-brand-accent-hover transition-all shadow-sm"><Sparkles size={16} />Dovršite profil</button></div>} /></div></div>)
-    }
-
     return (
       <div>
         <Header title="KALENDAR SADRŽAJA" subtitle={`${monthNames[currentMonth]} ${currentYear} — Od strategije do objave`} />
         <div className="page-wrapper space-y-6">
           <StrategyInsight posts={[]} brandName={brandName} isGenerating={false} />
+          {!profileReady && (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-4">
+              <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-studio-text-primary mb-1">
+                  Profil brenda nije potpun ({profilePercent}%)
+                </h3>
+                <p className="text-xs text-studio-text-secondary mb-3">
+                  AI treba više konteksta za generiranje kvalitetnog sadržaja. Popunite profil:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {profileChecks.filter(c => !c.done).map(c => (
+                    <span key={c.id} className="text-xs px-2 py-1 bg-studio-surface-1 rounded-lg text-studio-text-tertiary flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                      {c.label}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={() => navigate('/brand-profile')}
+                  className="mt-3 text-xs font-medium text-brand-accent hover:underline"
+                >
+                  Dovršite profil →
+                </button>
+              </div>
+            </div>
+          )}
           <div className="card border-2 border-dashed border-brand-accent/20 bg-gradient-to-br from-brand-accent/5 to-transparent">
             <div className="flex flex-col items-center justify-center py-12 space-y-6">
               <div className="w-20 h-20 rounded-2xl bg-brand-accent/10 flex items-center justify-center">
@@ -473,7 +495,7 @@ export default function ContentCalendar() {
                 <h2 className="text-xl font-headline tracking-wider text-studio-text-primary">Generiraj AI strategiju za {monthNames[currentMonth]}</h2>
                 <p className="text-sm text-studio-text-secondary max-w-md">AI će analizirati vaš brand profil, ton komunikacije i ciljnu publiku, pa kreirati kompletni mjesečni plan s objavama za sve kanale.</p>
               </div>
-              <button onClick={handleGenerate} disabled={generating} className="flex items-center gap-2 px-6 py-3 bg-brand-accent text-brand-dark rounded-xl text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-brand-accent/20 disabled:opacity-50">
+              <button onClick={handleGenerate} disabled={generating || !profileReady} title={!profileReady ? `Profil je ${profilePercent}% popunjen — dovršite profil za AI generiranje` : undefined} className="flex items-center gap-2 px-6 py-3 bg-brand-accent text-brand-dark rounded-xl text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-brand-accent/20 disabled:opacity-50">
                 {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                 {generating ? 'Generiranje...' : 'AI Generiraj plan'}
               </button>
@@ -500,6 +522,35 @@ export default function ContentCalendar() {
       <div className="page-wrapper space-y-5">
         <StrategyInsight posts={allPosts} brandName={brandName} isGenerating={generating || generatingWeek} />
         {allPosts.length > 0 && <PillarStats posts={allPosts} />}
+
+        {/* Profile incomplete warning banner */}
+        {!profileReady && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-4">
+            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-studio-text-primary mb-1">
+                Profil brenda nije potpun ({profilePercent}%)
+              </h3>
+              <p className="text-xs text-studio-text-secondary mb-3">
+                AI treba više konteksta za generiranje kvalitetnog sadržaja. Popunite profil:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {profileChecks.filter(c => !c.done).map(c => (
+                  <span key={c.id} className="text-xs px-2 py-1 bg-studio-surface-1 rounded-lg text-studio-text-tertiary flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                    {c.label}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={() => navigate('/brand-profile')}
+                className="mt-3 text-xs font-medium text-brand-accent hover:underline"
+              >
+                Dovršite profil →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs + Actions */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -638,7 +689,7 @@ export default function ContentCalendar() {
           <div className="space-y-6">
             <div className="card">
               <div className="flex items-center justify-between mb-6"><div><h2 className="section-title">6-Mjesečna strategija</h2><p className="text-xs text-studio-text-secondary mt-1">Planiranje sadržaja za {monthNames[currentMonth]} {currentYear} — {monthNames[(currentMonth + 5) % 12]} {currentYear + Math.floor((currentMonth + 5) / 12)}</p></div>
-                <button onClick={async () => { try { setGenerating(true); const res = await contentApi.generateStrategy({ start_month: currentMonth + 1, start_year: currentYear }); const taskId = res.data.task_id; const poll = setInterval(async () => { try { const taskRes = await contentApi.getStrategyTask(taskId); if (taskRes.data.status === 'done' || taskRes.data.status === 'error') { clearInterval(poll); setGenerating(false); if (taskRes.data.status === 'done') window.location.reload() } } catch { clearInterval(poll); setGenerating(false) } }, 5000) } catch { setGenerating(false) } }} disabled={generating} className="flex items-center gap-2 text-sm px-4 py-2 bg-brand-accent text-brand-dark rounded-xl font-bold hover:brightness-110 transition-all disabled:opacity-50">
+                <button onClick={async () => { try { setGenerating(true); const res = await contentApi.generateStrategy({ start_month: currentMonth + 1, start_year: currentYear }); const taskId = res.data.task_id; const poll = setInterval(async () => { try { const taskRes = await contentApi.getStrategyTask(taskId); if (taskRes.data.status === 'done' || taskRes.data.status === 'error') { clearInterval(poll); setGenerating(false); if (taskRes.data.status === 'done') window.location.reload() } } catch { clearInterval(poll); setGenerating(false) } }, 5000) } catch { setGenerating(false) } }} disabled={generating || !profileReady} title={!profileReady ? `Profil je ${profilePercent}% popunjen — dovršite profil za AI generiranje` : undefined} className="flex items-center gap-2 text-sm px-4 py-2 bg-brand-accent text-brand-dark rounded-xl font-bold hover:brightness-110 transition-all disabled:opacity-50">
                   {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}{generating ? 'Generiranje strategije...' : 'Generiraj 6-mjesečnu strategiju'}
                 </button>
               </div>
