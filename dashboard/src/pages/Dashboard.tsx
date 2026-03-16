@@ -46,6 +46,7 @@ interface ApiOverview {
   campaign_data?: Array<Record<string, unknown>>
   funnel?: Array<{ label: string; value: number; color: string }>
   top_posts?: Array<Record<string, unknown>>
+  total_followers?: number
   _meta?: { last_refreshed: string | null; is_estimate?: boolean }
 }
 
@@ -129,14 +130,19 @@ function mapApiToOverview(apiData: ApiOverview): Partial<OverviewData> {
   const spend = p?.total_spend || 0
   const roas = p?.avg_roas || 0
 
-  const engTrend = (apiData.reach_data || []).slice(-7).map(r => ({
-    date: r.date,
+  // Use full reach_data for chart (not sliced), format dates as short MM/DD labels
+  const engTrend = (apiData.reach_data || []).map(r => ({
+    date: r.date.slice(5), // "2026-03-01" → "03-01" for compact x-axis labels
     engagement: Math.round(r.reach * (engRate / 100)),
     reach: r.reach,
   }))
 
+  // total_followers comes from SocialChannel ChannelMetric (real follower counts)
+  // apiData.total_followers is the sum of latest follower counts across own channels
+  const totalFollowers = apiData.total_followers || o.new_followers || 0
+
   return {
-    total_followers: o.new_followers || 0,
+    total_followers: totalFollowers,
     prev_followers: 0,
     monthly_reach: reach,
     prev_reach: prevReach,
@@ -714,7 +720,7 @@ export default function Dashboard() {
   // Period maps to days for the API
   const periodDays: Record<PeriodKey, number> = { '7d': 7, '30d': 30, 'month': 30, 'quarter': 90 }
   const { data: rawApi, loading, refetch: refetchOverview } = useApi<ApiOverview>(`/analytics/overview?days=${periodDays[period]}`)
-  const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live' })
+  const { data: liveData, isConnected } = useWebSocket<ApiOverview>({ url: '/api/v1/analytics/ws/live', clientId: currentClient?.client_id })
 
   // Fetch sentiment data for the donut chart
   const { data: sentimentApi } = useApi<{

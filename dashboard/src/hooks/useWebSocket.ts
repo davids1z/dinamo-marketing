@@ -2,12 +2,15 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface UseWebSocketOptions {
   url: string
+  /** UUID of the client to scope the stream to.  Required for /ws/live. */
+  clientId?: string | null
   reconnectInterval?: number
   maxRetries?: number
 }
 
 export function useWebSocket<T = unknown>({
   url,
+  clientId,
   reconnectInterval = 5000,
   maxRetries = 10,
 }: UseWebSocketOptions) {
@@ -18,10 +21,16 @@ export function useWebSocket<T = unknown>({
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
   const connect = useCallback(() => {
+    const token = localStorage.getItem('auth_token')
+
+    // Both token and clientId are required — do not attempt connection without them
+    if (!token || !clientId) {
+      return
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
-    const token = localStorage.getItem('auth_token')
-    const wsUrl = `${protocol}//${host}${url}${token ? `?token=${token}` : ''}`
+    const wsUrl = `${protocol}//${host}${url}?token=${encodeURIComponent(token)}&client_id=${encodeURIComponent(clientId)}`
 
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
@@ -40,9 +49,15 @@ export function useWebSocket<T = unknown>({
       }
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setIsConnected(false)
       wsRef.current = null
+
+      // 4001 = unauthenticated, 4003 = forbidden — do not retry auth failures
+      if (event.code === 4001 || event.code === 4003) {
+        return
+      }
+
       if (retriesRef.current < maxRetries) {
         retriesRef.current += 1
         reconnectTimerRef.current = setTimeout(connect, reconnectInterval)
@@ -52,7 +67,7 @@ export function useWebSocket<T = unknown>({
     ws.onerror = () => {
       // onclose will fire after onerror
     }
-  }, [url, reconnectInterval, maxRetries])
+  }, [url, clientId, reconnectInterval, maxRetries])
 
   useEffect(() => {
     connect()

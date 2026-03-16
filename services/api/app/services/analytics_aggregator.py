@@ -8,7 +8,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.analytics import AdMetric, PostMetric
-from app.models.channel import SocialChannel
+from app.models.channel import SocialChannel, ChannelMetric
 
 logger = logging.getLogger(__name__)
 
@@ -19,14 +19,17 @@ class AnalyticsAggregatorService:
     def __init__(self):
         pass
 
-    async def get_overview_kpis(self, db: AsyncSession, client_id: UUID | None = None) -> dict:
+    async def get_overview_kpis(self, db: AsyncSession, days: int = 30, client_id: UUID | None = None) -> dict:
         """Get cross-platform KPI overview for the dashboard."""
         now = datetime.utcnow()
-        thirty_days_ago = now - timedelta(days=30)
-        sixty_days_ago = now - timedelta(days=60)
+        cutoff = now - timedelta(days=days)
+        prev_cutoff = now - timedelta(days=days * 2)
+        # Keep legacy names for backward compat in this function
+        thirty_days_ago = cutoff
+        sixty_days_ago = prev_cutoff
 
         # Build client filter conditions
-        post_client_filter = [PostMetric.timestamp >= thirty_days_ago]
+        post_client_filter = [PostMetric.timestamp >= cutoff]
         if client_id:
             post_client_filter.append(PostMetric.client_id == client_id)
 
@@ -49,7 +52,7 @@ class AnalyticsAggregatorService:
         current = current_result.one()
 
         # Previous period for comparison
-        prev_filters = [PostMetric.timestamp >= sixty_days_ago, PostMetric.timestamp < thirty_days_ago]
+        prev_filters = [PostMetric.timestamp >= prev_cutoff, PostMetric.timestamp < cutoff]
         if client_id:
             prev_filters.append(PostMetric.client_id == client_id)
         previous_result = await db.execute(
@@ -64,7 +67,7 @@ class AnalyticsAggregatorService:
         previous = previous_result.one()
 
         # Ad spend metrics
-        ad_filters = [AdMetric.timestamp >= thirty_days_ago]
+        ad_filters = [AdMetric.timestamp >= cutoff]
         if client_id:
             ad_filters.append(AdMetric.client_id == client_id)
         ad_result = await db.execute(
@@ -88,8 +91,34 @@ class AnalyticsAggregatorService:
                 return 0.0
             return round(((c - p) / p) * 100, 1)
 
+        # Total followers: sum latest ChannelMetric.followers per own channel (single query)
+        # Subquery: latest metric date per channel
+        ch_followers_cte = (
+            select(
+                ChannelMetric.channel_id,
+                func.max(ChannelMetric.date).label("latest_date"),
+            )
+            .group_by(ChannelMetric.channel_id)
+            .subquery()
+        )
+        follower_query = (
+            select(func.coalesce(func.sum(ChannelMetric.followers), 0).label("total"))
+            .join(
+                ch_followers_cte,
+                (ChannelMetric.channel_id == ch_followers_cte.c.channel_id)
+                & (ChannelMetric.date == ch_followers_cte.c.latest_date),
+            )
+            .join(SocialChannel, SocialChannel.id == ChannelMetric.channel_id)
+            .where(SocialChannel.owner_type == "own")
+        )
+        if client_id:
+            follower_query = follower_query.where(SocialChannel.client_id == client_id)
+        follower_result = await db.execute(follower_query)
+        total_followers = int(follower_result.scalar() or 0)
+
         return {
-            "period": "30d",
+            "period": f"{days}d",
+            "total_followers": total_followers,
             "organic": {
                 "impressions": current.impressions or 0,
                 "reach": current.reach or 0,
@@ -364,7 +393,7 @@ class AnalyticsAggregatorService:
         import random
         from app.models.content import ContentPost
 
-        kpis = await self.get_overview_kpis(db, client_id)
+        kpis = await self.get_overview_kpis(db, days, client_id)
         reach_data = await self.get_daily_reach_series(db, days, client_id)
         funnel = await self.get_funnel_data(db, days, client_id)
 
@@ -455,6 +484,9 @@ class AnalyticsAggregatorService:
                         "avg_engagement_rate": est_eng_rate,
                         "new_followers": rng.randint(20, 150) * channel_count,
                     }
+                # Estimated total follower count if none from ChannelMetric
+                if kpis.get("total_followers", 0) == 0:
+                    kpis["total_followers"] = rng.randint(2000, 8000) * channel_count
 
                 # Generate estimated funnel when empty
                 if all(s["value"] == 0 for s in funnel):

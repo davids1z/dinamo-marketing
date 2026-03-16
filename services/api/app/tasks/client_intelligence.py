@@ -345,6 +345,7 @@ def initialize_client_intelligence(self, client_id: str):
         "mentions_created": 0,
         "sentiments_created": 0,
         "topics_created": 0,
+        "campaigns_created": 0,
         "errors": [],
     }
 
@@ -433,12 +434,18 @@ def initialize_client_intelligence(self, client_id: str):
         logger.info("  Step F: Skipped (no fake seed topics)")
 
         # ------------------------------------------------------------------
+        # Step G: Seed Campaigns, Ads, and AdMetrics
+        # ------------------------------------------------------------------
+        logger.info("  Step G: Seeding campaign data...")
+        _step_g_create_campaigns(cid, project_id, client_name, social_handles, results, brand_size)
+
+        # ------------------------------------------------------------------
         # Summary
         # ------------------------------------------------------------------
         logger.info(
             "=== Client Intelligence Init Complete for %s === "
             "channels=%d, posts=%d, metrics=%d, competitors=%d, "
-            "mentions=%d, sentiments=%d, topics=%d",
+            "mentions=%d, sentiments=%d, topics=%d, campaigns=%d",
             client_slug,
             results["channels_created"],
             results["posts_created"],
@@ -447,6 +454,7 @@ def initialize_client_intelligence(self, client_id: str):
             results["mentions_created"],
             results["sentiments_created"],
             results["topics_created"],
+            results["campaigns_created"],
         )
 
         return results
@@ -884,3 +892,249 @@ def _step_f_create_trending_topics(
 
         session.commit()
         logger.info("    Created %d trending topics", results["topics_created"])
+
+
+# ---------------------------------------------------------------------------
+# Step G: Campaign, Ad, AdSet, AdMetric seeding
+# ---------------------------------------------------------------------------
+
+_CAMPAIGN_TEMPLATES = [
+    {
+        "name": "Brand Awareness — Proljeće 2026",
+        "platform": "meta",
+        "objective": "awareness",
+        "daily_budget": 25.0,
+        "max_budget": 750.0,
+        "status": "active",
+    },
+    {
+        "name": "Konverzije — Web shop akcija",
+        "platform": "meta",
+        "objective": "conversions",
+        "daily_budget": 40.0,
+        "max_budget": 1200.0,
+        "status": "active",
+    },
+    {
+        "name": "Engagement — Instagram Reels",
+        "platform": "meta",
+        "objective": "engagement",
+        "daily_budget": 15.0,
+        "max_budget": 450.0,
+        "status": "active",
+    },
+    {
+        "name": "TikTok Doseg — Gen Z publika",
+        "platform": "tiktok",
+        "objective": "awareness",
+        "daily_budget": 20.0,
+        "max_budget": 600.0,
+        "status": "paused",
+    },
+    {
+        "name": "Remarketing — Aktivni posjetitelji",
+        "platform": "meta",
+        "objective": "conversions",
+        "daily_budget": 30.0,
+        "max_budget": 900.0,
+        "status": "active",
+    },
+]
+
+_BRAND_SIZE_MULTIPLIERS = {
+    "small": 0.5,
+    "medium": 1.0,
+    "large": 2.0,
+    "enterprise": 3.5,
+}
+
+
+def _step_g_create_campaigns(
+    client_id: uuid.UUID,
+    project_id: uuid.UUID,
+    client_name: str,
+    social_handles: dict,
+    results: dict,
+    brand_size: str = "medium",
+):
+    """Seed Campaign, AdSet, Ad, and AdMetric records for the client.
+
+    Idempotent: skips if campaigns already exist for this client.
+    Creates realistic ad metric data for the last 30 days so the
+    Campaigns page KPI cards show real aggregated numbers.
+    """
+    from sqlalchemy import select as sa_select
+
+    from app.database import SyncSessionLocal
+    from app.models.campaign import Ad, AdSet, Campaign
+    from app.models.analytics import AdMetric
+
+    with SyncSessionLocal() as session:
+        # Idempotency check
+        existing_count = session.execute(
+            sa_select(Campaign).where(Campaign.client_id == client_id)
+        ).scalars().first()
+
+        if existing_count is not None:
+            logger.info("    Campaigns already exist for client %s, skipping", client_id)
+            return
+
+        rng = random.Random(f"campaigns-seed-{client_id}")
+        multiplier = _BRAND_SIZE_MULTIPLIERS.get(brand_size, 1.0)
+        now = datetime.now(timezone.utc)
+        today = now.date()
+
+        # Pick 3-5 campaign templates, filter by connected platforms
+        connected_platforms = set(social_handles.keys()) if social_handles else {"meta", "tiktok"}
+        # Always include meta (most common)
+        connected_platforms.add("meta")
+
+        selected_templates = [
+            t for t in _CAMPAIGN_TEMPLATES
+            if t["platform"] in connected_platforms or t["platform"] == "meta"
+        ]
+        # Take up to 4 campaigns
+        selected_templates = selected_templates[:4]
+
+        ad_headlines = [
+            f"Otkrijte {client_name} — Nova kolekcija",
+            f"{client_name}: Posebna ponuda za vas",
+            f"Vaš stil uz {client_name}",
+            f"Ekskluzivno — {client_name} premium",
+            f"{client_name} — Isprobajte besplatno",
+            f"Spremni za promjenu? {client_name}",
+            f"Novo od {client_name} — Ograničena ponuda",
+            f"{client_name}: Kvaliteta koju zaslužujete",
+            f"Povežite se s {client_name} danas",
+        ]
+        ad_descriptions = [
+            "Iskoristite ograničenu ponudu i uštedite do 30%. Besplatna dostava!",
+            "Pridružite se tisućama zadovoljnih korisnika. Registrirajte se danas.",
+            "Premium kvaliteta po pristupačnoj cijeni. Naručite sada!",
+            "Nova sezona, novi look. Pogledajte najnovije proizvode.",
+            "Ekskluzivni popust samo za pratitelje. Koristite kod: SOCIAL20",
+            "Rezultati u 7 dana ili novac natrag. Bez rizika.",
+        ]
+
+        for tmpl in selected_templates:
+            days_running = rng.randint(10, 28)
+            start_date = today - timedelta(days=days_running)
+            end_date = start_date + timedelta(days=30)
+
+            daily_budget = tmpl["daily_budget"] * multiplier * rng.uniform(0.85, 1.2)
+            max_budget = tmpl["max_budget"] * multiplier * rng.uniform(0.9, 1.1)
+
+            campaign = Campaign(
+                id=uuid.uuid4(),
+                name=tmpl["name"],
+                platform=tmpl["platform"],
+                objective=tmpl["objective"],
+                status=tmpl["status"],
+                daily_budget=round(daily_budget, 2),
+                max_budget=round(max_budget, 2),
+                total_spend=0.0,  # Will be updated from AdMetrics
+                start_date=start_date,
+                end_date=end_date,
+                client_id=client_id,
+                project_id=project_id,
+            )
+            session.add(campaign)
+            session.flush()
+
+            # Create one AdSet per campaign
+            ad_set = AdSet(
+                id=uuid.uuid4(),
+                campaign_id=campaign.id,
+                name=f"{tmpl['name']} — AdSet",
+                targeting={"age_min": 18, "age_max": 45, "locations": ["HR", "BA", "RS"]},
+                placement="automatic",
+                status="active",
+                budget=round(daily_budget, 2),
+                audience_size=rng.randint(80_000, 500_000),
+                client_id=client_id,
+            )
+            session.add(ad_set)
+            session.flush()
+
+            # Create 3 ad variants (A, B, C)
+            ads_created = []
+            for variant_label in ["A", "B", "C"]:
+                ad = Ad(
+                    id=uuid.uuid4(),
+                    ad_set_id=ad_set.id,
+                    variant_label=variant_label,
+                    headline=rng.choice(ad_headlines),
+                    description=rng.choice(ad_descriptions),
+                    cta="Saznaj više",
+                    image_url="",
+                    video_url="",
+                    status="active",
+                    client_id=client_id,
+                )
+                session.add(ad)
+                session.flush()
+                ads_created.append(ad)
+
+            # Create AdMetric records for last 30 days
+            # Each ad gets daily metric rows; variant A/B/C have different performance
+            variant_performance = {
+                "A": rng.uniform(0.9, 1.3),   # baseline
+                "B": rng.uniform(0.7, 1.1),   # slightly worse
+                "C": rng.uniform(1.1, 1.6),   # winner
+            }
+            # Randomly shuffle which variant is the winner
+            winner_label = rng.choice(["A", "B", "C"])
+            variant_performance[winner_label] = rng.uniform(1.4, 1.9)
+
+            campaign_total_spend = 0.0
+            for day_offset in range(days_running):
+                day_ts = now - timedelta(days=days_running - day_offset - 1)
+                # Skip some days for paused campaigns
+                if tmpl["status"] == "paused" and day_offset < days_running - 7:
+                    continue
+
+                for ad in ads_created:
+                    perf = variant_performance.get(ad.variant_label, 1.0)
+                    # Base metrics scaled by brand size and daily budget
+                    base_spend = (daily_budget / 3) * perf * rng.uniform(0.6, 1.3)
+                    base_impressions = int(base_spend * rng.uniform(60, 180) * multiplier)
+                    base_clicks = int(base_impressions * rng.uniform(0.012, 0.05) * perf)
+                    base_conversions = int(base_clicks * rng.uniform(0.03, 0.12) * perf)
+                    conv_value = base_conversions * rng.uniform(12, 80) * multiplier
+
+                    ctr = (base_clicks / max(base_impressions, 1)) * 100
+                    cpc = base_spend / max(base_clicks, 1)
+                    cpm = (base_spend / max(base_impressions, 1)) * 1000
+                    roas_val = conv_value / max(base_spend, 0.01)
+
+                    metric = AdMetric(
+                        id=uuid.uuid4(),
+                        ad_id=ad.id,
+                        timestamp=day_ts,
+                        impressions=base_impressions,
+                        reach=int(base_impressions * rng.uniform(0.7, 0.95)),
+                        clicks=base_clicks,
+                        ctr=round(ctr, 4),
+                        cpc=round(cpc, 4),
+                        cpm=round(cpm, 4),
+                        spend=round(base_spend, 4),
+                        conversions=base_conversions,
+                        conversion_value=round(conv_value, 4),
+                        roas=round(roas_val, 4),
+                        frequency=round(rng.uniform(1.1, 3.5), 2),
+                        video_views=int(base_impressions * rng.uniform(0.1, 0.4)) if tmpl["objective"] == "awareness" else 0,
+                        video_completion_rate=round(rng.uniform(0.15, 0.65), 4) if tmpl["objective"] == "awareness" else 0.0,
+                        client_id=client_id,
+                    )
+                    session.add(metric)
+                    campaign_total_spend += base_spend
+
+            # Update campaign total_spend
+            campaign.total_spend = round(campaign_total_spend, 2)
+            results["campaigns_created"] += 1
+
+        session.commit()
+        logger.info(
+            "    Created %d campaigns with ads and metrics for client %s",
+            results["campaigns_created"], client_id
+        )

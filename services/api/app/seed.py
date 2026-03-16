@@ -1,9 +1,10 @@
 """Seed the database with mock data from JSON files for demo purposes."""
 
 import asyncio
+import random
 import json
 import logging
-from datetime import date
+from datetime import datetime, date, timedelta
 from pathlib import Path
 
 from sqlalchemy import select, text
@@ -12,10 +13,12 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config import settings
 from app.models.market import Country, DiasporaData, MarketAudience
-from app.models.channel import SocialChannel
+from app.models.channel import SocialChannel, ChannelMetric
 from app.models.competitor import Competitor
 from app.models.academy import AcademyPlayer
 from app.models.user import User
+from app.models.content import ContentPost, ContentPlan
+from app.models.analytics import PostMetric, AdMetric
 from app.models.client import Client, UserClient
 from app.models.project import Project
 from app.services.auth_service import hash_password
@@ -365,6 +368,64 @@ async def seed_brand_channels(session: AsyncSession, client_id):
     logger.info(f"Seeded {count} brand channels")
 
 
+
+async def seed_channel_metrics(session: AsyncSession, client_id):
+    """Seed ChannelMetric records for own brand channels (14-day history with follower counts)."""
+    from sqlalchemy.orm import selectinload
+    existing = (await session.execute(
+        select(ChannelMetric).join(SocialChannel, ChannelMetric.channel_id == SocialChannel.id)
+        .where(SocialChannel.client_id == client_id, SocialChannel.owner_type == "own")
+    )).scalars().all()
+    if existing:
+        logger.info(f"ChannelMetrics already seeded ({len(existing)} rows), skipping")
+        return
+
+    channels = (await session.execute(
+        select(SocialChannel).where(
+            SocialChannel.client_id == client_id,
+            SocialChannel.owner_type == "own",
+        )
+    )).scalars().all()
+
+    if not channels:
+        logger.info("No own channels found — skipping ChannelMetric seed")
+        return
+
+    # Realistic follower ranges per platform
+    platform_followers = {
+        "instagram": (28000, 55000),
+        "facebook": (45000, 90000),
+        "tiktok": (18000, 42000),
+        "youtube": (12000, 28000),
+        "twitter": (8000, 20000),
+        "linkedin": (5000, 15000),
+    }
+
+    today = date.today()
+    count = 0
+    for channel in channels:
+        base_lo, base_hi = platform_followers.get(channel.platform, (10000, 30000))
+        base_followers = random.randint(base_lo, base_hi)
+        for day_offset in range(14):
+            metric_date = today - timedelta(days=13 - day_offset)
+            daily_growth = random.randint(-200, 600)
+            followers = max(1000, base_followers + daily_growth * day_offset)
+            metric = ChannelMetric(
+                channel_id=channel.id,
+                date=metric_date,
+                followers=followers,
+                avg_reach=int(followers * random.uniform(0.08, 0.25)),
+                engagement_rate=round(random.uniform(1.5, 6.5), 2),
+                posting_frequency=round(random.uniform(3.0, 14.0), 1),
+                client_id=client_id,
+            )
+            session.add(metric)
+            count += 1
+
+    await session.flush()
+    logger.info(f"Seeded {count} ChannelMetric records for {len(channels)} channels")
+
+
 async def seed_academy_players(session: AsyncSession, client_id):
     """Seed academy player data."""
     existing = (await session.execute(select(AcademyPlayer))).scalars().all()
@@ -474,6 +535,7 @@ async def main():
             await seed_diaspora(session, client_id)
             await seed_competitors(session, client_id)
             await seed_brand_channels(session, client_id)
+            await seed_channel_metrics(session, client_id)
             await seed_academy_players(session, client_id)
 
         await session.commit()

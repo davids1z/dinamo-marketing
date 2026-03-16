@@ -36,6 +36,7 @@ from app.routers import (
     sentiment,
     settings as settings_router,
     social_listening,
+    partners,
     studio,
 )
 
@@ -128,6 +129,7 @@ app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Set
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["Content Studio"], dependencies=_auth)
 app.include_router(campaign_research.router, prefix="/api/v1/campaign-research", tags=["Campaign Research"], dependencies=_auth)
 app.include_router(ai_insights.router, prefix="/api/v1/ai-insights", tags=["AI Insights"], dependencies=_auth)
+app.include_router(partners.router, prefix="/api/v1/partners", tags=["Partners"], dependencies=_auth)
 
 
 # Static media files (generated images)

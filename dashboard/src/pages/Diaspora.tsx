@@ -1,4 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
+import { ComposableMap, Geographies, Geography, Sphere, Graticule } from 'react-simple-maps'
+import { scaleLinear } from 'd3-scale'
 import Header from '../components/layout/Header'
 import MetricCard from '../components/common/MetricCard'
 import { CardSkeleton, ChartSkeleton } from '../components/common/LoadingSpinner'
@@ -108,7 +110,46 @@ interface PageData {
   }
 }
 
+/* ─────────── ISO alpha-2 → numeric-3 mapping ─────────── */
+// world-atlas topojson uses numeric ISO 3166-1 codes as feature IDs
+const ISO_A2_TO_NUMERIC: Record<string, string> = {
+  AF: '004', AL: '008', DZ: '012', AD: '020', AO: '024', AG: '028', AR: '032',
+  AM: '051', AU: '036', AT: '040', AZ: '031', BS: '044', BH: '048', BD: '050',
+  BB: '052', BY: '112', BE: '056', BZ: '084', BJ: '204', BT: '064', BO: '068',
+  BA: '070', BW: '072', BR: '076', BN: '096', BG: '100', BF: '854', BI: '108',
+  CV: '132', KH: '116', CM: '120', CA: '124', CF: '140', TD: '148', CL: '152',
+  CN: '156', CO: '170', KM: '174', CD: '180', CG: '178', CR: '188', HR: '191',
+  CU: '192', CY: '196', CZ: '203', DK: '208', DJ: '262', DM: '212', DO: '214',
+  EC: '218', EG: '818', SV: '222', GQ: '226', ER: '232', EE: '233', SZ: '748',
+  ET: '231', FJ: '242', FI: '246', FR: '250', GA: '266', GM: '270', GE: '268',
+  DE: '276', GH: '288', GR: '300', GD: '308', GT: '320', GN: '324', GW: '624',
+  GY: '328', HT: '332', HN: '340', HU: '348', IS: '352', IN: '356', ID: '360',
+  IR: '364', IQ: '368', IE: '372', IL: '376', IT: '380', JM: '388', JP: '392',
+  JO: '400', KZ: '398', KE: '404', KI: '296', KW: '414', KG: '417', LA: '418',
+  LV: '428', LB: '422', LS: '426', LR: '430', LY: '434', LI: '438', LT: '440',
+  LU: '442', MG: '450', MW: '454', MY: '458', MV: '462', ML: '466', MT: '470',
+  MH: '584', MR: '478', MU: '480', MX: '484', FM: '583', MD: '498', MC: '492',
+  MN: '496', ME: '499', MA: '504', MZ: '508', MM: '104', NA: '516', NR: '520',
+  NP: '524', NL: '528', NZ: '554', NI: '558', NE: '562', NG: '566', NO: '578',
+  OM: '512', PK: '586', PW: '585', PA: '591', PG: '598', PY: '600', PE: '604',
+  PH: '608', PL: '616', PT: '620', QA: '634', RO: '642', RU: '643', RW: '646',
+  KN: '659', LC: '662', VC: '670', WS: '882', SM: '674', ST: '678', SA: '682',
+  SN: '686', RS: '688', SC: '690', SL: '694', SG: '702', SK: '703', SI: '705',
+  SB: '090', SO: '706', ZA: '710', SS: '728', ES: '724', LK: '144', SD: '729',
+  SR: '740', SE: '752', CH: '756', SY: '760', TW: '158', TJ: '762', TZ: '834',
+  TH: '764', TL: '626', TG: '768', TO: '776', TT: '780', TN: '788', TR: '792',
+  TM: '795', TV: '798', UG: '800', UA: '804', AE: '784', GB: '826', US: '840',
+  UY: '858', UZ: '860', VU: '548', VE: '862', VN: '704', YE: '887', ZM: '894',
+  ZW: '716', MK: '807', XK: '383', TF: '260', EH: '732', PS: '275', CX: '162',
+  NF: '574', MO: '446', HK: '344', GF: '254', GP: '312', MQ: '474', RE: '638',
+  PM: '666', YT: '175', AW: '533', CW: '531', SX: '534', BQ: '535', NC: '540',
+  PF: '258', WF: '876', FK: '238', GS: '239', AQ: '010', BV: '074', HM: '334',
+  IO: '086', UM: '581', VI: '850', PR: '630', GU: '316', MP: '580', AS: '016',
+}
+
 /* ─────────── helpers ─────────── */
+
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
 const langColors: Record<string, string> = {
   HR: 'bg-red-500/10 text-red-400 border-red-500/20',
@@ -223,71 +264,250 @@ function GeoAIInsight({
   )
 }
 
-/* ─────────── Market Heatmap (tile-based) ─────────── */
+/* ─────────── World Choropleth Map ─────────── */
 
-function MarketHeatmap({ markets, onSelect }: { markets: Market[]; onSelect: (m: Market) => void }) {
-  const sorted = useMemo(() => [...markets].sort((a, b) => b.reach - a.reach), [markets])
-  const maxReach = sorted[0]?.reach ?? 1
+interface TooltipState {
+  x: number
+  y: number
+  market: Market
+}
+
+function WorldChoroplethMap({
+  markets,
+  onSelect,
+}: {
+  markets: Market[]
+  onSelect: (m: Market) => void
+}) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+
+  // Build lookup: ISO numeric code → market
+  const marketByNumeric = useMemo(() => {
+    const map: Record<string, Market> = {}
+    for (const m of markets) {
+      const numericCode = ISO_A2_TO_NUMERIC[m.code.toUpperCase()]
+      if (numericCode) {
+        map[numericCode] = m
+      }
+    }
+    return map
+  }, [markets])
+
+  const maxReach = useMemo(() => {
+    return Math.max(...markets.map((m) => m.reach), 1)
+  }, [markets])
+
+  // Color scale: dark bg → brand accent
+  const colorScale = useMemo(
+    () =>
+      scaleLinear<string>()
+        .domain([0, maxReach])
+        .range(['#1c2a18', '#B8FF00'])
+        .clamp(true),
+    [maxReach]
+  )
+
+  const handleMouseEnter = useCallback(
+    (geo: { id: string }, evt: React.MouseEvent<SVGPathElement>) => {
+      const market = marketByNumeric[geo.id]
+      if (market) {
+        setTooltip({ x: evt.clientX, y: evt.clientY, market })
+      }
+    },
+    [marketByNumeric]
+  )
+
+  const handleMouseMove = useCallback(
+    (geo: { id: string }, evt: React.MouseEvent<SVGPathElement>) => {
+      const market = marketByNumeric[geo.id]
+      if (market) {
+        setTooltip({ x: evt.clientX, y: evt.clientY, market })
+      }
+    },
+    [marketByNumeric]
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltip(null)
+  }, [])
+
+  const handleClick = useCallback(
+    (geo: { id: string }) => {
+      const market = marketByNumeric[geo.id]
+      if (market) {
+        onSelect(market)
+      }
+    },
+    [marketByNumeric, onSelect]
+  )
+
+  // Top 5 markets for the legend list
+  const top5 = useMemo(
+    () => [...markets].sort((a, b) => b.reach - a.reach).slice(0, 5),
+    [markets]
+  )
 
   return (
     <div className="card">
-      <div className="flex items-center gap-2 mb-5">
-        <Globe size={18} className="text-brand-accent" />
-        <h3 className="font-headline text-base tracking-wider text-studio-text-primary">Mapa tržišta — Doseg po državama</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Globe size={18} className="text-brand-accent" />
+          <h3 className="font-headline text-base tracking-wider text-studio-text-primary">
+            Geografska mapa tržišta
+          </h3>
+        </div>
+        <span className="text-xs text-studio-text-tertiary">
+          {markets.length} aktivnih tržišta
+        </span>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {sorted.map((m) => {
-          const intensity = m.reach / maxReach
-          const opacity = 0.08 + intensity * 0.25
-          return (
-            <button
-              key={m.code}
-              onClick={() => onSelect(m)}
-              className="relative rounded-xl border border-studio-border-subtle p-4 text-left hover:border-brand-accent/30 hover:shadow-md transition-all group overflow-hidden"
-            >
-              <div
-                className="absolute inset-0 rounded-xl"
-                style={{ background: `rgba(var(--brand-accent-rgb, 184, 255, 0), ${opacity})` }}
-              />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl">{m.flag}</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg(m.market_score)} ${scoreColor(m.market_score)}`}>
-                    {m.market_score}
-                  </span>
+
+      {/* Map container */}
+      <div
+        className="relative w-full rounded-xl overflow-hidden border border-studio-border-subtle"
+        style={{ background: '#0a1a28' }}
+      >
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{ scale: 130, center: [15, 30] }}
+          width={800}
+          height={400}
+          style={{ width: '100%', height: 'auto' }}
+        >
+          <Sphere
+            id="rsm-sphere"
+            fill="#0a1a28"
+            stroke="#1e3a4a"
+            strokeWidth={0.5}
+          />
+          <Graticule
+            stroke="#1e3a4a"
+            strokeWidth={0.3}
+            fill="transparent"
+          />
+          <Geographies geography={GEO_URL}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const market = marketByNumeric[geo.id as string]
+                const fill = market
+                  ? colorScale(market.reach)
+                  : '#132233'
+                const isActive = !!market
+
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill={fill}
+                    stroke="#1e3a4a"
+                    strokeWidth={0.5}
+                    style={{
+                      default: { outline: 'none' },
+                      hover: {
+                        outline: 'none',
+                        fill: isActive ? '#d4ff4d' : '#1a2f40',
+                        cursor: isActive ? 'pointer' : 'default',
+                      },
+                      pressed: { outline: 'none' },
+                    }}
+                    onMouseEnter={(evt) => handleMouseEnter(geo as { id: string }, evt)}
+                    onMouseMove={(evt) => handleMouseMove(geo as { id: string }, evt)}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={() => handleClick(geo as { id: string })}
+                  />
+                )
+              })
+            }
+          </Geographies>
+        </ComposableMap>
+
+        {/* Color scale legend */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-2">
+          <span className="text-[10px] text-white/40">Niski doseg</span>
+          <div
+            className="w-24 h-2 rounded-full"
+            style={{
+              background: 'linear-gradient(to right, #1c2a18, #B8FF00)',
+            }}
+          />
+          <span className="text-[10px] text-white/40">Visoki doseg</span>
+        </div>
+      </div>
+
+      {/* Tooltip rendered at mouse position via portal-like fixed div */}
+      {tooltip && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{ left: tooltip.x + 12, top: tooltip.y - 10 }}
+        >
+          <div className="bg-brand-primary border border-brand-accent/20 rounded-xl px-3 py-2.5 shadow-2xl min-w-[160px]">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xl leading-none">{tooltip.market.flag}</span>
+              <div>
+                <p className="text-sm font-semibold text-white leading-tight">{tooltip.market.country}</p>
+                <p className="text-[10px] text-white/50">{tooltip.market.region}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+              <span className="text-[10px] text-white/40">Doseg</span>
+              <span className="text-[10px] font-mono text-brand-accent text-right">{formatNumber(tooltip.market.reach)}</span>
+              <span className="text-[10px] text-white/40">Angažman</span>
+              <span className="text-[10px] font-mono text-white/80 text-right">{tooltip.market.engagement}%</span>
+              <span className="text-[10px] text-white/40">Rast 7d</span>
+              <span className={`text-[10px] font-mono text-right ${tooltip.market.growth_7d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {tooltip.market.growth_7d >= 0 ? '+' : ''}{tooltip.market.growth_7d}%
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top 5 market bars below map */}
+      <div className="mt-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-studio-text-secondary mb-3">
+          Top 5 tržišta po dosegu
+        </p>
+        <div className="space-y-2.5">
+          {top5.map((m, idx) => {
+            const pct = (m.reach / maxReach) * 100
+            return (
+              <button
+                key={m.code}
+                className="w-full text-left group"
+                onClick={() => onSelect(m)}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-studio-text-disabled w-4">#{idx + 1}</span>
+                    <span className="text-base leading-none">{m.flag}</span>
+                    <span className="text-sm text-studio-text-primary font-medium group-hover:text-brand-accent transition-colors">
+                      {m.country}
+                    </span>
+                    <span className="text-[10px] text-studio-text-tertiary hidden sm:inline">{m.region}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-studio-text-secondary">{formatNumber(m.reach)}</span>
+                    {growthBadge(m.growth_7d)}
+                  </div>
                 </div>
-                <h4 className="text-sm font-semibold text-studio-text-primary mb-0.5">{m.country}</h4>
-                <p className="text-xs text-studio-text-secondary mb-2">{m.region}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-stats text-studio-text-primary">{formatNumber(m.reach)}</span>
-                  {growthBadge(m.growth_7d)}
-                </div>
-                {/* Intensity bar */}
-                <div className="mt-2 h-1 bg-studio-surface-3 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-studio-surface-3 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-brand-accent transition-all duration-700"
-                    style={{ width: `${Math.max(intensity * 100, 5)}%` }}
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${pct}%`,
+                      background: `hsl(${85 - idx * 12}, 100%, ${60 - idx * 5}%)`,
+                    }}
                   />
                 </div>
-              </div>
-            </button>
-          )
-        })}
+              </button>
+            )
+          })}
+        </div>
       </div>
-      {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 text-xs text-studio-text-tertiary">
-        <span>Intenzitet:</span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-accent/10" /> Nizak
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-accent/25" /> Srednji
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-accent/40" /> Visok
-        </span>
-        <span className="ml-auto">Klikni za detalje</span>
-      </div>
+
+      {/* Legend note */}
+      <p className="text-[10px] text-studio-text-disabled mt-3">
+        Klikni na državu ili redak za detalje tržišta
+      </p>
     </div>
   )
 }
@@ -723,10 +943,10 @@ export default function GeographicMarkets() {
           <MetricCard label="Prosj. angažman" value={summary.avg_engagement} format="percent" icon={Target} />
         </div>
 
-        {/* ── Market Heatmap ── */}
-        <MarketHeatmap markets={markets} onSelect={setSelectedMarket} />
+        {/* ── World Choropleth Map ── */}
+        <WorldChoroplethMap markets={markets} onSelect={setSelectedMarket} />
 
-        {/* ── Region Comparison + Ad Cost side by side ── */}
+        {/* ── Region Comparison + Language Coverage ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RegionChart regions={regions} />
 

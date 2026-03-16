@@ -28,6 +28,7 @@ from app.models.media import MediaAsset, StudioProject
 from app.models.campaign_research import CampaignResearch, CampaignResearchStatus
 from app.models.platform_setting import PlatformSetting
 from app.models.audit_log import AuditLog
+from app.models.partner import Partner
 
 __all__ = [
     "Base",

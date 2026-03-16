@@ -473,7 +473,7 @@ async def get_page_data(
             },
         }
 
-    # No real data — estimate
+    # No real data — generate estimate
     connected = []
     if client.social_handles and isinstance(client.social_handles, dict):
         connected = [k for k, v in client.social_handles.items() if v]
@@ -493,29 +493,14 @@ async def get_page_data(
             "_meta": {"is_estimate": False, "connected_platforms": [], "analyzed_at": datetime.utcnow().isoformat()},
         }
 
-    return {
-        "markets": [],
-        "regionComparison": [],
-        "contentPipeline": [],
-        "heatmapData": [],
-        "summary": {
-            "total_markets": 0,
-            "total_reach": 0,
-            "total_active": 0,
-            "total_offices": 0,
-            "total_ad_spend": 0,
-            "total_conversions": 0,
-            "total_revenue": 0,
-            "avg_engagement": 0,
-            "languages": [],
-        },
-        "aiInsights": {"title": "AI Geo-Intelligence", "insights": []},
-        "_meta": {
-            "is_estimate": False,
-            "connected_platforms": connected,
-            "analyzed_at": datetime.utcnow().isoformat(),
-        },
-    }
+    # Generate realistic estimate based on connected platforms and brand profile
+    return _generate_estimate_data(
+        client_id=client.id,
+        client_name=client.name,
+        connected_platforms=connected,
+        client_desc=client.business_description or "",
+        client_audience=client.target_audience or "",
+    )
 
 
 # ---------------------------------------------------------------------------

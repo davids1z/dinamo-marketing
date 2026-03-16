@@ -314,29 +314,118 @@ async def get_post_metrics_history(
 
 @router.websocket("/ws/live")
 async def live_metrics(websocket: WebSocket):
-    """Push latest aggregated KPIs every 30 seconds."""
-    # Verify auth token from query param
+    """Push latest aggregated KPIs every 30 seconds, scoped to a single client.
+
+    Query params (both required):
+      token     — JWT access token (same as Bearer token used by REST endpoints)
+      client_id — UUID of the client whose data should be streamed
+
+    The endpoint verifies the JWT, loads the user, and confirms the user has
+    an active membership for the requested client before accepting the
+    connection.  Unauthenticated or unauthorised connections are rejected with
+    close code 4001 / 4003 *before* websocket.accept() is called, so no data
+    is ever sent to them.
+    """
+    # ------------------------------------------------------------------
+    # 1. Extract and validate query params (reject before accept)
+    # ------------------------------------------------------------------
     token = websocket.query_params.get("token")
-    if not token:
-        await websocket.close(code=4001)
-        return
-    from app.services.auth_service import verify_token
-    if verify_token(token) is None:
+    raw_client_id = websocket.query_params.get("client_id")
+
+    if not token or not raw_client_id:
         await websocket.close(code=4001)
         return
 
+    # ------------------------------------------------------------------
+    # 2. Verify JWT and extract user identity
+    # ------------------------------------------------------------------
+    from app.services.auth_service import verify_token as _verify_token
+    payload = _verify_token(token)
+    if payload is None:
+        await websocket.close(code=4001)
+        return
+
+    email = payload.get("sub")
+    if not email:
+        await websocket.close(code=4001)
+        return
+
+    # ------------------------------------------------------------------
+    # 3. Parse client_id UUID
+    # ------------------------------------------------------------------
+    try:
+        from uuid import UUID as _UUID
+        client_uuid = _UUID(raw_client_id)
+    except (ValueError, AttributeError):
+        await websocket.close(code=4003)
+        return
+
+    # ------------------------------------------------------------------
+    # 4. Load user from DB and verify client membership
+    # ------------------------------------------------------------------
+    from sqlalchemy import select as _select
+    from app.models.user import User
+    from app.models.client import Client, UserClient
+
+    async with async_session_factory() as auth_db:
+        user_result = await auth_db.execute(
+            _select(User).where(User.email == email, User.is_active == True)
+        )
+        user = user_result.scalar_one_or_none()
+        if user is None:
+            await websocket.close(code=4001)
+            return
+
+        client_result = await auth_db.execute(
+            _select(Client).where(Client.id == client_uuid, Client.is_active == True)
+        )
+        client = client_result.scalar_one_or_none()
+        if client is None:
+            await websocket.close(code=4003)
+            return
+
+        if not user.is_superadmin:
+            membership_result = await auth_db.execute(
+                _select(UserClient).where(
+                    UserClient.user_id == user.id,
+                    UserClient.client_id == client_uuid,
+                )
+            )
+            membership = membership_result.scalar_one_or_none()
+            if membership is None:
+                await websocket.close(code=4003)
+                return
+
+    # ------------------------------------------------------------------
+    # 5. Auth passed — accept the connection and start streaming
+    # ------------------------------------------------------------------
     await websocket.accept()
+    logger.info(
+        "WebSocket /ws/live accepted: user=%s client_id=%s",
+        email,
+        client_uuid,
+    )
+
     service = _get_analytics_service()
 
     try:
         while True:
             async with async_session_factory() as db:
-                # WebSocket doesn't have client context — return empty data
-                # Real-time updates should use client-scoped endpoints
-                data = await service.get_overview_for_dashboard(db)
+                data = await service.get_overview_for_dashboard(
+                    db, client_id=client_uuid
+                )
             await websocket.send_json(data)
             await asyncio.sleep(30)
     except WebSocketDisconnect:
-        logger.info("WebSocket client disconnected")
+        logger.info(
+            "WebSocket /ws/live disconnected: user=%s client_id=%s",
+            email,
+            client_uuid,
+        )
     except Exception as exc:
-        logger.warning("WebSocket error: %s", exc)
+        logger.warning(
+            "WebSocket /ws/live error: user=%s client_id=%s err=%s",
+            email,
+            client_uuid,
+            exc,
+        )
